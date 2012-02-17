@@ -1,0 +1,20 @@
+*~
+[tT]humbs.db
+[bB]in/
+[Oo]bj/
+Release/
+Debug/
+Backup/
+private/
+_UpgradeReport_Files/
+UpgradeLog.XML
+*.suo
+*.sdf
+*.user
+ReSharper.
+_ReSharper.*
+*.resharper.user
+# Visual Studio Browse File
+.ncb
+*.dll
+!3pp/*/*.dll
