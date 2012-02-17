@@ -8,12 +8,14 @@
 #endregion
 
 #region Using Statements
+
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 #endregion
 
-namespace StockEffects
+namespace factor10.VisionThing.StockEffects
 {
     /// <summary>
     /// Track which effect parameters need to be recomputed during the next OnApply.

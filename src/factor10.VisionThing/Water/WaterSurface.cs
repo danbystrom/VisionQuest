@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing.Primitives;
 
@@ -55,6 +57,10 @@ namespace factor10.VisionThing.Water
 
         private readonly PlanePrimitive<WaterVertex> _field;
 
+        private readonly RenderTarget2D _reflectionTarget;
+
+        public readonly List<Tuple<IDrawable,Effect>> ReflectedObjects = new List<Tuple<IDrawable, Effect>>();
+
         public WaterSurface(
             GraphicsDevice graphicsDevice,
             InitInfo initInfo)
@@ -75,6 +81,13 @@ namespace factor10.VisionThing.Water
 
  
             buildFx();
+
+            _reflectionTarget = new RenderTarget2D(
+                graphicsDevice,
+                graphicsDevice.Viewport.Width,
+                graphicsDevice.Viewport.Height,
+                false, SurfaceFormat.Color,
+                DepthFormat.Depth24);
         }
 
         public void Update(float dt)
@@ -177,6 +190,61 @@ namespace factor10.VisionThing.Water
             _fastEffect = fx.Techniques[1];
         }
 
+        public void RenderReflection(Camera camera, CylinderPrimitive cylinder )
+        {
+            const int waterMeshPositionY = 0;
+            var graphics = _initInfo.Fx.GraphicsDevice;
+
+            // Reflect the camera's properties across the water plane
+            var reflectedCameraPosition = camera.Position;
+            reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMeshPositionY * 2;
+
+            var reflectedCameraTarget = camera.Target;
+            reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMeshPositionY * 2;
+
+            // Create a temporary camera to render the reflected scene
+            var reflectionCamera = new Camera(
+                camera.ClientBounds,
+                reflectedCameraPosition,
+                reflectedCameraTarget );
+
+            // Set the reflection camera's view matrix to the water effect
+            _initInfo.Fx.Parameters["gReflectedView"].SetValue(reflectionCamera.View);
+
+            // Create the clip plane
+            var clipPlane = new Vector4(0, 1, 0, waterMeshPositionY);
+
+            // Set the render target
+            graphics.SetRenderTarget(_reflectionTarget);
+            graphics.Clear(Color.Black);
+
+            //)) Draw all objects with clip plane
+            foreach (var t in ReflectedObjects)
+            {
+                var fx = t.Item2;
+                fx.Parameters["ClipPlane"].SetValue(clipPlane);
+                fx.Parameters["ClipPlaneEnabled"].SetValue(true);
+                fx.Parameters["World"].SetValue(Matrix.Identity);
+                fx.Parameters["View"].SetValue(reflectionCamera.View);
+                fx.Parameters["Projection"].SetValue(reflectionCamera.Projection);
+
+                t.Item1.Draw(fx);
+
+                t.Item2.Parameters["ClipPlaneEnabled"].SetValue(false);
+            }
+
+            graphics.SetRenderTarget(null);
+
+            // Set the reflected scene to its effect parameter in
+            // the water effect
+            _initInfo.Fx.Parameters["ReflectionMap"].SetValue(_reflectionTarget);
+        }
+
+        public void PreDraw(Camera camera, GameTime gameTime)
+        {
+            RenderReflection(camera,null);
+            _initInfo.Fx.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+        }
     }
 
 }

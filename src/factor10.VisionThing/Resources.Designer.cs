@@ -60,44 +60,9 @@ namespace factor10.VisionThing {
             }
         }
         
-        internal static byte[] AlphaTestEffect {
-            get {
-                object obj = ResourceManager.GetObject("AlphaTestEffect", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
         internal static byte[] BasicEffect {
             get {
                 object obj = ResourceManager.GetObject("BasicEffect", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        internal static byte[] DualTextureEffect {
-            get {
-                object obj = ResourceManager.GetObject("DualTextureEffect", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        internal static byte[] EnvironmentMapEffect {
-            get {
-                object obj = ResourceManager.GetObject("EnvironmentMapEffect", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        internal static byte[] SkinnedEffect {
-            get {
-                object obj = ResourceManager.GetObject("SkinnedEffect", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        internal static byte[] SpriteEffect {
-            get {
-                object obj = ResourceManager.GetObject("SpriteEffect", resourceCulture);
                 return ((byte[])(obj));
             }
         }

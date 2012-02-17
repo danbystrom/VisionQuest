@@ -1,19 +1,6 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// BasicEffect.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-#region Using Statements
-
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StockEffects;
-
-#endregion
 
 namespace factor10.VisionThing.StockEffects
 {
@@ -23,8 +10,6 @@ namespace factor10.VisionThing.StockEffects
     public class BasicEffect : Effect, IEffectMatrices, IEffectLights, IEffectFog
     {
         public Vector3 OriginalDiffuseColor;
-
-        #region Effect Parameters
 
         EffectParameter textureParam;
         EffectParameter diffuseColorParam;
@@ -38,10 +23,6 @@ namespace factor10.VisionThing.StockEffects
         EffectParameter worldInverseTransposeParam;
         EffectParameter worldViewProjParam;
         EffectParameter shaderIndexParam;
-
-        #endregion
-
-        #region Fields
 
         bool lightingEnabled;
         bool preferPerPixelLighting;
@@ -69,12 +50,7 @@ namespace factor10.VisionThing.StockEffects
         float fogStart = 0;
         float fogEnd = 1;
 
-        EffectDirtyFlags dirtyFlags = EffectDirtyFlags.All;
-
-        #endregion
-
-        #region Public Properties
-
+        private EffectDirtyFlags dirtyFlags = EffectDirtyFlags.All;
 
         /// <summary>
         /// Gets or sets the world matrix.
@@ -359,18 +335,13 @@ namespace factor10.VisionThing.StockEffects
         }
 
 
-        #endregion
-
-        #region Methods
-
-
         /// <summary>
         /// Creates a new BasicEffect with default parameter settings.
         /// </summary>
         public BasicEffect(GraphicsDevice device)
             : base(device, Resources.BasicEffect)
         {
-            CacheEffectParameters((BasicEffect)null);
+            CacheEffectParameters(null,null,null);
 
             DirectionalLight0.Enabled = true;
 
@@ -378,14 +349,13 @@ namespace factor10.VisionThing.StockEffects
             SpecularPower = 16;
         }
 
-
         /// <summary>
         /// Creates a new BasicEffect by cloning parameter settings from an existing instance.
         /// </summary>
         protected BasicEffect(BasicEffect cloneSource)
             : base(cloneSource)
         {
-            CacheEffectParameters(cloneSource);
+            CacheEffectParameters(cloneSource.DirectionalLight0, cloneSource.DirectionalLight1, cloneSource.DirectionalLight2);
 
             lightingEnabled = cloneSource.lightingEnabled;
             preferPerPixelLighting = cloneSource.preferPerPixelLighting;
@@ -409,7 +379,7 @@ namespace factor10.VisionThing.StockEffects
 
         public void CopyBasicEffect(Microsoft.Xna.Framework.Graphics.BasicEffect cloneSource)
         {
-            CacheEffectParameters(cloneSource);
+            CacheEffectParameters(cloneSource.DirectionalLight0,cloneSource.DirectionalLight1,cloneSource.DirectionalLight2);
 
             lightingEnabled = cloneSource.LightingEnabled;
             preferPerPixelLighting = cloneSource.PreferPerPixelLighting;
@@ -455,7 +425,10 @@ namespace factor10.VisionThing.StockEffects
         /// <summary>
         /// Looks up shortcut references to our effect parameters.
         /// </summary>
-        void CacheEffectParameters(BasicEffect cloneSource)
+        void CacheEffectParameters(
+            DirectionalLight dlight0,
+            DirectionalLight dlight1,
+            DirectionalLight dlight2)
         {
             textureParam                = Parameters["Texture"];
             diffuseColorParam           = Parameters["DiffuseColor"];
@@ -473,48 +446,17 @@ namespace factor10.VisionThing.StockEffects
             light0 = new DirectionalLight(Parameters["DirLight0Direction"],
                                           Parameters["DirLight0DiffuseColor"],
                                           Parameters["DirLight0SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.light0 : null);
+                                          dlight0);
 
             light1 = new DirectionalLight(Parameters["DirLight1Direction"],
                                           Parameters["DirLight1DiffuseColor"],
                                           Parameters["DirLight1SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.light1 : null);
+                                          dlight1);
 
             light2 = new DirectionalLight(Parameters["DirLight2Direction"],
                                           Parameters["DirLight2DiffuseColor"],
                                           Parameters["DirLight2SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.light2 : null);
-        }
-
-        void CacheEffectParameters(Microsoft.Xna.Framework.Graphics.BasicEffect cloneSource)
-        {
-            textureParam = Parameters["Texture"];
-            diffuseColorParam = Parameters["DiffuseColor"];
-            emissiveColorParam = Parameters["EmissiveColor"];
-            specularColorParam = Parameters["SpecularColor"];
-            specularPowerParam = Parameters["SpecularPower"];
-            eyePositionParam = Parameters["EyePosition"];
-            fogColorParam = Parameters["FogColor"];
-            fogVectorParam = Parameters["FogVector"];
-            worldParam = Parameters["World"];
-            worldInverseTransposeParam = Parameters["WorldInverseTranspose"];
-            worldViewProjParam = Parameters["WorldViewProj"];
-            shaderIndexParam = Parameters["ShaderIndex"];
-
-            light0 = new DirectionalLight(Parameters["DirLight0Direction"],
-                                          Parameters["DirLight0DiffuseColor"],
-                                          Parameters["DirLight0SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.DirectionalLight0 : null);
-
-            light1 = new DirectionalLight(Parameters["DirLight1Direction"],
-                                          Parameters["DirLight1DiffuseColor"],
-                                          Parameters["DirLight1SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.DirectionalLight1 : null);
-
-            light2 = new DirectionalLight(Parameters["DirLight2Direction"],
-                                          Parameters["DirLight2DiffuseColor"],
-                                          Parameters["DirLight2SpecularColor"],
-                                          (cloneSource != null) ? cloneSource.DirectionalLight2 : null);
+                                          dlight2);
         }
 
         /// <summary>
@@ -579,6 +521,6 @@ namespace factor10.VisionThing.StockEffects
         }
 
 
-        #endregion
     }
+
 }

@@ -103,7 +103,7 @@ namespace Serpent
 
             vertsShadow.Add(new VertexPositionColor(
                 new Vector3(fx+w, (floor+z) / 3f - 0.05f, fy+h),
-                Color.Black));
+                Color.DarkSlateBlue  ));
         }
 
         public void Draw( Camera camera )

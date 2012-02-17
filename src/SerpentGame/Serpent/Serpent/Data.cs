@@ -30,9 +30,8 @@ namespace Serpent
             Instance = this;
 
             var visionContent = new VisionContent(game1, "Content").LibContent;
-            var texture = // game1.Content.Load<Texture2D>(@"Textures\grass");
-                visionContent.Load<Texture2D>("Textures\\wave0");
-
+            var texture = game1.Content.Load<Texture2D>(@"Textures\woodfloor");
+ 
             if ( PlayingField == null )
                 PlayingField = new PlayingField(
                     game1.GraphicsDevice,

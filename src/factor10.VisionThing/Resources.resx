@@ -118,22 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="AlphaTestEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\AlphaTestEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="BasicEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\BasicEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="DualTextureEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\DualTextureEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="EnvironmentMapEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\EnvironmentMapEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SkinnedEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SkinnedEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SpriteEffect" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SpriteEffect.bin;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>
