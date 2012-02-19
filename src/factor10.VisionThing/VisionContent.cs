@@ -3,13 +3,23 @@ using Microsoft.Xna.Framework.Content;
 
 namespace factor10.VisionThing
 {
-    public class VisionContent
+    public static class VisionContent
     {
-        public readonly ContentManager LibContent;
+        public static ContentManager Content { get; private set; }
 
-        public VisionContent(Game game, string contentdirectory)
+        public static void Init(Game game, string contentdirectory)
         {
-            LibContent = new ContentManager(game.Services, contentdirectory);
+            Content = new ContentManager(game.Services, contentdirectory);
+        }
+
+        public static void Init(Game game)
+        {
+            Content = new ContentManager(game.Services, "Content");
+        }
+
+        public static T Load<T>( string name)
+        {
+            return Content.Load<T>(name);
         }
 
     }

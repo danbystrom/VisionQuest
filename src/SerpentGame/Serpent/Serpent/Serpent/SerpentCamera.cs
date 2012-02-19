@@ -52,7 +52,7 @@ namespace Serpent.Serpent
                         var p = Camera.Position;
                         Camera.Yaw = -(float)Math.Atan2(p.X - t.X, p.Z - t.Z);
                         Camera.Pitch = (float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
-                        Mouse.SetPosition(Camera.ClientBounds.Width / 2, Camera.ClientBounds.Height / 2);
+                        Mouse.SetPosition((int)Camera.ClientSize.X / 2, (int)Camera.ClientSize.Y / 2);
                         break;
                 }
             }

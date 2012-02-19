@@ -1,7 +1,6 @@
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
-float time;
 
 // TODO: add effect parameters here.
 
@@ -27,8 +26,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     VertexShaderOutput output;
 
 	float4 pos = input.Position;
-	float d = 2 + sqrt(pos.x*pos.x+pos.z*pos.z);
-	pos.y = sin(d/2.0)*50/d;
     float4 worldPosition = mul(pos, World);
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
@@ -53,6 +50,5 @@ technique Technique1
 
         VertexShader = compile vs_2_0 VertexShaderFunction();
         PixelShader = compile ps_2_0 PixelShaderFunction();
-		FillMode = WIREFRAME;
     }
 }

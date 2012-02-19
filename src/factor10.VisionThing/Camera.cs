@@ -17,22 +17,28 @@ namespace factor10.VisionThing
         public float Yaw;
         public float Pitch;
 
-        public readonly Rectangle ClientBounds;
-        public readonly BoundingFrustum BoundingFrustum;
+        public readonly Vector2 ClientSize;
+ 
+        public Camera(
+            Vector2 clientSize,
+            Vector3 position,
+            Vector3 target)
+        {
+            ClientSize = clientSize;
+
+            Update(position, target);
+            Projection = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.PiOver4,
+                clientSize.X / clientSize.Y,
+                1, 1000);
+        }
 
         public Camera(
             Rectangle clientBounds,
             Vector3 position,
             Vector3 target)
+                :this(new Vector2(clientBounds.Width,clientBounds.Height) , position, target )
         {
-            ClientBounds = clientBounds;
-
-            Update(position, target);
-            Projection = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.PiOver4,
-                clientBounds.Width/(float) clientBounds.Height,
-                1, 1000);
-            BoundingFrustum = new BoundingFrustum(Projection);
         }
 
         public Vector3 Front
@@ -58,24 +64,33 @@ namespace factor10.VisionThing
                 UpVector);
         }
 
+        public void AlterView(Matrix world)
+        {
+            View = world*View;
+        }
+
+        public Vector2 HandleMouse(int mouseX, int mouseY )
+        {
+            var centerX = ClientSize.X / 2;
+            var centerY = ClientSize.Y / 2;
+
+            Mouse.SetPosition((int)centerX, (int)centerY);
+
+            return new Vector2(mouseX - centerX, mouseY - centerY);
+        }
+
         public void UpdateFreeFlyingCamera(GameTime gameTime)
         {
-            var centerX = ClientBounds.Width/2;
-            var centerY = ClientBounds.Height/2;
-
             var mouse = Mouse.GetState();
-            Mouse.SetPosition(centerX, centerY);
-
-            var deltaX = mouse.X - centerX;
-            var deltaY = mouse.Y - centerY;
-
+            var delta = HandleMouse(mouse.X, mouse.Y);
+ 
             var forward = Vector3.Normalize(new Vector3((float) Math.Sin(-Yaw), (float) Math.Sin(Pitch), (float) Math.Cos(-Yaw)));
             var left = Vector3.Normalize(new Vector3((float) Math.Cos(Yaw), 0f, (float) Math.Sin(Yaw)));
 
             if (mouse.MiddleButton == ButtonState.Released)
             {
-                Yaw += MathHelper.ToRadians(deltaX*0.50f);
-                Pitch += MathHelper.ToRadians(deltaY*0.50f);
+                Yaw += MathHelper.ToRadians(delta.X*0.50f);
+                Pitch += MathHelper.ToRadians(delta.Y*0.50f);
                 //if (Yaw < 0 || Yaw > MathHelper.TwoPi)
                 //    Yaw -= MathHelper.TwoPi*Math.Sign(Yaw);
                // if (Pitch < 0 || Pitch > MathHelper.TwoPi)
@@ -83,8 +98,8 @@ namespace factor10.VisionThing
             }
             else
             {
-                Position += forward*deltaY*0.1f;
-                Position += left*deltaX*0.1f;
+                Position += forward*delta.Y*0.1f;
+                Position += left*delta.X*0.1f;
 
                 //if (Data.Instance.KeyboardState.IsKeyDown(Keys.PageUp))
                 //    Position += Vector3.Down*delta;

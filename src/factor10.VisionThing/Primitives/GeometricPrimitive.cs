@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace factor10.VisionThing.Primitives
 {
-    public abstract class GeometricPrimitive<T> : IDisposable, IDrawable where T: struct, IVertexType
+    public abstract class GeometricPrimitive<T> : IDisposable where T: struct, IVertexType
     {
         private readonly List<T> _vertices = new List<T>();
         private readonly List<ushort> _indices = new List<ushort>();

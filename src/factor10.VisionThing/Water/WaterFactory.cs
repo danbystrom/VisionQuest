@@ -11,7 +11,7 @@ namespace factor10.VisionThing.Water
 {
     public static class WaterFactory
     {
-         public static WaterSurface Create(GraphicsDevice graphicsDevice, ContentManager content)
+         public static WaterSurface Create(GraphicsDevice graphicsDevice)
          {
 
             var lightDirW = new Vector3(0.0f, -1.0f, -3.0f);
@@ -20,7 +20,7 @@ namespace factor10.VisionThing.Water
                 graphicsDevice,
                 new InitInfo
                     {
-                        Fx = content.Load<Effect>(@"effects\waterdmap"),
+                        Fx = VisionContent.Load<Effect>(@"effects\reflectedwater"),
                         DirLight = new DirLight
                                        {
                                            Ambient = new Vector4(0.3f, 0.3f, 0.3f, 1.0f),
@@ -39,10 +39,10 @@ namespace factor10.VisionThing.Water
                         Columns = 128,
                         dx = 0.25f,
                         dz = 0.25f,
-                        waveMap0 = content.Load<Texture2D>(@"textures\wave0"),
-                        waveMap1 = content.Load<Texture2D>(@"textures\wave1"),
-                        dmap0 = foobar(graphicsDevice, content, @"textures\waterdmap0"),
-                        dmap1 = foobar(graphicsDevice, content, @"textures\waterdmap1"),
+                        waveMap0 = VisionContent.Load<Texture2D>(@"textures\wave0"),
+                        waveMap1 = VisionContent.Load<Texture2D>(@"textures\wave1"),
+                        dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
+                        dmap1 = foobar(graphicsDevice,  @"textures\waterdmap1"),
                         waveNMapVelocity0 = new Vector2(0.05f, 0.07f),
                         waveNMapVelocity1 = new Vector2(-0.01f, 0.13f),
                         waveDMapVelocity0 = new Vector2(0.012f, 0.015f),
@@ -52,9 +52,9 @@ namespace factor10.VisionThing.Water
                     });
         }
 
-        private static Texture2D foobar(GraphicsDevice graphicsDevice, ContentManager content, string name)
+        private static Texture2D foobar(GraphicsDevice graphicsDevice, string name)
         {
-            using (var z = content.Load<Texture2D>(name))
+            using (var z = VisionContent.Load<Texture2D>(name))
             {
                 var oldData = new Color[z.Width*z.Height];
                 var newData = new float[z.Width*z.Height];

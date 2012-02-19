@@ -12,7 +12,8 @@ using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.StockEffects;
 using factor10.VisionThing.Water;
-using IDrawable = factor10.VisionThing.IDrawable;
+using BasicEffect = Microsoft.Xna.Framework.Graphics.BasicEffect;
+using IDrawable = factor10.VisionThing.ClipDrawable;
 
 namespace TestBed
 {
@@ -22,18 +23,24 @@ namespace TestBed
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
 
         private Camera _camera;
         private WaterSurface _water;
-        private CylinderPrimitive _cylinder;
+        private Pillar _pillar1, _pillar2;
+        private Ship _ship;
 
-        private Effect _effect;
+        private BasicEffect _basicEffect;
+        private SpriteBatch _spriteBatch;
+
+        private SkySphere _sky1;
+ 
+        private RenderTarget2D _testTarget;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            graphics.IsFullScreen = true;
+            graphics.PreferredBackBufferWidth = 1280;
+            graphics.PreferredBackBufferHeight = 800;
             Content.RootDirectory = "Content";
         }
 
@@ -57,18 +64,31 @@ namespace TestBed
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
 
-            var visionContent = new VisionContent(this, "Content").LibContent;
+            VisionContent.Init(this);
             _camera = new Camera(Window.ClientBounds, new Vector3(0, 4, -20), Vector3.Up);
-            _water = WaterFactory.Create(GraphicsDevice, visionContent);
-            _cylinder = new CylinderPrimitive(GraphicsDevice, 10, 2, 5);
-            //_cylinder.BasicEffect = new BasicEffect(GraphicsDevice);
-            //_cylinder.BasicEffect.EnableDefaultLighting();
-            _effect = visionContent.Load<Effect>(@"effects\lightingeffect");
-            _water.ReflectedObjects.Add(new Tuple<IDrawable, Effect>(_cylinder, _effect));
+            _water = WaterFactory.Create(GraphicsDevice);
+            _pillar1 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(10, 3, 10));
+            _pillar2 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 20));
+            _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
+            _ship = new Ship();
+            //_water.ReflectedObjects.Add(_sky1);
+            _water.ReflectedObjects.Add(_pillar1);
+            _water.ReflectedObjects.Add(_pillar2);
+            _water.ReflectedObjects.Add(_ship);
+           _basicEffect = new BasicEffect(GraphicsDevice);
+            _camera.HandleMouse(0, 0);
+
+            _testTarget = new RenderTarget2D(
+                GraphicsDevice,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height,
+                false,
+                SurfaceFormat.Color,
+                DepthFormat.Depth24);
         }
 
         /// <summary>
@@ -102,21 +122,44 @@ namespace TestBed
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            _water.RenderReflection(_camera);
 
-            _water.PreDraw( _camera, gameTime );
-            // TODO: Add your drawing code here
+             //GraphicsDevice.Clear(Color.CornflowerBlue);
+             _sky1.Draw(_camera);
+
             _water.Draw(_camera, Matrix.Identity, false);
-            _effect.Parameters["World"].SetValue(Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(10, 1, 10));
-            _effect.Parameters["View"].SetValue(_camera.View);
-            _effect.Parameters["Projection"].SetValue(_camera.Projection);
-            _effect.Parameters["CameraPosition"].SetValue(_camera.Position);
-            //_cylinder.Draw(
-            //    ,
-            //    _camera.View,_camera.Projection,
-            //    Color.Turquoise);
-            _cylinder.Draw(_effect);
+            _pillar1.Draw(_camera);
+            _pillar2.Draw(_camera);
+            _ship.Draw(_camera);
+           zzz();
             base.Draw(gameTime);
+        }
+
+        private void zzz()
+        {
+            _basicEffect.World = Matrix.Identity; //Matrix.CreateConstrainedBillboard(textPosition, textPosition - camera.Front, Vector3.Down, null, null);
+            _basicEffect.View = Matrix.Identity;
+            _basicEffect.Projection = Matrix.Identity;
+
+            //_basicEffect.TextureEnabled = true;
+            //_basicEffect.VertexColorEnabled = false;
+            _basicEffect.CurrentTechnique.Passes[0].Apply();
+            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+                SamplerState.LinearClamp, DepthStencilState.Default,
+                RasterizerState.CullNone);
+
+            _spriteBatch.Draw(_water._reflectionTarget, new Rectangle(0,0,(int)_camera.ClientSize.X/4,(int)_camera.ClientSize.Y/4 ), Color.White);
+            _spriteBatch.End();
+
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
+            //_basicEffect.World = Matrix.Identity;
+            //_basicEffect.TextureEnabled = false;
+            //_basicEffect.VertexColorEnabled = true;
+            //_basicEffect.CurrentTechnique.Passes[0].Apply();
+            //drawArc(textPosition, zzz);
         }
     }
 }

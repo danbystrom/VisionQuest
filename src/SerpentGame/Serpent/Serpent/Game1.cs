@@ -143,15 +143,14 @@ namespace factor10.SerpentGame
         {
             var camera = _data.PlayerSerpent.Camera.Camera;
 
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            Data.Sky.Draw(camera);
 
             Data.PlayingField.Draw(camera);
             _data.PlayerSerpent.Draw(gameTime);
             foreach (var enemy in _data.Enemies)
                 enemy.Draw(gameTime);
             //WaterFactory.DrawWaterSurfaceGrid(_water, camera);
-            Data.Sky.Draw(camera);
-            base.Draw(gameTime);
+             base.Draw(gameTime);
             _billboardText.Draw(
                 camera,
                 _data.PlayerSerpent.GetPosition() - new Vector3(0, -1.5f, 0),

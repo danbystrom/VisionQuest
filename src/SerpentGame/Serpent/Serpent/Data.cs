@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Serpent.Borrowed;
 using factor10.VisionThing;
 
 namespace Serpent
@@ -29,8 +26,8 @@ namespace Serpent
                 Instance.Dispose();
             Instance = this;
 
-            var visionContent = new VisionContent(game1, "Content").LibContent;
-            var texture = game1.Content.Load<Texture2D>(@"Textures\woodfloor");
+            VisionContent.Init(game1);
+            var texture = game1.Content.Load<Texture2D>("Textures/woodfloor");
  
             if ( PlayingField == null )
                 PlayingField = new PlayingField(
@@ -38,7 +35,7 @@ namespace Serpent
                     texture );
 
             if ( Sky == null )
-                Sky = new SkySphere(game1.GraphicsDevice, visionContent, game1.Content.Load<TextureCube>("Textures/clouds"));
+                Sky = new SkySphere(VisionContent.Load<TextureCube>(@"Textures\clouds"));
 
             var serpentHead = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\SerpentHead") );
             var serpentSegment = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\serpentsegment") );

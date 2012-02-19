@@ -88,18 +88,6 @@
   <ItemGroup>
     <Compile Include="BasicModel.cs" />
     <Compile Include="BillboardText.cs" />
-    <Compile Include="Borrowed\Camera\ArcBallCamera.cs" />
-    <Compile Include="Borrowed\Camera\Camera.cs" />
-    <Compile Include="Borrowed\Camera\ChaseCamera.cs" />
-    <Compile Include="Borrowed\Camera\FreeCamera.cs" />
-    <Compile Include="Borrowed\Camera\TargetCamera.cs" />
-    <Compile Include="Borrowed\CModel.cs" />
-    <Compile Include="Borrowed\Materials\Material.cs" />
-    <Compile Include="Borrowed\Materials\MultiLightingMaterial.cs" />
-    <Compile Include="Borrowed\Materials\PointLightMaterial.cs" />
-    <Compile Include="Borrowed\Materials\ProjectedTextureMaterial.cs" />
-    <Compile Include="Borrowed\Materials\SpotLightMaterial.cs" />
-    <Compile Include="Borrowed\Water.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="ModelWrapper.cs" />
     <Compile Include="PlayingField\PlayingFields.cs" />

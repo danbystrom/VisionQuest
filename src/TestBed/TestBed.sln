@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBed", "TestBed\TestBed\TestBed.csproj", "{E01E1859-540F-4591-950C-E874F2E7EC0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThingContent", "TestBed\TestBedContent\factor10.VisionThingContent.contentproj", "{632177D6-E0FB-4905-BB4E-B8B9B330244F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThingContent", "..\factor10.VisionThingContent\factor10.VisionThingContent.contentproj", "{632177D6-E0FB-4905-BB4E-B8B9B330244F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThing", "..\factor10.VisionThing\factor10.VisionThing.csproj", "{57F05DF6-C98A-4989-89C6-473773287427}"
 EndProject
