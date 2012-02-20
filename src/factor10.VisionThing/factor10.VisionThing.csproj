@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
+    <Compile Include="DoubleSin.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
     <Compile Include="Primitives\CubePrimitive.cs" />
     <Compile Include="Primitives\CylinderPrimitive.cs" />

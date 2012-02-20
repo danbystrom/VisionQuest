@@ -33,8 +33,10 @@ namespace TestBed
         private SpriteBatch _spriteBatch;
 
         private SkySphere _sky1;
- 
-        private RenderTarget2D _testTarget;
+
+        private KeyboardState _kbd;
+        private bool _controlCameraWithMouse = true;
+
 
         public Game1()
         {
@@ -75,20 +77,12 @@ namespace TestBed
             _pillar2 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 20));
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
             _ship = new Ship();
-            //_water.ReflectedObjects.Add(_sky1);
+            _water.ReflectedObjects.Add(_sky1);
             _water.ReflectedObjects.Add(_pillar1);
             _water.ReflectedObjects.Add(_pillar2);
             _water.ReflectedObjects.Add(_ship);
            _basicEffect = new BasicEffect(GraphicsDevice);
             _camera.HandleMouse(0, 0);
-
-            _testTarget = new RenderTarget2D(
-                GraphicsDevice,
-                GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height,
-                false,
-                SurfaceFormat.Color,
-                DepthFormat.Depth24);
         }
 
         /// <summary>
@@ -111,8 +105,16 @@ namespace TestBed
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            _camera.UpdateFreeFlyingCamera(gameTime);
+            var oldKbd = _kbd;
+            _kbd = Keyboard.GetState();
+
+            if (_kbd.IsKeyDown(Keys.C) && !oldKbd.IsKeyDown(Keys.C))
+                _controlCameraWithMouse ^= true;
+
+            if (_controlCameraWithMouse )
+                _camera.UpdateFreeFlyingCamera(gameTime);
             _water.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            _ship.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -124,14 +126,12 @@ namespace TestBed
         {
             _water.RenderReflection(_camera);
 
-             //GraphicsDevice.Clear(Color.CornflowerBlue);
              _sky1.Draw(_camera);
-
             _water.Draw(_camera, Matrix.Identity, false);
             _pillar1.Draw(_camera);
             _pillar2.Draw(_camera);
             _ship.Draw(_camera);
-           zzz();
+           //zzz();
             base.Draw(gameTime);
         }
 

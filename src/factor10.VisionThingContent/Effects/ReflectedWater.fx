@@ -159,6 +159,9 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	float2 vTex0 = normalizedTexC + gWaveDMapOffset0;
 	float2 vTex1 = normalizedTexC + gWaveDMapOffset1;
 	
+	float4x4 rwvp = mul( World, mul(ReflectedView, Projection));
+    outVS.ReflectionPosition =  mul(float4(posL, 1.0f), rwvp);
+
 	// Set y-coordinate of water grid vertices based on displacement mapping.
 	posL.y = DoDispMapping(vTex0, vTex1);
 	
@@ -195,11 +198,6 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	float4x4 wvp = mul( World, mul( View, Projection ) );
 	outVS.posH = mul(float4(posL, 1.0f), wvp);
 	
-	float4x4 rwvp = mul( World, mul(ReflectedView, Projection));
-    outVS.ReflectionPosition = mul(float4(posL.x, 0.5f, posL.z, 1.0f), rwvp);
-
-	// Done--return the output.
-
     return outVS;
 }
 

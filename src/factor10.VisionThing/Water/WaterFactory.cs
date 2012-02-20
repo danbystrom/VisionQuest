@@ -14,7 +14,7 @@ namespace factor10.VisionThing.Water
          public static WaterSurface Create(GraphicsDevice graphicsDevice)
          {
 
-            var lightDirW = new Vector3(0.0f, -1.0f, -3.0f);
+            var lightDirW = new Vector3(5.0f, -1.0f, -3.0f);
             lightDirW.Normalize();
             return new WaterSurface(
                 graphicsDevice,

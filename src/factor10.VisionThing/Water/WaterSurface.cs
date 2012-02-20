@@ -45,15 +45,17 @@ namespace factor10.VisionThing.Water
 
     public class WaterSurface
     {
-        private InitInfo _initInfo;
-
         // Offset of normal maps for scrolling (vary as a function of time)
         private Vector2 _waveNMapOffset0;
         private Vector2 _waveNMapOffset1;
+        private Vector2 _waveNMapVelocity0;
+        private Vector2 _waveNMapVelocity1;
 
         // Offset of displacement maps for scrolling (vary as a function of time)
         private Vector2 _waveDMapOffset0;
         private Vector2 _waveDMapOffset1;
+        private Vector2 _waveDMapVelocity0;
+        private Vector2 _waveDMapVelocity1;
 
         private readonly PlanePrimitive<WaterVertex> _field;
 
@@ -62,11 +64,18 @@ namespace factor10.VisionThing.Water
         public readonly List<ClipDrawable> ReflectedObjects = new List<ClipDrawable>();
         private readonly Camera _reflectionCamera;
 
+        public Effect Effect;
+
         public WaterSurface(
             GraphicsDevice graphicsDevice,
             InitInfo initInfo)
         {
-            _initInfo = initInfo;
+            Effect = initInfo.Fx;
+
+            _waveNMapVelocity0 = initInfo.waveNMapVelocity0;
+            _waveNMapVelocity1 = initInfo.waveNMapVelocity1;
+            _waveDMapVelocity0 = initInfo.waveDMapVelocity0;
+            _waveDMapVelocity1 = initInfo.waveDMapVelocity1;
 
             _field = new PlanePrimitive<WaterVertex>(
                 graphicsDevice,
@@ -81,7 +90,7 @@ namespace factor10.VisionThing.Water
                 initInfo.Rows);
 
 
-            buildFx();
+            buildFx(initInfo);
 
             _reflectionTarget = new RenderTarget2D(
                 graphicsDevice,
@@ -92,7 +101,7 @@ namespace factor10.VisionThing.Water
                 DepthFormat.Depth24);
 
             _reflectionCamera = new Camera(
-               new Vector2( _reflectionTarget.Width,_reflectionTarget.Height ), 
+                new Vector2(_reflectionTarget.Width, _reflectionTarget.Height),
                 Vector3.Zero,
                 Vector3.Up);
         }
@@ -101,11 +110,11 @@ namespace factor10.VisionThing.Water
         {
             // Update texture coordinate offsets.  These offsets are added to the
             // texture coordinates in the vertex shader to animate them.
-            _waveNMapOffset0 += _initInfo.waveNMapVelocity0*dt;
-            _waveNMapOffset1 += _initInfo.waveNMapVelocity1*dt;
+            _waveNMapOffset0 += _waveNMapVelocity0*dt;
+            _waveNMapOffset1 += _waveNMapVelocity1*dt;
 
-            _waveDMapOffset0 += _initInfo.waveDMapVelocity0*dt;
-            _waveDMapOffset1 += _initInfo.waveDMapVelocity1*dt;
+            _waveDMapOffset0 += _waveDMapVelocity0*dt;
+            _waveDMapOffset1 += _waveDMapVelocity1*dt;
 
             // Textures repeat every 1.0 unit, so reset back down to zero
             // so the coordinates do not grow too large.
@@ -134,15 +143,15 @@ namespace factor10.VisionThing.Water
             _mhWorldInv.SetValue(Matrix.Invert(world));
             _mhView.SetValue(camera.View);
             _mhProjection.SetValue(camera.Projection);
- 
+
             _mhEyePosW.SetValue(camera.Position);
             _mhWaveNMapOffset0.SetValue(_waveNMapOffset0);
             _mhWaveNMapOffset1.SetValue(_waveNMapOffset1);
             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            _initInfo.Fx.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
-            _field.Draw(_initInfo.Fx);
+            Effect.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
+            _field.Draw(Effect);
         }
 
         private EffectParameter _mhWorld;
@@ -150,91 +159,72 @@ namespace factor10.VisionThing.Water
         private EffectParameter _mhView;
         private EffectParameter _mhProjection;
         private EffectParameter _mhEyePosW;
-        private EffectParameter _mhWaveMap0;
-        private EffectParameter _mhWaveMap1;
         private EffectParameter _mhWaveNMapOffset0;
         private EffectParameter _mhWaveNMapOffset1;
         private EffectParameter _mhWaveDMapOffset0;
         private EffectParameter _mhWaveDMapOffset1;
-        private EffectParameter _mhWaveDispMap0;
-        private EffectParameter _mhWaveDispMap1;
 
         private EffectTechnique _qualityEffect;
         private EffectTechnique _fastEffect;
 
-        private void buildFx()
+        private void buildFx(InitInfo initInfo)
         {
-            var fx = _initInfo.Fx;
+            _mhWorld = Effect.Parameters["World"];
+            _mhWorldInv = Effect.Parameters["WorldInv"];
+            _mhView = Effect.Parameters["View"];
+            _mhProjection = Effect.Parameters["Projection"];
+            _mhEyePosW = Effect.Parameters["gEyePosW"];
+            _mhWaveNMapOffset0 = Effect.Parameters["gWaveNMapOffset0"];
+            _mhWaveNMapOffset1 = Effect.Parameters["gWaveNMapOffset1"];
+            _mhWaveDMapOffset0 = Effect.Parameters["gWaveDMapOffset0"];
+            _mhWaveDMapOffset1 = Effect.Parameters["gWaveDMapOffset1"];
 
-            _mhWorld = fx.Parameters["World"];
-            _mhWorldInv = fx.Parameters["WorldInv"];
-            _mhView = fx.Parameters["View"];
-            _mhProjection = fx.Parameters["Projection"];
-            _mhEyePosW = fx.Parameters["gEyePosW"];
-            _mhWaveMap0 = fx.Parameters["gWaveMap0"];
-            _mhWaveMap1 = fx.Parameters["gWaveMap1"];
-            _mhWaveNMapOffset0 = fx.Parameters["gWaveNMapOffset0"];
-            _mhWaveNMapOffset1 = fx.Parameters["gWaveNMapOffset1"];
-            _mhWaveDMapOffset0 = fx.Parameters["gWaveDMapOffset0"];
-            _mhWaveDMapOffset1 = fx.Parameters["gWaveDMapOffset1"];
-            _mhWaveDispMap0 = fx.Parameters["gWaveDispMap0"];
-            _mhWaveDispMap1 = fx.Parameters["gWaveDispMap1"];
+            Effect.Parameters["gWaveMap0"].SetValue(initInfo.waveMap0);
+            Effect.Parameters["gWaveMap1"].SetValue(initInfo.waveMap1);
+            Effect.Parameters["gWaveDispMap0"].SetValue(initInfo.dmap0);
+            Effect.Parameters["gWaveDispMap1"].SetValue(initInfo.dmap1);
+            Effect.Parameters["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
+            Effect.Parameters["gLightDiffuse"].SetValue(initInfo.DirLight.Diffuse);
+            Effect.Parameters["gLightDirW"].SetValue(initInfo.DirLight.DirW);
+            Effect.Parameters["gLightSpec"].SetValue(initInfo.DirLight.Spec);
+            Effect.Parameters["gMtrlAmbient"].SetValue(initInfo.Mtrl.Ambient);
+            Effect.Parameters["gMtrlDiffuse"].SetValue(initInfo.Mtrl.Diffuse);
+            Effect.Parameters["gMtrlSpec"].SetValue(initInfo.Mtrl.Spec);
+            Effect.Parameters["gMtrlSpecPower"].SetValue(initInfo.Mtrl.SpecPower);
+            Effect.Parameters["gScaleHeights"].SetValue(initInfo.scaleHeights);
+            Effect.Parameters["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
 
-            _mhWaveMap0.SetValue(_initInfo.waveMap0);
-            _mhWaveMap1.SetValue(_initInfo.waveMap1);
-            _mhWaveDispMap0.SetValue(_initInfo.dmap0);
-            _mhWaveDispMap1.SetValue(_initInfo.dmap1);
-            fx.Parameters["gLightAmbient"].SetValue(_initInfo.DirLight.Ambient);
-            fx.Parameters["gLightDiffuse"].SetValue(_initInfo.DirLight.Diffuse);
-            fx.Parameters["gLightDirW"].SetValue(_initInfo.DirLight.DirW);
-            fx.Parameters["gLightSpec"].SetValue(_initInfo.DirLight.Spec);
-            fx.Parameters["gMtrlAmbient"].SetValue(_initInfo.Mtrl.Ambient);
-            fx.Parameters["gMtrlDiffuse"].SetValue(_initInfo.Mtrl.Diffuse);
-            fx.Parameters["gMtrlSpec"].SetValue(_initInfo.Mtrl.Spec);
-            fx.Parameters["gMtrlSpecPower"].SetValue(_initInfo.Mtrl.SpecPower);
-            fx.Parameters["gScaleHeights"].SetValue(_initInfo.scaleHeights);
-            fx.Parameters["gGridStepSizeL"].SetValue(new Vector2(_initInfo.dx, _initInfo.dz));
-
-            _qualityEffect = fx.Techniques[0];
-            _fastEffect = fx.Techniques[1];
+            _qualityEffect = Effect.Techniques[0];
+            _fastEffect = Effect.Techniques[1];
         }
 
         public void RenderReflection(Camera camera)
         {
-            const float waterMeshPositionY = 0.5f;
-            var graphics = _initInfo.Fx.GraphicsDevice;
+            const float waterMeshPositionY = 0.5f; //experimenting with this
 
             // Reflect the camera's properties across the water plane
             var reflectedCameraPosition = camera.Position;
             reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMeshPositionY*2;
-
             var reflectedCameraTarget = camera.Target;
             reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMeshPositionY*2;
 
-            reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget) * 1.2f;
+            // move reflection camera a bit away in order to get more of the scene into the reflection target
+            //reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget)*1.2f;
 
-           _reflectionCamera.Update(
+            _reflectionCamera.Update(
                 reflectedCameraPosition,
                 reflectedCameraTarget);
 
-            // Create the clip plane
+            Effect.GraphicsDevice.SetRenderTarget(_reflectionTarget);
+
             var clipPlane = new Vector4(0, 1, 0, waterMeshPositionY);
-
-            // Set the render target
-            graphics.SetRenderTarget(_reflectionTarget);
-            graphics.Clear(new Color(110,130,190));
-
-            // Draw all objects with clip plane
             foreach (var cd in ReflectedObjects)
                 cd.Draw(_reflectionCamera, clipPlane);
 
-            graphics.SetRenderTarget(null);
+            Effect.GraphicsDevice.SetRenderTarget(null);
 
-            //reflectedCameraPosition = camera.Position;
-            //reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMeshPositionY * 2;
-
-             _initInfo.Fx.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
-            _initInfo.Fx.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
+            Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
+            Effect.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
         }
 
     }
