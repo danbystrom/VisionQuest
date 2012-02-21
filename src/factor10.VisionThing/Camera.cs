@@ -87,7 +87,7 @@ namespace factor10.VisionThing
             var forward = Vector3.Normalize(new Vector3((float) Math.Sin(-Yaw), (float) Math.Sin(Pitch), (float) Math.Cos(-Yaw)));
             var left = Vector3.Normalize(new Vector3((float) Math.Cos(Yaw), 0f, (float) Math.Sin(Yaw)));
 
-            if (mouse.MiddleButton == ButtonState.Released)
+            if (mouse.RightButton == ButtonState.Released)
             {
                 Yaw += MathHelper.ToRadians(delta.X*0.50f);
                 Pitch += MathHelper.ToRadians(delta.Y*0.50f);

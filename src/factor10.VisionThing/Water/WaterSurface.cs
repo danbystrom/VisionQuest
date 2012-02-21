@@ -48,14 +48,14 @@ namespace factor10.VisionThing.Water
         // Offset of normal maps for scrolling (vary as a function of time)
         private Vector2 _waveNMapOffset0;
         private Vector2 _waveNMapOffset1;
-        private Vector2 _waveNMapVelocity0;
-        private Vector2 _waveNMapVelocity1;
+        private readonly Vector2 _waveNMapVelocity0;
+        private readonly Vector2 _waveNMapVelocity1;
 
         // Offset of displacement maps for scrolling (vary as a function of time)
         private Vector2 _waveDMapOffset0;
         private Vector2 _waveDMapOffset1;
-        private Vector2 _waveDMapVelocity0;
-        private Vector2 _waveDMapVelocity1;
+        private readonly Vector2 _waveDMapVelocity0;
+        private readonly Vector2 _waveDMapVelocity1;
 
         private readonly PlanePrimitive<WaterVertex> _field;
 
@@ -79,7 +79,6 @@ namespace factor10.VisionThing.Water
 
             _field = new PlanePrimitive<WaterVertex>(
                 graphicsDevice,
-                initInfo.Fx,
                 (x, y) => new WaterVertex
                               {
                                   Position = new Vector3(x*initInfo.dx, 0, y*initInfo.dz),

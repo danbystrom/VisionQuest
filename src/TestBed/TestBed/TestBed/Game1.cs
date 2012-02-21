@@ -28,6 +28,8 @@ namespace TestBed
         private WaterSurface _water;
         private Pillar _pillar1, _pillar2;
         private Ship _ship;
+        private Box _box1, _box2;
+        private Plane _plane;
 
         private BasicEffect _basicEffect;
         private SpriteBatch _spriteBatch;
@@ -77,6 +79,9 @@ namespace TestBed
             _pillar2 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 20));
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
             _ship = new Ship();
+            _box1 = new Box(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateTranslation(0, -0.55f, 0));
+            _box2 = new Box(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateTranslation(0, +0.55f, 0));
+            _plane = new Plane(VisionContent.Load<Effect>(@"effects\lightingeffect"),Matrix.CreateTranslation(-1,1,-1));
             _water.ReflectedObjects.Add(_sky1);
             _water.ReflectedObjects.Add(_pillar1);
             _water.ReflectedObjects.Add(_pillar2);
@@ -131,7 +136,10 @@ namespace TestBed
             _pillar1.Draw(_camera);
             _pillar2.Draw(_camera);
             _ship.Draw(_camera);
-           //zzz();
+            _box1.Draw(_camera);
+            _box2.Draw(_camera);
+            _plane.Draw(_camera);
+            //zzz();
             base.Draw(gameTime);
         }
 

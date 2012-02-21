@@ -26,7 +26,6 @@ namespace factor10.VisionThing.Primitives
 
         public PlanePrimitive(
             GraphicsDevice graphicsDevice,
-            Effect effect,
             CreateVertex createVertex,
             int width,
             int height)

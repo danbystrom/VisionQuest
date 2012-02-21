@@ -21,7 +21,7 @@ namespace Serpent
             _effect = new BasicEffect(graphicsDevice);
             _texture = texture;
 
-            var field = PlayingFields.GetQ();
+            var field = PlayingFields.GetZ();
 
             Floors = field.Count;
             Height = field[0].Length;

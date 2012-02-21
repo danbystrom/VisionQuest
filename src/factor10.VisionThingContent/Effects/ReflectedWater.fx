@@ -240,7 +240,7 @@ float4 WaterPS(	OutputVS input ) : COLOR
     normalT1 = 2.0f*normalT1 - 1.0f;
     
 	// Average the two vectors.
-	float3 normalT = normalize(0.5f*(normalT0 + normalT1));
+	float3 normalT = normalize(normalT0 + normalT1);
 	
 	// Compute the reflection vector.
 	float3 r = reflect(-lightVecT, normalT);
@@ -259,7 +259,8 @@ float4 WaterPS(	OutputVS input ) : COLOR
 
 	//BEGIN reflection	
 	float2 reflectionUV = postProjToScreen(input.ReflectionPosition) + halfPixel();
-	float3 reflection = tex2D(reflectionSampler, reflectionUV);
+	float2 uv = 0; //(normalize(normalT.xz) - float2(0.6f,0.6f)) * 0.03f;
+	float4 reflection = tex2D(reflectionSampler, reflectionUV + uv);
 	//END reflection
 
 	// Compute the ambient, diffuse and specular terms separatly. 
