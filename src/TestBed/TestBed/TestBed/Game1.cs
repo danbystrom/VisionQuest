@@ -22,14 +22,15 @@ namespace TestBed
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
-        GraphicsDeviceManager graphics;
+        readonly GraphicsDeviceManager graphics;
 
         private Camera _camera;
         private WaterSurface _water;
-        private Pillar _pillar1, _pillar2;
+        private ClipDrawableInstance _pillar1, _pillar2, _box1, _box2;
         private Ship _ship;
-        private Box _box1, _box2;
-        private Plane _plane;
+        private Ship2 _ship2;
+        private Windmill _windmill;
+        private Island _island;
 
         private BasicEffect _basicEffect;
         private SpriteBatch _spriteBatch;
@@ -73,20 +74,43 @@ namespace TestBed
             // TODO: use this.Content to load your game content here
 
             VisionContent.Init(this);
+            var lightingEffect = VisionContent.Load<Effect>(@"effects\lightingeffect");
+            var lightingEffectTexture = VisionContent.Load<Effect>(@"effects\lightingeffecttexture");
+
             _camera = new Camera(Window.ClientBounds, new Vector3(0, 4, -20), Vector3.Up);
             _water = WaterFactory.Create(GraphicsDevice);
-            _pillar1 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(10, 3, 10));
-            _pillar2 = new Pillar(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 20));
+
+            _pillar1 = new ClipDrawableInstance(
+                lightingEffect,
+                new CylinderPrimitive(GraphicsDevice, 10, 2, 10),
+                Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(28, 3, 15));
+            _pillar2 = new ClipDrawableInstance(
+                lightingEffect,
+                new CylinderPrimitive(GraphicsDevice, 10, 2, 10),
+                Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 28));
+            _box1 = new ClipDrawableInstance(
+                lightingEffect,
+                new CubePrimitive(GraphicsDevice, 1),
+                Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(0, -0.55f, 0));
+            _box2 = new ClipDrawableInstance(
+                lightingEffect,
+                new CubePrimitive(GraphicsDevice, 1),
+                Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(0, +0.55f, 0));
+
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
-            _ship = new Ship();
-            _box1 = new Box(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateTranslation(0, -0.55f, 0));
-            _box2 = new Box(VisionContent.Load<Effect>(@"effects\lightingeffect"), Matrix.CreateTranslation(0, +0.55f, 0));
-            _plane = new Plane(VisionContent.Load<Effect>(@"effects\lightingeffect"),Matrix.CreateTranslation(-1,1,-1));
+            //_ship = new Ship();
+            _ship2 = new Ship2();
+            _windmill = new Windmill();
+            _island = new Island(lightingEffectTexture, Matrix.CreateTranslation(-10, 0, 0));
+
             _water.ReflectedObjects.Add(_sky1);
             _water.ReflectedObjects.Add(_pillar1);
             _water.ReflectedObjects.Add(_pillar2);
-            _water.ReflectedObjects.Add(_ship);
-           _basicEffect = new BasicEffect(GraphicsDevice);
+            //_water.ReflectedObjects.Add(_ship);
+            _water.ReflectedObjects.Add(_ship2);
+            _water.ReflectedObjects.Add(_windmill);
+            _water.ReflectedObjects.Add(_island);
+            _basicEffect = new BasicEffect(GraphicsDevice);
             _camera.HandleMouse(0, 0);
         }
 
@@ -119,7 +143,9 @@ namespace TestBed
             if (_controlCameraWithMouse )
                 _camera.UpdateFreeFlyingCamera(gameTime);
             _water.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-            _ship.Update(gameTime);
+            //_ship.Update(gameTime);
+            _ship2.Update(gameTime);
+            _windmill.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -130,15 +156,11 @@ namespace TestBed
         protected override void Draw(GameTime gameTime)
         {
             _water.RenderReflection(_camera);
-
-             _sky1.Draw(_camera);
-            _water.Draw(_camera, Matrix.Identity, false);
-            _pillar1.Draw(_camera);
-            _pillar2.Draw(_camera);
-            _ship.Draw(_camera);
+            foreach ( var z in _water.ReflectedObjects )
+                z.Draw(_camera);
             _box1.Draw(_camera);
             _box2.Draw(_camera);
-            _plane.Draw(_camera);
+            _water.Draw(_camera, Matrix.Identity, false);
             //zzz();
             base.Draw(gameTime);
         }

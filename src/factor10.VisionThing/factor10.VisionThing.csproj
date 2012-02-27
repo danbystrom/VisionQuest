@@ -92,9 +92,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
+    <Compile Include="ClipDrawableInstance.cs" />
     <Compile Include="DoubleSin.cs" />
+    <Compile Include="IDrawable.cs" />
+    <Compile Include="PPPointLight.cs" />
+    <Compile Include="PrelightingRenderer.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
     <Compile Include="Primitives\CubePrimitive.cs" />
     <Compile Include="Primitives\CylinderPrimitive.cs" />
@@ -110,7 +115,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SkySphere.cs" />
-    <Compile Include="StockEffects\BasicEffect.cs" />
+    <Compile Include="StockEffects\NewBasicEffect.cs" />
+    <Compile Include="StockEffects\StockBasicEffect.cs" />
     <Compile Include="Primitives\PlanePrimitive.cs" />
     <Compile Include="StockEffects\EffectHelpers.cs" />
     <Compile Include="VisionContent.cs" />

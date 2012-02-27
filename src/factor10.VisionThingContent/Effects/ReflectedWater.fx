@@ -19,7 +19,7 @@ uniform extern float4   gLightAmbient;
 uniform extern float4   gLightDiffuse;
 uniform extern float4   gLightSpec;
 uniform extern float3   gLightDirW;
-uniform extern float3   gEyePosW;
+uniform extern float3   gCameraPosition;
 
 // Texture coordinate offset vectors for scrolling
 // normal maps and displacement maps.
@@ -180,7 +180,7 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	float3x3 toTangentSpace = transpose(TBN);
 	
 	// Transform eye position to local space.
-	float3 eyePosL = mul(float4(gEyePosW, 1.0f), WorldInv).xyz;
+	float3 eyePosL = mul(float4(gCameraPosition, 1.0f), WorldInv).xyz;
 	
 	// Transform to-eye vector to tangent space.
 	float3 toEyeL = eyePosL - posL;
@@ -201,22 +201,11 @@ OutputVS WaterVS(float3 posL           : POSITION0,
     return outVS;
 }
 
-
-float viewportWidth = 1280;
-float viewportHeight = 800;
-
 // Calculate the 2D screenposition of a position vector
 float2 postProjToScreen(float4 position)
 {
 	float2 screenPos = position.xy / position.w;
 	return 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
-}
-
-// Calculate the size of one half of a pixel, to convert
-// between texels and pixels
-float2 halfPixel()
-{
-	return 0.5f / float2(viewportWidth, viewportHeight);
 }
 
 float4 WaterPS(	OutputVS input ) : COLOR
@@ -258,8 +247,8 @@ float4 WaterPS(	OutputVS input ) : COLOR
 	     t = 0.0f;
 
 	//BEGIN reflection	
-	float2 reflectionUV = postProjToScreen(input.ReflectionPosition) + halfPixel();
-	float2 uv = 0; //(normalize(normalT.xz) - float2(0.6f,0.6f)) * 0.03f;
+	float2 reflectionUV = postProjToScreen(input.ReflectionPosition);
+	float2 uv = float2( normalT.x * 0.02f, -0.012f );
 	float4 reflection = tex2D(reflectionSampler, reflectionUV + uv);
 	//END reflection
 

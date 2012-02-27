@@ -29,6 +29,7 @@ namespace factor10.VisionThing
             _techClipPlane = effect.Techniques[1];
         }
 
+        protected abstract void Draw(Effect effect);
         protected abstract void Draw();
 
         public virtual void Draw(Camera camera)
@@ -43,7 +44,8 @@ namespace factor10.VisionThing
         {
             if ( _techClipPlane != null )
                 Effect.CurrentTechnique = _techClipPlane;
-            _epClipPlane.SetValue(clipPlane);
+            if ( _epClipPlane != null )
+                _epClipPlane.SetValue(clipPlane);
             Draw(camera);
             Effect.CurrentTechnique = _techNormal;
         }

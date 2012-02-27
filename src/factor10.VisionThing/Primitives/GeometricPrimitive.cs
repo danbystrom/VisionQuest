@@ -5,15 +5,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace factor10.VisionThing.Primitives
 {
-    public abstract class GeometricPrimitive<T> : IDisposable where T: struct, IVertexType
+    public abstract class GeometricPrimitive<T> : IDisposable, IDrawable where T: struct, IVertexType
     {
-        private readonly List<T> _vertices = new List<T>();
-        private readonly List<ushort> _indices = new List<ushort>();
+        private List<T> _vertices = new List<T>();
+        private List<uint> _indices = new List<uint>();
 
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
-        public BasicEffect BasicEffect;
+        private int _primitiveCount;
+        private int _verticesCount;
 
         protected void addVertex(T vertex)
         {
@@ -26,7 +27,7 @@ namespace factor10.VisionThing.Primitives
                 throw new ArgumentOutOfRangeException("index");
             _indices.Add((ushort)index);
         }
-
+         
         protected int CurrentVertex
         {
             get { return _vertices.Count; }
@@ -36,16 +37,33 @@ namespace factor10.VisionThing.Primitives
         {
             _vertexBuffer = new VertexBuffer(
                 graphicsDevice,
-                typeof(T),
+                typeof (T),
                 _vertices.Count,
                 BufferUsage.None);
             _vertexBuffer.SetData(_vertices.ToArray());
 
-            _indexBuffer = new IndexBuffer(
-                graphicsDevice,
-                typeof(ushort),
-                _indices.Count, BufferUsage.None);
-            _indexBuffer.SetData(_indices.ToArray());
+            if (_vertices.Count < 65536)
+            {
+                _indexBuffer = new IndexBuffer(
+                    graphicsDevice,
+                    typeof (ushort),
+                    _indices.Count, BufferUsage.None);
+                _indexBuffer.SetData(_indices.ConvertAll(x => (ushort) x).ToArray());
+            }
+            else
+            {
+                _indexBuffer = new IndexBuffer(
+                    graphicsDevice,
+                    typeof (uint),
+                    _indices.Count, BufferUsage.None);
+                _indexBuffer.SetData(_indices.ToArray());
+            }
+
+            _primitiveCount = _indices.Count / 3;
+            _verticesCount = _vertices.Count;
+
+            _vertices = null;
+            _indices = null;
         }
 
         ~GeometricPrimitive()
@@ -79,13 +97,13 @@ namespace factor10.VisionThing.Primitives
             foreach (var effectPass in effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
-                var primitiveCount = _indices.Count / 3;
                 graphicsDevice.DrawIndexedPrimitives(
-                    PrimitiveType.TriangleList, 0, 0, _vertices.Count, 0, primitiveCount);
+                    PrimitiveType.TriangleList, 0, 0, _verticesCount, 0, _primitiveCount);
             }
 
         }
 
+        /*
         public void Draw(
             Matrix world,
             Matrix view,
@@ -106,7 +124,7 @@ namespace factor10.VisionThing.Primitives
 
             Draw(BasicEffect);
         }
-
+        */
     }
 
 }

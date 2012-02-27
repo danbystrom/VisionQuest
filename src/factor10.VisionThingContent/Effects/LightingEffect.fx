@@ -19,7 +19,7 @@ bool TextureEnabled = false;
 
 float3 DiffuseColor = float3(1, 1, 1);
 float3 AmbientColor = float3(0.2, 0.2, 0.2);
-float3 LightDirection = float3(3, 1, 3);
+float3 LightDirection = float3(-3, 1, 0);
 float3 LightColor = float3(0.8, 0.8, 0.8);
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);

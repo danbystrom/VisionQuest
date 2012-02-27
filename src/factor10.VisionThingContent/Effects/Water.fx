@@ -20,7 +20,7 @@ uniform extern float4   gLightAmbient;
 uniform extern float4   gLightDiffuse;
 uniform extern float4   gLightSpec;
 uniform extern float3   gLightDirW;
-uniform extern float3   gEyePosW;
+uniform extern float3   gCameraPosition;
 
 // Texture coordinate offset vectors for scrolling
 // normal maps and displacement maps.
@@ -164,7 +164,7 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	float3x3 toTangentSpace = transpose(TBN);
 	
 	// Transform eye position to local space.
-	float3 eyePosL = mul(float4(gEyePosW, 1.0f), WorldInv).xyz;
+	float3 eyePosL = mul(float4(gCameraPosition, 1.0f), WorldInv).xyz;
 	
 	// Transform to-eye vector to tangent space.
 	float3 toEyeL = eyePosL - posL;

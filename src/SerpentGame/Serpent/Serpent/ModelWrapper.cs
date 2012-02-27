@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing;
+using factor10.VisionThing.StockEffects;
 
 namespace Serpent
 {
@@ -24,7 +25,7 @@ namespace Serpent
                     if (part.Effect is BasicEffect)
                     {
                         var oldBe = part.Effect as BasicEffect;
-                        var newBe = new factor10.VisionThing.StockEffects.BasicEffect(game.GraphicsDevice);
+                        var newBe = new StockBasicEffect(game.GraphicsDevice);
                         newBe.CopyBasicEffect(oldBe);
                         newBe.SpecularPower = 32;
                         newBe.OriginalDiffuseColor = oldBe.DiffuseColor;
@@ -46,7 +47,7 @@ namespace Serpent
         {
                 foreach (var mesh in _model.Meshes)
                 {
-                    foreach (factor10.VisionThing.StockEffects.BasicEffect e in mesh.Effects)
+                    foreach (StockBasicEffect e in mesh.Effects)
                     {
                         e.DiffuseColor = Vector3.Lerp(e.OriginalDiffuseColor, tintColor, tintFactor);
                         e.Alpha = alpha;

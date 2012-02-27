@@ -142,8 +142,8 @@ namespace factor10.VisionThing.Water
             _mhWorldInv.SetValue(Matrix.Invert(world));
             _mhView.SetValue(camera.View);
             _mhProjection.SetValue(camera.Projection);
+            _mhCameraPosition.SetValue(camera.Position);
 
-            _mhEyePosW.SetValue(camera.Position);
             _mhWaveNMapOffset0.SetValue(_waveNMapOffset0);
             _mhWaveNMapOffset1.SetValue(_waveNMapOffset1);
             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
@@ -151,13 +151,19 @@ namespace factor10.VisionThing.Water
 
             Effect.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
             _field.Draw(Effect);
+
+            world *= Matrix.CreateTranslation(-32, 0, 0);
+            _mhWorld.SetValue(world);
+            _mhWorldInv.SetValue(Matrix.Invert(world));
+            _field.Draw(Effect);
+
         }
 
         private EffectParameter _mhWorld;
         private EffectParameter _mhWorldInv;
         private EffectParameter _mhView;
         private EffectParameter _mhProjection;
-        private EffectParameter _mhEyePosW;
+        private EffectParameter _mhCameraPosition;
         private EffectParameter _mhWaveNMapOffset0;
         private EffectParameter _mhWaveNMapOffset1;
         private EffectParameter _mhWaveDMapOffset0;
@@ -172,7 +178,7 @@ namespace factor10.VisionThing.Water
             _mhWorldInv = Effect.Parameters["WorldInv"];
             _mhView = Effect.Parameters["View"];
             _mhProjection = Effect.Parameters["Projection"];
-            _mhEyePosW = Effect.Parameters["gEyePosW"];
+            _mhCameraPosition = Effect.Parameters["gCameraPosition"];
             _mhWaveNMapOffset0 = Effect.Parameters["gWaveNMapOffset0"];
             _mhWaveNMapOffset1 = Effect.Parameters["gWaveNMapOffset1"];
             _mhWaveDMapOffset0 = Effect.Parameters["gWaveDMapOffset0"];
@@ -207,16 +213,15 @@ namespace factor10.VisionThing.Water
             var reflectedCameraTarget = camera.Target;
             reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMeshPositionY*2;
 
-            // move reflection camera a bit away in order to get more of the scene into the reflection target
-            //reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget)*1.2f;
-
+            //reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget)*1f;
+ 
             _reflectionCamera.Update(
                 reflectedCameraPosition,
                 reflectedCameraTarget);
 
             Effect.GraphicsDevice.SetRenderTarget(_reflectionTarget);
 
-            var clipPlane = new Vector4(0, 1, 0, waterMeshPositionY);
+            var clipPlane = new Vector4(0, 1, 0, -waterMeshPositionY);
             foreach (var cd in ReflectedObjects)
                 cd.Draw(_reflectionCamera, clipPlane);
 
