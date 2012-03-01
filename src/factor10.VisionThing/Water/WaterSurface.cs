@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing.Water
@@ -64,13 +65,13 @@ namespace factor10.VisionThing.Water
         public readonly List<ClipDrawable> ReflectedObjects = new List<ClipDrawable>();
         private readonly Camera _reflectionCamera;
 
-        public Effect Effect;
+        public IEffect Effect;
 
         public WaterSurface(
             GraphicsDevice graphicsDevice,
             InitInfo initInfo)
         {
-            Effect = initInfo.Fx;
+            Effect = new PlainEffectWrapper( initInfo.Fx );
 
             _waveNMapVelocity0 = initInfo.waveNMapVelocity0;
             _waveNMapVelocity1 = initInfo.waveNMapVelocity1;
@@ -149,7 +150,7 @@ namespace factor10.VisionThing.Water
             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            Effect.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
+            //Effect.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
             _field.Draw(Effect);
 
             world *= Matrix.CreateTranslation(-32, 0, 0);
@@ -174,33 +175,35 @@ namespace factor10.VisionThing.Water
 
         private void buildFx(InitInfo initInfo)
         {
-            _mhWorld = Effect.Parameters["World"];
-            _mhWorldInv = Effect.Parameters["WorldInv"];
-            _mhView = Effect.Parameters["View"];
-            _mhProjection = Effect.Parameters["Projection"];
-            _mhCameraPosition = Effect.Parameters["gCameraPosition"];
-            _mhWaveNMapOffset0 = Effect.Parameters["gWaveNMapOffset0"];
-            _mhWaveNMapOffset1 = Effect.Parameters["gWaveNMapOffset1"];
-            _mhWaveDMapOffset0 = Effect.Parameters["gWaveDMapOffset0"];
-            _mhWaveDMapOffset1 = Effect.Parameters["gWaveDMapOffset1"];
+            var p = Effect.Effect.Parameters;
 
-            Effect.Parameters["gWaveMap0"].SetValue(initInfo.waveMap0);
-            Effect.Parameters["gWaveMap1"].SetValue(initInfo.waveMap1);
-            Effect.Parameters["gWaveDispMap0"].SetValue(initInfo.dmap0);
-            Effect.Parameters["gWaveDispMap1"].SetValue(initInfo.dmap1);
-            Effect.Parameters["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
-            Effect.Parameters["gLightDiffuse"].SetValue(initInfo.DirLight.Diffuse);
-            Effect.Parameters["gLightDirW"].SetValue(initInfo.DirLight.DirW);
-            Effect.Parameters["gLightSpec"].SetValue(initInfo.DirLight.Spec);
-            Effect.Parameters["gMtrlAmbient"].SetValue(initInfo.Mtrl.Ambient);
-            Effect.Parameters["gMtrlDiffuse"].SetValue(initInfo.Mtrl.Diffuse);
-            Effect.Parameters["gMtrlSpec"].SetValue(initInfo.Mtrl.Spec);
-            Effect.Parameters["gMtrlSpecPower"].SetValue(initInfo.Mtrl.SpecPower);
-            Effect.Parameters["gScaleHeights"].SetValue(initInfo.scaleHeights);
-            Effect.Parameters["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
+            _mhWorld = p["World"];
+            _mhWorldInv = p["WorldInv"];
+            _mhView = p["View"];
+            _mhProjection = p["Projection"];
+            _mhCameraPosition = p["gCameraPosition"];
+            _mhWaveNMapOffset0 = p["gWaveNMapOffset0"];
+            _mhWaveNMapOffset1 = p["gWaveNMapOffset1"];
+            _mhWaveDMapOffset0 = p["gWaveDMapOffset0"];
+            _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
 
-            _qualityEffect = Effect.Techniques[0];
-            _fastEffect = Effect.Techniques[1];
+            p["gWaveMap0"].SetValue(initInfo.waveMap0);
+            p["gWaveMap1"].SetValue(initInfo.waveMap1);
+            p["gWaveDispMap0"].SetValue(initInfo.dmap0);
+            p["gWaveDispMap1"].SetValue(initInfo.dmap1);
+            p["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
+            p["gLightDiffuse"].SetValue(initInfo.DirLight.Diffuse);
+            p["gLightDirW"].SetValue(initInfo.DirLight.DirW);
+            p["gLightSpec"].SetValue(initInfo.DirLight.Spec);
+            p["gMtrlAmbient"].SetValue(initInfo.Mtrl.Ambient);
+            p["gMtrlDiffuse"].SetValue(initInfo.Mtrl.Diffuse);
+            p["gMtrlSpec"].SetValue(initInfo.Mtrl.Spec);
+            p["gMtrlSpecPower"].SetValue(initInfo.Mtrl.SpecPower);
+            p["gScaleHeights"].SetValue(initInfo.scaleHeights);
+            p["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
+
+            _qualityEffect = Effect.Effect.Techniques[0];
+            _fastEffect = Effect.Effect.Techniques[1];
         }
 
         public void RenderReflection(Camera camera)
@@ -227,8 +230,8 @@ namespace factor10.VisionThing.Water
 
             Effect.GraphicsDevice.SetRenderTarget(null);
 
-            Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
-            Effect.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
+            Effect.Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
+            Effect.Effect.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
         }
 
     }

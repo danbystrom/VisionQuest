@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing
@@ -11,25 +12,17 @@ namespace factor10.VisionThing
 
         public SkySphere(
              TextureCube texture)
-            : base(VisionContent.Load<Effect>("effects/skysphere"))
+            : base( new PlainEffectWrapper( VisionContent.Load<Effect>("effects/skysphere")))
         {
             _sphere = new SpherePrimitive( Effect.GraphicsDevice, 1000, 10);
             Effect.Parameters["CubeMap"].SetValue(texture);
         }
 
-        public override void Draw(Camera camera)
+        public override void Draw(Camera camera, IEffect effect)
         {
-            _epWorld.SetValue(Matrix.CreateTranslation(camera.Position));
-            base.Draw(camera);
-        }
+            camera.UpdateEffect(effect);
+            effect.World = Matrix.CreateTranslation(camera.Position);
 
-        protected override void Draw()
-        {
-            Draw(Effect);
-        }
-
-        protected override void Draw(Effect effect)
-        {
             var saveCull = effect.GraphicsDevice.RasterizerState;
             _sphere.Draw(effect);
             effect.GraphicsDevice.RasterizerState = saveCull;

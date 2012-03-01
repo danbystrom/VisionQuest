@@ -6,21 +6,14 @@ namespace factor10.VisionThing.Primitives
     /// <summary>
     /// Geometric primitive class for drawing cubes.
     /// </summary>
-    public class CubePrimitive : GeometricPrimitive<VertexPositionNormal>
+    public class CubePrimitive<T> : GeometricPrimitive<T> where T: struct, IVertexType
     {
-        /// <summary>
-        /// Constructs a new cube primitive, using default settings.
-        /// </summary>
-        public CubePrimitive(GraphicsDevice graphicsDevice)
-            : this(graphicsDevice, 1)
-        {
-        }
-
+        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate);
 
         /// <summary>
         /// Constructs a new cube primitive, with the specified size.
         /// </summary>
-        public CubePrimitive(GraphicsDevice graphicsDevice, float size)
+        public CubePrimitive(GraphicsDevice graphicsDevice, CreateVertex createVertex, float size)
         {
             // A cube has six faces, each one pointing in a different direction.
             Vector3[] normals =
@@ -50,10 +43,10 @@ namespace factor10.VisionThing.Primitives
                 addIndex(CurrentVertex + 3);
 
                 // Four vertices per face.
-                addVertex(new VertexPositionNormal((normal - side1 - side2) * size / 2, normal));
-                addVertex(new VertexPositionNormal((normal - side1 + side2) * size / 2, normal));
-                addVertex(new VertexPositionNormal((normal + side1 + side2) * size / 2, normal));
-                addVertex(new VertexPositionNormal((normal + side1 - side2) * size / 2, normal));
+                addVertex(createVertex((normal - side1 - side2)*size/2, normal, new Vector2(0, 0)));
+                addVertex(createVertex((normal - side1 + side2)*size/2, normal, new Vector2(0, 1)));
+                addVertex(createVertex((normal + side1 + side2)*size/2, normal, new Vector2(1, 1)));
+                addVertex(createVertex((normal + side1 - side2)*size/2, normal, new Vector2(1, 0)));
             }
 
             initializePrimitive(graphicsDevice);

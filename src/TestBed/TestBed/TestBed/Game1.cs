@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
-using factor10.VisionThing.StockEffects;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Water;
 using BasicEffect = Microsoft.Xna.Framework.Graphics.BasicEffect;
 using IDrawable = factor10.VisionThing.ClipDrawable;
@@ -26,9 +26,9 @@ namespace TestBed
 
         private Camera _camera;
         private WaterSurface _water;
-        private ClipDrawableInstance _pillar1, _pillar2, _box1, _box2;
+        private ClipDrawableInstance _pillar1, _pillar2;
+        private Box _box1, _box2;
         private Ship _ship;
-        private Ship2 _ship2;
         private Windmill _windmill;
         private Island _island;
 
@@ -74,8 +74,8 @@ namespace TestBed
             // TODO: use this.Content to load your game content here
 
             VisionContent.Init(this);
-            var lightingEffect = VisionContent.Load<Effect>(@"effects\lightingeffect");
-            var lightingEffectTexture = VisionContent.Load<Effect>(@"effects\lightingeffecttexture");
+            var lightingEffect = VisionContent.LoadPlainEffect(@"effects\lightingeffect");
+            var lightingEffectTexture = VisionContent.LoadPlainEffect(@"effects\lightingeffecttexture");
 
             _camera = new Camera(Window.ClientBounds, new Vector3(0, 4, -20), Vector3.Up);
             _water = WaterFactory.Create(GraphicsDevice);
@@ -88,18 +88,14 @@ namespace TestBed
                 lightingEffect,
                 new CylinderPrimitive(GraphicsDevice, 10, 2, 10),
                 Matrix.CreateRotationZ(MathHelper.PiOver4) * Matrix.CreateTranslation(20, 5, 28));
-            _box1 = new ClipDrawableInstance(
-                lightingEffect,
-                new CubePrimitive(GraphicsDevice, 1),
-                Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(0, -0.55f, 0));
-            _box2 = new ClipDrawableInstance(
-                lightingEffect,
-                new CubePrimitive(GraphicsDevice, 1),
-                Matrix.CreateRotationX(MathHelper.PiOver4) * Matrix.CreateTranslation(0, +0.55f, 0));
+            _box1 = new Box(
+                Matrix.CreateTranslation(-20, 3, -20));
+            _box2 = new Box(
+                Matrix.CreateTranslation(-10, 4, -10));
 
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
             //_ship = new Ship();
-            _ship2 = new Ship2();
+            _ship = new Ship();
             _windmill = new Windmill();
             _island = new Island(lightingEffectTexture, Matrix.CreateTranslation(-10, 0, 0));
 
@@ -107,7 +103,7 @@ namespace TestBed
             _water.ReflectedObjects.Add(_pillar1);
             _water.ReflectedObjects.Add(_pillar2);
             //_water.ReflectedObjects.Add(_ship);
-            _water.ReflectedObjects.Add(_ship2);
+            _water.ReflectedObjects.Add(_ship);
             _water.ReflectedObjects.Add(_windmill);
             _water.ReflectedObjects.Add(_island);
             _basicEffect = new BasicEffect(GraphicsDevice);
@@ -144,7 +140,7 @@ namespace TestBed
                 _camera.UpdateFreeFlyingCamera(gameTime);
             _water.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             //_ship.Update(gameTime);
-            _ship2.Update(gameTime);
+            _ship.Update(gameTime);
             _windmill.Update(gameTime);
             base.Update(gameTime);
         }

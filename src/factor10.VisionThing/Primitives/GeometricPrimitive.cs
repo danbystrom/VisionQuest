@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing.Primitives
 {
@@ -87,14 +88,14 @@ namespace factor10.VisionThing.Primitives
                 _indexBuffer.Dispose();
         }
 
-        public void Draw(Effect effect)
+        public void Draw(IEffect effect)
         {
             var graphicsDevice = effect.GraphicsDevice;
 
             graphicsDevice.SetVertexBuffer(_vertexBuffer);
             graphicsDevice.Indices = _indexBuffer;            
 
-            foreach (var effectPass in effect.CurrentTechnique.Passes)
+            foreach (var effectPass in effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
                 graphicsDevice.DrawIndexedPrimitives(

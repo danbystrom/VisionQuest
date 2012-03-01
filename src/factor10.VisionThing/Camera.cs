@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {
@@ -111,6 +112,13 @@ namespace factor10.VisionThing
             var rotation = Matrix.CreateFromYawPitchRoll(-Yaw, -Pitch, 0);
             Target = Position + Vector3.Transform(Vector3.Forward, rotation);
             View = Matrix.CreateLookAt(Position, Target, Vector3.Up);
+        }
+
+        public void UpdateEffect(IEffect effect)
+        {
+            effect.View = View;
+            effect.Projection = Projection;
+            effect.CameraPosition = Position;
         }
 
     }

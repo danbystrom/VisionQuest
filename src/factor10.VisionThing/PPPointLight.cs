@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {
@@ -16,7 +17,7 @@ namespace factor10.VisionThing
             Attenuation = attenuation;
         }
 
-        public void SetEffectParameters(Effect effect)
+        public void SetEffectParameters(IEffect effect)
         {
             effect.Parameters["LightPosition"].SetValue(Position);
             effect.Parameters["LightAttenuation"].SetValue(Attenuation);

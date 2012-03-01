@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {
@@ -12,21 +13,17 @@ namespace factor10.VisionThing
         public readonly IDrawable Thing;
         public Matrix World;
 
-        public ClipDrawableInstance(Effect effect, IDrawable thing, Matrix world )
+        public ClipDrawableInstance(IEffect effect, IDrawable thing, Matrix world )
             : base(effect)
         {
             Thing = thing;
             World = world;
         }
 
-        protected override void Draw()
+        public override void Draw(Camera camera, IEffect effect)
         {
-            _epWorld.SetValue(World);
-            Thing.Draw(Effect);
-        }
-
-        protected override void Draw(Effect effect)
-        {
+            camera.UpdateEffect(effect);
+            effect.World = World;
             Thing.Draw(effect);
         }
 

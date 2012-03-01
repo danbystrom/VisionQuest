@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {
     public interface IDrawable
     {
-        void Draw(Effect effect);
+        void Draw(IEffect effect);
     }
 }

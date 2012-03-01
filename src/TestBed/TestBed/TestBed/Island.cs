@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 
 namespace TestBed
@@ -18,10 +19,10 @@ namespace TestBed
         private readonly Matrix _world;
         private readonly Texture2D _texture;
 
-        public Island( Effect effect, Matrix world )
+        public Island( IEffect effect, Matrix world )
             : base(effect)
         {
-            _texture = VisionContent.Load<Texture2D>(@"Textures\sand");
+            _texture = VisionContent.Load<Texture2D>("textures/sand");
             _plane = new PlanePrimitive<VertexPositionNormalTexture>(
                 effect.GraphicsDevice,
                 createVertex,
@@ -39,15 +40,11 @@ namespace TestBed
             return new VertexPositionNormalTexture(new Vector3(x, h, y), Vector3.Up, new Vector2(x / 10, y / 10));
         }
 
-        protected override void Draw()
+        public override void Draw( Camera camera, IEffect effect )
         {
-            _epWorld.SetValue(_world);
-            Effect.Parameters["BasicTexture"].SetValue(_texture);
-            Draw(Effect);
-        }
-
-        protected override void Draw( Effect effect )
-        {
+            camera.UpdateEffect(effect);
+            effect.World = _world;
+            effect.Parameters["Texture"].SetValue(_texture);
             _plane.Draw(effect);
         }
 

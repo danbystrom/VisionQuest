@@ -12,6 +12,10 @@ Content\Models\pirateship.xnb
 Content\Models\windmill.xnb
 Content\Galleon_0.xnb
 Content\Effects\LightingEffectTexture.xnb
-Content\Textures\windmill_diffuse.xnb
 Content\Textures\sand.xnb
 Content\Effects\NewBasicEffect.xnb
+Content\Effects\LightingEffectBump.xnb
+Content\Textures\windmill_diffuse.xnb
+Content\Textures\windmill_normal.xnb
+Content\Textures\brick_normal_map.xnb
+Content\Textures\brick_texture_map.xnb

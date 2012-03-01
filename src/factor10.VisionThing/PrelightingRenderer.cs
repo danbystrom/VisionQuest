@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework;
+using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {
@@ -13,8 +14,8 @@ namespace factor10.VisionThing
         private readonly RenderTarget2D _lightTarg;
 
         // Depth/normal effect and light mapping effect
-        private readonly Effect _depthNormalEffect;
-        private readonly Effect _lightingEffect;
+        private readonly IEffect _depthNormalEffect;
+        private readonly IEffect _lightingEffect;
 
         // Point light (sphere) mesh
         private readonly Model _lightMesh;
@@ -34,7 +35,7 @@ namespace factor10.VisionThing
 
         // Shadow depth target and depth-texture effect
         private readonly RenderTarget2D _shadowDepthTarg;
-        private readonly Effect _shadowDepthEffect;
+        private readonly IEffect _shadowDepthEffect;
 
         // Depth texture parameters
         private const int ShadowMapSize = 1024;
@@ -53,42 +54,44 @@ namespace factor10.VisionThing
         private readonly Effect _shadowBlurEffect;
 
         public PrelightingRenderer(
-            GraphicsDevice graphicsDevice,
-            ContentManager content)
+            GraphicsDevice graphicsDevice )
         {
             _viewWidth = graphicsDevice.Viewport.Width;
             _viewHeight = graphicsDevice.Viewport.Height;
 
             // Create the three render targets
-            _depthTarg = new RenderTarget2D(graphicsDevice, _viewWidth,
-                                            _viewHeight, false, SurfaceFormat.Single, DepthFormat.Depth24);
+            _depthTarg = new RenderTarget2D(graphicsDevice,
+                _viewWidth, _viewHeight,
+                false, SurfaceFormat.Single, DepthFormat.Depth24);
 
-            _normalTarg = new RenderTarget2D(graphicsDevice, _viewWidth,
-                                             _viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            _normalTarg = new RenderTarget2D(graphicsDevice,
+                _viewWidth, _viewHeight, 
+                false, SurfaceFormat.Color, DepthFormat.Depth24);
 
-            _lightTarg = new RenderTarget2D(graphicsDevice, _viewWidth,
-                                            _viewHeight, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            _lightTarg = new RenderTarget2D(graphicsDevice,
+                _viewWidth, _viewHeight,
+                false, SurfaceFormat.Color, DepthFormat.Depth24);
 
             // Load effects
-            _depthNormalEffect = content.Load<Effect>("PPDepthNormal");
-            _lightingEffect = content.Load<Effect>("PPLight");
+            _depthNormalEffect = VisionContent.LoadPlainEffect("PPDepthNormal");
+            _lightingEffect = VisionContent.LoadPlainEffect("PPLight");
 
             // Set effect parameters to light mapping effect
             _lightingEffect.Parameters["viewportWidth"].SetValue(_viewWidth);
             _lightingEffect.Parameters["viewportHeight"].SetValue(_viewHeight);
 
             // Load point light mesh and set light mapping effect to it
-            _lightMesh = content.Load<Model>("PPLightMesh");
-            _lightMesh.Meshes[0].MeshParts[0].Effect = _lightingEffect;
+            _lightMesh = VisionContent.Load<Model>("PPLightMesh");
+            _lightMesh.Meshes[0].MeshParts[0].Effect = _lightingEffect.Effect;
 
             _shadowDepthTarg = new RenderTarget2D(graphicsDevice, ShadowMapSize,
                                                   ShadowMapSize, false, SurfaceFormat.HalfVector2, DepthFormat.Depth24);
 
-            _shadowDepthEffect = content.Load<Effect>("ShadowDepthEffect");
+            _shadowDepthEffect = VisionContent.LoadPlainEffect("ShadowDepthEffect");
             _shadowDepthEffect.Parameters["FarPlane"].SetValue(ShadowFarPlane);
 
             _spriteBatch = new SpriteBatch(graphicsDevice);
-            _shadowBlurEffect = content.Load<Effect>("GaussianBlur");
+            _shadowBlurEffect = VisionContent.Load<Effect>("GaussianBlur");
 
             _shadowBlurTarg = new RenderTarget2D(graphicsDevice, ShadowMapSize,
                                                  ShadowMapSize, false, SurfaceFormat.HalfVector2, DepthFormat.Depth24);
@@ -121,13 +124,7 @@ namespace factor10.VisionThing
 
             // Draw each model with the PPDepthNormal effect
             foreach (var model in Models)
-            {
-                //model.CacheEffects();
-                //model.SetModelEffect(_depthNormalEffect, false);
-                //model.Draw(Camera.View, Camera.Projection,
-                //           Camera.Position);
-                //model.RestoreEffects();
-            }
+                model.Draw(Camera, _depthNormalEffect);
 
             // Un-set the render targets
             _graphicsDevice.SetRenderTargets(null);
@@ -151,12 +148,7 @@ namespace factor10.VisionThing
 
             // Draw each model with the ShadowDepthEffect effect
             foreach (var model in Models)
-            {
-            //    model.CacheEffects();
-            //    model.SetModelEffect(_shadowDepthEffect, false);
-            //    model.Draw(_shadowView, _shadowProjection, ShadowLightPosition);
-            //    model.RestoreEffects();
-            }
+                model.Draw(Camera, _shadowDepthEffect);
 
             // Un-set the render targets
             _graphicsDevice.SetRenderTarget(null);
@@ -169,10 +161,10 @@ namespace factor10.VisionThing
             _lightingEffect.Parameters["NormalTexture"].SetValue(_normalTarg);
 
             // Calculate the view * projection matrix
-            Matrix viewProjection = Camera.View*Camera.Projection;
+            var viewProjection = Camera.View*Camera.Projection;
 
             // Set the inverse of the view * projection matrix to the effect
-            Matrix invViewProjection = Matrix.Invert(viewProjection);
+            var invViewProjection = Matrix.Invert(viewProjection);
             _lightingEffect.Parameters["InvViewProjection"].SetValue(
                 invViewProjection);
 
@@ -186,7 +178,7 @@ namespace factor10.VisionThing
             _graphicsDevice.BlendState = BlendState.Additive;
             _graphicsDevice.DepthStencilState = DepthStencilState.None;
 
-            foreach (PPPointLight light in Lights)
+            foreach (var light in Lights)
             {
                 // Set the light's parameters to the effect
                 light.SetEffectParameters(_lightingEffect);

@@ -97,6 +97,8 @@
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
     <Compile Include="DoubleSin.cs" />
+    <Compile Include="Effects\IEffect.cs" />
+    <Compile Include="Effects\PlainEffectWrapper.cs" />
     <Compile Include="IDrawable.cs" />
     <Compile Include="PPPointLight.cs" />
     <Compile Include="PrelightingRenderer.cs" />
@@ -115,10 +117,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SkySphere.cs" />
-    <Compile Include="StockEffects\NewBasicEffect.cs" />
-    <Compile Include="StockEffects\StockBasicEffect.cs" />
+    <Compile Include="Effects\NewBasicEffect.cs" />
+    <Compile Include="Effects\StockBasicEffect.cs" />
     <Compile Include="Primitives\PlanePrimitive.cs" />
-    <Compile Include="StockEffects\EffectHelpers.cs" />
+    <Compile Include="Effects\EffectHelpers.cs" />
     <Compile Include="VisionContent.cs" />
     <Compile Include="Water\WaterSurface.cs" />
     <Compile Include="Water\WaterFactory.cs" />

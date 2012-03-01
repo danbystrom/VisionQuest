@@ -4,18 +4,16 @@ float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
 
-texture BasicTexture;
+texture Texture;
 
-sampler BasicTextureSampler = sampler_state {
-	texture = <BasicTexture>;
+sampler TextureSampler = sampler_state {
+	Texture = <Texture>;
 	MinFilter = Anisotropic; // Minification Filter
 	MagFilter = Anisotropic; // Magnification Filter
 	MipFilter = Linear; // Mip-mapping
 	AddressU = Wrap; // Address Mode for U Coordinates
 	AddressV = Wrap; // Address Mode for V Coordinates
 };
-
-bool TextureEnabled = false;
 
 float3 DiffuseColor = float3(1, 1, 1);
 float3 AmbientColor = float3(0.3, 0.3, 0.3);
@@ -63,11 +61,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
 
 	// Start with diffuse color
-	float3 color = DiffuseColor;
-
-	// Texture if necessary
-	if (TextureEnabled)
-		color *= tex2D(BasicTextureSampler, input.UV);
+	float3 color = DiffuseColor * tex2D(TextureSampler, input.UV);
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
