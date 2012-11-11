@@ -16,8 +16,6 @@ namespace factor10.VisionThing.Primitives
             int width,
             int height)
         {
-            //_effect = effect;
-
             for (var y = 0; y <= height; y++)
                 for (var x = 0; x <= width; x++)
                     addVertex(createVertex(x, y));

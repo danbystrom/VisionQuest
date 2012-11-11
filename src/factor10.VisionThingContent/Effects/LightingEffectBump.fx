@@ -42,11 +42,11 @@ struct VertexShaderInput
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
-    float2 UV : TEXCOORD0;
+    float4 Position		 : POSITION0;
+    float2 UV			 : TEXCOORD0;
     float3 ViewDirection : TEXCOORD1;
 	float3 WorldPosition : TEXCOORD2;
-};
+	};
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
@@ -74,7 +74,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 	float3 lightDir = normalize(LightDirection);
 
-	float3 normal = tex2D(BumpMapSampler, input.UV).rgb * 2 - 1;
+	float3 normal = normalize( tex2D(BumpMapSampler, input.UV).rgb * 2 - 1 );
 
 	// Add lambertian lighting
 	lighting += saturate(dot(lightDir, normal)) * LightColor;

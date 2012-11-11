@@ -96,6 +96,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="ShadowRenderer.cs" />
     <Compile Include="DoubleSin.cs" />
     <Compile Include="Effects\IEffect.cs" />
     <Compile Include="Effects\PlainEffectWrapper.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Effects\StockBasicEffect.cs" />
     <Compile Include="Primitives\PlanePrimitive.cs" />
     <Compile Include="Effects\EffectHelpers.cs" />
+    <Compile Include="Terrain.cs" />
     <Compile Include="VisionContent.cs" />
     <Compile Include="Water\WaterSurface.cs" />
     <Compile Include="Water\WaterFactory.cs" />

@@ -7,7 +7,7 @@ using factor10.VisionThing.Primitives;
 
 namespace TestBed
 {
-    class Box : ClipDrawable
+    public class Box : ClipDrawable
     {
         public const int Width = 16;
         public const int Height = 16;
@@ -17,7 +17,7 @@ namespace TestBed
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Box( Matrix world )
+        public Box(Matrix world )
             : base(VisionContent.LoadPlainEffect("effects/lightingeffectbump"))
         {
             _texture = VisionContent.Load<Texture2D>("textures/brick_texture_map");
@@ -44,4 +44,5 @@ namespace TestBed
         }
 
     }
+
 }

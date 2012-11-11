@@ -35,8 +35,7 @@ namespace factor10.VisionThing.Water
                                        Spec = new Vector4(0.8f, 0.8f, 0.8f, 0.8f),
                                        SpecPower = 128
                                    },
-                        Rows = 128,
-                        Columns = 128,
+                        SquareSize = 128,
                         dx = 0.25f,
                         dz = 0.25f,
                         waveMap0 = VisionContent.Load<Texture2D>(@"textures\wave0"),
@@ -60,7 +59,7 @@ namespace factor10.VisionThing.Water
                 var newData = new float[z.Width*z.Height];
                 z.GetData(oldData);
                 for (var i = 0; i < oldData.Length; i++)
-                    newData[i] = oldData[i].R / 255f; //new Vector4(, oldData[i].G/255f, oldData[i].B/255f, oldData[i].A/255f);
+                    newData[i] = oldData[i].R / 255f;
 
                 var result = new Texture2D(graphicsDevice, z.Width, z.Height, false, SurfaceFormat.Single);
                 result.SetData(newData);
@@ -75,8 +74,8 @@ namespace factor10.VisionThing.Water
         {
             const int waterW = 32;
             const int waterH = 32;
-            const int worldW = 256;
-            const int worldH = 256;
+            const int worldW = 512;
+            const int worldH = 512;
 
             var boundingFrustum = new BoundingFrustum(camera.View*camera.Projection);
             var visible = new bool[worldW,worldH];
@@ -99,11 +98,11 @@ namespace factor10.VisionThing.Water
                             hit |= visible[x + nx, y + ny];
                     if (!hit)
                         continue;
-                    var pos = new Vector3((gridStartX + x)*waterW, -2, (gridStartY + y)*waterH);
+                    var pos = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
                     waterSurface.Draw(
                         camera,
                         Matrix.CreateTranslation(pos),
-                        Vector3.DistanceSquared(camera.Position, pos) > 10000);
+                        Vector3.DistanceSquared(camera.Position, pos));
                 }
         }
 

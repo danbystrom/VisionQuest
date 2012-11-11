@@ -98,8 +98,10 @@ namespace factor10.VisionThing.Primitives
             foreach (var effectPass in effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
+                //graphicsDevice.DrawIndexedPrimitives(
+                //    PrimitiveType.TriangleList, 0, 0, _verticesCount, 0, _primitiveCount);
                 graphicsDevice.DrawIndexedPrimitives(
-                    PrimitiveType.TriangleList, 0, 0, _verticesCount, 0, _primitiveCount);
+                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount/3);
             }
 
         }

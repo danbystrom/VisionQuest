@@ -14,7 +14,7 @@ namespace factor10.VisionThing
              TextureCube texture)
             : base( new PlainEffectWrapper( VisionContent.Load<Effect>("effects/skysphere")))
         {
-            _sphere = new SpherePrimitive( Effect.GraphicsDevice, 1000, 10);
+            _sphere = new SpherePrimitive( Effect.GraphicsDevice, 10000, 10);
             Effect.Parameters["CubeMap"].SetValue(texture);
         }
 

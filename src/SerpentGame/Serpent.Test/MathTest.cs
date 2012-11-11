@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
@@ -26,13 +28,21 @@ namespace Serpent.Test
             Assert.IsTrue(points.TrueForAll(v => Math.Abs(v.Length() - 1) < 0.00001f));
         }
 
+        [StructLayout(LayoutKind.Explicit,Pack=1)]
+        private struct Q
+        {
+            [FieldOffset(0)]
+            public double Val;
+        }
+
         [Test]
         public void ZZ()
         {
-            var v1 = new Vector3(1, 0, 0);
-            var v2 = new Vector3(0, 0, -1);
-            var v3 = Vector3.Cross( v1, v2 );
-
+            var dic = new Dictionary<int, Q>();
+            for ( var i = 0 ; i < 100*1000*100 ; i++)
+                dic.Add( i, new Q {Val = i});
+            for (var i = 0; i < 100 * 1000 * 100; i++)
+                Assert.AreEqual(i, (int)dic[i].Val);
         }
     }
 }

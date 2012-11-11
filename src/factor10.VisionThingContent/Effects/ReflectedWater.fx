@@ -249,7 +249,7 @@ float4 WaterPS(	OutputVS input ) : COLOR
 	//BEGIN reflection	
 	float2 reflectionUV = postProjToScreen(input.ReflectionPosition);
 	float2 uv = float2( normalT.x * 0.02f, -0.012f );
-	float4 reflection = tex2D(reflectionSampler, reflectionUV + uv);
+	float3 reflection = tex2D(reflectionSampler, reflectionUV + uv);
 	//END reflection
 
 	// Compute the ambient, diffuse and specular terms separatly. 

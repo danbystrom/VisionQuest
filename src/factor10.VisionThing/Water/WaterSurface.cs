@@ -28,8 +28,7 @@ namespace factor10.VisionThing.Water
         public DirLight DirLight;
         public Mtrl Mtrl;
         public Effect Fx;
-        public int Rows;
-        public int Columns;
+        public int SquareSize;
         public float dx;
         public float dz;
         public Texture waveMap0;
@@ -58,7 +57,9 @@ namespace factor10.VisionThing.Water
         private readonly Vector2 _waveDMapVelocity0;
         private readonly Vector2 _waveDMapVelocity1;
 
-        private readonly PlanePrimitive<WaterVertex> _field;
+        private readonly PlanePrimitive<WaterVertex> _hiPolyPlane;
+        private readonly PlanePrimitive<WaterVertex> _mediumPolyPlane;
+        private readonly PlanePrimitive<WaterVertex> _loPolyPlane;
 
         public readonly RenderTarget2D _reflectionTarget;
 
@@ -78,17 +79,12 @@ namespace factor10.VisionThing.Water
             _waveDMapVelocity0 = initInfo.waveDMapVelocity0;
             _waveDMapVelocity1 = initInfo.waveDMapVelocity1;
 
-            _field = new PlanePrimitive<WaterVertex>(
-                graphicsDevice,
-                (x, y) => new WaterVertex
-                              {
-                                  Position = new Vector3(x*initInfo.dx, 0, y*initInfo.dz),
-                                  ScaledTexC = new Vector2(x/initInfo.Columns, y/initInfo.Rows)*initInfo.texScale,
-                                  NormalizedTexC = new Vector2(x/initInfo.Columns, y/initInfo.Rows)
-                              },
-                initInfo.Columns,
-                initInfo.Rows);
-
+            _hiPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize, initInfo.dx, initInfo.dz,
+                                         initInfo.texScale);
+            _mediumPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize/4, initInfo.dx * 4, initInfo.dz * 4,
+                                         initInfo.texScale);
+            _loPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize / 16, initInfo.dx * 16, initInfo.dz * 16,
+                                         initInfo.texScale);
 
             buildFx(initInfo);
 
@@ -106,7 +102,21 @@ namespace factor10.VisionThing.Water
                 Vector3.Up);
         }
 
-        public void Update(float dt)
+        private PlanePrimitive<WaterVertex> generatePlane(GraphicsDevice graphicsDevice, int squareSize, float dx, float dz, float texScale)
+        {
+            return new PlanePrimitive<WaterVertex>(
+                graphicsDevice,
+                (x, y) => new WaterVertex
+                              {
+                                  Position = new Vector3(x*dx, 0, y*dz),
+                                  ScaledTexC = new Vector2(x / squareSize, y / squareSize) * texScale,
+                                  NormalizedTexC = new Vector2(x / squareSize, y / squareSize)
+                              },
+                squareSize,
+                squareSize);
+        }
+
+        public void Update(float dt, Camera camera)
         {
             // Update texture coordinate offsets.  These offsets are added to the
             // texture coordinates in the vertex shader to animate them.
@@ -137,7 +147,7 @@ namespace factor10.VisionThing.Water
                 _waveDMapOffset1.Y = 0.0f;
         }
 
-        public void Draw(Camera camera, Matrix world, bool fast)
+        public void Draw(Camera camera, Matrix world, float distance)
         {
             _mhWorld.SetValue(world);
             _mhWorldInv.SetValue(Matrix.Invert(world));
@@ -150,15 +160,14 @@ namespace factor10.VisionThing.Water
             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            //Effect.CurrentTechnique = fast ? _fastEffect : _qualityEffect;
-            _field.Draw(Effect);
-
-            world *= Matrix.CreateTranslation(-32, 0, 0);
-            _mhWorld.SetValue(world);
-            _mhWorldInv.SetValue(Matrix.Invert(world));
-            _field.Draw(Effect);
-
+            if (distance < 10000)
+                _hiPolyPlane.Draw(Effect);
+            else if (distance < 2000000)
+                _mediumPolyPlane.Draw(Effect);
+            else
+                _loPolyPlane.Draw(Effect);
         }
+
 
         private EffectParameter _mhWorld;
         private EffectParameter _mhWorldInv;
@@ -169,9 +178,6 @@ namespace factor10.VisionThing.Water
         private EffectParameter _mhWaveNMapOffset1;
         private EffectParameter _mhWaveDMapOffset0;
         private EffectParameter _mhWaveDMapOffset1;
-
-        private EffectTechnique _qualityEffect;
-        private EffectTechnique _fastEffect;
 
         private void buildFx(InitInfo initInfo)
         {
@@ -187,6 +193,7 @@ namespace factor10.VisionThing.Water
             _mhWaveDMapOffset0 = p["gWaveDMapOffset0"];
             _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
 
+
             p["gWaveMap0"].SetValue(initInfo.waveMap0);
             p["gWaveMap1"].SetValue(initInfo.waveMap1);
             p["gWaveDispMap0"].SetValue(initInfo.dmap0);
@@ -201,9 +208,6 @@ namespace factor10.VisionThing.Water
             p["gMtrlSpecPower"].SetValue(initInfo.Mtrl.SpecPower);
             p["gScaleHeights"].SetValue(initInfo.scaleHeights);
             p["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
-
-            _qualityEffect = Effect.Effect.Techniques[0];
-            _fastEffect = Effect.Effect.Techniques[1];
         }
 
         public void RenderReflection(Camera camera)
