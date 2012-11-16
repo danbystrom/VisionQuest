@@ -30,7 +30,7 @@ namespace TestBed
             _world = world;
         }
 
-        private VertexPositionNormalTexture createVertex( float x , float y)
+        private VertexPositionNormalTexture createVertex( float x , float y, int width, int height)
         {
             var dx = Math.Abs(x - Width/2);
             var dy = Math.Abs(y - Height/2);

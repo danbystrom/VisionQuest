@@ -5,6 +5,6 @@ namespace factor10.VisionThing
 {
     public interface IDrawable
     {
-        void Draw(IEffect effect);
+        void Draw(IEffect effect, int lod = 0);
     }
 }

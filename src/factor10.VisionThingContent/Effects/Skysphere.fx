@@ -37,8 +37,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-	if ( input.WorldPosition.y < -1)
-		return float4(0.3,0.3,0.4,1);
+	//if ( input.WorldPosition.y < -1)
+	//	return float4(0.3,0.3,0.4,1);
 	float3 viewDirection = normalize(input.WorldPosition - CameraPosition);
 	viewDirection.y = abs(viewDirection.y);
 	return texCUBE(CubeMapSampler, viewDirection);

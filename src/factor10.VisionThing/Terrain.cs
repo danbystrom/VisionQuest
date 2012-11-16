@@ -68,11 +68,11 @@ namespace factor10.VisionThing
             return result;
         }
 
-        private VertexPositionTexture createVertex(float x, float y)
+        private VertexPositionTexture createVertex(float x, float y, int width, int height)
         {
             return new VertexPositionTexture(
                 new Vector3(x*2, 0, y*2),
-                new Vector2(x/64, y/64));
+                new Vector2(x/width, y/height));
         }
 
         public override void Draw( Camera camera, IEffect effect )

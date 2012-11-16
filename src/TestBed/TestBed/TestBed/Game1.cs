@@ -143,10 +143,18 @@ namespace TestBed
                 Matrix.CreateTranslation(0, -0.2f, 200));
             _water.ReflectedObjects.Add(_terrain);
 
-            _reimer = new Reimer(_graphics, Content);
+            _reimer = new ReimersTerrain(_graphics, Content);
+            _water.ReflectedObjects.Add(_reimer);
+
+            var newTerrain = new NewTerrain(
+               GraphicsDevice,
+                _mTextures[0],
+                _mTextures[2],
+                Matrix.CreateTranslation(0, -0.5f, -200));
+            _water.ReflectedObjects.Add(newTerrain);
         }
 
-        private Reimer _reimer;
+        private ReimersTerrain _reimer;
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -195,9 +203,6 @@ namespace TestBed
                 z.Draw(_camera);
            WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
 
-            _reimer.Draw(_camera,(float)gameTime.TotalGameTime.TotalMilliseconds / 100, _water._reflectionTarget );
-            //zzz();
-            _box1.Draw(_camera);
             base.Draw(gameTime);
         }
 

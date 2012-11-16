@@ -41,6 +41,8 @@ namespace factor10.VisionThing.Water
         public Vector2 waveDMapVelocity1;
         public Vector2 scaleHeights;
         public float texScale;
+        public Texture LakeBumpMap;
+        public Texture Checker;
     }
 
     public class WaterSurface
@@ -60,6 +62,7 @@ namespace factor10.VisionThing.Water
         private readonly PlanePrimitive<WaterVertex> _hiPolyPlane;
         private readonly PlanePrimitive<WaterVertex> _mediumPolyPlane;
         private readonly PlanePrimitive<WaterVertex> _loPolyPlane;
+        private readonly PlanePrimitive<WaterVertex> _lakePlane;
 
         public readonly RenderTarget2D _reflectionTarget;
 
@@ -86,6 +89,8 @@ namespace factor10.VisionThing.Water
             _loPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize / 16, initInfo.dx * 16, initInfo.dz * 16,
                                          initInfo.texScale);
 
+            _lakePlane = generatePlane(graphicsDevice, 1, 256, 256, 64);
+
             buildFx(initInfo);
 
             _reflectionTarget = new RenderTarget2D(
@@ -106,11 +111,11 @@ namespace factor10.VisionThing.Water
         {
             return new PlanePrimitive<WaterVertex>(
                 graphicsDevice,
-                (x, y) => new WaterVertex
+                (x, y, width, height) => new WaterVertex
                               {
                                   Position = new Vector3(x*dx, 0, y*dz),
+                                  NormalizedTexC = new Vector2(x / squareSize, y / squareSize),
                                   ScaledTexC = new Vector2(x / squareSize, y / squareSize) * texScale,
-                                  NormalizedTexC = new Vector2(x / squareSize, y / squareSize)
                               },
                 squareSize,
                 squareSize);
@@ -128,27 +133,27 @@ namespace factor10.VisionThing.Water
 
             // Textures repeat every 1.0 unit, so reset back down to zero
             // so the coordinates do not grow too large.
-            if (_waveNMapOffset0.X >= 1.0f || _waveNMapOffset0.X <= -1.0f)
-                _waveNMapOffset0.X = 0.0f;
-            if (_waveNMapOffset1.X >= 1.0f || _waveNMapOffset1.X <= -1.0f)
-                _waveNMapOffset1.X = 0.0f;
-            if (_waveNMapOffset0.Y >= 1.0f || _waveNMapOffset0.Y <= -1.0f)
-                _waveNMapOffset0.Y = 0.0f;
-            if (_waveNMapOffset1.Y >= 1.0f || _waveNMapOffset1.Y <= -1.0f)
-                _waveNMapOffset1.Y = 0.0f;
+            wrap(ref _waveNMapOffset0);
+            wrap(ref _waveNMapOffset1);
+            wrap(ref _waveDMapOffset0);
+            wrap(ref _waveDMapOffset1);
 
-            if (_waveDMapOffset0.X >= 1.0f || _waveDMapOffset0.X <= -1.0f)
-                _waveDMapOffset0.X = 0.0f;
-            if (_waveDMapOffset1.X >= 1.0f || _waveDMapOffset1.X <= -1.0f)
-                _waveDMapOffset1.X = 0.0f;
-            if (_waveDMapOffset0.Y >= 1.0f || _waveDMapOffset0.Y <= -1.0f)
-                _waveDMapOffset0.Y = 0.0f;
-            if (_waveDMapOffset1.Y >= 1.0f || _waveDMapOffset1.Y <= -1.0f)
-                _waveDMapOffset1.Y = 0.0f;
+            _time += dt;
         }
 
-        public void Draw(Camera camera, Matrix world, float distance)
+        private void wrap(ref Vector2 vec)
         {
+            if (vec.X >= 2.0f || vec.X <= -2.0f)
+                vec.X -= 2*Math.Sign(_waveNMapOffset0.X);
+            if (vec.Y >= 2.0f || vec.Y <= -2.0f)
+                vec.Y -= 2*Math.Sign(vec.Y);
+        }
+
+        private float _time;
+
+        public void Draw(Camera camera, float scale, Vector3 pos, float distance, int nisse, int dx, int dy)
+        {
+            var world = Matrix.CreateTranslation(pos);
             _mhWorld.SetValue(world);
             _mhWorldInv.SetValue(Matrix.Invert(world));
             _mhView.SetValue(camera.View);
@@ -160,12 +165,59 @@ namespace factor10.VisionThing.Water
             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            if (distance < 10000)
-                _hiPolyPlane.Draw(Effect);
-            else if (distance < 2000000)
-                _mediumPolyPlane.Draw(Effect);
-            else
-                _loPolyPlane.Draw(Effect);
+            Effect.Parameters["WaveLength"].SetValue(0.1f);
+            Effect.Parameters["WaveHeight"].SetValue(0.3f*2);
+            Effect.Parameters["WindForce"].SetValue(0.002f);
+            Effect.Parameters["Time"].SetValue(_time*10);
+            Effect.Parameters["WindDirection"].SetValue(new Vector3(0,0,1));
+
+            switch(nisse)
+            {
+                case 0:
+                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0,0,2,2));
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
+                    _lakePlane.Draw(Effect);
+                    break;
+                case 1:
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
+
+                    if (distance < 10000)
+                        _hiPolyPlane.Draw(Effect);
+                    else if (distance < 2000000)
+                        _mediumPolyPlane.Draw(Effect);
+                    else
+                        _loPolyPlane.Draw(Effect);
+                    break;
+                case 2:
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
+                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, 2, 2));
+                    _hiPolyPlane.Draw(Effect);
+                    break;
+                case 3:
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
+                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
+                    if (distance < 8000)
+                        _hiPolyPlane.Draw(Effect);
+                    else if (distance < 30000)
+                    {
+                        world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
+                                Matrix.CreateTranslation(0, -0.1f, 0);
+                        _mhWorld.SetValue(world);
+                        _mhWorldInv.SetValue(Matrix.Invert(world));
+                        _mediumPolyPlane.Draw(Effect);
+                    }
+                    else
+                    {
+                        //Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
+                        world = Matrix.CreateScale(scale, 1, scale) * Matrix.CreateTranslation(pos) *
+                               Matrix.CreateTranslation(0, -0.1f, 0);
+                        _mhWorld.SetValue(world);
+                        _mhWorldInv.SetValue(Matrix.Invert(world));
+                        _lakePlane.Draw(Effect);
+                    }
+                    break;
+            }
+
         }
 
 
@@ -187,12 +239,14 @@ namespace factor10.VisionThing.Water
             _mhWorldInv = p["WorldInv"];
             _mhView = p["View"];
             _mhProjection = p["Projection"];
-            _mhCameraPosition = p["gCameraPosition"];
+            _mhCameraPosition = p["CameraPosition"];
             _mhWaveNMapOffset0 = p["gWaveNMapOffset0"];
             _mhWaveNMapOffset1 = p["gWaveNMapOffset1"];
             _mhWaveDMapOffset0 = p["gWaveDMapOffset0"];
             _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
 
+            p["WaterBumpMap"].SetValue(initInfo.LakeBumpMap);
+            p["Checker"].SetValue(initInfo.Checker);
 
             p["gWaveMap0"].SetValue(initInfo.waveMap0);
             p["gWaveMap1"].SetValue(initInfo.waveMap1);
@@ -200,7 +254,7 @@ namespace factor10.VisionThing.Water
             p["gWaveDispMap1"].SetValue(initInfo.dmap1);
             p["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
             p["gLightDiffuse"].SetValue(initInfo.DirLight.Diffuse);
-            p["gLightDirW"].SetValue(initInfo.DirLight.DirW);
+            p["LightDirection"].SetValue(initInfo.DirLight.DirW);
             p["gLightSpec"].SetValue(initInfo.DirLight.Spec);
             p["gMtrlAmbient"].SetValue(initInfo.Mtrl.Ambient);
             p["gMtrlDiffuse"].SetValue(initInfo.Mtrl.Diffuse);

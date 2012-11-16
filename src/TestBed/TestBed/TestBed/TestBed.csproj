@@ -110,8 +110,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Reimer.cs" />
+    <Compile Include="ReimersSamples.cs" />
+    <Compile Include="ReimersTerrain.cs" />
     <Compile Include="Ship.cs" />
+    <Compile Include="NewTerrain.cs" />
     <Compile Include="Windmill.cs" />
     <Compile Include="Island.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

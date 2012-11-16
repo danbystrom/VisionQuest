@@ -30,8 +30,8 @@ namespace factor10.VisionThing.Water
                                        },
                         Mtrl = new Mtrl
                                    {
-                                       Ambient = new Vector4(0.4f, 0.4f, 0.7f, 0.0f),
-                                       Diffuse = new Vector4(0.4f, 0.4f, 0.7f, 1.0f),
+                                       Ambient = new Vector4(0.65f, 0.65f, 0.95f, 0.0f),
+                                       Diffuse = new Vector4(0.65f, 0.65f, 0.95f, 1.0f),
                                        Spec = new Vector4(0.8f, 0.8f, 0.8f, 0.8f),
                                        SpecPower = 128
                                    },
@@ -42,6 +42,8 @@ namespace factor10.VisionThing.Water
                         waveMap1 = VisionContent.Load<Texture2D>(@"textures\wave1"),
                         dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
                         dmap1 = foobar(graphicsDevice,  @"textures\waterdmap1"),
+                        LakeBumpMap = VisionContent.Load<Texture2D>(@"waterbump"),
+                        Checker = VisionContent.Load<Texture2D>(@"checker"),
                         waveNMapVelocity0 = new Vector2(0.05f, 0.07f),
                         waveNMapVelocity1 = new Vector2(-0.01f, 0.13f),
                         waveDMapVelocity0 = new Vector2(0.012f, 0.015f),
@@ -68,14 +70,67 @@ namespace factor10.VisionThing.Water
 
         }
 
+        public static void zDrawWaterSurfaceGrid(
+            WaterSurface waterSurface,
+            Camera camera)
+        {
+            /*
+            for (var y = 0; y < 2; y++)
+                for (var x = 0; x < 8; x++)
+                waterSurface.Draw(
+                    camera,
+                    Matrix.CreateTranslation(x*32,0,y*32),
+                    y,false);
+            for (var y = -1; y > -10; y--)
+                for (var x = 0; x < 8; x++)
+                    waterSurface.Draw(
+                        camera,
+                        Matrix.CreateTranslation(x * 256, 0.75f, y * 256),
+                        y, true);
+*/
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(64, 0.75f, 32),
+                0, 0 ,0 ,0);
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(64 + 256, 0.75f, 32),
+                0, 0, 0, 0);
+
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(32, 0, -32),
+                0, 1, 0, 0);
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(32, 0, -64),
+                0, 1, 0, 0);
+
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(32, 0, 0),
+                0, 2, 0, 0);
+            waterSurface.Draw(
+                camera,
+                1,
+                new Vector3(32, 0, 32),
+                0, 3, 0, 1);
+        }
+
+
         public static void DrawWaterSurfaceGrid(
             WaterSurface waterSurface,
             Camera camera)
         {
             const int waterW = 32;
             const int waterH = 32;
-            const int worldW = 512;
-            const int worldH = 512;
+            const int worldW = 32;
+            const int worldH = 32;
 
             var boundingFrustum = new BoundingFrustum(camera.View*camera.Projection);
             var visible = new bool[worldW,worldH];
@@ -101,8 +156,12 @@ namespace factor10.VisionThing.Water
                     var pos = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
                     waterSurface.Draw(
                         camera,
-                        Matrix.CreateTranslation(pos),
-                        Vector3.DistanceSquared(camera.Position, pos));
+                        1,
+                        pos,
+                        Vector3.DistanceSquared(camera.Position, pos),
+                        3,
+                        x % 8,
+                        y % 8);
                 }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing.Effects;
@@ -9,13 +10,16 @@ namespace factor10.VisionThing.Primitives
     public abstract class GeometricPrimitive<T> : IDisposable, IDrawable where T: struct, IVertexType
     {
         private List<T> _vertices = new List<T>();
-        private List<uint> _indices = new List<uint>();
+        private List<List<uint>> _indicesOfLods = new List<List<uint>>();
+        private List<uint> _indices;
 
         private VertexBuffer _vertexBuffer;
-        private IndexBuffer _indexBuffer;
+        private IndexBuffer[] _indexBuffers;
 
-        private int _primitiveCount;
-        private int _verticesCount;
+        protected GeometricPrimitive()
+        {
+            addLevelOfDetail();
+        }
 
         protected void addVertex(T vertex)
         {
@@ -28,7 +32,15 @@ namespace factor10.VisionThing.Primitives
                 throw new ArgumentOutOfRangeException("index");
             _indices.Add((ushort)index);
         }
-         
+
+        protected void addLevelOfDetail()
+        {
+            if (_indices != null && !_indices.Any())
+                return;
+            _indices = new List<uint>();
+            _indicesOfLods.Add(_indices);
+        }
+
         protected int CurrentVertex
         {
             get { return _vertices.Count; }
@@ -43,28 +55,35 @@ namespace factor10.VisionThing.Primitives
                 BufferUsage.None);
             _vertexBuffer.SetData(_vertices.ToArray());
 
-            if (_vertices.Count < 65536)
-            {
-                _indexBuffer = new IndexBuffer(
-                    graphicsDevice,
-                    typeof (ushort),
-                    _indices.Count, BufferUsage.None);
-                _indexBuffer.SetData(_indices.ConvertAll(x => (ushort) x).ToArray());
-            }
-            else
-            {
-                _indexBuffer = new IndexBuffer(
-                    graphicsDevice,
-                    typeof (uint),
-                    _indices.Count, BufferUsage.None);
-                _indexBuffer.SetData(_indices.ToArray());
-            }
-
-            _primitiveCount = _indices.Count / 3;
-            _verticesCount = _vertices.Count;
+            _indexBuffers = new IndexBuffer[_indicesOfLods.Count];
+            for (var i = 0; i < _indexBuffers.Length; i++)
+                _indexBuffers[i] = createIndexBuffer(graphicsDevice,_indicesOfLods[i]);
 
             _vertices = null;
             _indices = null;
+            _indicesOfLods = null;
+        }
+
+        private IndexBuffer createIndexBuffer(GraphicsDevice graphicsDevice, List<uint> indices)
+        {
+            IndexBuffer indexBuffer;
+            if (_vertices.Count < 65536)
+            {
+                indexBuffer = new IndexBuffer(
+                    graphicsDevice,
+                    typeof (ushort),
+                    indices.Count, BufferUsage.None);
+                indexBuffer.SetData(indices.ConvertAll(x => (ushort) x).ToArray());
+            }
+            else
+            {
+                indexBuffer = new IndexBuffer(
+                    graphicsDevice,
+                    typeof (uint),
+                    indices.Count, BufferUsage.None);
+                indexBuffer.SetData(indices.ToArray());
+            }
+            return indexBuffer;
         }
 
         ~GeometricPrimitive()
@@ -83,51 +102,34 @@ namespace factor10.VisionThing.Primitives
             if (!disposing)
                 return;
             if (_vertexBuffer != null)
+            {
                 _vertexBuffer.Dispose();
-            if (_indexBuffer != null)
-                _indexBuffer.Dispose();
+                _vertexBuffer = null;
+            }
+            if (_indexBuffers != null)
+            {
+                foreach (var idx in _indexBuffers)
+                    idx.Dispose();
+                _indexBuffers = null;
+            }
         }
 
-        public void Draw(IEffect effect)
+        public void Draw(IEffect effect, int lod = 0)
         {
             var graphicsDevice = effect.GraphicsDevice;
 
             graphicsDevice.SetVertexBuffer(_vertexBuffer);
-            graphicsDevice.Indices = _indexBuffer;            
+            graphicsDevice.Indices = _indexBuffers[lod];            
 
             foreach (var effectPass in effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
-                //graphicsDevice.DrawIndexedPrimitives(
-                //    PrimitiveType.TriangleList, 0, 0, _verticesCount, 0, _primitiveCount);
                 graphicsDevice.DrawIndexedPrimitives(
-                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount/3);
+                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[0].IndexCount/3);
             }
 
         }
 
-        /*
-        public void Draw(
-            Matrix world,
-            Matrix view,
-            Matrix projection,
-            Color color)
-        {
-            BasicEffect.World = world;
-            BasicEffect.View = view;
-            BasicEffect.Projection = projection;
-            BasicEffect.DiffuseColor = color.ToVector3();
-            BasicEffect.Alpha = color.A / 255.0f;
-
-            var device = BasicEffect.GraphicsDevice;
-            device.DepthStencilState = DepthStencilState.Default;
-            device.BlendState = color.A < 255
-                ? BlendState.AlphaBlend
-                : BlendState.Opaque;
-
-            Draw(BasicEffect);
-        }
-        */
     }
 
 }

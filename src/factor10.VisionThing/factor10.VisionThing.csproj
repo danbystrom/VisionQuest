@@ -96,6 +96,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="Ground.cs" />
     <Compile Include="ShadowRenderer.cs" />
     <Compile Include="DoubleSin.cs" />
     <Compile Include="Effects\IEffect.cs" />

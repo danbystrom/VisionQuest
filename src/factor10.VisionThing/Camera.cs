@@ -31,7 +31,7 @@ namespace factor10.VisionThing
             Projection = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.PiOver4,
                 clientSize.X / clientSize.Y,
-                1, 1000);
+                1, 10000);
         }
 
         public Camera(

@@ -6,8 +6,8 @@ namespace factor10.VisionThing.Water
     public struct WaterVertex : IVertexType
     {
         public Vector3 Position;
-        public Vector2 ScaledTexC;     // [a, b]
         public Vector2 NormalizedTexC; // [0, 1]
+        public Vector2 ScaledTexC;     // [a, b]
 
         public static readonly int SizeInBytes = 28;
 
