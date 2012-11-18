@@ -14,7 +14,7 @@ float3 CameraPosition;
 float4 ClipPlane;
 
 float3 LightDirection = float3(0.7,0.7,0.7);
-float Ambient;
+float Ambient = 0.4;
 bool EnableLighting;
 
 float dtex = 1/128;
@@ -81,11 +81,13 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
 {
     MTPixelToFrame Output = (MTPixelToFrame)0;        
     
-	float4 normal = tex2D(NormalsSampler, PSIn.TextureCoords).r;
-
     float lightingFactor = 1;
-    if (EnableLighting)
-        lightingFactor = saturate(saturate(dot(normal, PSIn.LightDirection)) + Ambient);
+    //if (EnableLighting)
+	//{
+		float3 normal = tex2D(NormalsSampler, PSIn.TextureCoords).xyz - float3(0.5,0.5,0.5);
+		normal = normalize(normal);
+        lightingFactor = saturate(Ambient+dot(normal, normalize(PSIn.LightDirection)));
+	//}
 
     float blendDistance = 0.99f;
 	float blendWidth = 0.005f;

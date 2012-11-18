@@ -328,7 +328,7 @@ WPixelToFrame LakeWaterPS(LakeWaterVertexOutput PSIn)
     WPixelToFrame Output = (WPixelToFrame)0;        
     
     float4 bumpColor = tex2D(WaterBumpMapSampler, PSIn.BumpMapSamplingPos);
-    float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*2.0f;
+    float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
     
     float2 ProjectedTexCoords;
     ProjectedTexCoords.x = PSIn.ReflectionMapPos.x/PSIn.ReflectionMapPos.w/2.0f + 0.5f;
@@ -342,7 +342,7 @@ WPixelToFrame LakeWaterPS(LakeWaterVertexOutput PSIn)
     float3 normalVector = (bumpColor.rbg-0.5f)*2.0f;
     
     float fresnelTerm = dot(eyeVector, normalVector);    
-    float4 combinedColor = lerp(reflectiveColor, refractiveColor, fresnelTerm);
+    float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm));
     float4 dullColor = float4(0.3f, 0.3f, 0.5f, 1.0f);
     Output.Color = lerp(combinedColor, dullColor, 0.2f);    
     
@@ -351,8 +351,6 @@ WPixelToFrame LakeWaterPS(LakeWaterVertexOutput PSIn)
     specular = pow(abs(specular), 256);        
     Output.Color.rgb += specular;
 
-//Output.Color = tex2D(CheckerSampler, PSIn.BumpMapSamplingPos);
-    
     return Output;
 }
 

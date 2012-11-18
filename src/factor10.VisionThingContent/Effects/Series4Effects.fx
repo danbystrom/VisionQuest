@@ -71,7 +71,7 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
     
     float lightingFactor = 1;
     if (EnableLighting)
-        lightingFactor = saturate(saturate(dot(PSIn.Normal, PSIn.LightDirection)) + Ambient);
+        lightingFactor = saturate(saturate(dot(PSIn.Normal, PSIn.LightDirection)) + -4*Ambient);
 
     float blendDistance = 0.99f;
 	float blendWidth = 0.005f;

@@ -7,23 +7,28 @@ namespace factor10.VisionThing.Primitives
     /// <summary>
     /// Geometric primitive class for drawing toruses.
     /// </summary>
-    public class TorusPrimitive : GeometricPrimitive<VertexPositionNormal>
+    public class TorusPrimitive<T> : GeometricPrimitive<T> where T : struct, IVertexType
     {
+        public delegate T CreateVertex(Vector3 position, Vector3 normal);
+
         /// <summary>
         /// Constructs a new torus primitive, using default settings.
         /// </summary>
-        public TorusPrimitive(GraphicsDevice graphicsDevice)
-            : this(graphicsDevice, 1, 0.333f, 32)
-        {
-        }
-
+        //public TorusPrimitive(GraphicsDevice graphicsDevice)
+        //    : this(graphicsDevice, 1, 0.333f, 32)
+        //{
+        //}
 
         /// <summary>
         /// Constructs a new torus primitive,
         /// with the specified size and tessellation level.
         /// </summary>
-        public TorusPrimitive(GraphicsDevice graphicsDevice,
-                              float diameter, float thickness, int tessellation)
+        public TorusPrimitive(
+            GraphicsDevice graphicsDevice,
+            CreateVertex createVertex,
+            float diameter,
+            float thickness,
+            int tessellation)
         {
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");
@@ -53,7 +58,7 @@ namespace factor10.VisionThing.Primitives
                     position = Vector3.Transform(position, transform);
                     normal = Vector3.TransformNormal(normal, transform);
 
-                    addVertex(new VertexPositionNormal( position, normal));
+                    addVertex(createVertex(position, normal));
 
                     // And create indices for two triangles.
                     var nextI = (i + 1) % tessellation;

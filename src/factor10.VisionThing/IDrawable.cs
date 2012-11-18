@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using factor10.VisionThing.Effects;
+﻿using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing
 {

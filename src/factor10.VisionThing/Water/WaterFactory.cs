@@ -70,59 +70,6 @@ namespace factor10.VisionThing.Water
 
         }
 
-        public static void zDrawWaterSurfaceGrid(
-            WaterSurface waterSurface,
-            Camera camera)
-        {
-            /*
-            for (var y = 0; y < 2; y++)
-                for (var x = 0; x < 8; x++)
-                waterSurface.Draw(
-                    camera,
-                    Matrix.CreateTranslation(x*32,0,y*32),
-                    y,false);
-            for (var y = -1; y > -10; y--)
-                for (var x = 0; x < 8; x++)
-                    waterSurface.Draw(
-                        camera,
-                        Matrix.CreateTranslation(x * 256, 0.75f, y * 256),
-                        y, true);
-*/
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(64, 0.75f, 32),
-                0, 0 ,0 ,0);
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(64 + 256, 0.75f, 32),
-                0, 0, 0, 0);
-
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(32, 0, -32),
-                0, 1, 0, 0);
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(32, 0, -64),
-                0, 1, 0, 0);
-
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(32, 0, 0),
-                0, 2, 0, 0);
-            waterSurface.Draw(
-                camera,
-                1,
-                new Vector3(32, 0, 32),
-                0, 3, 0, 1);
-        }
-
-
         public static void DrawWaterSurfaceGrid(
             WaterSurface waterSurface,
             Camera camera)
@@ -159,7 +106,6 @@ namespace factor10.VisionThing.Water
                         1,
                         pos,
                         Vector3.DistanceSquared(camera.Position, pos),
-                        3,
                         x % 8,
                         y % 8);
                 }

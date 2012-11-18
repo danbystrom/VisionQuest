@@ -1,22 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using factor10.VisionThing;
+using factor10.VisionThing.Primitives;
+using factor10.VisionThing.Water;
 using LibNoise.Xna;
 using LibNoise.Xna.Generator;
 using LibNoise.Xna.Operator;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using factor10.VisionThing;
-using factor10.VisionThing.Primitives;
-using factor10.VisionThing.Effects;
-using factor10.VisionThing.Water;
 using BasicEffect = Microsoft.Xna.Framework.Graphics.BasicEffect;
-using IDrawable = factor10.VisionThing.ClipDrawable;
 
 namespace TestBed
 {
@@ -30,9 +21,9 @@ namespace TestBed
 
         private Camera _camera;
         private WaterSurface _water;
-        private ClipDrawableInstance _pillar1, _pillar2;
         private Box _box1, _box2;
-        private Ship _ship;
+        private Ship _ship1;
+        private MovingShip _ship2;
         private Windmill _windmill;
         private Island _island;
         private Terrain _terrain;
@@ -45,6 +36,9 @@ namespace TestBed
         private KeyboardState _kbd;
         private bool _controlCameraWithMouse = true;
 
+        private RenderTarget2D _target1;
+        private RenderTarget2D _target2;
+        private TorusPrimitive<VertexPositionNormal> _torus;
 
         public Game1()
         {
@@ -85,30 +79,21 @@ namespace TestBed
             _camera = new Camera(Window.ClientBounds, new Vector3(0, 4, -20), Vector3.Up);
             _water = WaterFactory.Create(GraphicsDevice);
 
-            _pillar1 = new ClipDrawableInstance(
-                lightingEffect,
-                new CylinderPrimitive<VertexPositionNormal>(GraphicsDevice, (a, b, c) => new VertexPositionNormal(a, b), 10, 2, 10),
-                Matrix.CreateRotationX(MathHelper.PiOver4)*Matrix.CreateTranslation(28, 3, 15));
-            _pillar2 = new ClipDrawableInstance(
-                lightingEffect,
-                new CylinderPrimitive<VertexPositionNormal>(GraphicsDevice, (a, b, c) => new VertexPositionNormal(a, b), 10, 2, 10),
-                Matrix.CreateRotationZ(MathHelper.PiOver4)*Matrix.CreateTranslation(20, 5, 28));
-            _box1 = new Box(
-                Matrix.CreateTranslation(-20, 3, -20));
-            _box2 = new Box(
-                Matrix.CreateTranslation(-10, 4, -10));
+            _box1 = new Box(Matrix.CreateTranslation(-20, 3, -20));
+            _box2 = new Box(Matrix.CreateTranslation(-10, 4, -10));
 
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
-            _ship = new Ship();
+            var shipModel = new ShipModel();
+            _ship1 = new Ship(shipModel);
+            _ship2 = new MovingShip(shipModel);
             _windmill = new Windmill();
             _island = new Island(lightingEffectTexture, Matrix.CreateTranslation(-10, 0, 0));
 
             _water.ReflectedObjects.Add(_sky1);
-            _water.ReflectedObjects.Add(_pillar1);
-            _water.ReflectedObjects.Add(_pillar2);
             _water.ReflectedObjects.Add(_box1);
             _water.ReflectedObjects.Add(_box2);
-            _water.ReflectedObjects.Add(_ship);
+            _water.ReflectedObjects.Add(_ship1);
+            _water.ReflectedObjects.Add(_ship2);
             _water.ReflectedObjects.Add(_windmill);
             _water.ReflectedObjects.Add(_island);
             _basicEffect = new BasicEffect(GraphicsDevice);
@@ -131,7 +116,7 @@ namespace TestBed
 
             // Zoom in or out do something like this.
             float zoom = 0.5f;
-            _mNoiseMap.GeneratePlanar(-1 * zoom, 1 * zoom, -1 * zoom, 1 * zoom);
+            _mNoiseMap.GeneratePlanar(-1*zoom, 1*zoom, -1*zoom, 1*zoom);
 
             VisionContent.Init(this);
 
@@ -147,11 +132,42 @@ namespace TestBed
             _water.ReflectedObjects.Add(_reimer);
 
             var newTerrain = new NewTerrain(
-               GraphicsDevice,
+                GraphicsDevice,
                 _mTextures[0],
                 _mTextures[2],
-                Matrix.CreateTranslation(0, -0.5f, -200));
+                Matrix.CreateTranslation(0, -0.5f, -200),
+                true);
             _water.ReflectedObjects.Add(newTerrain);
+
+            newTerrain = new NewTerrain(
+                GraphicsDevice,
+                _mTextures[0],
+                _mTextures[2],
+                Matrix.CreateTranslation(200, -0.5f, 0),
+                false);
+            _water.ReflectedObjects.Add(newTerrain);
+
+            _torus = new TorusPrimitive<VertexPositionNormal>(
+                GraphicsDevice,
+                (p, n) => new VertexPositionNormal(p, n),
+                50, 10, 32);
+
+            _target1 = new RenderTarget2D(
+                GraphicsDevice,
+                GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height,
+                false,
+                SurfaceFormat.Color,
+                DepthFormat.Depth24);
+
+            _target2 = new RenderTarget2D(
+                GraphicsDevice,
+                GraphicsDevice.Viewport.Width/2,
+                GraphicsDevice.Viewport.Height/2,
+                false,
+                SurfaceFormat.Color,
+                DepthFormat.Depth24);
+
         }
 
         private ReimersTerrain _reimer;
@@ -187,7 +203,8 @@ namespace TestBed
             if (_controlCameraWithMouse)
                 _camera.UpdateFreeFlyingCamera(gameTime);
             _water.Update(dt, _camera);
-            _ship.Update(gameTime);
+            _ship1.Update(gameTime);
+            _ship2.Update(gameTime);
             _windmill.Update(gameTime);
             base.Update(gameTime);
         }
@@ -201,7 +218,26 @@ namespace TestBed
             _water.RenderReflection(_camera);
             foreach (var z in _water.ReflectedObjects)
                 z.Draw(_camera);
-           WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+            WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+
+            base.Draw(gameTime);
+        }
+
+        protected void NewDraw(GameTime gameTime)
+        {
+            GraphicsDevice.SetRenderTarget(_target1);
+
+            _water.RenderReflection(_camera);
+            foreach (var z in _water.ReflectedObjects)
+                z.Draw(_camera);
+            WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+
+            GraphicsDevice.SetRenderTarget(_target2);
+            GraphicsDevice.Clear(Color.Black);
+            _box1.Draw(_camera);
+
+            GraphicsDevice.SetRenderTarget(null);
+
 
             base.Draw(gameTime);
         }

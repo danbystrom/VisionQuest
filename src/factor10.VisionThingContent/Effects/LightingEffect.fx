@@ -27,17 +27,15 @@ float3 SpecularColor = float3(1, 1, 1);
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
-//	float2 UV : TEXCOORD0;
 	float3 Normal : NORMAL0;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
-//	float2 UV : TEXCOORD0;
-	float3 Normal : TEXCOORD1;
-	float3 ViewDirection : TEXCOORD2;
-	float3 WorldPosition : TEXCOORD3;
+	float3 Normal : TEXCOORD0;
+	float3 ViewDirection : TEXCOORD1;
+	float3 WorldPosition : TEXCOORD2;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -49,8 +47,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     
     output.WorldPosition = worldPosition;
     output.Position = mul(worldPosition, viewProjection);
-
-//	output.UV = input.UV;
 
 	output.Normal = mul(input.Normal, World);
 
@@ -65,10 +61,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	// Start with diffuse color
 	float3 color = DiffuseColor;
 
-	// Texture if necessary
-//	if (TextureEnabled)
-//		color *= tex2D(BasicTextureSampler, input.UV);
-
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
 
@@ -80,7 +72,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 	float3 refl = reflect(lightDir, normal);
 	float3 view = normalize(input.ViewDirection);
-	
+
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
 

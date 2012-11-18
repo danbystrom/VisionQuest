@@ -125,7 +125,7 @@ namespace factor10.VisionThing.Primitives
             {
                 effectPass.Apply();
                 graphicsDevice.DrawIndexedPrimitives(
-                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[0].IndexCount/3);
+                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount/3);
             }
 
         }

@@ -15,12 +15,12 @@ namespace factor10.VisionThing
 
         public abstract void Draw(Camera camera, IEffect effect);
 
-        public void Draw(Camera camera)
+        public virtual void Draw(Camera camera)
         {
             Draw(camera, Effect);
         }
 
-        public void Draw(Camera camera, Vector4? clipPlane)
+        public virtual void Draw(Camera camera, Vector4? clipPlane)
         {
             Effect.ClipPlane = clipPlane;
             Draw(camera);

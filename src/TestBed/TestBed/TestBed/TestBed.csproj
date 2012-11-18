@@ -110,9 +110,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MovingShip.cs" />
+    <Compile Include="Ship.cs" />
     <Compile Include="ReimersSamples.cs" />
     <Compile Include="ReimersTerrain.cs" />
-    <Compile Include="Ship.cs" />
+    <Compile Include="ShipModel.cs" />
     <Compile Include="NewTerrain.cs" />
     <Compile Include="Windmill.cs" />
     <Compile Include="Island.cs" />

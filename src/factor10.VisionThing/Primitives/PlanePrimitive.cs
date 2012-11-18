@@ -28,15 +28,16 @@ namespace factor10.VisionThing.Primitives
                 for (var y = 0; y < height; y+=p)
                     for (var x = 0; x < width; x+=p)
                     {
-                        var start = y*(height + 1) + x;
+                        var top = y*(height + 1) + x;
+                        var bottom = (y + p)*(height + 1) + x;
 
-                        addIndex(start + 0);
-                        addIndex(start + p);
-                        addIndex(start + height*p + p);
+                        addIndex(top + 0);
+                        addIndex(top + p);
+                        addIndex(bottom);
 
-                        addIndex(start + p);
-                        addIndex(start + height*p + 2*p);
-                        addIndex(start + height*p + p);
+                        addIndex(top + p);
+                        addIndex(bottom+p);
+                        addIndex(bottom);
                     }
             }
 

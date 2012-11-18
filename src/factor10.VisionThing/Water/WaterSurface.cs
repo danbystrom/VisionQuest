@@ -151,7 +151,7 @@ namespace factor10.VisionThing.Water
 
         private float _time;
 
-        public void Draw(Camera camera, float scale, Vector3 pos, float distance, int nisse, int dx, int dy)
+        public void Draw(Camera camera, float scale, Vector3 pos, float distance, int dx, int dy)
         {
             var world = Matrix.CreateTranslation(pos);
             _mhWorld.SetValue(world);
@@ -169,53 +169,29 @@ namespace factor10.VisionThing.Water
             Effect.Parameters["WaveHeight"].SetValue(0.3f*2);
             Effect.Parameters["WindForce"].SetValue(0.002f);
             Effect.Parameters["Time"].SetValue(_time*10);
-            Effect.Parameters["WindDirection"].SetValue(new Vector3(0,0,1));
+            Effect.Parameters["WindDirection"].SetValue(new Vector3(0, 0, 1));
 
-            switch(nisse)
+
+            Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
+            Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
+            if (distance < 9000)
+                _hiPolyPlane.Draw(Effect);
+            else if (distance < 30000)
             {
-                case 0:
-                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0,0,2,2));
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
-                    _lakePlane.Draw(Effect);
-                    break;
-                case 1:
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
-
-                    if (distance < 10000)
-                        _hiPolyPlane.Draw(Effect);
-                    else if (distance < 2000000)
-                        _mediumPolyPlane.Draw(Effect);
-                    else
-                        _loPolyPlane.Draw(Effect);
-                    break;
-                case 2:
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
-                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, 2, 2));
-                    _hiPolyPlane.Draw(Effect);
-                    break;
-                case 3:
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
-                    Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
-                    if (distance < 8000)
-                        _hiPolyPlane.Draw(Effect);
-                    else if (distance < 30000)
-                    {
-                        world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
-                                Matrix.CreateTranslation(0, -0.1f, 0);
-                        _mhWorld.SetValue(world);
-                        _mhWorldInv.SetValue(Matrix.Invert(world));
-                        _mediumPolyPlane.Draw(Effect);
-                    }
-                    else
-                    {
-                        //Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
-                        world = Matrix.CreateScale(scale, 1, scale) * Matrix.CreateTranslation(pos) *
-                               Matrix.CreateTranslation(0, -0.1f, 0);
-                        _mhWorld.SetValue(world);
-                        _mhWorldInv.SetValue(Matrix.Invert(world));
-                        _lakePlane.Draw(Effect);
-                    }
-                    break;
+                world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
+                        Matrix.CreateTranslation(0, -0.10f, 0);
+                _mhWorld.SetValue(world);
+                _mhWorldInv.SetValue(Matrix.Invert(world));
+                _mediumPolyPlane.Draw(Effect);
+            }
+            else
+            {
+                //Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
+                world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
+                        Matrix.CreateTranslation(0, -0.40f, 0);
+                _mhWorld.SetValue(world);
+                _mhWorldInv.SetValue(Matrix.Invert(world));
+                _lakePlane.Draw(Effect);
             }
 
         }
@@ -266,7 +242,7 @@ namespace factor10.VisionThing.Water
 
         public void RenderReflection(Camera camera)
         {
-            const float waterMeshPositionY = 0.5f; //experimenting with this
+            const float waterMeshPositionY = 0.75f; //experimenting with this
 
             // Reflect the camera's properties across the water plane
             var reflectedCameraPosition = camera.Position;
@@ -288,8 +264,8 @@ namespace factor10.VisionThing.Water
 
             Effect.GraphicsDevice.SetRenderTarget(null);
 
-            Effect.Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
-            Effect.Effect.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
+            Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
+            Effect.Parameters["ReflectedMap"].SetValue(_reflectionTarget);
         }
 
     }
