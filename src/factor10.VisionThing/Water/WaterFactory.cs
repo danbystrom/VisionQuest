@@ -11,8 +11,8 @@ namespace factor10.VisionThing.Water
 {
     public static class WaterFactory
     {
-         public static WaterSurface Create(GraphicsDevice graphicsDevice)
-         {
+        public static WaterSurface Create(GraphicsDevice graphicsDevice)
+        {
 
             var lightDirW = new Vector3(5.0f, -1.0f, -3.0f);
             lightDirW.Normalize();
@@ -41,7 +41,7 @@ namespace factor10.VisionThing.Water
                         waveMap0 = VisionContent.Load<Texture2D>(@"textures\wave0"),
                         waveMap1 = VisionContent.Load<Texture2D>(@"textures\wave1"),
                         dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
-                        dmap1 = foobar(graphicsDevice,  @"textures\waterdmap1"),
+                        dmap1 = foobar(graphicsDevice, @"textures\waterdmap1"),
                         LakeBumpMap = VisionContent.Load<Texture2D>(@"waterbump"),
                         Checker = VisionContent.Load<Texture2D>(@"checker"),
                         waveNMapVelocity0 = new Vector2(0.05f, 0.07f),
@@ -61,7 +61,7 @@ namespace factor10.VisionThing.Water
                 var newData = new float[z.Width*z.Height];
                 z.GetData(oldData);
                 for (var i = 0; i < oldData.Length; i++)
-                    newData[i] = oldData[i].R / 255f;
+                    newData[i] = oldData[i].R/255f;
 
                 var result = new Texture2D(graphicsDevice, z.Width, z.Height, false, SurfaceFormat.Single);
                 result.SetData(newData);
@@ -79,37 +79,32 @@ namespace factor10.VisionThing.Water
             const int worldW = 32;
             const int worldH = 32;
 
-            var boundingFrustum = new BoundingFrustum(camera.View*camera.Projection);
-            var visible = new bool[worldW,worldH];
+            var boundingFrustum = camera.BoundingFrustum;
 
             var gridStartX = (int) camera.Position.X/waterW - worldW/2;
             var gridStartY = (int) camera.Position.Z/waterH - worldH/2;
 
-            for (var y = 0; y < worldH; y++)
-                for (var x = 0; x < worldW; x++)
-                    visible[x, y] = boundingFrustum.Contains(new Vector3((gridStartX + x)*waterW, -2, (gridStartY + y)*waterH)) ==
-                                    ContainmentType.Contains;
-            visible[worldW/2, worldH/2] = true;
-
+            RenderedWaterPlanes = 0;
             for (var y = 1; y < worldH - 2; y++)
                 for (var x = 1; x < worldW - 2; x++)
                 {
-                    var hit = false;
-                    for (var ny = -1; ny < 3; ny++)
-                        for (var nx = -1; nx < 3; nx++)
-                            hit |= visible[x + nx, y + ny];
-                    if (!hit)
-                        continue;
                     var pos = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
+                    var bb = new BoundingBox(pos, new Vector3((gridStartX + x + 1)*waterW, 1, (gridStartY + y + 1)*waterH));
+                    if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                        continue;
+
                     waterSurface.Draw(
                         camera,
                         1,
                         pos,
                         Vector3.DistanceSquared(camera.Position, pos),
-                        x % 8,
-                        y % 8);
+                        x%8,
+                        y%8);
+                    RenderedWaterPlanes++;
                 }
         }
+
+        public static int RenderedWaterPlanes;
 
     }
 

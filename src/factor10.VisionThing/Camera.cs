@@ -63,11 +63,14 @@ namespace factor10.VisionThing
                 Position,
                 Target,
                 UpVector);
+            _boundingFrustum = null;
         }
 
-        public void AlterView(Matrix world)
+        private BoundingFrustum _boundingFrustum;
+
+        public BoundingFrustum BoundingFrustum
         {
-            View = world*View;
+            get { return _boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(View*Projection)); }
         }
 
         public Vector2 HandleMouse(int mouseX, int mouseY )
@@ -112,6 +115,7 @@ namespace factor10.VisionThing
             var rotation = Matrix.CreateFromYawPitchRoll(-Yaw, -Pitch, 0);
             Target = Position + Vector3.Transform(Vector3.Forward, rotation);
             View = Matrix.CreateLookAt(Position, Target, Vector3.Up);
+            _boundingFrustum = null;
         }
 
         public void UpdateEffect(IEffect effect)

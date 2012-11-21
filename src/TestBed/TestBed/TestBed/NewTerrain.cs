@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TestBed;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 
@@ -22,10 +23,12 @@ namespace factor10.VisionThing
         private readonly Texture2D _weightsMap;
         private readonly Texture2D _normalsMap;
 
+        private readonly BoundingSphere _boundingSphere;
+        private readonly ReimersSamples _reimersSamples;
+
         public NewTerrain(
             GraphicsDevice graphicsDevice,
             Texture2D heightMap,
-            Texture2D normalsMap,
             Matrix world,
             bool z)
           :  base(VisionContent.LoadPlainEffect("Effects/ReimersTerrainEffects"))
@@ -49,7 +52,7 @@ namespace factor10.VisionThing
            }
             else
             {
-                ground = Ground.CreateDoubleSize(heightMap);
+                ground = Ground.CreateDoubleSizeMirrored(heightMap);
                 _texture0 = VisionContent.Load<Texture2D>("TerrainTextures/texBase");
                 _texture1=VisionContent.Load<Texture2D>("TerrainTextures/texR");
                 _texture2=VisionContent.Load<Texture2D>("TerrainTextures/texG");
@@ -68,24 +71,30 @@ namespace factor10.VisionThing
                 ground.FlattenRectangle(10, 10, 20);
             }
             _heightsMap = ground.CreateHeightTexture(graphicsDevice);
-            _weightsMap = ground.CreateWeigthTexture(graphicsDevice);
-            _normalsMap = ground.CreateNormalsTexture(graphicsDevice);
+            _weightsMap = ground.CreateWeigthsMap().CreateTexture2D(graphicsDevice);
+            _normalsMap = ground.CreateNormalsMap().CreateTexture2D(graphicsDevice);
 
             Effect.Parameters["EnableLighting"].SetValue(true);
             Effect.Parameters["Ambient"].SetValue(0.4f);
             Effect.Parameters["LightDirection"].SetValue(new Vector3(-0.5f, -1, -0.5f));
 
+            _boundingSphere = new BoundingSphere( _position, (float)Math.Sqrt(64*64+64*64));
+
+            _reimersSamples = new ReimersSamples(graphicsDevice, ground, ground.CreateNormalsMap());
         }
 
         private VertexPositionTexture createVertex(float x, float y, int width, int height)
         {
             return new VertexPositionTexture(
-                new Vector3(x-width/2, 0, y-height/2),
+                new Vector3(x-width/2f, 0, y-height/2f),
                 new Vector2(x/width, y/height));
         }
 
         public override void Draw( Camera camera, IEffect effect )
         {
+            if (camera.BoundingFrustum.Contains(_boundingSphere)==ContainmentType.Disjoint)
+                return;
+
             camera.UpdateEffect(effect);
 
             effect.Parameters["Texture0"].SetValue(_texture0);
@@ -107,6 +116,8 @@ namespace factor10.VisionThing
             if (distance < 200)
                 lod = 0;
             _plane.Draw(effect, lod);
+
+            _reimersSamples.DrawBillboards(camera, _world);
         }
 
     }

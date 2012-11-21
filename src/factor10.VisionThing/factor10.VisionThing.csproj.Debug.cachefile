@@ -7,9 +7,7 @@ Content\Textures\waterdmap1.xnb
 Content\Textures\wave0.xnb
 Content\Textures\wave1.xnb
 Content\Textures\clouds.xnb
-Content\Models\pirateship.xnb
 Content\Models\windmill.xnb
-Content\Galleon_0.xnb
 Content\Effects\LightingEffectTexture.xnb
 Content\Textures\sand.xnb
 Content\Effects\NewBasicEffect.xnb
@@ -22,7 +20,6 @@ Content\TerrainTextures\TexB.xnb
 Content\TerrainTextures\TexR.xnb
 Content\TerrainTextures\TexBase.xnb
 Content\TerrainTextures\TexG.xnb
-Content\Effects\terrainShader.xnb
 Content\Series4Effects.xnb
 Content\cloudMap.xnb
 Content\heightmap.xnb
@@ -39,3 +36,7 @@ Content\Effects\Series4Effects.xnb
 Content\checker.xnb
 Content\Effects\ReimersTerrainEffects.xnb
 Content\Effects\GlassTest.xnb
+Content\Models\pirateship.xnb
+Content\Galleon_1.xnb
+Content\Fonts\SpriteFont1.xnb
+Content\Effects\BillboardEffect.xnb

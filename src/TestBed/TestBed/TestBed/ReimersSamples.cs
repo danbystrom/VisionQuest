@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,61 +14,41 @@ namespace TestBed
 
     public class ReimersSamples
     {
-        private readonly GraphicsDeviceManager _graphics;
-        private readonly ContentManager _cm;
-
-        int _terrainWidth;
-        int _terrainLength;
-        float[,] _heightData;
-
-        private VertexBuffer _terrainVertexBuffer;
-        private IndexBuffer _terrainIndexBuffer;
-
-        private VertexBuffer _waterVertexBuffer;
+        private readonly GraphicsDevice _graphics;
+ 
         private VertexBuffer _treeVertexBuffer;
         private VertexPositionTexture[] _fullScreenVertices;
 
-        readonly IEffect _effect;
+        private readonly Effect _effect;
+        private readonly Effect _bbEffect;
 
-        private Texture2D _grassTexture;
-        private Texture2D _sandTexture;
-        private Texture2D _rockTexture;
-        private Texture2D _snowTexture;
-        private Texture2D _waterBumpMap;
+        private readonly Texture2D _treeTexture;
 
-        public ReimersSamples(GraphicsDeviceManager graphics, ContentManager content)
+        public ReimersSamples(
+            GraphicsDevice graphics,
+            Ground ground,
+            ColorSurface normals)
         {
             _graphics = graphics;
-            _cm = content;
 
-            _effect = VisionContent.LoadPlainEffect("Series4Effects");
+            _effect = VisionContent.LoadPlainEffect("Series4Effects").Effect;
+            _bbEffect = VisionContent.LoadPlainEffect("Effects/BillboardEffect").Effect;
 
-            loadVertices();
-            loadTextures();
-        }
-
-        private void loadVertices()
-        {
-
-            var treeMap = _cm.Load<Texture2D>("treeMap");
-            //var treeList = generateTreePositions(treeMap, terrainVertices);
-            //createBillboardVerticesFromList(treeList);
-
+            var treeMap = VisionContent.Load<Texture2D>("treeMap");
+            var treeList = generateTreePositions(treeMap, ground, normals);
+            createBillboardVerticesFromList(treeList);
             _fullScreenVertices = setUpFullscreenVertices();
-        }
 
-        private void loadTextures()
-        {
-            _grassTexture = VisionContent.Load<Texture2D>("grass");
-            _sandTexture = VisionContent.Load<Texture2D>("sand");
-            _rockTexture = VisionContent.Load<Texture2D>("rock");
-            _snowTexture = VisionContent.Load<Texture2D>("snow");
+            _treeTexture = VisionContent.Load<Texture2D>("tree");
         }
 
 
         private void createBillboardVerticesFromList(List<Vector3> treeList)
         {
-            var billboardVertices = new VertexPositionTexture[treeList.Count * 6];
+            if (!treeList.Any())
+                return;
+
+            var billboardVertices = new VertexPositionTexture[treeList.Count*6];
             int i = 0;
             foreach (Vector3 currentV3 in treeList)
             {
@@ -80,62 +61,61 @@ namespace TestBed
                 billboardVertices[i++] = new VertexPositionTexture(currentV3, new Vector2(0, 1));
             }
 
-            _treeVertexBuffer = new VertexBuffer(_graphics.GraphicsDevice, typeof(VertexPositionTexture), billboardVertices.Length, BufferUsage.WriteOnly);
+            _treeVertexBuffer = new VertexBuffer(_graphics, typeof(VertexPositionTexture), billboardVertices.Length,
+                                                 BufferUsage.WriteOnly);
             _treeVertexBuffer.SetData(billboardVertices);
         }
 
 
-        private List<Vector3> generateTreePositions(Texture2D treeMap, ReimersTerrain.VertexMultitextured[] terrainVertices)
+        private List<Vector3> generateTreePositions(Texture2D treeMap, Ground ground, ColorSurface normals)
         {
-            Color[] treeMapColors = new Color[treeMap.Width * treeMap.Height];
+            var treeMapColors = new Color[treeMap.Width*treeMap.Height];
             treeMap.GetData(treeMapColors);
 
-            int[,] noiseData = new int[treeMap.Width, treeMap.Height];
+            int[,] noiseData = new int[treeMap.Width,treeMap.Height];
             for (int x = 0; x < treeMap.Width; x++)
                 for (int y = 0; y < treeMap.Height; y++)
-                    noiseData[x, y] = treeMapColors[y + x * treeMap.Height].R;
+                    noiseData[x, y] = treeMapColors[y + x*treeMap.Height].R;
 
 
-            var treeList = new List<Vector3> ();
-            Random random = new Random();
+            var treeList = new List<Vector3>();
+            var random = new Random();
 
-            for (int x = 0; x < _terrainWidth; x++)
-            {
-                for (int y = 0; y < _terrainLength; y++)
+            var minFlatness = (float) Math.Cos(MathHelper.ToRadians(15));
+            for (var y = normals.Height - 2; y > 0; y--)
+                for (var x = normals.Width - 2; x > 0; x--)
                 {
-                    float terrainHeight = _heightData[x, y];
-                    if ((terrainHeight > 8) && (terrainHeight < 14))
+                    var terrainHeight = ground[x, y];
+                    if ((terrainHeight <= 8) || (terrainHeight >= 14))
+                        continue;
+                    var flatness1 = Vector3.Dot(normals.AsVector3(x, y), Vector3.Up);
+                    var flatness2 = Vector3.Dot(normals.AsVector3(x+1, y+1), Vector3.Up);
+                    if (flatness1 <= minFlatness || flatness2 <= minFlatness)
+                        continue;
+                    var relx = (float)x / normals.Width;
+                    var rely = (float)y / normals.Height;
+
+                    float noiseValueAtCurrentPosition = noiseData[(int)(relx * treeMap.Width), (int)(rely * treeMap.Height)];
+                    float treeDensity;
+                    if (noiseValueAtCurrentPosition > 200)
+                        treeDensity = 3;
+                    else if (noiseValueAtCurrentPosition > 150)
+                        treeDensity = 2;
+                    else if (noiseValueAtCurrentPosition > 100)
+                        treeDensity = 1;
+                    else
+                        treeDensity = 0;
+
+                    for (var currDetail = 0; currDetail < treeDensity; currDetail++)
                     {
-                        float flatness = Vector3.Dot(terrainVertices[x + y * _terrainWidth].Normal, new Vector3(0, 1, 0));
-                        float minFlatness = (float)Math.Cos(MathHelper.ToRadians(15));
-                        if (flatness > minFlatness)
-                        {
-                            float relx = (float)x / (float)_terrainWidth;
-                            float rely = (float)y / (float)_terrainLength;
-
-                            float noiseValueAtCurrentPosition = noiseData[(int)(relx * treeMap.Width), (int)(rely * treeMap.Height)];
-                            float treeDensity;
-                            if (noiseValueAtCurrentPosition > 200)
-                                treeDensity = 5;
-                            else if (noiseValueAtCurrentPosition > 150)
-                                treeDensity = 4;
-                            else if (noiseValueAtCurrentPosition > 100)
-                                treeDensity = 3;
-                            else
-                                treeDensity = 0;
-
-                            for (int currDetail = 0; currDetail < treeDensity; currDetail++)
-                            {
-                                float rand1 = (float)random.Next(1000) / 1000.0f;
-                                float rand2 = (float)random.Next(1000) / 1000.0f;
-                                Vector3 treePos = new Vector3((float)x - rand1, 0, -(float)y - rand2);
-                                treePos.Y = _heightData[x, y];
-                                treeList.Add(treePos);
-                            }
-                        }
+                        var rand1 = (float)random.NextDouble();
+                        var rand2 = (float)random.NextDouble();
+                        treeList.Add(new Vector3(
+                                         x + rand1,
+                                         ground.GetExactHeight(x,y,rand1,rand2),
+                                         y + rand2));
                     }
                 }
-            }
 
             return treeList;
         }
@@ -143,12 +123,12 @@ namespace TestBed
         private Texture2D CreateStaticMap(int resolution)
         {
             var rand = new Random();
-            var noisyColors = new Color[resolution * resolution];
+            var noisyColors = new Color[resolution*resolution];
             for (int x = 0; x < resolution; x++)
                 for (int y = 0; y < resolution; y++)
-                    noisyColors[x + y * resolution] = new Color(new Vector3((float)rand.Next(1000) / 1000.0f, 0, 0));
+                    noisyColors[x + y*resolution] = new Color(new Vector3((float) rand.Next(1000)/1000.0f, 0, 0));
 
-            var noiseImage = new Texture2D(_graphics.GraphicsDevice, resolution, resolution);
+            var noiseImage = new Texture2D(_graphics, resolution, resolution);
             noiseImage.SetData(noisyColors);
             return noiseImage;
         }
@@ -191,102 +171,66 @@ namespace TestBed
              _graphics.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
          }
  */
-         private Plane CreatePlane(Camera camera, float height, Vector3 planeNormalDirection, Matrix currentViewMatrix, bool clipSide)
-         {
-             planeNormalDirection.Normalize();
-             Vector4 planeCoeffs = new Vector4(planeNormalDirection, height);
-             if (clipSide)
-                 planeCoeffs *= -1;
- 
-             Matrix worldViewProjection = currentViewMatrix * camera.Projection;
-             Matrix inverseWorldViewProjection = Matrix.Invert(worldViewProjection);
-             inverseWorldViewProjection = Matrix.Transpose(inverseWorldViewProjection);
- 
-             planeCoeffs = Vector4.Transform(planeCoeffs, inverseWorldViewProjection);
-             Plane finalPlane = new Plane(planeCoeffs);
- 
-             return finalPlane;
-         }
- 
 
- /*
-         private void DrawBillboards(Matrix currentViewMatrix)
-         {
-             Effect bbEffect = null;
+        private Plane CreatePlane(Camera camera, float height, Vector3 planeNormalDirection, Matrix currentViewMatrix, bool clipSide)
+        {
+            planeNormalDirection.Normalize();
+            Vector4 planeCoeffs = new Vector4(planeNormalDirection, height);
+            if (clipSide)
+                planeCoeffs *= -1;
 
-             bbEffect.CurrentTechnique = bbEffect.Techniques["CylBillboard"];
-             bbEffect.Parameters["xWorld"].SetValue(Matrix.Identity);
-             bbEffect.Parameters["xView"].SetValue(currentViewMatrix);
-             bbEffect.Parameters["xProjection"].SetValue(projectionMatrix);
-             bbEffect.Parameters["xCamPos"].SetValue(cameraPosition);
-             bbEffect.Parameters["xAllowedRotDir"].SetValue(new Vector3(0, 1, 0));
-             bbEffect.Parameters["xBillboardTexture"].SetValue(treeTexture);
- 
-             bbEffect.Begin();
- 
-             _graphics.GraphicsDevice.Vertices[0].SetSource(treeVertexBuffer, 0, VertexPositionTexture.SizeInBytes);
-             _graphics.GraphicsDevice.VertexDeclaration = treeVertexDeclaration;
-             int noVertices = treeVertexBuffer.SizeInBytes / VertexPositionTexture.SizeInBytes;
-             int noTriangles = noVertices / 3;
-             {
-                 _graphics.GraphicsDevice.RenderState.AlphaTestEnable = true;
-                 _graphics.GraphicsDevice.RenderState.AlphaFunction = CompareFunction.GreaterEqual;
-                 _graphics.GraphicsDevice.RenderState.ReferenceAlpha = 200;
- 
-                 bbEffect.CurrentTechnique.Passes[0].Begin();
-                 _graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, noTriangles);
-                 bbEffect.CurrentTechnique.Passes[0].End();
-             }
- 
-             {
-                 _graphics.GraphicsDevice.RenderState.DepthBufferWriteEnable = false;
- 
-                 _graphics.GraphicsDevice.RenderState.AlphaBlendEnable = true;
-                 _graphics.GraphicsDevice.RenderState.SourceBlend = Blend.SourceAlpha;
-                 _graphics.GraphicsDevice.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
- 
-                 _graphics.GraphicsDevice.RenderState.AlphaTestEnable = true;
-                 _graphics.GraphicsDevice.RenderState.AlphaFunction = CompareFunction.Less;
-                 _graphics.GraphicsDevice.RenderState.ReferenceAlpha = 200;
- 
-                 bbEffect.CurrentTechnique.Passes[0].Begin();
-                 _graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, noTriangles);
-                 bbEffect.CurrentTechnique.Passes[0].End();
-             }
-             
-             _graphics.GraphicsDevice.RenderState.AlphaBlendEnable = false;
-             _graphics.GraphicsDevice.RenderState.DepthBufferWriteEnable = true;
-             _graphics.GraphicsDevice.RenderState.AlphaTestEnable = false;            
- 
-             bbEffect.End();
-         }
- 
-         private void GeneratePerlinNoise(float time)
-         {
-             _graphics.GraphicsDevice.SetRenderTarget(0, cloudsRenderTarget);
-             _graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
-                         
-             effect.CurrentTechnique = effect.Techniques["PerlinNoise"];
-             effect.Parameters["xTexture"].SetValue(cloudStaticMap);
-             effect.Parameters["xOvercast"].SetValue(1.1f);
-             effect.Parameters["xTime"].SetValue(time/1000.0f);
-             effect.Begin();
-             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-             {
-                 pass.Begin();
- 
-                 _graphics.GraphicsDevice.VertexDeclaration = fullScreenVertexDeclaration;
-                 _graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, fullScreenVertices, 0, 2);
- 
-                 pass.End();
-             }
-             effect.End();
- 
-             _graphics.GraphicsDevice.SetRenderTarget(0, null);
-             cloudMap = cloudsRenderTarget.GetTexture();
-         }
-     }
+            Matrix worldViewProjection = currentViewMatrix*camera.Projection;
+            Matrix inverseWorldViewProjection = Matrix.Invert(worldViewProjection);
+            inverseWorldViewProjection = Matrix.Transpose(inverseWorldViewProjection);
+
+            planeCoeffs = Vector4.Transform(planeCoeffs, inverseWorldViewProjection);
+            Plane finalPlane = new Plane(planeCoeffs);
+
+            return finalPlane;
+        }
+
+
+        public void DrawBillboards(Camera camera,Matrix world)
+        {
+            if (_treeVertexBuffer == null)
+                return;
+
+            _bbEffect.CurrentTechnique = _bbEffect.Techniques["CylBillboard"];
+            _bbEffect.Parameters["World"].SetValue(world*Matrix.CreateTranslation(-64,0,-64));
+            _bbEffect.Parameters["View"].SetValue(camera.View);
+            _bbEffect.Parameters["Projection"].SetValue(camera.Projection);
+            _bbEffect.Parameters["CameraPosition"].SetValue(camera.Position);
+            _bbEffect.Parameters["xAllowedRotDir"].SetValue(new Vector3(0, 1, 0));
+            _bbEffect.Parameters["Texture"].SetValue(_treeTexture);
+
+            _graphics.SetVertexBuffer(_treeVertexBuffer);
+            int noVertices = _treeVertexBuffer.VertexCount;
+            int noTriangles = noVertices/3;
+
+            _bbEffect.CurrentTechnique.Passes[0].Apply();
+            _graphics.DrawPrimitives(PrimitiveType.TriangleList, 0, noTriangles);
+        }
+        /*
+        private void GeneratePerlinNoise(float time)
+        {
+            _graphics.GraphicsDevice.SetRenderTarget(cloudsRenderTarget);
+            _graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
+
+            _effect.CurrentTechnique = _effect.Techniques["PerlinNoise"];
+            _effect.Parameters["xTexture"].SetValue(_cloudStaticMap);
+            _effect.Parameters["xOvercast"].SetValue(1.1f);
+            _effect.Parameters["xTime"].SetValue(time/1000.0f);
+            foreach (EffectPass pass in _effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                _graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, _fullScreenVertices, 0, 2);
+            }
+
+            _graphics.GraphicsDevice.SetRenderTarget(null);
+            _cloudMap = cloudsRenderTarget.GetTexture();
+        }
         */
-
     }
+
 }
+

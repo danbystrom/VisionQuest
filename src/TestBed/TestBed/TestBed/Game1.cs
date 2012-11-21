@@ -26,10 +26,10 @@ namespace TestBed
         private MovingShip _ship2;
         private Windmill _windmill;
         private Island _island;
-        private Terrain _terrain;
 
         private BasicEffect _basicEffect;
         private SpriteBatch _spriteBatch;
+        private SpriteFont _font;
 
         private SkySphere _sky1;
 
@@ -73,7 +73,7 @@ namespace TestBed
             // TODO: use this.Content to load your game content here
 
             VisionContent.Init(this);
-            var lightingEffect = VisionContent.LoadPlainEffect(@"effects\lightingeffect");
+            _font = VisionContent.Load<SpriteFont>("fonts/spritefont1");
             var lightingEffectTexture = VisionContent.LoadPlainEffect(@"effects\lightingeffecttexture");
 
             _camera = new Camera(Window.ClientBounds, new Vector3(0, 4, -20), Vector3.Up);
@@ -120,21 +120,9 @@ namespace TestBed
 
             VisionContent.Init(this);
 
-            _terrain = new Terrain(
-                GraphicsDevice,
-                _mTextures[0],
-                _mTextures[1],
-                _mTextures[2],
-                Matrix.CreateTranslation(0, -0.2f, 200));
-            _water.ReflectedObjects.Add(_terrain);
-
-            _reimer = new ReimersTerrain(_graphics, Content);
-            _water.ReflectedObjects.Add(_reimer);
-
             var newTerrain = new NewTerrain(
                 GraphicsDevice,
                 _mTextures[0],
-                _mTextures[2],
                 Matrix.CreateTranslation(0, -0.5f, -200),
                 true);
             _water.ReflectedObjects.Add(newTerrain);
@@ -142,7 +130,6 @@ namespace TestBed
             newTerrain = new NewTerrain(
                 GraphicsDevice,
                 _mTextures[0],
-                _mTextures[2],
                 Matrix.CreateTranslation(200, -0.5f, 0),
                 false);
             _water.ReflectedObjects.Add(newTerrain);
@@ -169,8 +156,6 @@ namespace TestBed
                 DepthFormat.Depth24);
 
         }
-
-        private ReimersTerrain _reimer;
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -206,8 +191,23 @@ namespace TestBed
             _ship1.Update(gameTime);
             _ship2.Update(gameTime);
             _windmill.Update(gameTime);
+
+            _frames++;
+            _frameTime += dt;
+            if (_frameTime > 1)
+            {
+                _fps = _frames;
+                _frames = 0;
+                _frameTime = 0;
+            }
+
             base.Update(gameTime);
         }
+
+        private int _frames;
+        private float _frameTime;
+        private int _fps;
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -219,6 +219,9 @@ namespace TestBed
             foreach (var z in _water.ReflectedObjects)
                 z.Draw(_camera);
             WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+
+            zzz();
+            VisionContent.RenderedTriangles = 0;
 
             base.Draw(gameTime);
         }
@@ -238,7 +241,6 @@ namespace TestBed
 
             GraphicsDevice.SetRenderTarget(null);
 
-
             base.Draw(gameTime);
         }
 
@@ -256,13 +258,17 @@ namespace TestBed
                                SamplerState.LinearClamp, DepthStencilState.Default,
                                RasterizerState.CullNone);
 
-            _spriteBatch.Draw(_water._reflectionTarget,
-                              new Rectangle(0, 0, (int) _camera.ClientSize.X/4, (int) _camera.ClientSize.Y/4), Color.White);
+            //_spriteBatch.Draw(_water._reflectionTarget,
+            //                  new Rectangle(940, 0, (int) _camera.ClientSize.X/4, (int) _camera.ClientSize.Y/2), Color.White);
+            _spriteBatch.DrawString(_font, string.Format("Verticies: {0}", VisionContent.RenderedTriangles), new Vector2(10, 10), Color.Gold);
+            _spriteBatch.DrawString(_font, string.Format("FPS: {0}", _fps), new Vector2(10, 30), Color.Gold);
+            _spriteBatch.DrawString(_font, string.Format("Water planes: {0}", WaterFactory.RenderedWaterPlanes), new Vector2(10, 50), Color.Gold);
             _spriteBatch.End();
 
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             //_basicEffect.World = Matrix.Identity;
             //_basicEffect.TextureEnabled = false;

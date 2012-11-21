@@ -20,7 +20,7 @@ namespace TestBed
         public ShipModel()
             : base(new NewBasicEffect(VisionContent.Load<Effect>("effects/NewBasicEffect")))
         {
-            _model = VisionContent.Load<Model>(@"Models\pirateship");
+            _model = VisionContent.Load<Model>(@"Models/pirateship");
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 

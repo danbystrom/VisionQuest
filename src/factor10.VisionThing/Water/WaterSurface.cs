@@ -93,16 +93,18 @@ namespace factor10.VisionThing.Water
 
             buildFx(initInfo);
 
+            var targetWidth = graphicsDevice.Viewport.Width;
+            var targetHeight = graphicsDevice.Viewport.Height;
             _reflectionTarget = new RenderTarget2D(
                 graphicsDevice,
-                graphicsDevice.Viewport.Width/2,
-                graphicsDevice.Viewport.Height/2,
+                targetWidth,
+                targetHeight*11/10,
                 false,
                 SurfaceFormat.Color,
                 DepthFormat.Depth24);
 
             _reflectionCamera = new Camera(
-                new Vector2(_reflectionTarget.Width, _reflectionTarget.Height),
+                new Vector2(targetWidth, targetHeight),
                 Vector3.Zero,
                 Vector3.Up);
         }
@@ -245,9 +247,9 @@ namespace factor10.VisionThing.Water
             const float waterMeshPositionY = 0.75f; //experimenting with this
 
             // Reflect the camera's properties across the water plane
-            var reflectedCameraPosition = camera.Position;
+            var reflectedCameraPosition = camera.Position -new Vector3(0, 1, 0);
             reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMeshPositionY*2;
-            var reflectedCameraTarget = camera.Target;
+            var reflectedCameraTarget = camera.Target - new Vector3(0, 1, 0);
             reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMeshPositionY*2;
 
             //reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget)*1f;
@@ -255,6 +257,7 @@ namespace factor10.VisionThing.Water
             _reflectionCamera.Update(
                 reflectedCameraPosition,
                 reflectedCameraTarget);
+            //_reflectionCamera.test(Matrix.CreateTranslation(0, -50, 0)*_reflectionCamera.View);
 
             Effect.GraphicsDevice.SetRenderTarget(_reflectionTarget);
 

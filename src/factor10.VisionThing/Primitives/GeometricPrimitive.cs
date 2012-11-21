@@ -128,6 +128,7 @@ namespace factor10.VisionThing.Primitives
                     PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount/3);
             }
 
+            VisionContent.RenderedTriangles += _indexBuffers[lod].IndexCount/3;
         }
 
     }

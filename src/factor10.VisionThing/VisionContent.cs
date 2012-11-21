@@ -7,6 +7,8 @@ namespace factor10.VisionThing
 {
     public static class VisionContent
     {
+        public static int RenderedTriangles;
+
         public static ContentManager Content { get; private set; }
 
         public static void Init(Game game, string contentdirectory)

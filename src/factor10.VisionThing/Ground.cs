@@ -54,6 +54,44 @@ namespace factor10.VisionThing
             return ground;
         }
 
+        public static Ground CreateDoubleSizeMirrored(Texture2D heightMap)
+        {
+            var ground = new Ground(heightMap.Width * 2, heightMap.Height * 2);
+            var oldData = new Color[heightMap.Width * heightMap.Height];
+            heightMap.GetData(oldData);
+
+            for (var y = 0; y < heightMap.Height; y++)
+                for (var x = 0; x < heightMap.Width; x++)
+                {
+                    ground._heights[y * ground.Width + x]
+                        = ground._heights[(y+1) * ground.Width - x - 1]
+                          = ground._heights[(ground.Height-y - 1) * ground.Width + x]
+                            = ground._heights[(ground.Height - y - 1) * ground.Width - x - 1]
+                              = oldData[y * heightMap.Width + x].R / 10f;
+                }
+            return ground;
+        }
+
+        public float this[int x, int y]
+        {
+            get { return _heights[y*Width + x]; }
+        }
+
+        public float GetExactHeight( int x, int y, float fracx, float fracy )
+        {
+            var topHeight = MathHelper.Lerp(
+                this[x, y],
+                this[x + 1, y],
+                fracx);
+
+            var bottomHeight = MathHelper.Lerp(
+                this[x, y + 1],
+                this[x + 1, y + 1],
+                fracx);
+
+            return MathHelper.Lerp(topHeight, bottomHeight, fracy);
+        }
+
         public void ApplyNormalBellShape()
         {
             var wh = Width / 2f;
@@ -119,7 +157,7 @@ namespace factor10.VisionThing
             return result;
         }
 
-        public Texture2D CreateWeigthTexture( GraphicsDevice graphicsDevice, float[] levels = null )
+        public ColorSurface CreateWeigthsMap( float[] levels = null )
         {
             var weights = new Color[_heights.Length];
             var min = _heights.Min();
@@ -139,24 +177,20 @@ namespace factor10.VisionThing
                    weights[i] = new Color(t0/tot, t1/tot, t2/tot, t3/tot);
             }
 
-            var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Color);
-            result.SetData(weights);
-            return result;
+            return new ColorSurface(Width, Height, weights);
         }
 
-        public Texture2D CreateNormalsTexture(GraphicsDevice graphicsDevice)
+        public ColorSurface CreateNormalsMap()
         {
             var normals = new Color[_heights.Length];
             for (var i = 0; i < normals.Length; i++)
                 normals[i] = new Color(0f, 1f, 0f, 0);
             for (int i = 0, x = 0, y = 0; i < normals.Length - Width - 1; i++)
             {
-                var p1 = new Vector3(x, _heights[i], y);
-                var p2 = new Vector3(x, _heights[i+Width], y+1);
-                var p3 = new Vector3(x+1, _heights[i + 1], y);
-                var v1 = p1 - p2;
-                var v2 = p1 - p3;
-                var n = -Vector3.Cross(v2, v1);
+                var h = _heights[i];
+                var v1 = new Vector3(0, _heights[i + Width] - h, 1);
+                var v2 = new Vector3(1, _heights[i + 1] - h, 0);
+                var n = Vector3.Cross(v1, v2);
                 n.Normalize();
                 normals[i] = new Color(n.X/2 + 0.5f, n.Y/2 + 0.5f, n.Z/2 + 0.5f, 0);
                 if (++x >= Width)
@@ -170,9 +204,7 @@ namespace factor10.VisionThing
             for (var y = 0; y < Height; y++)
                 normals[y * Width + (Width - 1)] = normals[y * Width + (Width - 2)];
 
-            var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Color);
-            result.SetData(normals);
-            return result;
+            return new ColorSurface(Width, Height, normals);
         }
 
         public void Soften()
@@ -201,6 +233,7 @@ namespace factor10.VisionThing
                 _heights[y * Width + (Width - 2)] *= 0.5f;
             }
         }
+
 
     }
 
