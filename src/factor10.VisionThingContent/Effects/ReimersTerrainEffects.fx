@@ -1,23 +1,25 @@
-//----------------------------------------------------
-//--                                                --
-//--               www.riemers.net                  --
-//--         Series 4: Advanced terrain             --
-//--                 Shader code                    --
-//--                                                --
-//----------------------------------------------------
-
-//------- Constants --------
 float4x4 View;
 float4x4 Projection;
 float4x4 World;
 float3 CameraPosition;
 float4 ClipPlane;
 
+bool DoShadowMapping = true;
+float4x4 ShadowView;
+float4x4 ShadowProjection;
+float ShadowFarPlane = 100;
+float ShadowMult = 0.3f;
+float ShadowBias = 1.0f / 40.0f;
+texture2D ShadowMap;
+sampler2D shadowSampler = sampler_state {
+	texture = <ShadowMap>;
+	minfilter = point;
+	magfilter = point;
+	mipfilter = point;
+};
+
 float3 LightDirection = float3(0.7,0.7,0.7);
 float Ambient = 0.4;
-bool EnableLighting;
-
-float dtex = 1/128;
 
 //------- Texture Samplers --------
 
@@ -42,11 +44,13 @@ sampler WeightsSampler = sampler_state { texture = <WeightsMap> ; magfilter = LI
 
 struct MTVertexToPixel
 {
-    float4 Position         : POSITION;    
+    float4 Position         : POSITION;
     float3 WorldPosition    : TEXCOORD0;
     float2 TextureCoords    : TEXCOORD1;
     float4 LightDirection   : TEXCOORD2;
 	float  Depth            : TEXCOORD3;
+    float4 PositionCopy     : TEXCOORD4;
+    float4 ShadowScreenPosition : TEXCOORD5;
 };
 
 struct MTPixelToFrame
@@ -59,44 +63,48 @@ MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float2 inTexCoords: TE
     float4 worldPosition = mul(inPos, World);
     float4x4 viewProjection = mul(View, Projection);
     
-    float4x4 preViewProjection = mul (View, Projection);
-    float4x4 preWorldViewProjection = mul (World, preViewProjection);
-    
 	worldPosition.y += tex2Dlod(HeightsSampler, float4(inTexCoords, 0.0f, 0.0f)).r;
 
-    MTVertexToPixel Output = (MTVertexToPixel)0;
-    Output.Position = mul(worldPosition, viewProjection);
-    Output.WorldPosition = worldPosition;
-    Output.TextureCoords = inTexCoords;
-    Output.LightDirection.xyz = -LightDirection;
-    Output.LightDirection.w = 1;
+    MTVertexToPixel output;
+    output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
+    output.WorldPosition = worldPosition;
+    output.TextureCoords = inTexCoords;
+    output.LightDirection.xyz = -LightDirection;
+    output.LightDirection.w = 1;
     
-	Output.Depth = Output.Position.z/Output.Position.w;
+	output.Depth = output.Position.z / output.Position.w;
 
-    return Output;    
+	output.ShadowScreenPosition = mul(worldPosition, mul(ShadowView, ShadowProjection));
+
+    return output;    
 }
 
 
-MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
+float2 sampleShadowMap(float2 UV)
+{
+	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
+		return float2(1, 1);
+
+	return tex2D(shadowSampler, UV).rg;
+}
+
+
+MTPixelToFrame MultiTexturedPS(MTVertexToPixel input)
 {
     MTPixelToFrame Output = (MTPixelToFrame)0;        
     
-    float lightingFactor = 1;
-    //if (EnableLighting)
-	//{
-		float3 normal = tex2D(NormalsSampler, PSIn.TextureCoords).xyz - float3(0.5,0.5,0.5);
-		normal = normalize(normal);
-        lightingFactor = saturate(Ambient+dot(normal, normalize(PSIn.LightDirection)));
-	//}
+	float3 normal = tex2D(NormalsSampler, input.TextureCoords).xyz - float3(0.5,0.5,0.5);
+	normal = normalize(normal);
+    float lightingFactor = saturate(Ambient+dot(normal, normalize(input.LightDirection)));
 
     float blendDistance = 0.99f;
 	float blendWidth = 0.005f;
-	float blendFactor = clamp((PSIn.Depth-blendDistance)/blendWidth, 0, 1);
+	float blendFactor = clamp((input.Depth-blendDistance)/blendWidth, 0, 1);
 
-	float4 textureWeights = tex2D(WeightsSampler, PSIn.TextureCoords);
+	float4 textureWeights = tex2D(WeightsSampler, input.TextureCoords);
 
 	float4 farColor;
-	float2 farTextureCoords = PSIn.TextureCoords*2;
+	float2 farTextureCoords = input.TextureCoords*2;
 	farColor = tex2D(TextureSampler0, farTextureCoords)*textureWeights.x;
 	farColor += tex2D(TextureSampler1, farTextureCoords)*textureWeights.y;
 	farColor += tex2D(TextureSampler2, farTextureCoords)*textureWeights.z;
@@ -109,6 +117,34 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
 	nearColor += tex2D(TextureSampler2, nearTextureCoords)*textureWeights.z;
 	nearColor += tex2D(TextureSampler3, nearTextureCoords)*textureWeights.w;
 
+	if (DoShadowMapping)
+	{
+		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+		if (realDepth < 1)
+		{
+			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
+			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+
+			// Variance shadow mapping code below from the variance shadow
+			// mapping demo code @ http://www.punkuser.net/vsm/
+
+			// Sample from depth texture
+			float2 moments = sampleShadowMap(shadowTexCoord);
+
+			// Check if we're in shadow
+			float lit_factor = (realDepth <= moments.x);
+    
+			// Variance shadow mapping
+			float E_x2 = moments.y;
+			float Ex_2 = moments.x * moments.x;
+			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float m_d = (moments.x - realDepth);
+			float p = variance / (variance + m_d * m_d);
+
+			lightingFactor *= clamp(max(lit_factor, p), ShadowMult, 1.0f);
+		}
+	}
+
 	Output.Color = lerp(nearColor, farColor, blendFactor);
 	Output.Color *= lightingFactor;
 
@@ -119,6 +155,16 @@ float4 MultiTexturedPSClipPlane(MTVertexToPixel input) : COLOR0
 {
 	clip(dot(float4(input.WorldPosition,1), ClipPlane));
 	return MultiTexturedPS(input).Color;
+}
+
+float4 MultiTexturedPSDepth(MTVertexToPixel input) : COLOR0
+{
+	// Determine the depth of this vertex / by the far plane distance,
+	// limited to [0, 1]
+    float depth = clamp(input.PositionCopy.z / ShadowFarPlane, 0, 1);
+    
+	// Return only the depth value
+    return float4(depth, depth * depth, 0, 1);
 }
 
 technique MultiTextured
@@ -136,6 +182,15 @@ technique MultiTexturedClip
     {   
     	VertexShader = compile vs_3_0 MultiTexturedVS();
         PixelShader  = compile ps_3_0 MultiTexturedPSClipPlane();
+    }
+}
+
+technique MultiTexturedDepth
+{
+	pass Pass0
+    {   
+    	VertexShader = compile vs_3_0 MultiTexturedVS();
+        PixelShader  = compile ps_3_0 MultiTexturedPSDepth();
     }
 }
 

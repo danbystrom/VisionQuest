@@ -22,21 +22,13 @@ namespace factor10.VisionThing.Primitives
     /// </summary>
     public class SpherePrimitive : GeometricPrimitive<VertexPositionNormal>
     {
-        /// <summary>
-        /// Constructs a new sphere primitive, using default settings.
-        /// </summary>
-        public SpherePrimitive(GraphicsDevice graphicsDevice)
-            : this(graphicsDevice, 1, 16)
-        {
-        }
-
 
         /// <summary>
         /// Constructs a new sphere primitive,
         /// with the specified size and tessellation level.
         /// </summary>
         public SpherePrimitive(GraphicsDevice graphicsDevice,
-                               float diameter, int tessellation)
+                               float diameter = 1, int tessellation = 16)
         {
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");

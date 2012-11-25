@@ -9,17 +9,17 @@ namespace TestBed
 {
     public class Box : ClipDrawable
     {
-        public const int Width = 16;
-        public const int Height = 16;
-
         private readonly CubePrimitive<VertexPositionNormalTexture> _plane;
         private readonly Matrix _world;
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Box(Matrix world )
+        public Box(Matrix world)
             : base(VisionContent.LoadPlainEffect("effects/lightingeffectbump"))
         {
+            //Effect.Parameters["viewportWidth"].SetValue(Effect.GraphicsDevice.Viewport.Width);
+            //Effect.Parameters["viewportHeight"].SetValue(Effect.GraphicsDevice.Viewport.Height);
+
             _texture = VisionContent.Load<Texture2D>("textures/brick_texture_map");
             _bumpMap = VisionContent.Load<Texture2D>("textures/brick_normal_map");
             _plane = new CubePrimitive<VertexPositionNormalTexture>(
@@ -34,13 +34,18 @@ namespace TestBed
             return new VertexPositionNormalTexture(position, normal, textureCoordinate);
         }
 
-        public override void Draw( Camera camera, IEffect effect )
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             camera.UpdateEffect(effect);
             effect.World = _world;
-            effect.Parameters["Texture"].SetValue(_texture);
-            effect.Parameters["BumpMap"].SetValue(_bumpMap);
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+            {
+                effect.SetShadowMapping(shadowMap);
+                effect.Texture = _texture;
+                effect.Parameters["BumpMap"].SetValue(_bumpMap);
+            }
             _plane.Draw(effect);
+            effect.SetShadowMapping(null);
         }
 
     }

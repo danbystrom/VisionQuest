@@ -74,7 +74,6 @@ namespace factor10.VisionThing
             _weightsMap = ground.CreateWeigthsMap().CreateTexture2D(graphicsDevice);
             _normalsMap = ground.CreateNormalsMap().CreateTexture2D(graphicsDevice);
 
-            Effect.Parameters["EnableLighting"].SetValue(true);
             Effect.Parameters["Ambient"].SetValue(0.4f);
             Effect.Parameters["LightDirection"].SetValue(new Vector3(-0.5f, -1, -0.5f));
 
@@ -90,23 +89,34 @@ namespace factor10.VisionThing
                 new Vector2(x/width, y/height));
         }
 
-        public override void Draw( Camera camera, IEffect effect )
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             if (camera.BoundingFrustum.Contains(_boundingSphere)==ContainmentType.Disjoint)
                 return;
 
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+            {
+                effect.SetShadowMapping(shadowMap);
+
+                effect.Effect.CurrentTechnique = effect.Effect.Techniques[0];
+                effect.Parameters["Texture0"].SetValue(_texture0);
+                effect.Parameters["Texture1"].SetValue(_texture1);
+                effect.Parameters["Texture2"].SetValue(_texture2);
+                effect.Parameters["Texture3"].SetValue(_texture3);
+
+                effect.Parameters["HeightsMap"].SetValue(_heightsMap);
+                effect.Parameters["WeightsMap"].SetValue(_weightsMap);
+                effect.Parameters["NormalsMap"].SetValue(_normalsMap);
+            }
+            else
+            {
+                effect = Effect;
+                effect.Effect.CurrentTechnique = effect.Effect.Techniques[2];
+            }
+
             camera.UpdateEffect(effect);
-
-            effect.Parameters["Texture0"].SetValue(_texture0);
-            effect.Parameters["Texture1"].SetValue(_texture1);
-            effect.Parameters["Texture2"].SetValue(_texture2);
-            effect.Parameters["Texture3"].SetValue(_texture3);
-
-            effect.Parameters["HeightsMap"].SetValue(_heightsMap);
-            effect.Parameters["WeightsMap"].SetValue(_weightsMap);
-            effect.Parameters["NormalsMap"].SetValue(_normalsMap);
-
             effect.World = _world;
+
             var distance = Vector3.Distance(camera.Position, _position);
             var lod = 3;
             if (distance < 1500)
@@ -117,7 +127,7 @@ namespace factor10.VisionThing
                 lod = 0;
             _plane.Draw(effect, lod);
 
-            _reimersSamples.DrawBillboards(camera, _world);
+            _reimersSamples.DrawBillboards(camera, _world, null, drawingReason);
         }
 
     }

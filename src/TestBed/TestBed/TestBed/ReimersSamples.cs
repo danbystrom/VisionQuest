@@ -20,7 +20,7 @@ namespace TestBed
         private VertexPositionTexture[] _fullScreenVertices;
 
         private readonly Effect _effect;
-        private readonly Effect _bbEffect;
+        private readonly IEffect _bbEffect;
 
         private readonly Texture2D _treeTexture;
 
@@ -32,7 +32,7 @@ namespace TestBed
             _graphics = graphics;
 
             _effect = VisionContent.LoadPlainEffect("Series4Effects").Effect;
-            _bbEffect = VisionContent.LoadPlainEffect("Effects/BillboardEffect").Effect;
+            _bbEffect = VisionContent.LoadPlainEffect("Effects/BillboardEffect");
 
             var treeMap = VisionContent.Load<Texture2D>("treeMap");
             var treeList = generateTreePositions(treeMap, ground, normals);
@@ -40,6 +40,10 @@ namespace TestBed
             _fullScreenVertices = setUpFullscreenVertices();
 
             _treeTexture = VisionContent.Load<Texture2D>("tree");
+
+            _bbEffect.Parameters["xAllowedRotDir"].SetValue(new Vector3(0, 1, 0));
+            _bbEffect.Texture = _treeTexture;
+
         }
 
 
@@ -190,26 +194,34 @@ namespace TestBed
         }
 
 
-        public void DrawBillboards(Camera camera,Matrix world)
+        public void DrawBillboards(Camera camera, Matrix world, IEffect effect, DrawingReason drawingReason)
         {
             if (_treeVertexBuffer == null)
                 return;
 
-            _bbEffect.CurrentTechnique = _bbEffect.Techniques["CylBillboard"];
-            _bbEffect.Parameters["World"].SetValue(world*Matrix.CreateTranslation(-64,0,-64));
-            _bbEffect.Parameters["View"].SetValue(camera.View);
-            _bbEffect.Parameters["Projection"].SetValue(camera.Projection);
-            _bbEffect.Parameters["CameraPosition"].SetValue(camera.Position);
-            _bbEffect.Parameters["xAllowedRotDir"].SetValue(new Vector3(0, 1, 0));
-            _bbEffect.Parameters["Texture"].SetValue(_treeTexture);
+            switch (drawingReason)
+            {
+                case DrawingReason.Normal:
+                    _bbEffect.Effect.CurrentTechnique = _bbEffect.Effect.Techniques[0];
+                    break;
+                //case DrawingReason.ReflectionMap:
+                //    _bbEffect.Effect.CurrentTechnique = _bbEffect.Effect.Techniques[1];
+                //    break;
+                case DrawingReason.ShadowDepthMap:
+                    _bbEffect.Effect.CurrentTechnique = _bbEffect.Effect.Techniques[2];
+                    break;
+            }
 
+            camera.UpdateEffect(_bbEffect);
+            _bbEffect.World = world * Matrix.CreateTranslation(-64, -0.1f, -64);
             _graphics.SetVertexBuffer(_treeVertexBuffer);
             int noVertices = _treeVertexBuffer.VertexCount;
             int noTriangles = noVertices/3;
 
-            _bbEffect.CurrentTechnique.Passes[0].Apply();
+            _bbEffect.Effect.CurrentTechnique.Passes[0].Apply();
             _graphics.DrawPrimitives(PrimitiveType.TriangleList, 0, noTriangles);
         }
+
         /*
         private void GeneratePerlinNoise(float time)
         {

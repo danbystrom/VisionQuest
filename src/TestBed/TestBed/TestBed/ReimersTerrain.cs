@@ -204,7 +204,7 @@ namespace TestBed
             _terrainIndexBuffer.SetData(indices);
         }
 
-        public override void Draw(Camera camera, IEffect effect)
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             //effect.Effect.CurrentTechnique = effect.Effect.Techniques["MultiTextured"];
 
@@ -237,7 +237,7 @@ namespace TestBed
             }
 
         }
- 
+
     }
 
 }

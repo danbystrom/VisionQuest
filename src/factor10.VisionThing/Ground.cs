@@ -14,37 +14,37 @@ namespace factor10.VisionThing
 
         private readonly float[] _heights;
 
-        public Ground( int width, int height )
+        public Ground(int width, int height)
         {
             Width = width;
             Height = height;
-            _heights = new float[Width * Height];
+            _heights = new float[Width*Height];
         }
 
-        public Ground( int width, int height, float fillValue )
-            : this(width,height)
+        public Ground(int width, int height, float fillValue)
+            : this(width, height)
         {
             for (var i = 0; i < _heights.Length; i++)
                 _heights[i] = fillValue;
         }
 
         public Ground(Texture2D heightMap)
-            : this(heightMap.Width,heightMap.Height)
+            : this(heightMap.Width, heightMap.Height)
         {
-            var oldData = new Color[ Width * Height];
+            var oldData = new Color[Width*Height];
             heightMap.GetData(oldData);
 
             for (var i = 0; i < _heights.Length; i++)
-                _heights[i] = oldData[i].R / 10f;
+                _heights[i] = oldData[i].R/10f;
         }
 
         public static Ground CreateDoubleSize(Texture2D heightMap)
         {
             var ground = new Ground(heightMap.Width*2, heightMap.Height*2);
-            var oldData = new Color[heightMap.Width * heightMap.Height];
+            var oldData = new Color[heightMap.Width*heightMap.Height];
             heightMap.GetData(oldData);
 
-            for ( var y=0 ; y<heightMap.Height;y++)
+            for (var y = 0; y < heightMap.Height; y++)
                 for (var x = 0; x < heightMap.Width; x++)
                     ground._heights[y*ground.Width + x]
                         = ground._heights[y*ground.Width + x + 1]
@@ -56,18 +56,18 @@ namespace factor10.VisionThing
 
         public static Ground CreateDoubleSizeMirrored(Texture2D heightMap)
         {
-            var ground = new Ground(heightMap.Width * 2, heightMap.Height * 2);
-            var oldData = new Color[heightMap.Width * heightMap.Height];
+            var ground = new Ground(heightMap.Width*2, heightMap.Height*2);
+            var oldData = new Color[heightMap.Width*heightMap.Height];
             heightMap.GetData(oldData);
 
             for (var y = 0; y < heightMap.Height; y++)
                 for (var x = 0; x < heightMap.Width; x++)
                 {
-                    ground._heights[y * ground.Width + x]
-                        = ground._heights[(y+1) * ground.Width - x - 1]
-                          = ground._heights[(ground.Height-y - 1) * ground.Width + x]
-                            = ground._heights[(ground.Height - y - 1) * ground.Width - x - 1]
-                              = oldData[y * heightMap.Width + x].R / 10f;
+                    ground._heights[y*ground.Width + x]
+                        = ground._heights[(y + 1)*ground.Width - x - 1]
+                          = ground._heights[(ground.Height - y - 1)*ground.Width + x]
+                            = ground._heights[(ground.Height - y - 1)*ground.Width - x - 1]
+                              = oldData[y*heightMap.Width + x].R/10f;
                 }
             return ground;
         }
@@ -75,9 +75,10 @@ namespace factor10.VisionThing
         public float this[int x, int y]
         {
             get { return _heights[y*Width + x]; }
+            set { _heights[y*Width + x] = value; }
         }
 
-        public float GetExactHeight( int x, int y, float fracx, float fracy )
+        public float GetExactHeight(int x, int y, float fracx, float fracy)
         {
             var topHeight = MathHelper.Lerp(
                 this[x, y],
@@ -94,8 +95,8 @@ namespace factor10.VisionThing
 
         public void ApplyNormalBellShape()
         {
-            var wh = Width / 2f;
-            var hh = Height / 2f;
+            var wh = Width/2f;
+            var hh = Height/2f;
 
             for (int i = 0, x = 0, y = 0; i < _heights.Length; i++)
             {
@@ -120,19 +121,19 @@ namespace factor10.VisionThing
 
         public void FlattenRectangle(int x, int y, int size)
         {
-            if ( x<0 || y<0 || size<2 || x+size>Width || y+size>Height)
+            if (x < 0 || y < 0 || size < 2 || x + size > Width || y + size > Height)
                 throw new Exception();
 
-            for ( var i = 1 ; i<size ; i++ )
+            for (var i = 1; i < size; i++)
             {
-                flattenLine(x+i, y+i, size - i, 1, 0);
-                flattenLine(x+i, y+i, size - i, 0, 1);
+                flattenLine(x + i, y + i, size - i, 1, 0);
+                flattenLine(x + i, y + i, size - i, 0, 1);
                 flattenLine(x + size - i, y + size - i, size - i, -1, 0);
                 flattenLine(x + size - i, y + size - i, size - i, 0, -1);
             }
         }
 
-        private void flattenLine( int x, int y, int length, int dx, int dy )
+        private void flattenLine(int x, int y, int length, int dx, int dy)
         {
             for (var j = 0; j < length; j++)
             {
@@ -150,31 +151,31 @@ namespace factor10.VisionThing
             }
         }
 
-        public Texture2D CreateHeightTexture( GraphicsDevice graphicsDevice )
+        public Texture2D CreateHeightTexture(GraphicsDevice graphicsDevice)
         {
             var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Single);
             result.SetData(_heights);
             return result;
         }
 
-        public ColorSurface CreateWeigthsMap( float[] levels = null )
+        public ColorSurface CreateWeigthsMap(float[] levels = null)
         {
             var weights = new Color[_heights.Length];
             var min = _heights.Min();
             var max = _heights.Max();
             var span = max - min;
-            levels = new [] {min, min + span*0.43f, min + span*0.67f, max};
+            levels = new[] {min, min + span*0.43f, min + span*0.67f, max};
             span /= 4;
             for (var i = 0; i < _heights.Length; i++)
             {
                 var val = _heights[i];
-                var t0 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[0]) / span, 0, 1);
-                var t1 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[1]) / span, 0, 1);
-                var t2 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[2]) / span, 0, 1);
-                var t3 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[3]) / span, 0, 1);
+                var t0 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[0])/span, 0, 1);
+                var t1 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[1])/span, 0, 1);
+                var t2 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[2])/span, 0, 1);
+                var t3 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[3])/span, 0, 1);
                 var tot = t0 + t1 + t2 + t3;
-                if ( tot > 0.001f )
-                   weights[i] = new Color(t0/tot, t1/tot, t2/tot, t3/tot);
+                if (tot > 0.001f)
+                    weights[i] = new Color(t0/tot, t1/tot, t2/tot, t3/tot);
             }
 
             return new ColorSurface(Width, Height, weights);
@@ -199,41 +200,48 @@ namespace factor10.VisionThing
                     y++;
                 }
             }
-            for (var x = 0;x < Width; x++)
-                normals[(Height-1)*Width+x] = normals[(Height-2)*Width+x];
+            for (var x = 0; x < Width; x++)
+                normals[(Height - 1)*Width + x] = normals[(Height - 2)*Width + x];
             for (var y = 0; y < Height; y++)
-                normals[y * Width + (Width - 1)] = normals[y * Width + (Width - 2)];
+                normals[y*Width + (Width - 1)] = normals[y*Width + (Width - 2)];
 
             return new ColorSurface(Width, Height, normals);
         }
 
         public void Soften()
         {
-            var old = (float[])_heights.Clone();
-            for (int i = Width+1; i < _heights.Length - Width - 1; i++)
+            var old = (float[]) _heights.Clone();
+            for (int i = Width + 1; i < _heights.Length - Width - 1; i++)
                 _heights[i] =
                     (old[i - Width - 1] + old[i - Width] + old[i - Width + 1] +
-                        old[i  - 1] + old[i ] + old[i  + 1] +
-                        old[i + Width - 1] + old[i + Width] + old[i + Width + 1])/9;
+                     old[i - 1] + old[i] + old[i + 1] +
+                     old[i + Width - 1] + old[i + Width] + old[i + Width + 1])/9;
 
         }
 
         public void LowerEdges()
         {
             for (var x = 0; x < Width; x++)
-            {
-                _heights[x] = _heights[(Height - 1) * Width + x] = 0;
-                _heights[Height + x] *= 0.5f;
-                _heights[(Height - 2) * Width + x] *= 0.5f;
-            }
+                _heights[x] = _heights[(Height - 1)*Width + x] = 0;
             for (var y = 0; y < Height; y++)
-            {
                 _heights[y*Width] = _heights[y*Width + (Width - 1)] = 0;
-                _heights[y*Width + 1] *= 0.5f;
-                _heights[y * Width + (Width - 2)] *= 0.5f;
-            }
-        }
 
+            for (var j = 5; j > 0; j--)
+                for (var i = 1; i < j; i++)
+                {
+                    for (var x = 1; x < Width-1; x++)
+                    {
+                        this[i, x] = (this[i, x] + this[i - 1, x])/2;
+                        this[Height - 1 - i, x] = (this[Height - 1 - i, x] + this[Height - i, x]) / 2;
+                    }
+                    for (var y = 1; y < Height-1; y++)
+                    {
+                        this[y, i] = (this[y, i] + this[y, i - 1]) / 2;
+                        this[y, Width - 1 - i] = (this[y, Width - 1 - i] + this[y, Width - i]) / 2;
+                    }
+                }
+
+        }
 
     }
 

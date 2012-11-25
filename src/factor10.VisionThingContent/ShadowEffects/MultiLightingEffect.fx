@@ -2,12 +2,11 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
-float4 ClipPlane;
 
-texture Texture;
+texture BasicTexture;
 
-sampler TextureSampler = sampler_state {
-	Texture = <Texture>;
+sampler BasicTextureSampler = sampler_state {
+	texture = <BasicTexture>;
 	MinFilter = Anisotropic; // Minification Filter
 	MagFilter = Anisotropic; // Magnification Filter
 	MipFilter = Linear; // Mip-mapping
@@ -15,10 +14,14 @@ sampler TextureSampler = sampler_state {
 	AddressV = Wrap; // Address Mode for V Coordinates
 };
 
+bool TextureEnabled = false;
+
+#define NUMLIGHTS 3
+
 float3 DiffuseColor = float3(1, 1, 1);
-float3 AmbientColor = float3(0.3, 0.3, 0.3);
-float3 LightDirection = float3(-10, 20, 5);
-float3 LightColor = float3(0.8, 0.8, 0.8);
+float3 AmbientColor = float3(0.1, 0.1, 0.1);
+float3 LightDirection[NUMLIGHTS];
+float3 LightColor[NUMLIGHTS];
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
 
@@ -35,7 +38,6 @@ struct VertexShaderOutput
 	float2 UV : TEXCOORD0;
 	float3 Normal : TEXCOORD1;
 	float3 ViewDirection : TEXCOORD2;
-	float3 WorldPosition : TEXCOORD3;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -45,7 +47,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     float4 worldPosition = mul(input.Position, World);
     float4x4 viewProjection = mul(View, Projection);
     
-    output.WorldPosition = worldPosition;
     output.Position = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
@@ -60,22 +61,32 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
 	// Start with diffuse color
-	float3 color = DiffuseColor * tex2D(TextureSampler, input.UV);
+	float3 color = DiffuseColor;
+
+	// Texture if necessary
+	if (TextureEnabled)
+		color *= tex2D(BasicTextureSampler, input.UV);
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
 
-	float3 lightDir = normalize(LightDirection);
 	float3 normal = normalize(input.Normal);
-
-	// Add lambertian lighting
-	lighting += saturate(dot(lightDir, normal)) * LightColor;
-
-	float3 refl = reflect(lightDir, normal);
 	float3 view = normalize(input.ViewDirection);
+
+	// Perform lighting calculations per light
+	for (int i = 0; i < NUMLIGHTS; i++)
+	{
+		float3 lightDir = normalize(LightDirection[i]);
+
+		// Add lambertian lighting
+		lighting += saturate(dot(lightDir, normal)) * LightColor[i];
+
+		float3 refl = reflect(lightDir, normal);
 	
-	// Add specular highlights
-	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
+		// Add specular highlights
+		lighting += pow(saturate(dot(refl, view)), SpecularPower) 
+			* SpecularColor;
+	}
 
 	// Calculate final color
 	float3 output = saturate(lighting) * color;
@@ -83,28 +94,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     return float4(output, 1);
 }
 
-
-float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
-{
-	clip(dot(float4(input.WorldPosition,1), ClipPlane));
-	return PixelShaderFunction(input);
-}
-
-
 technique Technique1
 {
     pass Pass1
     {
         VertexShader = compile vs_1_1 VertexShaderFunction();
         PixelShader = compile ps_2_0 PixelShaderFunction();
-    }
-}
-
-technique Technique2
-{
-    pass Pass1
-    {
-        VertexShader = compile vs_1_1 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunctionClipPlane();
     }
 }

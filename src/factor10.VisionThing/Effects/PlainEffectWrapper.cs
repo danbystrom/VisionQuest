@@ -18,8 +18,14 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectParameter _epProjection;
         protected readonly EffectParameter _epCameraPosition;
         protected readonly EffectParameter _epClipPlane;
-
         protected readonly EffectParameter _epTexture;
+
+        protected readonly EffectParameter _epDoShadowMapping;
+        protected readonly EffectParameter _epShadowMap;
+        protected readonly EffectParameter _epShadowView;
+        protected readonly EffectParameter _epShadowProjection;
+        protected readonly EffectParameter _epShadowFarPlane;
+        protected readonly EffectParameter _epShadowMult;
 
         protected readonly EffectTechnique _techNormal;
         protected readonly EffectTechnique _techClipPlane;
@@ -35,6 +41,13 @@ namespace factor10.VisionThing.Effects
             _epCameraPosition = effect.Parameters["CameraPosition"];
             _epClipPlane = effect.Parameters["ClipPlane"];
             _epTexture = effect.Parameters["Texture"];
+
+            _epDoShadowMapping = effect.Parameters["DoShadowMapping"];
+            _epShadowMap = effect.Parameters["ShadowMap"];
+            _epShadowView = effect.Parameters["ShadowView"];
+            _epShadowProjection = effect.Parameters["ShadowProjection"];
+            _epShadowFarPlane = effect.Parameters["ShadowFarPlane"];
+            _epShadowMult = effect.Parameters["ShadowMult"];
 
             _techNormal = effect.Techniques[0];
             _techClipPlane = effect.Techniques[1];
@@ -63,7 +76,11 @@ namespace factor10.VisionThing.Effects
         public Vector3 CameraPosition
         {
             get { return _epCameraPosition.GetValueVector3(); }
-            set { _epCameraPosition.SetValue(value); }
+            set
+            {
+                if ( _epCameraPosition != null)
+                    _epCameraPosition.SetValue(value);
+            }
         }
 
         public Vector4? ClipPlane
@@ -96,6 +113,26 @@ namespace factor10.VisionThing.Effects
         {
             get { return Effect.Parameters; }
         }
+
+        public void SetShadowMapping(ShadowMap shadow)
+        {
+            if (_epDoShadowMapping == null)
+                return;  //this effect cannot do shadow mapping
+
+            if (shadow != null)
+            {
+                _epDoShadowMapping.SetValue(true);
+                _epShadowMap.SetValue(shadow.ShadowDepthTarget);
+                _epShadowView.SetValue(shadow.Camera.View);
+                _epShadowProjection.SetValue(shadow.Camera.Projection);
+                _epShadowFarPlane.SetValue(shadow.ShadowFarPlane);
+                _epShadowMult.SetValue(shadow.ShadowMult);
+            }
+            else
+                _epDoShadowMapping.SetValue(false);
+
+        }
+
     }
 
 }

@@ -98,13 +98,11 @@
     <Compile Include="ClipDrawableInstance.cs" />
     <Compile Include="ColorSurface.cs" />
     <Compile Include="Ground.cs" />
-    <Compile Include="ShadowRenderer.cs" />
+    <Compile Include="ShadowMap.cs" />
     <Compile Include="DoubleSin.cs" />
     <Compile Include="Effects\IEffect.cs" />
     <Compile Include="Effects\PlainEffectWrapper.cs" />
     <Compile Include="IDrawable.cs" />
-    <Compile Include="PPPointLight.cs" />
-    <Compile Include="PrelightingRenderer.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
     <Compile Include="Primitives\CubePrimitive.cs" />
     <Compile Include="Primitives\CylinderPrimitive.cs" />

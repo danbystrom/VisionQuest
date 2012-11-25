@@ -1,4 +1,5 @@
 using factor10.VisionThing;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Water;
 using LibNoise.Xna;
@@ -21,13 +22,14 @@ namespace TestBed
 
         private Camera _camera;
         private WaterSurface _water;
-        private Box _box1, _box2;
+        private Box _box1, _box2, _box3;
         private Ship _ship1;
         private MovingShip _ship2;
         private Windmill _windmill;
         private Island _island;
 
         private BasicEffect _basicEffect;
+        private IEffect _lightingffect;
         private SpriteBatch _spriteBatch;
         private SpriteFont _font;
 
@@ -38,7 +40,11 @@ namespace TestBed
 
         private RenderTarget2D _target1;
         private RenderTarget2D _target2;
+
         private TorusPrimitive<VertexPositionNormal> _torus;
+        private SpherePrimitive _sphere;
+
+        private ShadowMap _shadow;
 
         public Game1()
         {
@@ -81,6 +87,7 @@ namespace TestBed
 
             _box1 = new Box(Matrix.CreateTranslation(-20, 3, -20));
             _box2 = new Box(Matrix.CreateTranslation(-10, 4, -10));
+            _box3 = new Box(Matrix.CreateScale(20, 1f, 5)*Matrix.CreateTranslation(-10, 2, -10));
 
             _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
             var shipModel = new ShipModel();
@@ -92,6 +99,7 @@ namespace TestBed
             _water.ReflectedObjects.Add(_sky1);
             _water.ReflectedObjects.Add(_box1);
             _water.ReflectedObjects.Add(_box2);
+            _water.ReflectedObjects.Add(_box3);
             _water.ReflectedObjects.Add(_ship1);
             _water.ReflectedObjects.Add(_ship2);
             _water.ReflectedObjects.Add(_windmill);
@@ -105,7 +113,7 @@ namespace TestBed
             var add = new Add(perlin, rigged);
 
             // Initialize the noise map
-            var _mNoiseMap = new Noise2D(64, 64, add);
+            var _mNoiseMap = new Noise2D(128, 128, add);
             _mNoiseMap.GeneratePlanar(-1, 1, -1, 1);
 
             // Generate the textures
@@ -116,18 +124,18 @@ namespace TestBed
 
             // Zoom in or out do something like this.
             float zoom = 0.5f;
-            _mNoiseMap.GeneratePlanar(-1*zoom, 1*zoom, -1*zoom, 1*zoom);
+            //_mNoiseMap.GeneratePlanar(-1*zoom, 1*zoom, -1*zoom, 1*zoom);
 
             VisionContent.Init(this);
 
-            var newTerrain = new NewTerrain(
+            var newTerrain1 = new NewTerrain(
                 GraphicsDevice,
                 _mTextures[0],
                 Matrix.CreateTranslation(0, -0.5f, -200),
                 true);
-            _water.ReflectedObjects.Add(newTerrain);
+            _water.ReflectedObjects.Add(newTerrain1);
 
-            newTerrain = new NewTerrain(
+            var newTerrain = new NewTerrain(
                 GraphicsDevice,
                 _mTextures[0],
                 Matrix.CreateTranslation(200, -0.5f, 0),
@@ -155,6 +163,15 @@ namespace TestBed
                 SurfaceFormat.Color,
                 DepthFormat.Depth24);
 
+            _shadow = new ShadowMap(GraphicsDevice);
+            _shadow.ShadowCastingObjects.Add(_box1);
+            _shadow.ShadowCastingObjects.Add(_box2);
+            _shadow.ShadowCastingObjects.Add(_box3);
+            _shadow.ShadowCastingObjects.Add(newTerrain1);
+            _shadow.ShadowCastingObjects.Add(_windmill);
+
+            _sphere = new SpherePrimitive(GraphicsDevice,0.25f);
+            _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
         }
 
         /// <summary>
@@ -208,6 +225,8 @@ namespace TestBed
         private float _frameTime;
         private int _fps;
 
+        private bool _eachOther;
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -215,13 +234,39 @@ namespace TestBed
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            _water.RenderReflection(_camera);
+            _eachOther ^= true;
+            if (_eachOther)
+            {
+                var lookingDirection = _camera.Target - _camera.Position;
+                lookingDirection.Normalize();
+                var lookAtFocus = _camera.Position + 10*lookingDirection;
+
+                var pointToTranslate = lookAtFocus;
+                var m = Matrix.CreateTranslation(-lookAtFocus)*
+                        Matrix.CreateRotationY(MathHelper.Pi)*
+                        Matrix.CreateTranslation(lookAtFocus);
+                _shadow.Camera.Update(
+                    lookAtFocus - VisionContent.SunlightDirectionShadows * 10,
+                    lookAtFocus
+                    );
+                _shadow.Draw();
+            }
+            else
+                _water.RenderReflection(_camera);
+
+            VisionContent.RenderedTriangles = 0;
+
             foreach (var z in _water.ReflectedObjects)
-                z.Draw(_camera);
-            WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+                z.Draw(_camera, DrawingReason.Normal, null, _shadow);
+            WaterFactory.DrawWaterSurfaceGrid(_water, _camera, _shadow);
+
+            _camera.UpdateEffect(_lightingffect);
+            _lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Target);
+            _sphere.Draw(_lightingffect);
+            _lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Position);
+            _sphere.Draw(_lightingffect);
 
             zzz();
-            VisionContent.RenderedTriangles = 0;
 
             base.Draw(gameTime);
         }
@@ -232,8 +277,8 @@ namespace TestBed
 
             _water.RenderReflection(_camera);
             foreach (var z in _water.ReflectedObjects)
-                z.Draw(_camera);
-            WaterFactory.DrawWaterSurfaceGrid(_water, _camera);
+                z.Draw(_camera, DrawingReason.Normal, null, _shadow);
+            WaterFactory.DrawWaterSurfaceGrid(_water, _camera, null);
 
             GraphicsDevice.SetRenderTarget(_target2);
             GraphicsDevice.Clear(Color.Black);
@@ -255,14 +300,18 @@ namespace TestBed
             //_basicEffect.VertexColorEnabled = false;
             _basicEffect.CurrentTechnique.Passes[0].Apply();
             _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
-                               SamplerState.LinearClamp, DepthStencilState.Default,
+                               SamplerState.PointClamp, DepthStencilState.Default,
                                RasterizerState.CullNone);
 
-            //_spriteBatch.Draw(_water._reflectionTarget,
-            //                  new Rectangle(940, 0, (int) _camera.ClientSize.X/4, (int) _camera.ClientSize.Y/2), Color.White);
-            _spriteBatch.DrawString(_font, string.Format("Verticies: {0}", VisionContent.RenderedTriangles), new Vector2(10, 10), Color.Gold);
+            var w = _shadow.ShadowDepthTarget.Width/4;
+            var h = _shadow.ShadowDepthTarget.Height/4;
+            _spriteBatch.Draw(_shadow.ShadowDepthTarget, new Rectangle(1270-w, 10, w, h), Color.White);
+            _spriteBatch.Draw(_shadow.ShadowDepthTarget, new Rectangle(1270 - w, 10, w, h), Color.White);
+            _spriteBatch.DrawString(_font, string.Format("Triangles: {0}", VisionContent.RenderedTriangles), new Vector2(10, 10), Color.Gold);
             _spriteBatch.DrawString(_font, string.Format("FPS: {0}", _fps), new Vector2(10, 30), Color.Gold);
             _spriteBatch.DrawString(_font, string.Format("Water planes: {0}", WaterFactory.RenderedWaterPlanes), new Vector2(10, 50), Color.Gold);
+            var p = _camera.Position;
+            _spriteBatch.DrawString(_font, string.Format("Campera pos: {0:0.0},{1:0.0},{2:0.0}", p.X, p.Y, p.Z ), new Vector2(10, 70), Color.Gold);
             _spriteBatch.End();
 
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;

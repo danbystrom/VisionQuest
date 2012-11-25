@@ -43,8 +43,8 @@ namespace TestBed
             _bob1.Update(gameTime);
             _bob2.Update(gameTime);
         }
-    
-        public override void Draw(Camera camera, IEffect effect)
+
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             camera.UpdateEffect(effect);
             effect.Texture = _texture;

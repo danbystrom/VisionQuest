@@ -23,7 +23,8 @@ namespace factor10.VisionThing
         public Camera(
             Vector2 clientSize,
             Vector3 position,
-            Vector3 target)
+            Vector3 target,
+            int farPlane = 10000)
         {
             ClientSize = clientSize;
 

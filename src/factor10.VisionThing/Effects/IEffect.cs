@@ -15,5 +15,6 @@ namespace factor10.VisionThing.Effects
         Effect Effect { get; }
         void Apply();
         EffectParameterCollection Parameters { get; }
+        void SetShadowMapping(ShadowMap shadow);
     }
 }

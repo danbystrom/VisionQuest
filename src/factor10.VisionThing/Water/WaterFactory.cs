@@ -13,9 +13,6 @@ namespace factor10.VisionThing.Water
     {
         public static WaterSurface Create(GraphicsDevice graphicsDevice)
         {
-
-            var lightDirW = new Vector3(5.0f, -1.0f, -3.0f);
-            lightDirW.Normalize();
             return new WaterSurface(
                 graphicsDevice,
                 new InitInfo
@@ -26,7 +23,7 @@ namespace factor10.VisionThing.Water
                                            Ambient = new Vector4(0.3f, 0.3f, 0.3f, 1.0f),
                                            Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                            Spec = new Vector4(0.7f, 0.7f, 0.7f, 1.0f),
-                                           DirW = lightDirW
+                                           DirW = VisionContent.SunlightDirectionWater
                                        },
                         Mtrl = new Mtrl
                                    {
@@ -38,8 +35,6 @@ namespace factor10.VisionThing.Water
                         SquareSize = 128,
                         dx = 0.25f,
                         dz = 0.25f,
-                        waveMap0 = VisionContent.Load<Texture2D>(@"textures\wave0"),
-                        waveMap1 = VisionContent.Load<Texture2D>(@"textures\wave1"),
                         dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
                         dmap1 = foobar(graphicsDevice, @"textures\waterdmap1"),
                         LakeBumpMap = VisionContent.Load<Texture2D>(@"waterbump"),
@@ -72,7 +67,8 @@ namespace factor10.VisionThing.Water
 
         public static void DrawWaterSurfaceGrid(
             WaterSurface waterSurface,
-            Camera camera)
+            Camera camera,
+            ShadowMap shadow)
         {
             const int waterW = 32;
             const int waterH = 32;
@@ -80,6 +76,8 @@ namespace factor10.VisionThing.Water
             const int worldH = 32;
 
             var boundingFrustum = camera.BoundingFrustum;
+
+            waterSurface.Effect.SetShadowMapping(shadow);
 
             var gridStartX = (int) camera.Position.X/waterW - worldW/2;
             var gridStartY = (int) camera.Position.Z/waterH - worldH/2;

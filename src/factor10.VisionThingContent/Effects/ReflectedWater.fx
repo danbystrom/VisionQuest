@@ -1,11 +1,3 @@
-//=============================================================================
-// waterdmap.fx by Frank Luna (C) 2004 All Rights Reserved.
-//
-// Scrolls normal maps over for per pixel lighting of high 
-// frequency waves; uses displacement mapping for modifying geometry.
-//=============================================================================
-
-
 uniform extern float4x4 World;
 uniform extern float4x4 WorldInv;
 uniform extern float4x4 View;
@@ -24,13 +16,10 @@ uniform extern float4   gLightSpec;
 // Texture coordinate offset vectors for scrolling
 // normal maps and displacement maps.
 uniform extern float2   gWaveNMapOffset0;
-uniform extern float2   gWaveNMapOffset1;
 uniform extern float2   gWaveDMapOffset0;
 uniform extern float2   gWaveDMapOffset1;
 
 // Two normal maps and displacement maps.
-uniform extern texture  gWaveMap0;
-uniform extern texture  gWaveMap1;
 uniform extern texture  gWaveDispMap0;
 uniform extern texture  gWaveDispMap1;
 
@@ -52,46 +41,28 @@ uniform extern float4x4 ReflectedView;
 
 uniform float4 LakeTextureTransformation;
 
-sampler WaveMapS0 = sampler_state
-{
-	Texture = <gWaveMap0>;
-	MinFilter = ANISOTROPIC;
-	MaxAnisotropy = 12;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU  = WRAP;
-    AddressV  = WRAP;
-};
-
-sampler WaveMapS1 = sampler_state
-{
-	Texture = <gWaveMap1>;
-	MinFilter = ANISOTROPIC;
-	MaxAnisotropy = 12;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	AddressU  = WRAP;
-    AddressV  = WRAP;
+bool DoShadowMapping = true;
+float4x4 ShadowView;
+float4x4 ShadowProjection;
+float ShadowFarPlane = 100;
+float ShadowMult = 0.3f;
+float ShadowBias = 1.0f / 40.0f;
+texture2D ShadowMap;
+sampler2D shadowSampler = sampler_state {
+	texture = <ShadowMap>;
+	minfilter = point;
+	magfilter = point;
+	mipfilter = point;
 };
 
 sampler DMapS0 = sampler_state
 {
-	Texture = <gWaveDispMap0>;
-	MinFilter = POINT;
-	MagFilter = POINT;
-	MipFilter = POINT;
-	AddressU  = WRAP;
-    AddressV  = WRAP;
+	Texture = <gWaveDispMap0>; MinFilter = POINT; MagFilter = POINT; MipFilter = POINT; AddressU  = WRAP; AddressV  = WRAP;
 };
 
 sampler DMapS1 = sampler_state
 {
-	Texture = <gWaveDispMap1>;
-	MinFilter = POINT;
-	MagFilter = POINT;
-	MipFilter = POINT;
-	AddressU  = WRAP;
-    AddressV  = WRAP;
+	Texture = <gWaveDispMap1>; MinFilter = POINT; MagFilter = POINT; MipFilter = POINT; AddressU  = WRAP; AddressV  = WRAP;
 };
 
 sampler2D reflectionSampler = sampler_state {
@@ -100,14 +71,6 @@ sampler2D reflectionSampler = sampler_state {
 	MagFilter = Anisotropic;
 	AddressU = Mirror;
 	AddressV = Mirror;
-};
-
-struct LakeWaterVertexOutput
-{
-    float4 Position  : POSITION;
-    float4 ReflectionMapPos : TEXCOORD0;
-    float2 BumpMapSamplingPos : TEXCOORD1;
-    float4 Position3D : TEXCOORD2;
 };
 
 struct OceanWaterVertexOutput
@@ -121,7 +84,9 @@ struct OceanWaterVertexOutput
     float3 toEyeT           : TEXCOORD5;
     float3 lightDirT        : TEXCOORD6;
 	float  LakeBlendFactor  : TEXCOORD7;
+	float4 ShadowScreenPosition  : TEXCOORD8;
 };
+
 
 float DoDispMapping(float2 texC0, float2 texC1)
 {
@@ -160,41 +125,46 @@ float DoDispMapping(float2 texC0, float2 texC1)
     return gScaleHeights.x*h0 + gScaleHeights.y*h1;
 }
 
+float2 sampleShadowMap(float2 UV)
+{
+	//if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
+	//	return float2(1, 1);
+
+	return tex2D(shadowSampler, UV).rg;
+}
+
 
 OceanWaterVertexOutput OceanWaterVS(
-    float4 posLocal        : POSITION0, 
+    float4 posLocal       : POSITION0, 
     float2 normalizedTexC : TEXCOORD0,
     float2 scaledTexC     : TEXCOORD1)
 {
 	float4x4 wvp = mul( World, mul( View, Projection ) );
 
     // Zero out our output.
-	OceanWaterVertexOutput outVS = (OceanWaterVertexOutput)0;
+	OceanWaterVertexOutput output = (OceanWaterVertexOutput)0;
 
 	// Scroll vertex texture coordinates to animate waves.
 	float2 vTex0 = normalizedTexC + gWaveDMapOffset0;
 	float2 vTex1 = normalizedTexC + gWaveDMapOffset1;
 	
 	// Scroll texture coordinates.
-	outVS.tex0 = scaledTexC + gWaveNMapOffset0;
-	outVS.tex1 = scaledTexC + gWaveNMapOffset1;
+	output.tex0 = scaledTexC + gWaveNMapOffset0;
 
 	float4 depthVector = mul( posLocal, wvp );      
 	float blendDistance = 0.97f;
 	float blendWidth = 0.03f;
-	outVS.LakeBlendFactor = clamp((depthVector.z/depthVector.w-blendDistance)/blendWidth, 0, 1);
+	output.LakeBlendFactor = clamp((depthVector.z/depthVector.w-blendDistance)/blendWidth, 0, 1);
 
 	// Set y-coordinate of water grid vertices based on displacement mapping.
-	posLocal.y = lerp( DoDispMapping(vTex0, vTex1), 0.75, outVS.LakeBlendFactor );
+	posLocal.y = lerp( DoDispMapping(vTex0, vTex1), 0.75, output.LakeBlendFactor );
 	
 	float4x4 rwvp = mul( World, mul(ReflectedView, Projection));
-    outVS.ReflectionMapPos =  mul(posLocal, rwvp);
+    output.ReflectionMapPos =  mul(posLocal, rwvp);
 
 	// Estimate TBN-basis using finite differencing in local space.  
-	float r = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), 
-	                        vTex1 + float2(0.0f, DMAP_DX));
-	float b = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), 
-	                        vTex1 + float2(0.0f, DMAP_DX));  
+	float r = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), vTex1 + float2(0.0f, DMAP_DX));
+	float b = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), vTex1 + float2(0.0f, DMAP_DX));  
 	                        
 	float3x3 TBN;                       
 	TBN[0] = normalize(float3(1.0f, (r-posLocal.y)/gGridStepSizeL.x, 0.0f)); 
@@ -209,102 +179,34 @@ OceanWaterVertexOutput OceanWaterVS(
 	
 	// Transform to-eye vector to tangent space.
 	float3 toEyeL = eyePosL - posLocal;
-	outVS.toEyeT = mul(toEyeL, toTangentSpace);
+	output.toEyeT = mul(toEyeL, toTangentSpace);
 
 	// Transform light direction to tangent space.
 	float3 lightDirL = mul(float4(LightDirection, 0.0f), WorldInv).xyz;
-	outVS.lightDirT  = mul(lightDirL, toTangentSpace);
+	output.lightDirT  = mul(lightDirL, toTangentSpace);
 	
 	// Transform to homogeneous clip space.
-	outVS.Position = mul(posLocal, wvp);
+	output.Position = mul(posLocal, wvp);
 	
-    return outVS;
-}
+	output.ShadowScreenPosition = mul(mul(posLocal,World), mul(ShadowView, ShadowProjection));
 
-// Calculate the 2D screenposition of a position vector
-float2 postProjToScreen(float4 position)
-{
-	float2 screenPos = position.xy / position.w;
-	return 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
-}
-
-float4 OceanWaterPS( OceanWaterVertexOutput input ) : COLOR
-{
-	// Light vector is opposite the direction of the light.
-	float3 lightDirT = normalize(input.lightDirT);
-	
-	// Sample normal map.
-	float3 normalT0 = tex2D(WaveMapS0, input.tex0);
-	float3 normalT1 = tex2D(WaveMapS1, input.tex1);
-	
-	// Expand from [0, 1] compressed interval to true [-1, 1] interval.
-    normalT0 = 2.0f*normalT0 - 1.0f;
-    normalT1 = 2.0f*normalT1 - 1.0f;
-    
-	// Average the two vectors.
-	float3 normalT = normalize(normalT0 + normalT1);
-	
-	// Compute the reflection vector.
-	float3 r = reflect(lightDirT, normalT);
-	
-	float3 toEye = normalize(input.toEyeT);
-	// Determine how much (if any) specular light makes it into the eye.
-	float t  = pow(max(dot(r, toEye), 0.0f), gMtrlSpecPower);
-	
-	// Determine the diffuse light intensity that strikes the vertex.
-	float s = max(dot(-lightDirT, normalT), 0.0f);
-	
-	// If the diffuse light intensity is low, kill the specular lighting term.
-	// It doesn't look right to add specular light when the surface receives 
-	// little diffuse light.
-	if(s <= 0.0f)
-	     t = 0.0f;
-
-	//BEGIN reflection	
-	float2 reflectionUV = postProjToScreen(input.ReflectionMapPos);
-	float2 uv = float2( normalT.x * 0.02f, -0.012f );
-	float3 reflection = tex2D(reflectionSampler, reflectionUV + uv);
-	//END reflection
-
-	// Compute the ambient, diffuse and specular terms separatly. 
-	float3 spec = t*(gMtrlSpec*gLightSpec).rgb;
-	float3 diffuse = s*(gMtrlDiffuse*gLightDiffuse.rgb);
-	float3 ambient = gMtrlAmbient*gLightAmbient;
-	
-	float3 final = ( 4*(ambient + diffuse + spec) + reflection ) / 5;
-
-	// Output the color and the alpha.
-    return float4(final, gMtrlDiffuse.a);
+    return output;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float WaveLength;
 float WaveHeight;
-
-float Time;
-float WindForce;
-float3 WindDirection;
-//float Overcast;
 
 Texture WaterBumpMap;
 sampler WaterBumpMapSampler = sampler_state { texture = <WaterBumpMap> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = wrap; AddressV = wrap;};
 
-Texture Checker;
-sampler CheckerSampler = sampler_state { texture = <Checker> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
- 
- struct WPixelToFrame
- {
-     float4 Color : COLOR0;
- };
- 
- LakeWaterVertexOutput LakeWaterVS(
+ OceanWaterVertexOutput LakeWaterVS(
    float4 posLocal       : POSITION,
    float2 normalizedTexC : TEXCOORD0,
    float2 scaledTexC     : TEXCOORD1)
 {    
-    LakeWaterVertexOutput Output = (LakeWaterVertexOutput)0;
+    OceanWaterVertexOutput Output = (OceanWaterVertexOutput)0;
 
     float4x4 preViewProjection = mul (View, Projection);
     float4x4 preWorldViewProjection = mul (World, preViewProjection);
@@ -323,35 +225,64 @@ sampler CheckerSampler = sampler_state { texture = <Checker> ; magfilter = LINEA
     return Output;
 }
 
-WPixelToFrame LakeWaterPS(LakeWaterVertexOutput PSIn)
+float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 {
-    WPixelToFrame Output = (WPixelToFrame)0;        
-    
-    float4 bumpColor = tex2D(WaterBumpMapSampler, PSIn.BumpMapSamplingPos);
+    float4 bumpColor = tex2D(WaterBumpMapSampler, input.BumpMapSamplingPos);
     float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
     
     float2 ProjectedTexCoords;
-    ProjectedTexCoords.x = PSIn.ReflectionMapPos.x/PSIn.ReflectionMapPos.w/2.0f + 0.5f;
-    ProjectedTexCoords.y = -PSIn.ReflectionMapPos.y/PSIn.ReflectionMapPos.w/2.0f + 0.5f;        
+    ProjectedTexCoords.x = input.ReflectionMapPos.x/input.ReflectionMapPos.w/2.0f + 0.5f;
+    ProjectedTexCoords.y = -input.ReflectionMapPos.y/input.ReflectionMapPos.w/2.0f + 0.5f;        
     float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
     float4 reflectiveColor = tex2D(reflectionSampler, perturbatedTexCoords);
     
     float4 refractiveColor = float4(0.01,0.01,0.2,1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
     
-    float3 eyeVector = normalize(CameraPosition - PSIn.Position3D);
+    float3 eyeVector = normalize(CameraPosition - input.Position3D);
     float3 normalVector = (bumpColor.rbg-0.5f)*2.0f;
     
     float fresnelTerm = dot(eyeVector, normalVector);    
     float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm));
     float4 dullColor = float4(0.3f, 0.3f, 0.5f, 1.0f);
-    Output.Color = lerp(combinedColor, dullColor, 0.2f);    
+    float4 color = lerp(combinedColor, dullColor, 0.2f);    
     
     float3 reflectionVector = -reflect(LightDirection, normalVector);
     float specular = dot(normalize(reflectionVector), eyeVector);
-    specular = pow(abs(specular), 256);        
-    Output.Color.rgb += specular;
+    specular = pow(abs(specular), 256);  
 
-    return Output;
+	//if (DoShadowMapping)
+	{
+		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+		if (realDepth < 1)
+		{
+			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
+			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+
+			// Variance shadow mapping code below from the variance shadow
+			// mapping demo code @ http://www.punkuser.net/vsm/
+
+			// Sample from depth texture
+			float2 moments = sampleShadowMap(shadowTexCoord);
+
+			// Check if we're in shadow
+			float lit_factor = (realDepth <= moments.x);
+    
+			// Variance shadow mapping
+			float E_x2 = moments.y;
+			float Ex_2 = moments.x * moments.x;
+			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float m_d = (moments.x - realDepth);
+			float p = variance / (variance + m_d * m_d);
+
+			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
+			specular *= shadowFactor * shadowFactor * shadowFactor;
+			//color.rgb *= sqrt(shadowFactor);
+		}
+	}
+
+    color.rgb += specular;
+
+    return color;
 }
 
 OceanWaterVertexOutput CombinedWaterVS(
@@ -369,31 +300,14 @@ OceanWaterVertexOutput CombinedWaterVS(
 	return oceanVS;
 }
 
-WPixelToFrame CombinedWaterPS(OceanWaterVertexOutput input)
-{
-    WPixelToFrame output = (WPixelToFrame)0;
-
-	LakeWaterVertexOutput lake;
-	lake.Position = input.Position;
-	lake.ReflectionMapPos = input.ReflectionMapPos;
-	lake.BumpMapSamplingPos = input.BumpMapSamplingPos;
-	lake.Position3D = input.Position3D;
-
-    //output.Color = LakeWaterPS(lake).Color * 0.5 + OceanWaterPS(input) * 0.5;
-	output.Color = lerp( OceanWaterPS(input), LakeWaterPS(lake).Color,  1 /*input.LakeBlendFactor*/ );
-	//output.Color = float4( input.LakeBlendFactor, input.LakeBlendFactor, input.LakeBlendFactor, 1 );
-	return output;
-}
-
-technique OceanWaterTech
-{
-    pass P0
-    {
-        // Specify the vertex and pixel shader associated with this pass.
-        vertexShader = compile vs_3_0 OceanWaterVS();
-        pixelShader  = compile ps_3_0 OceanWaterPS();
-    }    
-}
+ technique DisplacedWaterTech
+ {
+     pass Pass0
+     {
+         VertexShader = compile vs_3_0 CombinedWaterVS();
+         PixelShader = compile ps_3_0 LakeWaterPS();
+     }
+ }
 
  technique LakeWaterTech
  {
@@ -404,13 +318,4 @@ technique OceanWaterTech
      }
  }
 
-
- technique CombinedWaterTech
- {
-     pass Pass0
-     {
-         VertexShader = compile vs_3_0 CombinedWaterVS();
-         PixelShader = compile ps_3_0 CombinedWaterPS();
-     }
- }
 

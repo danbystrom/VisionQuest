@@ -44,11 +44,15 @@ namespace TestBed
             _model.CopyAbsoluteBoneTransformsTo(_bones);
         }
 
-        public override void Draw(Camera camera, IEffect effect)
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             camera.UpdateEffect(effect);
-            effect.Parameters["Texture"].SetValue(_texture);
-            effect.Parameters["BumpMap"].SetValue(_bumpMap);
+
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+            {
+                effect.Parameters["Texture"].SetValue(_texture);
+                effect.Parameters["BumpMap"].SetValue(_bumpMap);
+            }
 
             foreach (var mesh in _model.Meshes)
             {
@@ -56,38 +60,12 @@ namespace TestBed
                     _bones[mesh.ParentBone.Index] *
                     World;
                 effect.Apply();
+                foreach (var part in mesh.MeshParts)
+                    part.Effect = effect.Effect;
                 mesh.Draw();
             }
         }
         
-        /*
-
-        public override void Draw(Camera camera, IEffect effect)
-        {
-            foreach (var pass in effect.Effect.CurrentTechnique.Passes)
-            {
-                foreach (var mesh in _model.Meshes)
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        camera.UpdateEffect(effect);
-                        effect.World =
-                            _bones[mesh.ParentBone.Index] *
-                            World;
-                        effect.Parameters["Texture"].SetValue(_texture);
-                        effect.Parameters["BumpMap"].SetValue(_bumpMap);
-
-                        pass.Apply();
-                        effect.GraphicsDevice.SetVertexBuffer(part.VertexBuffer);
-                        effect.GraphicsDevice.Indices = part.IndexBuffer;
-                        effect.GraphicsDevice.DrawIndexedPrimitives(
-                            PrimitiveType.TriangleList,
-                            0, 0, part.NumVertices,
-                            part.StartIndex, part.PrimitiveCount);
-                    }
-            }
-
-        }
-        */
     }
 
 }

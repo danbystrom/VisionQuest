@@ -26,24 +26,24 @@ namespace TestBed
         {
             _shipModel.Update(gameTime);
         }
-    
-        public override void Draw(Camera camera, IEffect effect)
+
+        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
         {
             _shipModel.World = World;
-            _shipModel.Draw(camera, effect);
+            _shipModel.Draw(camera, drawingReason, effect, shadowMap);
         }
 
-        public override void Draw(Camera camera)
+        public override void Draw(
+            Vector4? clipPlane,
+            Camera camera,
+            DrawingReason drawingReason = DrawingReason.Normal,
+            IEffect effect = null,
+            ShadowMap shadowMap = null)
         {
             _shipModel.World = World;
-            _shipModel.Draw(camera);
+            _shipModel.Draw(clipPlane, camera, drawingReason, effect, shadowMap);
         }
 
-        public override void Draw(Camera camera, Vector4? clipPlane)
-        {
-            _shipModel.World = World;
-            _shipModel.Draw(camera, clipPlane);
-        }
     }
 
 }

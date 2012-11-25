@@ -49,9 +49,7 @@ namespace factor10.VisionThing.Water
     {
         // Offset of normal maps for scrolling (vary as a function of time)
         private Vector2 _waveNMapOffset0;
-        private Vector2 _waveNMapOffset1;
         private readonly Vector2 _waveNMapVelocity0;
-        private readonly Vector2 _waveNMapVelocity1;
 
         // Offset of displacement maps for scrolling (vary as a function of time)
         private Vector2 _waveDMapOffset0;
@@ -78,7 +76,6 @@ namespace factor10.VisionThing.Water
             Effect = new PlainEffectWrapper( initInfo.Fx );
 
             _waveNMapVelocity0 = initInfo.waveNMapVelocity0;
-            _waveNMapVelocity1 = initInfo.waveNMapVelocity1;
             _waveDMapVelocity0 = initInfo.waveDMapVelocity0;
             _waveDMapVelocity1 = initInfo.waveDMapVelocity1;
 
@@ -128,7 +125,6 @@ namespace factor10.VisionThing.Water
             // Update texture coordinate offsets.  These offsets are added to the
             // texture coordinates in the vertex shader to animate them.
             _waveNMapOffset0 += _waveNMapVelocity0*dt;
-            _waveNMapOffset1 += _waveNMapVelocity1*dt;
 
             _waveDMapOffset0 += _waveDMapVelocity0*dt;
             _waveDMapOffset1 += _waveDMapVelocity1*dt;
@@ -136,7 +132,6 @@ namespace factor10.VisionThing.Water
             // Textures repeat every 1.0 unit, so reset back down to zero
             // so the coordinates do not grow too large.
             wrap(ref _waveNMapOffset0);
-            wrap(ref _waveNMapOffset1);
             wrap(ref _waveDMapOffset0);
             wrap(ref _waveDMapOffset1);
 
@@ -163,18 +158,17 @@ namespace factor10.VisionThing.Water
             _mhCameraPosition.SetValue(camera.Position);
 
             _mhWaveNMapOffset0.SetValue(_waveNMapOffset0);
-            _mhWaveNMapOffset1.SetValue(_waveNMapOffset1);
-            _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
+             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            Effect.Parameters["WaveLength"].SetValue(0.1f);
+            //Effect.Parameters["WaveLength"].SetValue(0.1f);
             Effect.Parameters["WaveHeight"].SetValue(0.3f*2);
-            Effect.Parameters["WindForce"].SetValue(0.002f);
-            Effect.Parameters["Time"].SetValue(_time*10);
-            Effect.Parameters["WindDirection"].SetValue(new Vector3(0, 0, 1));
+            //Effect.Parameters["WindForce"].SetValue(0.002f);
+            //Effect.Parameters["Time"].SetValue(_time*10);
+            //Effect.Parameters["WindDirection"].SetValue(new Vector3(0, 0, 1));
 
 
-            Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
+            Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
             Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
             if (distance < 9000)
                 _hiPolyPlane.Draw(Effect);
@@ -188,9 +182,10 @@ namespace factor10.VisionThing.Water
             }
             else
             {
-                //Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
+                if ( distance > 100000 )
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
                 world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
-                        Matrix.CreateTranslation(0, -0.40f, 0);
+                        Matrix.CreateTranslation(0, -0.20f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
                 _lakePlane.Draw(Effect);
@@ -224,10 +219,7 @@ namespace factor10.VisionThing.Water
             _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
 
             p["WaterBumpMap"].SetValue(initInfo.LakeBumpMap);
-            p["Checker"].SetValue(initInfo.Checker);
 
-            p["gWaveMap0"].SetValue(initInfo.waveMap0);
-            p["gWaveMap1"].SetValue(initInfo.waveMap1);
             p["gWaveDispMap0"].SetValue(initInfo.dmap0);
             p["gWaveDispMap1"].SetValue(initInfo.dmap1);
             p["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
@@ -247,23 +239,20 @@ namespace factor10.VisionThing.Water
             const float waterMeshPositionY = 0.75f; //experimenting with this
 
             // Reflect the camera's properties across the water plane
-            var reflectedCameraPosition = camera.Position -new Vector3(0, 1, 0);
-            reflectedCameraPosition.Y = -reflectedCameraPosition.Y + waterMeshPositionY*2;
-            var reflectedCameraTarget = camera.Target - new Vector3(0, 1, 0);
-            reflectedCameraTarget.Y = -reflectedCameraTarget.Y + waterMeshPositionY*2;
-
-            //reflectedCameraPosition = reflectedCameraPosition + (reflectedCameraPosition - reflectedCameraTarget)*1f;
+            var reflectedCameraPosition = camera.Position;
+            reflectedCameraPosition.Y = -reflectedCameraPosition.Y + 1 + waterMeshPositionY * 2;
+            var reflectedCameraTarget = camera.Target;
+            reflectedCameraTarget.Y = -reflectedCameraTarget.Y + 1 + waterMeshPositionY * 2;
  
             _reflectionCamera.Update(
                 reflectedCameraPosition,
                 reflectedCameraTarget);
-            //_reflectionCamera.test(Matrix.CreateTranslation(0, -50, 0)*_reflectionCamera.View);
 
             Effect.GraphicsDevice.SetRenderTarget(_reflectionTarget);
 
             var clipPlane = new Vector4(0, 1, 0, -waterMeshPositionY);
             foreach (var cd in ReflectedObjects)
-                cd.Draw(_reflectionCamera, clipPlane);
+                cd.Draw(clipPlane, _reflectionCamera);
 
             Effect.GraphicsDevice.SetRenderTarget(null);
 

@@ -548,6 +548,10 @@ namespace factor10.VisionThing.Effects
             get { return Effect.Parameters; }
         }
 
+        public void SetShadowMapping(ShadowMap shadow)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 }

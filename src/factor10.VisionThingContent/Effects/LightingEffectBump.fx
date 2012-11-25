@@ -2,9 +2,23 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
-
-bool ClipPlaneEnabled;
 float4 ClipPlane;
+
+bool DoShadowMapping = true;
+float4x4 ShadowView;
+float4x4 ShadowProjection;
+float3 ShadowLightPosition;
+float ShadowFarPlane = 100;
+float ShadowMult = 0.3f;
+float ShadowBias = 1.0f / 400.0f;
+texture2D ShadowMap;
+sampler2D shadowSampler = sampler_state {
+	texture = <ShadowMap>;
+	minfilter = point;
+	magfilter = point;
+	mipfilter = point;
+};
+
 
 texture Texture;
 texture BumpMap;
@@ -46,7 +60,8 @@ struct VertexShaderOutput
     float2 UV			 : TEXCOORD0;
     float3 ViewDirection : TEXCOORD1;
 	float3 WorldPosition : TEXCOORD2;
-	};
+	float4 ShadowScreenPosition : TEXCOORD3;
+};
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
@@ -62,7 +77,18 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
     output.ViewDirection = worldPosition - CameraPosition;
 
+	output.ShadowScreenPosition = mul(worldPosition, mul(ShadowView, ShadowProjection));
+
     return output;
+
+}
+
+float2 sampleShadowMap(float2 UV)
+{
+	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
+		return float2(1, 1);
+
+	return tex2D(shadowSampler, UV).rg;
 }
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
@@ -84,6 +110,35 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
+
+	if (DoShadowMapping)
+	{
+		float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
+		float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+
+		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+
+		if (realDepth < 1)
+		{
+			// Variance shadow mapping code below from the variance shadow
+			// mapping demo code @ http://www.punkuser.net/vsm/
+
+			// Sample from depth texture
+			float2 moments = sampleShadowMap(shadowTexCoord);
+
+			// Check if we're in shadow
+			float lit_factor = (realDepth <= moments.x);
+    
+			// Variance shadow mapping
+			float E_x2 = moments.y;
+			float Ex_2 = moments.x * moments.x;
+			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float m_d = (moments.x - realDepth);
+			float p = variance / (variance + m_d * m_d);
+
+			color *= clamp(max(lit_factor, p), ShadowMult, 1.0f);
+		}
+	}
 
 	// Calculate final color
 	float3 output = saturate(lighting) * color;
