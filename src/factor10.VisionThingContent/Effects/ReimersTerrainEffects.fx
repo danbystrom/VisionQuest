@@ -5,11 +5,9 @@ float3 CameraPosition;
 float4 ClipPlane;
 
 bool DoShadowMapping = true;
-float4x4 ShadowView;
-float4x4 ShadowProjection;
-float ShadowFarPlane = 100;
+float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
-float ShadowBias = 1.0f / 40.0f;
+float ShadowBias = 0.001f;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
@@ -74,7 +72,7 @@ MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float2 inTexCoords: TE
     
 	output.Depth = output.Position.z / output.Position.w;
 
-	output.ShadowScreenPosition = mul(worldPosition, mul(ShadowView, ShadowProjection));
+	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
     return output;    
 }
@@ -119,7 +117,7 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel input)
 
 	if (DoShadowMapping)
 	{
-		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
 		if (realDepth < 1)
 		{
 			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
@@ -161,7 +159,7 @@ float4 MultiTexturedPSDepth(MTVertexToPixel input) : COLOR0
 {
 	// Determine the depth of this vertex / by the far plane distance,
 	// limited to [0, 1]
-    float depth = clamp(input.PositionCopy.z / ShadowFarPlane, 0, 1);
+    float depth = clamp(input.PositionCopy.z / input.ShadowScreenPosition.w, 0, 1);
     
 	// Return only the depth value
     return float4(depth, depth * depth, 0, 1);

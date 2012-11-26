@@ -44,10 +44,10 @@ namespace TestBed
             _bob2.Update(gameTime);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(effect);
-            effect.Texture = _texture;
+            camera.UpdateEffect(Effect);
+            Effect.Texture = _texture;
             foreach (var mesh in _model.Meshes)
             {
                 Effect.World =

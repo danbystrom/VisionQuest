@@ -52,6 +52,8 @@ namespace TestBed
             _graphics.PreferredBackBufferWidth = 1280;
             _graphics.PreferredBackBufferHeight = 800;
             Content.RootDirectory = "Content";
+            IsFixedTimeStep = false;
+            _graphics.SynchronizeWithVerticalRetrace = false;
         }
 
         /// <summary>
@@ -239,16 +241,12 @@ namespace TestBed
             {
                 var lookingDirection = _camera.Target - _camera.Position;
                 lookingDirection.Normalize();
-                var lookAtFocus = _camera.Position + 10*lookingDirection;
+                var lookAtFocus = _camera.Position + 20*lookingDirection;
+                lookAtFocus.Y = 2;
 
-                var pointToTranslate = lookAtFocus;
-                var m = Matrix.CreateTranslation(-lookAtFocus)*
-                        Matrix.CreateRotationY(MathHelper.Pi)*
-                        Matrix.CreateTranslation(lookAtFocus);
                 _shadow.Camera.Update(
-                    lookAtFocus - VisionContent.SunlightDirectionShadows * 10,
-                    lookAtFocus
-                    );
+                    lookAtFocus - VisionContent.SunlightDirectionShadows * 20,
+                    lookAtFocus);
                 _shadow.Draw();
             }
             else
@@ -257,7 +255,7 @@ namespace TestBed
             VisionContent.RenderedTriangles = 0;
 
             foreach (var z in _water.ReflectedObjects)
-                z.Draw(_camera, DrawingReason.Normal, null, _shadow);
+                z.Draw(_camera, DrawingReason.Normal, _shadow);
             WaterFactory.DrawWaterSurfaceGrid(_water, _camera, _shadow);
 
             _camera.UpdateEffect(_lightingffect);
@@ -277,7 +275,7 @@ namespace TestBed
 
             _water.RenderReflection(_camera);
             foreach (var z in _water.ReflectedObjects)
-                z.Draw(_camera, DrawingReason.Normal, null, _shadow);
+                z.Draw(_camera, DrawingReason.Normal, _shadow);
             WaterFactory.DrawWaterSurfaceGrid(_water, _camera, null);
 
             GraphicsDevice.SetRenderTarget(_target2);
@@ -309,7 +307,9 @@ namespace TestBed
             _spriteBatch.Draw(_shadow.ShadowDepthTarget, new Rectangle(1270 - w, 10, w, h), Color.White);
             _spriteBatch.DrawString(_font, string.Format("Triangles: {0}", VisionContent.RenderedTriangles), new Vector2(10, 10), Color.Gold);
             _spriteBatch.DrawString(_font, string.Format("FPS: {0}", _fps), new Vector2(10, 30), Color.Gold);
-            _spriteBatch.DrawString(_font, string.Format("Water planes: {0}", WaterFactory.RenderedWaterPlanes), new Vector2(10, 50), Color.Gold);
+            _spriteBatch.DrawString(_font, string.Format("Water planes: {0}/{1}/{2}/{3}", WaterFactory.RenderedWaterPlanes[0],
+                WaterFactory.RenderedWaterPlanes[1], WaterFactory.RenderedWaterPlanes[2], WaterFactory.RenderedWaterPlanes[3]),
+                new Vector2(10, 50), Color.Gold);
             var p = _camera.Position;
             _spriteBatch.DrawString(_font, string.Format("Campera pos: {0:0.0},{1:0.0},{2:0.0}", p.X, p.Y, p.Z ), new Vector2(10, 70), Color.Gold);
             _spriteBatch.End();

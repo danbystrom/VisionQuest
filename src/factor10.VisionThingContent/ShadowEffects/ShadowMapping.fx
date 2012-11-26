@@ -22,8 +22,7 @@ sampler2D lightSampler = sampler_state {
 };
 
 bool DoShadowMapping = true;
-float4x4 ShadowView;
-float4x4 ShadowProjection;
+float4x4 ShadowViewProjection;
 float3 ShadowLightPosition;
 float ShadowFarPlane;
 float ShadowMult = 0.3f;
@@ -67,8 +66,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     
 	output.UV = input.UV;
 
-	output.ShadowScreenPosition = mul(mul(input.Position, World), 
-		mul(ShadowView, ShadowProjection));
+	output.ShadowScreenPosition = mul(mul(input.Position, World), ShadowViewProjection);
 
 	return output;
 }

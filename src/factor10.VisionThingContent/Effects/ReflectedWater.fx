@@ -42,11 +42,9 @@ uniform extern float4x4 ReflectedView;
 uniform float4 LakeTextureTransformation;
 
 bool DoShadowMapping = true;
-float4x4 ShadowView;
-float4x4 ShadowProjection;
-float ShadowFarPlane = 100;
+float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
-float ShadowBias = 1.0f / 40.0f;
+float ShadowBias = 0.001;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
@@ -188,7 +186,7 @@ OceanWaterVertexOutput OceanWaterVS(
 	// Transform to homogeneous clip space.
 	output.Position = mul(posLocal, wvp);
 	
-	output.ShadowScreenPosition = mul(mul(posLocal,World), mul(ShadowView, ShadowProjection));
+	output.ShadowScreenPosition = mul( mul(posLocal,World), ShadowViewProjection );
 
     return output;
 }
@@ -252,7 +250,7 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 
 	//if (DoShadowMapping)
 	{
-		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
 		if (realDepth < 1)
 		{
 			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
@@ -275,8 +273,8 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 			float p = variance / (variance + m_d * m_d);
 
 			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
-			specular *= shadowFactor * shadowFactor * shadowFactor;
-			//color.rgb *= sqrt(shadowFactor);
+			specular *= pow( shadowFactor, 4 );
+			//color.rgb *= sqrt( shadowFactor );
 		}
 	}
 

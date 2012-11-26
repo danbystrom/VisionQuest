@@ -82,7 +82,8 @@ namespace factor10.VisionThing.Water
             var gridStartX = (int) camera.Position.X/waterW - worldW/2;
             var gridStartY = (int) camera.Position.Z/waterH - worldH/2;
 
-            RenderedWaterPlanes = 0;
+            Array.Clear(RenderedWaterPlanes, 0, RenderedWaterPlanes.Length);
+
             for (var y = 1; y < worldH - 2; y++)
                 for (var x = 1; x < worldW - 2; x++)
                 {
@@ -93,16 +94,29 @@ namespace factor10.VisionThing.Water
 
                     waterSurface.Draw(
                         camera,
-                        1,
                         pos,
-                        Vector3.DistanceSquared(camera.Position, pos),
+                        Vector3.Distance(camera.Position, pos),
                         x%8,
                         y%8);
-                    RenderedWaterPlanes++;
                 }
+
+            //for (var y = -1; y < 2; y++)
+            //    for (var x = -1; x < 2; x++)
+            //    {
+            //        if (x == 0 && y == 0)
+            //            continue;
+            //        waterSurface.Draw(
+            //            camera,
+            //            16,
+            //            new Vector3((gridStartX + 1 + -128*x)*waterW, 0, (gridStartY + 1 + 128*y)*waterH),
+            //            float.MaxValue,
+            //            0,
+            //            0);
+            //    }
+
         }
 
-        public static int RenderedWaterPlanes;
+        public static int[] RenderedWaterPlanes = new int[4];
 
     }
 

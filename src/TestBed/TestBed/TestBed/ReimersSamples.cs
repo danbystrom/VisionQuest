@@ -194,7 +194,7 @@ namespace TestBed
         }
 
 
-        public void DrawBillboards(Camera camera, Matrix world, IEffect effect, DrawingReason drawingReason)
+        public void DrawBillboards(Camera camera, Matrix world, DrawingReason drawingReason)
         {
             if (_treeVertexBuffer == null)
                 return;

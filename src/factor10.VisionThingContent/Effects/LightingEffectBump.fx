@@ -5,12 +5,11 @@ float3 CameraPosition;
 float4 ClipPlane;
 
 bool DoShadowMapping = true;
-float4x4 ShadowView;
-float4x4 ShadowProjection;
+float4x4 ShadowViewProjection;
 float3 ShadowLightPosition;
-float ShadowFarPlane = 100;
+//float ShadowFarPlane = 100;
 float ShadowMult = 0.3f;
-float ShadowBias = 1.0f / 400.0f;
+float ShadowBias = 0.001f;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
@@ -61,6 +60,7 @@ struct VertexShaderOutput
     float3 ViewDirection : TEXCOORD1;
 	float3 WorldPosition : TEXCOORD2;
 	float4 ShadowScreenPosition : TEXCOORD3;
+	float4 PositionCopy  : TEXCOORD4;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -71,13 +71,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     float4x4 viewProjection = mul(View, Projection);
     
     output.WorldPosition = worldPosition;
-    output.Position = mul(worldPosition, viewProjection);
+    output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
     output.UV = input.UV;
 
     output.ViewDirection = worldPosition - CameraPosition;
 
-	output.ShadowScreenPosition = mul(worldPosition, mul(ShadowView, ShadowProjection));
+	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
     return output;
 
@@ -113,10 +113,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 
 	if (DoShadowMapping)
 	{
-		float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-		float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
-
-		float realDepth = input.ShadowScreenPosition.z / ShadowFarPlane - ShadowBias;
+		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
 
 		if (realDepth < 1)
 		{
@@ -124,6 +121,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 			// mapping demo code @ http://www.punkuser.net/vsm/
 
 			// Sample from depth texture
+			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
+			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+
 			float2 moments = sampleShadowMap(shadowTexCoord);
 
 			// Check if we're in shadow
@@ -154,7 +154,18 @@ float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
 }
 
 
-technique Technique1
+float4 PixelShaderFunctionDepthMap(VertexShaderOutput input) : COLOR0
+{
+	// Determine the depth of this vertex / by the far plane distance,
+	// limited to [0, 1]
+    float depth = clamp(input.PositionCopy.z / input.PositionCopy.w, 0, 1);
+    
+	// Return only the depth value
+    return float4(depth, depth * depth, 0, 1);
+}
+
+
+technique TechNormal
 {
     pass Pass1
     {
@@ -163,7 +174,7 @@ technique Technique1
     }
 }
 
-technique Technique2
+technique TechClip
 {
     pass Pass1
     {
@@ -171,3 +182,13 @@ technique Technique2
         PixelShader = compile ps_2_0 PixelShaderFunctionClipPlane();
     }
 }
+
+technique TectShadowDepth
+{
+	pass Pass0
+    {   
+    	VertexShader = compile vs_3_0 VertexShaderFunction();
+        PixelShader  = compile ps_3_0 PixelShaderFunctionDepthMap();
+    }
+}
+

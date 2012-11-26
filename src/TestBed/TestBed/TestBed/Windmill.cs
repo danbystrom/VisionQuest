@@ -44,25 +44,26 @@ namespace TestBed
             _model.CopyAbsoluteBoneTransformsTo(_bones);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(effect);
+            camera.UpdateEffect(Effect);
 
             if (drawingReason != DrawingReason.ShadowDepthMap)
             {
-                effect.Parameters["Texture"].SetValue(_texture);
-                effect.Parameters["BumpMap"].SetValue(_bumpMap);
+                Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
+                Effect.Texture = _texture;
+                Effect.Parameters["BumpMap"].SetValue(_bumpMap);
             }
+            else
+                Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
 
             foreach (var mesh in _model.Meshes)
             {
-                effect.World =
+                Effect.World =
                     _bones[mesh.ParentBone.Index] *
                     World;
-                effect.Apply();
-                foreach (var part in mesh.MeshParts)
-                    part.Effect = effect.Effect;
-                mesh.Draw();
+                Effect.Apply();
+                 mesh.Draw();
             }
         }
         

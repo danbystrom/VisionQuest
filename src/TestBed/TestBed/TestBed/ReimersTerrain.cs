@@ -204,27 +204,27 @@ namespace TestBed
             _terrainIndexBuffer.SetData(indices);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             //effect.Effect.CurrentTechnique = effect.Effect.Techniques["MultiTextured"];
 
-            effect.Parameters["Texture0"].SetValue(_sandTexture);
-            effect.Parameters["Texture1"].SetValue(_grassTexture);
-            effect.Parameters["Texture2"].SetValue(_rockTexture);
-            effect.Parameters["Texture3"].SetValue(_snowTexture);
+            Effect.Parameters["Texture0"].SetValue(_sandTexture);
+            Effect.Parameters["Texture1"].SetValue(_grassTexture);
+            Effect.Parameters["Texture2"].SetValue(_rockTexture);
+            Effect.Parameters["Texture3"].SetValue(_snowTexture);
 
             Matrix worldMatrix = Matrix.Identity * Matrix.CreateTranslation( 128, -3, - 128);
 
-            effect.Parameters["EnableLighting"].SetValue(true);
-            effect.Parameters["Ambient"].SetValue(0.4f);
-            effect.Parameters["LightDirection"].SetValue(new Vector3(-0.5f, -1, -0.5f));
+            Effect.Parameters["EnableLighting"].SetValue(true);
+            Effect.Parameters["Ambient"].SetValue(0.4f);
+            Effect.Parameters["LightDirection"].SetValue(new Vector3(-0.5f, -1, -0.5f));
 
-            effect.GraphicsDevice.SetVertexBuffer(_terrainVertexBuffer);
-            effect.GraphicsDevice.Indices = _terrainIndexBuffer;
+            Effect.GraphicsDevice.SetVertexBuffer(_terrainVertexBuffer);
+            Effect.GraphicsDevice.Indices = _terrainIndexBuffer;
 
-            effect.View = camera.View;
-            effect.Projection = camera.Projection;
-            effect.World = worldMatrix;
+            Effect.View = camera.View;
+            Effect.Projection = camera.Projection;
+            Effect.World = worldMatrix;
 
             foreach (var pass in Effect.Effect.CurrentTechnique.Passes)
             {

@@ -9,7 +9,7 @@ namespace factor10.VisionThing
     public class Camera
     {
         public Matrix View { get; protected set; }
-        public Matrix Projection { get; protected set; }
+        public Matrix Projection { get; set; }
         public Vector3 Position { get; protected set; }
         public Vector3 Target { get; protected set; }
 
@@ -24,7 +24,8 @@ namespace factor10.VisionThing
             Vector2 clientSize,
             Vector3 position,
             Vector3 target,
-            int farPlane = 10000)
+            float nearPlane = 1,
+            float farPlane = 10000)
         {
             ClientSize = clientSize;
 
@@ -32,7 +33,7 @@ namespace factor10.VisionThing
             Projection = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.PiOver4,
                 clientSize.X / clientSize.Y,
-                1, 10000);
+                nearPlane, farPlane);
         }
 
         public Camera(

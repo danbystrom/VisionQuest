@@ -17,7 +17,7 @@ namespace TestBed
         private readonly Texture2D _texture;
 
         public Ship(ShipModel shipModel)
-            : base(null)
+            : base(shipModel.Effect)
         {
             _shipModel = shipModel;
         }
@@ -27,21 +27,19 @@ namespace TestBed
             _shipModel.Update(gameTime);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _shipModel.World = World;
-            _shipModel.Draw(camera, drawingReason, effect, shadowMap);
+            _shipModel.Draw(camera, drawingReason, shadowMap);
         }
 
         public override void Draw(
             Vector4? clipPlane,
             Camera camera,
-            DrawingReason drawingReason = DrawingReason.Normal,
-            IEffect effect = null,
             ShadowMap shadowMap = null)
         {
             _shipModel.World = World;
-            _shipModel.Draw(clipPlane, camera, drawingReason, effect, shadowMap);
+            _shipModel.Draw(clipPlane, camera, shadowMap);
         }
 
     }

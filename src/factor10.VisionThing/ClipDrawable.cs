@@ -23,31 +23,36 @@ namespace factor10.VisionThing
         protected abstract void draw(
             Camera camera,
             DrawingReason drawingReason,
-            IEffect effect,
             ShadowMap shadowMap);
 
         public void Draw(
             Camera camera,
             DrawingReason drawingReason = DrawingReason.Normal,
-            IEffect effect = null,
             ShadowMap shadowMap = null)
         {
+            switch ( drawingReason )
+            {
+                case DrawingReason.Normal:
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
+                    break;
+                case DrawingReason.ShadowDepthMap:
+                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
+                    break;
+            }
+            Effect.SetShadowMapping(shadowMap);
             draw(
                 camera,
                 drawingReason,
-                effect ?? Effect,
                 shadowMap);
         }
 
         public virtual void Draw(
             Vector4? clipPlane,
             Camera camera,
-            DrawingReason drawingReason = DrawingReason.Normal,
-            IEffect effect = null,
             ShadowMap shadowMap = null)
         {
             Effect.ClipPlane = clipPlane;
-            Draw(camera, drawingReason, effect, shadowMap);
+            Draw(camera, DrawingReason.ReflectionMap, shadowMap);
             Effect.ClipPlane = null;
         }
 

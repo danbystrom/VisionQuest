@@ -5,7 +5,7 @@ float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
 
-float ShadowFarPlane = 100;
+float Time;
 
 float3 xAllowedRotDir;
 
@@ -69,8 +69,7 @@ float4 PSDepthMap(VertexToPixel input) : COLOR0
 	clip(color.a - 0.7843f);
 
 	// Determine the depth of this vertex / by the far plane distance, limited to [0, 1]
-    float depth = clamp(input.PositionCopy.z / ShadowFarPlane, 0, 1);
-    depth = 0;  //testar lite här...
+    float depth = clamp(input.PositionCopy.z / input.PositionCopy.w, 0, 1);
 
 	// Return only the depth value
     return float4(depth, depth * depth, 0, 1);

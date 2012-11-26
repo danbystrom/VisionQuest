@@ -550,7 +550,7 @@ namespace factor10.VisionThing.Effects
 
         public void SetShadowMapping(ShadowMap shadow)
         {
-            throw new System.NotImplementedException();
+            //throw new System.NotImplementedException();
         }
     }
 

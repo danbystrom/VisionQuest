@@ -40,12 +40,12 @@ namespace TestBed
             return new VertexPositionNormalTexture(new Vector3(x, h, y), Vector3.Up, new Vector2(x / 10, y / 10));
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(effect);
-            effect.World = _world;
-            effect.Parameters["Texture"].SetValue(_texture);
-            _plane.Draw(effect);
+            camera.UpdateEffect(Effect);
+            Effect.World = _world;
+            Effect.Texture = _texture;
+            _plane.Draw(Effect);
         }
 
     }

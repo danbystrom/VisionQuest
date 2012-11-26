@@ -89,45 +89,38 @@ namespace factor10.VisionThing
                 new Vector2(x/width, y/height));
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            if (camera.BoundingFrustum.Contains(_boundingSphere)==ContainmentType.Disjoint)
+            if (camera.BoundingFrustum.Contains(_boundingSphere) == ContainmentType.Disjoint)
                 return;
 
-            if (drawingReason != DrawingReason.ShadowDepthMap)
-            {
-                effect.SetShadowMapping(shadowMap);
+            Effect.Parameters["Texture0"].SetValue(_texture0);
+            Effect.Parameters["Texture1"].SetValue(_texture1);
+            Effect.Parameters["Texture2"].SetValue(_texture2);
+            Effect.Parameters["Texture3"].SetValue(_texture3);
 
-                effect.Effect.CurrentTechnique = effect.Effect.Techniques[0];
-                effect.Parameters["Texture0"].SetValue(_texture0);
-                effect.Parameters["Texture1"].SetValue(_texture1);
-                effect.Parameters["Texture2"].SetValue(_texture2);
-                effect.Parameters["Texture3"].SetValue(_texture3);
+            Effect.Parameters["HeightsMap"].SetValue(_heightsMap);
+            Effect.Parameters["WeightsMap"].SetValue(_weightsMap);
+            Effect.Parameters["NormalsMap"].SetValue(_normalsMap);
 
-                effect.Parameters["HeightsMap"].SetValue(_heightsMap);
-                effect.Parameters["WeightsMap"].SetValue(_weightsMap);
-                effect.Parameters["NormalsMap"].SetValue(_normalsMap);
-            }
-            else
-            {
-                effect = Effect;
-                effect.Effect.CurrentTechnique = effect.Effect.Techniques[2];
-            }
-
-            camera.UpdateEffect(effect);
-            effect.World = _world;
+            camera.UpdateEffect(Effect);
+            Effect.World = _world;
 
             var distance = Vector3.Distance(camera.Position, _position);
             var lod = 3;
             if (distance < 1500)
                 lod = 2;
-            if (distance < 500)
-                lod = 1;
-            if (distance < 200)
-                lod = 0;
-            _plane.Draw(effect, lod);
+            if (drawingReason == DrawingReason.Normal)
+            {
+                if (distance < 500)
+                    lod = 1;
+                if (distance < 200)
+                    lod = 0;
+            }
+            _plane.Draw(Effect, lod);
+            Effect.SetShadowMapping(null);
 
-            _reimersSamples.DrawBillboards(camera, _world, null, drawingReason);
+            _reimersSamples.DrawBillboards(camera, _world, drawingReason);
         }
 
     }

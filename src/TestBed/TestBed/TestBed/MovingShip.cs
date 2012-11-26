@@ -18,10 +18,8 @@ namespace TestBed
         private DoubleSin _bob1 = new DoubleSin(0.05f, 0.010f, 0.3f, 0.9f, 0, 1);
         private DoubleSin _bob2 = new DoubleSin(0.04f, 0.008f, 0.5f, 0.8f, 2, 3);
 
-        private readonly Texture2D _texture;
-
         public MovingShip(ShipModel shipModel)
-            : base(null)
+            : base(shipModel.Effect)
         {
             _shipModel = shipModel;
         }
@@ -35,21 +33,19 @@ namespace TestBed
             _world = Matrix.CreateRotationY(-cos)*Matrix.CreateScale(0.8f)*Matrix.CreateTranslation(_radius*sin, 1f, _radius*cos);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _shipModel.World = _world;
-            _shipModel.Draw(camera, drawingReason, effect, shadowMap);
+            _shipModel.Draw(camera, drawingReason, shadowMap);
         }
 
         public override void Draw(
             Vector4? clipPlane,
             Camera camera,
-            DrawingReason drawingReason = DrawingReason.Normal,
-            IEffect effect = null,
             ShadowMap shadowMap = null)
         {
             _shipModel.World = _world;
-            _shipModel.Draw(clipPlane, camera, drawingReason, effect, shadowMap);
+            _shipModel.Draw(clipPlane, camera, shadowMap);
         }
 
     }

@@ -34,18 +34,13 @@ namespace TestBed
             return new VertexPositionNormalTexture(position, normal, textureCoordinate);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(effect);
-            effect.World = _world;
-            if (drawingReason != DrawingReason.ShadowDepthMap)
-            {
-                effect.SetShadowMapping(shadowMap);
-                effect.Texture = _texture;
-                effect.Parameters["BumpMap"].SetValue(_bumpMap);
-            }
-            _plane.Draw(effect);
-            effect.SetShadowMapping(null);
+            camera.UpdateEffect(Effect);
+            Effect.World = _world;
+            Effect.Texture = _texture;
+            Effect.Parameters["BumpMap"].SetValue(_bumpMap);
+            _plane.Draw(Effect);
         }
 
     }

@@ -18,15 +18,15 @@ namespace factor10.VisionThing
             Effect.Parameters["CubeMap"].SetValue(texture);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, IEffect effect, ShadowMap shadowMap)
+        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(effect);
-            effect.World = Matrix.CreateTranslation(camera.Position);
+            camera.UpdateEffect(Effect);
+            Effect.World = Matrix.CreateTranslation(camera.Position);
 
-            var saveCull = effect.GraphicsDevice.RasterizerState;
-            _sphere.Draw(effect);
-            effect.GraphicsDevice.RasterizerState = saveCull;
-            effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            var saveCull = Effect.GraphicsDevice.RasterizerState;
+            _sphere.Draw(Effect);
+            Effect.GraphicsDevice.RasterizerState = saveCull;
+            Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         }
 
     }

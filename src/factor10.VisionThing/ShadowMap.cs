@@ -8,22 +8,16 @@ namespace factor10.VisionThing
 {
     public class ShadowMap
     {
-        // List of models, lights, and the camera
+        private readonly GraphicsDevice _graphicsDevice;
+
         public readonly List<ClipDrawable> ShadowCastingObjects = new List<ClipDrawable>();
         public readonly Camera Camera;
 
-        private readonly GraphicsDevice _graphicsDevice;
-
-        // Shadow depth target and depth-texture effect
         public readonly RenderTarget2D ShadowDepthTarget;
-        private readonly IEffect _shadowDepthEffect;
 
         // Depth texture parameters
         public int ShadowFarPlane = 200;
-
-        // Shadow properties
-        public bool DoShadowMapping { get; set; }
-        public float ShadowMult = 0.6f;
+        public float ShadowMult = 0.4f;
 
         private readonly SpriteBatch _spriteBatch;
         private readonly RenderTarget2D _shadowBlurTarg;
@@ -38,9 +32,6 @@ namespace factor10.VisionThing
             ShadowDepthTarget = new RenderTarget2D(graphicsDevice, targetWidth, targetHeight, false, SurfaceFormat.HalfVector2,
                                                    DepthFormat.Depth24);
 
-            _shadowDepthEffect = VisionContent.LoadPlainEffect("ShadowEffects/ShadowDepthEffect");
-            _shadowDepthEffect.Parameters["FarPlane"].SetValue(ShadowFarPlane);
-
             _spriteBatch = new SpriteBatch(graphicsDevice);
             _shadowBlurEffect = VisionContent.Load<Effect>("ShadowEffects/GaussianBlur");
             _shadowBlurTarg = new RenderTarget2D(graphicsDevice, targetWidth, targetHeight, false, SurfaceFormat.HalfVector2,
@@ -50,6 +41,12 @@ namespace factor10.VisionThing
                 new Vector2(targetWidth, targetHeight),
                 Vector3.Zero,
                 Vector3.Up,
+                1,
+                ShadowFarPlane);
+            Camera.Projection = Matrix.CreateOrthographic(
+                50,
+                50,
+                1,
                 100);
         }
 
@@ -58,7 +55,7 @@ namespace factor10.VisionThing
             _graphicsDevice.SetRenderTarget(ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White);  // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
-                obj.Draw(Camera, DrawingReason.ShadowDepthMap, _shadowDepthEffect);
+                obj.Draw(Camera, DrawingReason.ShadowDepthMap);
             _graphicsDevice.SetRenderTarget(null);
 
             blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);

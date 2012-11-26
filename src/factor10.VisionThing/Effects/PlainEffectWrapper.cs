@@ -22,8 +22,7 @@ namespace factor10.VisionThing.Effects
 
         protected readonly EffectParameter _epDoShadowMapping;
         protected readonly EffectParameter _epShadowMap;
-        protected readonly EffectParameter _epShadowView;
-        protected readonly EffectParameter _epShadowProjection;
+        protected readonly EffectParameter _epShadowViewProjection;
         protected readonly EffectParameter _epShadowFarPlane;
         protected readonly EffectParameter _epShadowMult;
 
@@ -44,8 +43,7 @@ namespace factor10.VisionThing.Effects
 
             _epDoShadowMapping = effect.Parameters["DoShadowMapping"];
             _epShadowMap = effect.Parameters["ShadowMap"];
-            _epShadowView = effect.Parameters["ShadowView"];
-            _epShadowProjection = effect.Parameters["ShadowProjection"];
+            _epShadowViewProjection = effect.Parameters["ShadowViewProjection"];
             _epShadowFarPlane = effect.Parameters["ShadowFarPlane"];
             _epShadowMult = effect.Parameters["ShadowMult"];
 
@@ -123,9 +121,8 @@ namespace factor10.VisionThing.Effects
             {
                 _epDoShadowMapping.SetValue(true);
                 _epShadowMap.SetValue(shadow.ShadowDepthTarget);
-                _epShadowView.SetValue(shadow.Camera.View);
-                _epShadowProjection.SetValue(shadow.Camera.Projection);
-                _epShadowFarPlane.SetValue(shadow.ShadowFarPlane);
+                _epShadowViewProjection.SetValue(shadow.Camera.View * shadow.Camera.Projection);
+                //_epShadowFarPlane.SetValue(shadow.ShadowFarPlane);
                 _epShadowMult.SetValue(shadow.ShadowMult);
             }
             else

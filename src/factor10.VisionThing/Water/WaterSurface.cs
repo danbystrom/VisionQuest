@@ -95,7 +95,7 @@ namespace factor10.VisionThing.Water
             _reflectionTarget = new RenderTarget2D(
                 graphicsDevice,
                 targetWidth,
-                targetHeight*11/10,
+                targetHeight*11/10,  //compensate for displaced waves
                 false,
                 SurfaceFormat.Color,
                 DepthFormat.Depth24);
@@ -117,7 +117,8 @@ namespace factor10.VisionThing.Water
                                   ScaledTexC = new Vector2(x / squareSize, y / squareSize) * texScale,
                               },
                 squareSize,
-                squareSize);
+                squareSize,
+                6);
         }
 
         public void Update(float dt, Camera camera)
@@ -134,8 +135,6 @@ namespace factor10.VisionThing.Water
             wrap(ref _waveNMapOffset0);
             wrap(ref _waveDMapOffset0);
             wrap(ref _waveDMapOffset1);
-
-            _time += dt;
         }
 
         private void wrap(ref Vector2 vec)
@@ -146,9 +145,7 @@ namespace factor10.VisionThing.Water
                 vec.Y -= 2*Math.Sign(vec.Y);
         }
 
-        private float _time;
-
-        public void Draw(Camera camera, float scale, Vector3 pos, float distance, int dx, int dy)
+        public void Draw(Camera camera, Vector3 pos, float distance, int dx, int dy)
         {
             var world = Matrix.CreateTranslation(pos);
             _mhWorld.SetValue(world);
@@ -161,34 +158,52 @@ namespace factor10.VisionThing.Water
              _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
             _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
 
-            //Effect.Parameters["WaveLength"].SetValue(0.1f);
             Effect.Parameters["WaveHeight"].SetValue(0.3f*2);
-            //Effect.Parameters["WindForce"].SetValue(0.002f);
-            //Effect.Parameters["Time"].SetValue(_time*10);
-            //Effect.Parameters["WindDirection"].SetValue(new Vector3(0, 0, 1));
 
 
             Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
             Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
-            if (distance < 9000)
-                _hiPolyPlane.Draw(Effect);
-            else if (distance < 30000)
+            if (distance < 80)
             {
-                world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
+                _hiPolyPlane.Draw(Effect);
+                WaterFactory.RenderedWaterPlanes[0]++;
+            }
+            else if (distance < 160)
+            {
+                WaterFactory.RenderedWaterPlanes[1]++;
+                world = Matrix.CreateTranslation(pos) *
                         Matrix.CreateTranslation(0, -0.10f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
-                _mediumPolyPlane.Draw(Effect);
+                //_mediumPolyPlane.Draw(Effect);
+                _hiPolyPlane.Draw(Effect,1);
+            }
+            else if (distance < 320)
+            {
+                WaterFactory.RenderedWaterPlanes[1]++;
+                world = Matrix.CreateTranslation(pos) *
+                        Matrix.CreateTranslation(0, -0.15f, 0);
+                _mhWorld.SetValue(world);
+                _mhWorldInv.SetValue(Matrix.Invert(world));
+                //_mediumPolyPlane.Draw(Effect);
+                _hiPolyPlane.Draw(Effect, 2);
             }
             else
             {
-                if ( distance > 100000 )
+                var lod = 4;
+                if (distance > 640)
+                {
+                    WaterFactory.RenderedWaterPlanes[3]++;
                     Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
-                world = Matrix.CreateScale(scale, 1, scale)*Matrix.CreateTranslation(pos)*
+                    lod = 5;
+                }
+                else
+                    WaterFactory.RenderedWaterPlanes[2]++;
+                world = Matrix.CreateTranslation(pos) *
                         Matrix.CreateTranslation(0, -0.20f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
-                _lakePlane.Draw(Effect);
+                _hiPolyPlane.Draw(Effect, lod);
             }
 
         }
@@ -200,7 +215,6 @@ namespace factor10.VisionThing.Water
         private EffectParameter _mhProjection;
         private EffectParameter _mhCameraPosition;
         private EffectParameter _mhWaveNMapOffset0;
-        private EffectParameter _mhWaveNMapOffset1;
         private EffectParameter _mhWaveDMapOffset0;
         private EffectParameter _mhWaveDMapOffset1;
 
@@ -214,7 +228,6 @@ namespace factor10.VisionThing.Water
             _mhProjection = p["Projection"];
             _mhCameraPosition = p["CameraPosition"];
             _mhWaveNMapOffset0 = p["gWaveNMapOffset0"];
-            _mhWaveNMapOffset1 = p["gWaveNMapOffset1"];
             _mhWaveDMapOffset0 = p["gWaveDMapOffset0"];
             _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
 
