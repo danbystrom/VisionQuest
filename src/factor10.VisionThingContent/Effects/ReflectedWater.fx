@@ -5,17 +5,10 @@ uniform extern float4x4 Projection;
 uniform extern float3	CameraPosition;
 uniform extern float3   LightDirection;
 
-uniform extern float4   gMtrlAmbient;
-uniform extern float4   gMtrlDiffuse;
-uniform extern float4   gMtrlSpec;
-uniform extern float    gMtrlSpecPower;
-uniform extern float4   gLightAmbient;
-uniform extern float4   gLightDiffuse;
-uniform extern float4   gLightSpec;
-
 // Texture coordinate offset vectors for scrolling
 // normal maps and displacement maps.
 uniform extern float2   gWaveNMapOffset0;
+uniform extern float2   gWaveNMapOffset1;
 uniform extern float2   gWaveDMapOffset0;
 uniform extern float2   gWaveDMapOffset1;
 
@@ -53,6 +46,12 @@ sampler2D shadowSampler = sampler_state {
 	mipfilter = point;
 };
 
+texture checkerTexture;
+sampler CheckerSampler = sampler_state
+{
+	Texture = <checkerTexture>; MinFilter = POINT; MagFilter = POINT; MipFilter = POINT; AddressU  = WRAP; AddressV  = WRAP;
+};
+
 sampler DMapS0 = sampler_state
 {
 	Texture = <gWaveDispMap0>; MinFilter = POINT; MagFilter = POINT; MipFilter = POINT; AddressU  = WRAP; AddressV  = WRAP;
@@ -75,14 +74,15 @@ struct OceanWaterVertexOutput
 {
     float4 Position         : POSITION0;
 	float4 ReflectionMapPos : TEXCOORD0;
-    float2 BumpMapSamplingPos : TEXCOORD1;
-    float4 Position3D       : TEXCOORD2;
-    float2 tex0             : TEXCOORD3;
-    float2 tex1             : TEXCOORD4;
-    float3 toEyeT           : TEXCOORD5;
-    float3 lightDirT        : TEXCOORD6;
-	float  LakeBlendFactor  : TEXCOORD7;
-	float4 ShadowScreenPosition  : TEXCOORD8;
+    float2 BumpSamplingPos0 : TEXCOORD1;
+    float2 BumpSamplingPos1 : TEXCOORD2;
+    float4 Position3D       : TEXCOORD3;
+    float2 tex0             : TEXCOORD4;
+    float2 tex1             : TEXCOORD5;
+    float3 toEyeT           : TEXCOORD6;
+    float3 lightDirT        : TEXCOORD7;
+	float  LakeBlendFactor  : TEXCOORD8;
+	float4 ShadowScreenPosition  : TEXCOORD9;
 };
 
 
@@ -118,16 +118,15 @@ float DoDispMapping(float2 texC0, float2 texC1)
 	float h1 = lerp( lerp( dmap1[0], dmap1[1], lerps.x ),
                      lerp( dmap1[2], dmap1[3], lerps.x ),
                      lerps.y );
-                   
+
 	// Sum and scale the sampled heights.  
     return gScaleHeights.x*h0 + gScaleHeights.y*h1;
 }
 
 float2 sampleShadowMap(float2 UV)
 {
-	//if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
-	//	return float2(1, 1);
-
+	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
+		return float2(1, 1);
 	return tex2D(shadowSampler, UV).rg;
 }
 
@@ -156,7 +155,7 @@ OceanWaterVertexOutput OceanWaterVS(
 
 	// Set y-coordinate of water grid vertices based on displacement mapping.
 	posLocal.y = lerp( DoDispMapping(vTex0, vTex1), 0.75, output.LakeBlendFactor );
-	
+
 	float4x4 rwvp = mul( World, mul(ReflectedView, Projection));
     output.ReflectionMapPos =  mul(posLocal, rwvp);
 
@@ -196,8 +195,10 @@ OceanWaterVertexOutput OceanWaterVS(
 
 float WaveHeight;
 
-Texture WaterBumpMap;
-sampler WaterBumpMapSampler = sampler_state { texture = <WaterBumpMap> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = wrap; AddressV = wrap;};
+Texture BumpMap0;
+sampler BumpMapSampler0 = sampler_state { texture = <BumpMap0> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = wrap; AddressV = wrap;};
+Texture BumpMap1;
+sampler BumpMapSampler1 = sampler_state { texture = <BumpMap1> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = wrap; AddressV = wrap;};
 
  OceanWaterVertexOutput LakeWaterVS(
    float4 posLocal       : POSITION,
@@ -216,7 +217,12 @@ sampler WaterBumpMapSampler = sampler_state { texture = <WaterBumpMap> ; magfilt
     Output.Position3D = mul(posLocal, World);        
     
 	float2 bmsp = scaledTexC/8 + gWaveNMapOffset0;
-    Output.BumpMapSamplingPos = float2(
+    Output.BumpSamplingPos0 = float2(
+	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
+	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
+
+	bmsp = scaledTexC/8 + gWaveNMapOffset1;
+    Output.BumpSamplingPos1 = float2(
 	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
 	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
 
@@ -225,9 +231,10 @@ sampler WaterBumpMapSampler = sampler_state { texture = <WaterBumpMap> ; magfilt
 
 float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 {
-    float4 bumpColor = tex2D(WaterBumpMapSampler, input.BumpMapSamplingPos);
+    float4 bumpColor = tex2D(BumpMapSampler0, input.BumpSamplingPos0);
     float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
-    
+	bumpColor = ( bumpColor + tex2D(BumpMapSampler1, input.BumpSamplingPos1) ) / 2;
+	    
     float2 ProjectedTexCoords;
     ProjectedTexCoords.x = input.ReflectionMapPos.x/input.ReflectionMapPos.w/2.0f + 0.5f;
     ProjectedTexCoords.y = -input.ReflectionMapPos.y/input.ReflectionMapPos.w/2.0f + 0.5f;        
@@ -248,7 +255,7 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
     float specular = dot(normalize(reflectionVector), eyeVector);
     specular = pow(abs(specular), 256);  
 
-	//if (DoShadowMapping)
+	if (DoShadowMapping)
 	{
 		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
 		if (realDepth < 1)
@@ -273,12 +280,13 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 			float p = variance / (variance + m_d * m_d);
 
 			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
-			specular *= pow( shadowFactor, 4 );
-			//color.rgb *= sqrt( shadowFactor );
+			specular *= pow( shadowFactor, 32 );
+			//color.rgb = float3( shadowFactor, shadowFactor, shadowFactor );
 		}
 	}
 
     color.rgb += specular;
+//    color = tex2D(CheckerSampler, input.BumpMapSamplingPos);
 
     return color;
 }
@@ -291,9 +299,14 @@ OceanWaterVertexOutput CombinedWaterVS(
     OceanWaterVertexOutput oceanVS = OceanWaterVS( posLocal, normalizedTexC, scaledTexC );
 
 	float2 bmsp = scaledTexC/8 + gWaveNMapOffset0;
-    oceanVS.BumpMapSamplingPos = float2(
+    oceanVS.BumpSamplingPos0 = float2(
 	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
 	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
+	bmsp = scaledTexC/8 + gWaveNMapOffset1;
+    oceanVS.BumpSamplingPos1 = float2(
+	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
+	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
+
 	oceanVS.Position3D = mul( posLocal, World );
 	return oceanVS;
 }

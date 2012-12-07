@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
@@ -14,15 +15,13 @@ namespace TestBed
         private DoubleSin _bob1 = new DoubleSin(0.05f, 0.010f, 0.3f, 0.9f, 0, 1);
         private DoubleSin _bob2 = new DoubleSin(0.04f, 0.008f, 0.5f, 0.8f, 2, 3);
 
-        private readonly Texture2D _texture;
-
         public Ship(ShipModel shipModel)
             : base(shipModel.Effect)
         {
             _shipModel = shipModel;
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             _shipModel.Update(gameTime);
         }
@@ -31,15 +30,6 @@ namespace TestBed
         {
             _shipModel.World = World;
             _shipModel.Draw(camera, drawingReason, shadowMap);
-        }
-
-        public override void Draw(
-            Vector4? clipPlane,
-            Camera camera,
-            ShadowMap shadowMap = null)
-        {
-            _shipModel.World = World;
-            _shipModel.Draw(clipPlane, camera, shadowMap);
         }
 
     }

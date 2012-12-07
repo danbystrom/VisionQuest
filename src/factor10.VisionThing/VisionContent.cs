@@ -8,40 +8,40 @@ namespace factor10.VisionThing
     public static class VisionContent
     {
         public static int RenderedTriangles;
-        private static Vector3 _sunlightDirectionWater;
-        private static Vector3 _sunlightDirectionShadows;
+        private static Vector3 _sunlightDirectionReflectedWater;
+        private static Vector3 _sunlightDirection;
 
         public static ContentManager Content { get; private set; }
 
         static VisionContent()
         {
-            SunlightDirectionWater = new Vector3(11f, -3f, -6f);
-            SunlightDirectionShadows = new Vector3(11f, -7f, -6f);
+            SunlightDirectionReflectedWater = new Vector3(11f, -2f, -6f);
+            SunlightDirection = new Vector3(11f, -7f, -6f);
         }
 
-        public static Vector3 SunlightDirectionWater
+        public static Vector3 SunlightDirectionReflectedWater
         {
             get
             {
-                return _sunlightDirectionWater;
+                return _sunlightDirectionReflectedWater;
             }
             set
             {
-                _sunlightDirectionWater = value;
-                _sunlightDirectionWater.Normalize();
+                _sunlightDirectionReflectedWater = value;
+                _sunlightDirectionReflectedWater.Normalize();
             }
         }
 
-        public static Vector3 SunlightDirectionShadows
+        public static Vector3 SunlightDirection
         {
             get
             {
-                return _sunlightDirectionShadows;
+                return _sunlightDirection;
             }
             set
             {
-                _sunlightDirectionShadows = value;
-                _sunlightDirectionShadows.Normalize();
+                _sunlightDirection = value;
+                _sunlightDirection.Normalize();
             }
         }
 

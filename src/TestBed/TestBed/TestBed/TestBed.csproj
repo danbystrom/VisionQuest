@@ -110,12 +110,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BillboardSample.cs" />
+    <Compile Include="ReimersBillboards.cs" />
+    <Compile Include="GeneratedTerrain.cs" />
+    <Compile Include="TerrainBase.cs" />
     <Compile Include="MovingShip.cs" />
     <Compile Include="Ship.cs" />
     <Compile Include="ReimersSamples.cs" />
     <Compile Include="ReimersTerrain.cs" />
     <Compile Include="ShipModel.cs" />
-    <Compile Include="NewTerrain.cs" />
+    <Compile Include="TerrainPlane.cs" />
+    <Compile Include="VegetationProcessor.cs" />
     <Compile Include="Windmill.cs" />
     <Compile Include="Island.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

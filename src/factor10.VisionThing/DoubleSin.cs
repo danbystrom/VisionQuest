@@ -34,7 +34,7 @@ namespace factor10.VisionThing
             _phase2 = phase2;
         }
 
-        public void Update( GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             _angle += gameTime.ElapsedGameTime.TotalSeconds;
             //if (_angle > MathHelper.TwoPi*2)
@@ -43,10 +43,7 @@ namespace factor10.VisionThing
 
         public double Value
         {
-            get
-            {
-                return Math.Sin(_angle * _frequency1 + _phase1) * _amplitude1 + Math.Sin(_angle * _frequency2 + _phase2) * _amplitude2;
-            }
+            get { return Math.Sin(_angle*_frequency1 + _phase1)*_amplitude1 + Math.Sin(_angle*_frequency2 + _phase2)*_amplitude2; }
         }
     }
 

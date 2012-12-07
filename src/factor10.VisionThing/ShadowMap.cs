@@ -17,7 +17,7 @@ namespace factor10.VisionThing
 
         // Depth texture parameters
         public int ShadowFarPlane = 200;
-        public float ShadowMult = 0.4f;
+        public float ShadowMult = 0.6f;
 
         private readonly SpriteBatch _spriteBatch;
         private readonly RenderTarget2D _shadowBlurTarg;
@@ -25,8 +25,8 @@ namespace factor10.VisionThing
 
         public ShadowMap(GraphicsDevice graphicsDevice)
         {
-            var targetWidth = graphicsDevice.Viewport.Width/1;
-            var targetHeight = graphicsDevice.Viewport.Height/1;
+            var targetWidth = 2048;
+            var targetHeight = 2048;
 
             _graphicsDevice = graphicsDevice;
             ShadowDepthTarget = new RenderTarget2D(graphicsDevice, targetWidth, targetHeight, false, SurfaceFormat.HalfVector2,

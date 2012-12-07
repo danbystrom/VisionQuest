@@ -164,7 +164,10 @@ namespace factor10.VisionThing
             var min = _heights.Min();
             var max = _heights.Max();
             var span = max - min;
-            levels = new[] {min, min + span*0.43f, min + span*0.67f, max};
+            if (levels == null)
+                levels = new [] {0, 0.33f, 0.76f, 1};
+            for (var i = 0; i < 4; i++)
+                levels[i] = min + levels[i]*span;
             span /= 4;
             for (var i = 0; i < _heights.Length; i++)
             {

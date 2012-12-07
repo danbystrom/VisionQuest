@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing.Water
 {
@@ -23,26 +18,20 @@ namespace factor10.VisionThing.Water
                                            Ambient = new Vector4(0.3f, 0.3f, 0.3f, 1.0f),
                                            Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
                                            Spec = new Vector4(0.7f, 0.7f, 0.7f, 1.0f),
-                                           DirW = VisionContent.SunlightDirectionWater
+                                           DirW = VisionContent.SunlightDirectionReflectedWater
                                        },
-                        Mtrl = new Mtrl
-                                   {
-                                       Ambient = new Vector4(0.65f, 0.65f, 0.95f, 0.0f),
-                                       Diffuse = new Vector4(0.65f, 0.65f, 0.95f, 1.0f),
-                                       Spec = new Vector4(0.8f, 0.8f, 0.8f, 0.8f),
-                                       SpecPower = 128
-                                   },
                         SquareSize = 128,
                         dx = 0.25f,
                         dz = 0.25f,
                         dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
                         dmap1 = foobar(graphicsDevice, @"textures\waterdmap1"),
-                        LakeBumpMap = VisionContent.Load<Texture2D>(@"waterbump"),
+                        waveMap0 = VisionContent.Load<Texture2D>(@"waterbump"),
+                        waveMap1 = VisionContent.Load<Texture2D>(@"textures/wave1"),
                         Checker = VisionContent.Load<Texture2D>(@"checker"),
-                        waveNMapVelocity0 = new Vector2(0.05f, 0.07f),
-                        waveNMapVelocity1 = new Vector2(-0.01f, 0.13f),
-                        waveDMapVelocity0 = new Vector2(0.012f, 0.015f),
-                        waveDMapVelocity1 = new Vector2(0.014f, 0.05f),
+                        waveBumpMapVelocity0 = new Vector2(0.012f, 0.016f),
+                        waveBumpMapVelocity1 = new Vector2(0.014f, 0.018f),
+                        waveDispMapVelocity0 = new Vector2(0.012f, 0.015f),
+                        waveDispMapVelocity1 = new Vector2(0.014f, 0.05f),
                         scaleHeights = new Vector2(0.7f, 1.1f),
                         texScale = 8.0f
                     });
@@ -68,10 +57,11 @@ namespace factor10.VisionThing.Water
         public static void DrawWaterSurfaceGrid(
             WaterSurface waterSurface,
             Camera camera,
-            ShadowMap shadow)
+            ShadowMap shadow,
+            int nisse)
         {
-            const int waterW = 32;
-            const int waterH = 32;
+            const int waterW = 64;
+            const int waterH = 64;
             const int worldW = 32;
             const int worldH = 32;
 
@@ -84,39 +74,41 @@ namespace factor10.VisionThing.Water
 
             Array.Clear(RenderedWaterPlanes, 0, RenderedWaterPlanes.Length);
 
-            for (var y = 1; y < worldH - 2; y++)
-                for (var x = 1; x < worldW - 2; x++)
+            var drawDetails = camera.Position.Y < 300;
+            if (drawDetails)
+                for (var y = 0; y <= worldH; y++)
+                    for (var x = 0; x <= worldW; x++)
+                    {
+                        var pos1 = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
+                        var pos2 = pos1 + new Vector3(waterW, 1, waterH);
+                        var bb = new BoundingBox(pos1, pos2);
+                        if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                            continue;
+
+                        waterSurface.Draw(
+                            camera,
+                            pos1,
+                            Vector3.Distance(camera.Position, pos1 - new Vector3(-32, 0, -32)),
+                            x%8,
+                            y%8);
+                    }
+
+            for (var y = -5; y < 6; y++)
+                for (var x = -5; x < 6; x++)
                 {
-                    var pos = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
-                    var bb = new BoundingBox(pos, new Vector3((gridStartX + x + 1)*waterW, 1, (gridStartY + y + 1)*waterH));
-                    if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                    if (x == 0 && y == 0 && drawDetails)
                         continue;
-
-                    waterSurface.Draw(
-                        camera,
-                        pos,
-                        Vector3.Distance(camera.Position, pos),
-                        x%8,
-                        y%8);
+                    var pos1 = new Vector3((gridStartX + x)*waterW +64, -0.5f, (gridStartY + y)*waterH + 64);
+                    var pos2 = pos1 + new Vector3(1024, 1, 1024);
+                    var bb = new BoundingBox(pos1, pos2);
+                    //if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                    //    continue;
+                    waterSurface.Draw(camera, pos1, -1, 0, 0);
                 }
-
-            //for (var y = -1; y < 2; y++)
-            //    for (var x = -1; x < 2; x++)
-            //    {
-            //        if (x == 0 && y == 0)
-            //            continue;
-            //        waterSurface.Draw(
-            //            camera,
-            //            16,
-            //            new Vector3((gridStartX + 1 + -128*x)*waterW, 0, (gridStartY + 1 + 128*y)*waterH),
-            //            float.MaxValue,
-            //            0,
-            //            0);
-            //    }
 
         }
 
-        public static int[] RenderedWaterPlanes = new int[4];
+        public static int[] RenderedWaterPlanes = new int[5];
 
     }
 

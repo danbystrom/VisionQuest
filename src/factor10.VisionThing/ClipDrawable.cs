@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing.Effects;
 
@@ -13,11 +15,17 @@ namespace factor10.VisionThing
 
     public abstract class ClipDrawable
     {
+        public readonly List<ClipDrawable> Children = new List<ClipDrawable>();
         public readonly IEffect Effect;
 
         protected ClipDrawable(IEffect effect)
         {
             Effect = effect;
+        }
+
+        protected ClipDrawable(ClipDrawable cd)
+            : this(cd.Effect)
+        {
         }
 
         protected abstract void draw(
@@ -30,15 +38,7 @@ namespace factor10.VisionThing
             DrawingReason drawingReason = DrawingReason.Normal,
             ShadowMap shadowMap = null)
         {
-            switch ( drawingReason )
-            {
-                case DrawingReason.Normal:
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
-                    break;
-                case DrawingReason.ShadowDepthMap:
-                    Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
-                    break;
-            }
+            Effect.SetTechnique(drawingReason);
             Effect.SetShadowMapping(shadowMap);
             draw(
                 camera,
@@ -53,7 +53,11 @@ namespace factor10.VisionThing
         {
             Effect.ClipPlane = clipPlane;
             Draw(camera, DrawingReason.ReflectionMap, shadowMap);
-            Effect.ClipPlane = null;
+        }
+
+        public virtual void Update(GameTime gameTime)
+        {
+            Children.ForEach(cd => cd.Update(gameTime));
         }
 
     }

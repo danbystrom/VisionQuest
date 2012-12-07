@@ -5,9 +5,15 @@ float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
 
-float Time;
+// Parameters controlling the wind effect.
+float3 WindDirection = float3(0, 0, 1);
+float WindWaveSize = 0.1;
+float WindRandomness = 2;
+float WindSpeed = 0.8;
+float WindAmount = 0.15;
+float WindTime;
 
-float3 xAllowedRotDir;
+float3 AllowedRotDir;
 
 //------- Texture Samplers --------
 Texture Texture;
@@ -29,17 +35,29 @@ VertexToPixel VSStandard(float4 inPos: POSITION0, float2 inTexCoord: TEXCOORD0)
 	float4 center = mul(inPos, World);
 	float3 eyeVector = center - CameraPosition;	
 	
-	float3 upVector = xAllowedRotDir;
-	upVector = normalize(upVector);
+	float3 upVector = AllowedRotDir;
+	//upVector = normalize(upVector);
 	float3 sideVector = cross(eyeVector,upVector);
 	sideVector = normalize(sideVector);
 	
 	float3 finalPosition = center;
-	finalPosition += (inTexCoord.x-0.5f)*sideVector;
-	finalPosition += (1.5f-inTexCoord.y*1.5f)*upVector;	
+	finalPosition += (inTexCoord.x-0.5f)*sideVector*3;
+	finalPosition += (1.5f-inTexCoord.y*1.5f)*upVector*3;	
 	
-	output.WorldPosition = float4(finalPosition, 1);
-		
+	// Work out how this vertex should be affected by the wind effect.
+    float waveOffset = dot(finalPosition, WindDirection) * WindWaveSize;
+    
+    //waveOffset += input.Random * WindRandomness;
+    waveOffset += (frac(inPos.x) + frac(inPos.y)) * WindRandomness;
+    
+    // Wind makes things wave back and forth in a sine wave pattern.
+    float wind = sin(WindTime * WindSpeed + waveOffset) * WindAmount;
+    
+    // But it should only affect the top two vertices of the billboard!
+    wind *= (1 - inTexCoord.y);
+    
+	output.WorldPosition = float4(finalPosition + WindDirection*wind, 1);
+	
 	float4x4 preViewProjection = mul (View, Projection);
 	output.Position = output.PositionCopy = mul(output.WorldPosition, preViewProjection);
 	
@@ -84,7 +102,7 @@ technique TechStandard
     }
 }
 
-technique TechdClipPlane
+technique TechClipPlane
 {
 	pass Pass0
     {

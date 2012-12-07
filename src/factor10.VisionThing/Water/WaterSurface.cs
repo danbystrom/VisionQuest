@@ -7,14 +7,6 @@ using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing.Water
 {
-    public struct Mtrl
-    {
-        public Vector4 Ambient;
-        public Vector4 Diffuse;
-        public Vector4 Spec;
-        public float SpecPower;
-    }
-
     public struct DirLight
     {
         public Vector4 Ambient;
@@ -25,9 +17,8 @@ namespace factor10.VisionThing.Water
 
     public struct InitInfo
     {
-        public DirLight DirLight;
-        public Mtrl Mtrl;
         public Effect Fx;
+        public DirLight DirLight;
         public int SquareSize;
         public float dx;
         public float dz;
@@ -35,31 +26,30 @@ namespace factor10.VisionThing.Water
         public Texture waveMap1;
         public Texture dmap0;
         public Texture dmap1;
-        public Vector2 waveNMapVelocity0;
-        public Vector2 waveNMapVelocity1;
-        public Vector2 waveDMapVelocity0;
-        public Vector2 waveDMapVelocity1;
+        public Vector2 waveBumpMapVelocity0;
+        public Vector2 waveBumpMapVelocity1;
+        public Vector2 waveDispMapVelocity0;
+        public Vector2 waveDispMapVelocity1;
         public Vector2 scaleHeights;
         public float texScale;
-        public Texture LakeBumpMap;
         public Texture Checker;
     }
 
     public class WaterSurface
     {
         // Offset of normal maps for scrolling (vary as a function of time)
-        private Vector2 _waveNMapOffset0;
-        private readonly Vector2 _waveNMapVelocity0;
+        private Vector2 _waveBumpMapOffset0;
+        private Vector2 _waveBumpMapOffset1;
+        private readonly Vector2 _waveBumpMapVelocity0;
+        private readonly Vector2 _waveBumpMapVelocity1;
 
         // Offset of displacement maps for scrolling (vary as a function of time)
-        private Vector2 _waveDMapOffset0;
-        private Vector2 _waveDMapOffset1;
-        private readonly Vector2 _waveDMapVelocity0;
-        private readonly Vector2 _waveDMapVelocity1;
+        private Vector2 _waveDispMapOffset0;
+        private Vector2 _waveDispMapOffset1;
+        private readonly Vector2 _waveDispMapVelocity0;
+        private readonly Vector2 _waveDispMapVelocity1;
 
         private readonly PlanePrimitive<WaterVertex> _hiPolyPlane;
-        private readonly PlanePrimitive<WaterVertex> _mediumPolyPlane;
-        private readonly PlanePrimitive<WaterVertex> _loPolyPlane;
         private readonly PlanePrimitive<WaterVertex> _lakePlane;
 
         public readonly RenderTarget2D _reflectionTarget;
@@ -75,18 +65,15 @@ namespace factor10.VisionThing.Water
         {
             Effect = new PlainEffectWrapper( initInfo.Fx );
 
-            _waveNMapVelocity0 = initInfo.waveNMapVelocity0;
-            _waveDMapVelocity0 = initInfo.waveDMapVelocity0;
-            _waveDMapVelocity1 = initInfo.waveDMapVelocity1;
+            _waveBumpMapVelocity0 = initInfo.waveBumpMapVelocity0;
+            _waveBumpMapVelocity1 = initInfo.waveBumpMapVelocity1;
+            _waveDispMapVelocity0 = initInfo.waveDispMapVelocity0;
+            _waveDispMapVelocity1 = initInfo.waveDispMapVelocity1;
 
             _hiPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize, initInfo.dx, initInfo.dz,
                                          initInfo.texScale);
-            _mediumPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize/4, initInfo.dx * 4, initInfo.dz * 4,
-                                         initInfo.texScale);
-            _loPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize / 16, initInfo.dx * 16, initInfo.dz * 16,
-                                         initInfo.texScale);
 
-            _lakePlane = generatePlane(graphicsDevice, 1, 256, 256, 64);
+            _lakePlane = generatePlane(graphicsDevice, 1, initInfo.SquareSize*8, initInfo.SquareSize*8, initInfo.texScale*8);
 
             buildFx(initInfo);
 
@@ -112,7 +99,7 @@ namespace factor10.VisionThing.Water
                 graphicsDevice,
                 (x, y, width, height) => new WaterVertex
                               {
-                                  Position = new Vector3(x*dx, 0, y*dz),
+                                  Position = new Vector3(2*x*dx, 0, 2*y*dz),
                                   NormalizedTexC = new Vector2(x / squareSize, y / squareSize),
                                   ScaledTexC = new Vector2(x / squareSize, y / squareSize) * texScale,
                               },
@@ -125,24 +112,25 @@ namespace factor10.VisionThing.Water
         {
             // Update texture coordinate offsets.  These offsets are added to the
             // texture coordinates in the vertex shader to animate them.
-            _waveNMapOffset0 += _waveNMapVelocity0*dt;
-
-            _waveDMapOffset0 += _waveDMapVelocity0*dt;
-            _waveDMapOffset1 += _waveDMapVelocity1*dt;
+            _waveBumpMapOffset0 += _waveBumpMapVelocity0*dt;
+            _waveBumpMapOffset1 += _waveBumpMapVelocity1*dt;
+            _waveDispMapOffset0 += _waveDispMapVelocity0*dt;
+            _waveDispMapOffset1 += _waveDispMapVelocity1*dt;
 
             // Textures repeat every 1.0 unit, so reset back down to zero
             // so the coordinates do not grow too large.
-            wrap(ref _waveNMapOffset0);
-            wrap(ref _waveDMapOffset0);
-            wrap(ref _waveDMapOffset1);
+            wrap(ref _waveBumpMapOffset0);
+            wrap(ref _waveBumpMapOffset1);
+            wrap(ref _waveDispMapOffset0);
+            wrap(ref _waveDispMapOffset1);
         }
 
         private void wrap(ref Vector2 vec)
         {
-            if (vec.X >= 2.0f || vec.X <= -2.0f)
-                vec.X -= 2*Math.Sign(_waveNMapOffset0.X);
-            if (vec.Y >= 2.0f || vec.Y <= -2.0f)
-                vec.Y -= 2*Math.Sign(vec.Y);
+            if (vec.X >= 4.0f || vec.X <= -4.0f)
+                vec.X -= 4 * Math.Sign(vec.X);
+            if (vec.Y >= 200.0f || vec.Y <= -4.0f)
+                vec.Y -= 4*Math.Sign(vec.Y);
         }
 
         public void Draw(Camera camera, Vector3 pos, float distance, int dx, int dy)
@@ -154,15 +142,22 @@ namespace factor10.VisionThing.Water
             _mhProjection.SetValue(camera.Projection);
             _mhCameraPosition.SetValue(camera.Position);
 
-            _mhWaveNMapOffset0.SetValue(_waveNMapOffset0);
-             _mhWaveDMapOffset0.SetValue(_waveDMapOffset0);
-            _mhWaveDMapOffset1.SetValue(_waveDMapOffset1);
+            _mhWaveBumpMapOffset0.SetValue(_waveBumpMapOffset0);
+            _mhWaveBumpMapOffset1.SetValue(_waveBumpMapOffset1);
+            _mhWaveDispMapOffset0.SetValue(_waveDispMapOffset0);
+            _mhWaveDispMapOffset1.SetValue(_waveDispMapOffset1);
 
-            Effect.Parameters["WaveHeight"].SetValue(0.3f*2);
+            if ( distance < 0 )
+            {
+                Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, 8, 8));
+                Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
+                _lakePlane.Draw(Effect);
+                return;
+            }
 
-
-            Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
             Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(-dx, -dy, 2, 2));
+            Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
+
             if (distance < 80)
             {
                 _hiPolyPlane.Draw(Effect);
@@ -175,32 +170,30 @@ namespace factor10.VisionThing.Water
                         Matrix.CreateTranslation(0, -0.10f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
-                //_mediumPolyPlane.Draw(Effect);
-                _hiPolyPlane.Draw(Effect,1);
+                _hiPolyPlane.Draw(Effect, 1);
             }
-            else if (distance < 320)
+            else if (distance < 400)
             {
-                WaterFactory.RenderedWaterPlanes[1]++;
+                WaterFactory.RenderedWaterPlanes[2]++;
                 world = Matrix.CreateTranslation(pos) *
-                        Matrix.CreateTranslation(0, -0.15f, 0);
+                        Matrix.CreateTranslation(0, -0.20f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
-                //_mediumPolyPlane.Draw(Effect);
-                _hiPolyPlane.Draw(Effect, 2);
+                _hiPolyPlane.Draw(Effect, 3);
             }
             else
             {
-                var lod = 4;
-                if (distance > 640)
+                var lod = 5;
+                if (distance > 800)
                 {
-                    WaterFactory.RenderedWaterPlanes[3]++;
+                    WaterFactory.RenderedWaterPlanes[4]++;
                     Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
                     lod = 5;
                 }
                 else
-                    WaterFactory.RenderedWaterPlanes[2]++;
+                    WaterFactory.RenderedWaterPlanes[3]++;
                 world = Matrix.CreateTranslation(pos) *
-                        Matrix.CreateTranslation(0, -0.20f, 0);
+                        Matrix.CreateTranslation(0, -0.30f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
                 _hiPolyPlane.Draw(Effect, lod);
@@ -214,9 +207,10 @@ namespace factor10.VisionThing.Water
         private EffectParameter _mhView;
         private EffectParameter _mhProjection;
         private EffectParameter _mhCameraPosition;
-        private EffectParameter _mhWaveNMapOffset0;
-        private EffectParameter _mhWaveDMapOffset0;
-        private EffectParameter _mhWaveDMapOffset1;
+        private EffectParameter _mhWaveBumpMapOffset0;
+        private EffectParameter _mhWaveBumpMapOffset1;
+        private EffectParameter _mhWaveDispMapOffset0;
+        private EffectParameter _mhWaveDispMapOffset1;
 
         private void buildFx(InitInfo initInfo)
         {
@@ -227,24 +221,22 @@ namespace factor10.VisionThing.Water
             _mhView = p["View"];
             _mhProjection = p["Projection"];
             _mhCameraPosition = p["CameraPosition"];
-            _mhWaveNMapOffset0 = p["gWaveNMapOffset0"];
-            _mhWaveDMapOffset0 = p["gWaveDMapOffset0"];
-            _mhWaveDMapOffset1 = p["gWaveDMapOffset1"];
+            _mhWaveBumpMapOffset0 = p["gWaveNMapOffset0"];
+            _mhWaveBumpMapOffset1 = p["gWaveNMapOffset1"];
+            _mhWaveDispMapOffset0 = p["gWaveDMapOffset0"];
+            _mhWaveDispMapOffset1 = p["gWaveDMapOffset1"];
 
-            p["WaterBumpMap"].SetValue(initInfo.LakeBumpMap);
+            p["BumpMap0"].SetValue(initInfo.waveMap0);
+            p["BumpMap1"].SetValue(initInfo.waveMap1);
 
             p["gWaveDispMap0"].SetValue(initInfo.dmap0);
             p["gWaveDispMap1"].SetValue(initInfo.dmap1);
-            p["gLightAmbient"].SetValue(initInfo.DirLight.Ambient);
-            p["gLightDiffuse"].SetValue(initInfo.DirLight.Diffuse);
             p["LightDirection"].SetValue(initInfo.DirLight.DirW);
-            p["gLightSpec"].SetValue(initInfo.DirLight.Spec);
-            p["gMtrlAmbient"].SetValue(initInfo.Mtrl.Ambient);
-            p["gMtrlDiffuse"].SetValue(initInfo.Mtrl.Diffuse);
-            p["gMtrlSpec"].SetValue(initInfo.Mtrl.Spec);
-            p["gMtrlSpecPower"].SetValue(initInfo.Mtrl.SpecPower);
             p["gScaleHeights"].SetValue(initInfo.scaleHeights);
             p["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
+            p["WaveHeight"].SetValue(0.3f * 2);
+
+            p["checkerTexture"].SetValue( VisionContent.Load<Texture2D>("checker"));
         }
 
         public void RenderReflection(Camera camera)

@@ -11,15 +11,16 @@ namespace TestBed
         private readonly Model _model;
         private readonly Matrix[] _bones;
 
-        public Matrix World = Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateScale(0.006f) * Matrix.CreateTranslation(-2, 1.3f, 7);
+        public Matrix World; // = Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateScale(0.006f) * Matrix.CreateTranslation(-2, 1.3f, 7);
 
         private readonly ObjectAnimation _animation;
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Windmill()
-            : base(VisionContent.LoadPlainEffect("effects/lightingeffectbump"))
+        public Windmill( Vector3 location )
+            : base(VisionContent.LoadPlainEffect("effects/SimpleBumpEffect"))
         {
+            World = Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateScale(0.005f) * Matrix.CreateTranslation(location);
             _model = VisionContent.Load<Model>("models/windmill");
             _texture = VisionContent.Load<Texture2D>("textures/windmill_diffuse");
             _bumpMap = VisionContent.Load<Texture2D>("textures/windmill_normal");
@@ -35,7 +36,7 @@ namespace TestBed
                 TimeSpan.FromSeconds(10), true);
         }
 
-        public void Update( GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             _animation.Update(gameTime.ElapsedGameTime);
             _model.Meshes["Fan"].ParentBone.Transform =
@@ -50,12 +51,9 @@ namespace TestBed
 
             if (drawingReason != DrawingReason.ShadowDepthMap)
             {
-                Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[0];
                 Effect.Texture = _texture;
                 Effect.Parameters["BumpMap"].SetValue(_bumpMap);
             }
-            else
-                Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[2];
 
             foreach (var mesh in _model.Meshes)
             {

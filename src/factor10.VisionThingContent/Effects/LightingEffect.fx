@@ -3,6 +3,7 @@ float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
+float3 LightingDirection = float3(-3, 1, 0);
 
 texture BasicTexture;
 
@@ -19,7 +20,6 @@ bool TextureEnabled = false;
 
 float3 DiffuseColor = float3(1, 1, 1);
 float3 AmbientColor = float3(0.2, 0.2, 0.2);
-float3 LightDirection = float3(-3, 1, 0);
 float3 LightColor = float3(0.8, 0.8, 0.8);
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
@@ -64,13 +64,12 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
 
-	float3 lightDir = normalize(LightDirection);
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(lightDir, normal)) * LightColor;
+	lighting += saturate(dot(LightingDirection, normal)) * LightColor;
 
-	float3 refl = reflect(lightDir, normal);
+	float3 refl = reflect(LightingDirection, normal);
 	float3 view = normalize(input.ViewDirection);
 
 	// Add specular highlights

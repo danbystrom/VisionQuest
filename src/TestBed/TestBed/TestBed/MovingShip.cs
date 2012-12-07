@@ -10,13 +10,10 @@ namespace TestBed
     {
         private readonly ShipModel _shipModel;
 
-        private float _radius = 400;
+        private float _radius = 500;
         private double _angle;
 
         private Matrix _world;
-
-        private DoubleSin _bob1 = new DoubleSin(0.05f, 0.010f, 0.3f, 0.9f, 0, 1);
-        private DoubleSin _bob2 = new DoubleSin(0.04f, 0.008f, 0.5f, 0.8f, 2, 3);
 
         public MovingShip(ShipModel shipModel)
             : base(shipModel.Effect)
@@ -24,13 +21,11 @@ namespace TestBed
             _shipModel = shipModel;
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             _shipModel.Update(gameTime);
             _angle += gameTime.ElapsedGameTime.TotalSeconds / 100;
-            var sin = (float) Math.Sin(_angle);
-            var cos = (float) Math.Cos(_angle);
-            _world = Matrix.CreateRotationY(-cos)*Matrix.CreateScale(0.8f)*Matrix.CreateTranslation(_radius*sin, 1f, _radius*cos);
+            _world = Matrix.CreateScale(0.8f) * Matrix.CreateTranslation(_radius, 1f, 0) * Matrix.CreateRotationY((float)_angle);
         }
 
         protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

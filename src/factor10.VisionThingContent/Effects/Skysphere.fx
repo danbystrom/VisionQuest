@@ -48,7 +48,7 @@ float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
 	return PixelShaderFunction(input);
 }
 
-technique Technique1
+technique TechStandard
 {
     pass Pass1
     {
@@ -64,7 +64,7 @@ technique Technique1
     }
 }
 
-technique Technique12
+technique TechClipPlane
 {
     pass Pass1
     {

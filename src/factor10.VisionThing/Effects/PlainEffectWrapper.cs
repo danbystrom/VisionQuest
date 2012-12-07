@@ -18,6 +18,7 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectParameter _epProjection;
         protected readonly EffectParameter _epCameraPosition;
         protected readonly EffectParameter _epClipPlane;
+        protected readonly EffectParameter _epLightingDirection;
         protected readonly EffectParameter _epTexture;
 
         protected readonly EffectParameter _epDoShadowMapping;
@@ -26,8 +27,9 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectParameter _epShadowFarPlane;
         protected readonly EffectParameter _epShadowMult;
 
-        protected readonly EffectTechnique _techNormal;
+        protected readonly EffectTechnique _techStandard;
         protected readonly EffectTechnique _techClipPlane;
+        protected readonly EffectTechnique _techDepthMap;
 
         public PlainEffectWrapper( Effect effect )
         {
@@ -39,6 +41,7 @@ namespace factor10.VisionThing.Effects
             _epProjection = effect.Parameters["Projection"];
             _epCameraPosition = effect.Parameters["CameraPosition"];
             _epClipPlane = effect.Parameters["ClipPlane"];
+            _epLightingDirection = effect.Parameters["LightingDirection"];
             _epTexture = effect.Parameters["Texture"];
 
             _epDoShadowMapping = effect.Parameters["DoShadowMapping"];
@@ -47,10 +50,15 @@ namespace factor10.VisionThing.Effects
             _epShadowFarPlane = effect.Parameters["ShadowFarPlane"];
             _epShadowMult = effect.Parameters["ShadowMult"];
 
-            _techNormal = effect.Techniques[0];
-            _techClipPlane = effect.Techniques[1];
+            _techStandard = effect.Techniques["TechStandard"];
+            _techClipPlane = effect.Techniques["TechClipPlane"];
+            _techDepthMap = effect.Techniques["TechDepthMap"];
 
             Debug.Assert( _epView != null );
+            //Debug.Assert(_techDepthMap != null);
+
+            if ( _epLightingDirection != null)
+                _epLightingDirection.SetValue(VisionContent.SunlightDirection);
         }
 
         public Matrix World
@@ -93,7 +101,7 @@ namespace factor10.VisionThing.Effects
                     Effect.CurrentTechnique = _techClipPlane;
                 }
                 else
-                    Effect.CurrentTechnique = _techNormal;
+                    Effect.CurrentTechnique = _techStandard;
             }
         }
 
@@ -122,14 +130,27 @@ namespace factor10.VisionThing.Effects
                 _epDoShadowMapping.SetValue(true);
                 _epShadowMap.SetValue(shadow.ShadowDepthTarget);
                 _epShadowViewProjection.SetValue(shadow.Camera.View * shadow.Camera.Projection);
-                //_epShadowFarPlane.SetValue(shadow.ShadowFarPlane);
                 _epShadowMult.SetValue(shadow.ShadowMult);
             }
             else
                 _epDoShadowMapping.SetValue(false);
-
         }
 
+        public void SetTechnique(DrawingReason drawingReason )
+        {
+            switch ( drawingReason )
+            {
+                case DrawingReason.Normal:
+                    Effect.CurrentTechnique = _techStandard;
+                    break;
+                case DrawingReason.ReflectionMap:
+                    Effect.CurrentTechnique = _techClipPlane;
+                    break;
+                case DrawingReason.ShadowDepthMap:
+                    Effect.CurrentTechnique = _techDepthMap;
+                    break;
+            }
+        }
     }
 
 }

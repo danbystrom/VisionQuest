@@ -9,38 +9,47 @@ namespace TestBed
 {
     public class Box : ClipDrawable
     {
-        private readonly CubePrimitive<VertexPositionNormalTexture> _plane;
+        private readonly CubePrimitive<VertexPositionNormalTexture> _cube;
         private readonly Matrix _world;
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Box(Matrix world)
-            : base(VisionContent.LoadPlainEffect("effects/lightingeffectbump"))
+        public Box(Matrix world, Vector3 size, float texScale = 1)
+            : base(VisionContent.LoadPlainEffect("effects/SimpleBumpEffect"))
         {
-            //Effect.Parameters["viewportWidth"].SetValue(Effect.GraphicsDevice.Viewport.Width);
-            //Effect.Parameters["viewportHeight"].SetValue(Effect.GraphicsDevice.Viewport.Height);
-
             _texture = VisionContent.Load<Texture2D>("textures/brick_texture_map");
             _bumpMap = VisionContent.Load<Texture2D>("textures/brick_normal_map");
-            _plane = new CubePrimitive<VertexPositionNormalTexture>(
+            _cube = new CubePrimitive<VertexPositionNormalTexture>(
                 Effect.GraphicsDevice,
-                createVertex,
-                3);
+                (p,n,t) => createVertex(p,n,t,size,texScale),
+                1);
             _world = world;
         }
 
-        private VertexPositionNormalTexture createVertex( Vector3 position, Vector3 normal, Vector2 textureCoordinate)
+        private VertexPositionNormalTexture createVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, Vector3 size, float texScale)
         {
-            return new VertexPositionNormalTexture(position, normal, textureCoordinate);
+            if ( normal.X != 0 )
+                textureCoordinate *= new Vector2(size.Z, size.Y);
+            else if (normal.Y != 0)
+                textureCoordinate *= new Vector2(size.X, size.Z);
+            else if (normal.Z != 0)
+                textureCoordinate *= new Vector2(size.Y, size.X);
+            return new VertexPositionNormalTexture(
+                position * size,
+                normal,
+                textureCoordinate * texScale);
         }
 
         protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
             Effect.World = _world;
-            Effect.Texture = _texture;
-            Effect.Parameters["BumpMap"].SetValue(_bumpMap);
-            _plane.Draw(Effect);
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+            {
+                Effect.Texture = _texture;
+                Effect.Parameters["BumpMap"].SetValue(_bumpMap);
+            }
+            _cube.Draw(Effect);
         }
 
     }

@@ -552,6 +552,11 @@ namespace factor10.VisionThing.Effects
         {
             //throw new System.NotImplementedException();
         }
+
+        public void SetTechnique(DrawingReason drawingReason)
+        {
+            //throw new System.NotImplementedException();
+        }
     }
 
 }
