@@ -19,6 +19,7 @@ namespace TestBed
             : base(shipModel.Effect)
         {
             _shipModel = shipModel;
+            Children.Add(_shipModel);
         }
 
         public override void Update(GameTime gameTime)
@@ -29,7 +30,7 @@ namespace TestBed
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _shipModel.World = World;
-            return _shipModel.Draw(camera, drawingReason, shadowMap);
+            return true;
         }
 
     }

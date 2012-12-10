@@ -248,7 +248,7 @@ namespace factor10.VisionThing.Water
 
             var clipPlane = new Vector4(0, 1, 0, -waterMeshPositionY);
             foreach (var cd in ReflectedObjects)
-                cd.Draw(clipPlane, _reflectionCamera);
+                cd.DrawReflection(clipPlane, _reflectionCamera);
 
             Effect.GraphicsDevice.SetRenderTarget(null);
 

@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
+using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing.Terrain
 {
     public class TerrainBase : ClipDrawable
     {
         private static readonly TerrainPlane TerrainPlane;
+        private static readonly Box Box;
 
         protected Matrix World;
         private Vector3 _position;
@@ -16,17 +20,18 @@ namespace factor10.VisionThing.Terrain
         protected Texture2D Texture2;
         protected Texture2D Texture3;
 
-        protected Texture2D _heightsMap;
-        protected Texture2D _weightsMap;
-        protected Texture2D _normalsMap;
+        protected Texture2D HeightsMap;
+        protected Texture2D WeightsMap;
+        protected Texture2D NormalsMap;
 
-        private BoundingSphere _boundingSphere;
+        private terrainSlice[] _slices;
 
         protected Vector4 TexOffsetAndScale = new Vector4(0, 0, 1, 1);
 
         static TerrainBase()
         {
             TerrainPlane = new TerrainPlane();
+            Box = new Box(Matrix.Identity, new Vector3(1, 50, 1));
         }
 
         public TerrainBase()
@@ -42,6 +47,8 @@ namespace factor10.VisionThing.Terrain
 
         protected void initialize(Ground ground, ColorSurface normals)
         {
+            Debug.Assert((ground.Width%64) == 0 && (ground.Height%64) == 0);
+
             _position = World.Translation;
 
             Texture0 = Texture0 ?? VisionContent.Load<Texture2D>("sand");
@@ -49,32 +56,61 @@ namespace factor10.VisionThing.Terrain
             Texture2 = Texture2 ?? VisionContent.Load<Texture2D>("rock");
             Texture3 = Texture3 ?? VisionContent.Load<Texture2D>("snow");
 
-            _heightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
-            _weightsMap = ground.CreateWeigthsMap().CreateTexture2D(Effect.GraphicsDevice);
-            _normalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
+            HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
+            WeightsMap = ground.CreateWeigthsMap().CreateTexture2D(Effect.GraphicsDevice);
+            NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
-            _boundingSphere = new BoundingSphere(_position, (float) Math.Sqrt(64*64 + 64*64));
+            _slices = new terrainSlice[4];
+            var raduis = 32*(float)Math.Sqrt(2);
+            var i = 0;
+            for (var y = 0; y < 2; y++)
+                for (var x = 0; x < 2; x++)
+                    _slices[i++] = new terrainSlice
+                                       {
+                                           TexOffsetAndScale = new Vector4(x/2f, y/2f, 0.5f, 0.5f),
+                                           World = World*Matrix.CreateTranslation(64*x - 32, 0, 64*y - 32),
+                                           BoundingSphere = new BoundingSphere(_position + new Vector3(64 * x - 32, 0, 64 * y - 32), 32)
+                                       };
+
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            if (camera.BoundingFrustum.Contains(_boundingSphere) == ContainmentType.Disjoint)
-                return false;
+            var any = false;
+            foreach (var slice in _slices)
+                any |= slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint;
 
-            Effect.Parameters["TexOffsetAndScale"].SetValue(TexOffsetAndScale);
+            if (!any)
+                return false;
 
             Effect.Parameters["Texture0"].SetValue(Texture0);
             Effect.Parameters["Texture1"].SetValue(Texture1);
             Effect.Parameters["Texture2"].SetValue(Texture2);
             Effect.Parameters["Texture3"].SetValue(Texture3);
 
-            Effect.Parameters["HeightsMap"].SetValue(_heightsMap);
-            Effect.Parameters["WeightsMap"].SetValue(_weightsMap);
-            Effect.Parameters["NormalsMap"].SetValue(_normalsMap);
+            Effect.Parameters["HeightsMap"].SetValue(HeightsMap);
+            Effect.Parameters["WeightsMap"].SetValue(WeightsMap);
+            Effect.Parameters["NormalsMap"].SetValue(NormalsMap);
 
             camera.UpdateEffect(Effect);
-            TerrainPlane.Draw(camera, World, drawingReason);
+
+            foreach (var slice in _slices.Where(slice => slice.Visible))
+            {
+                Effect.Parameters["TexOffsetAndScale"].SetValue(slice.TexOffsetAndScale);
+                TerrainPlane.Draw(camera, slice.World, drawingReason);
+                Box.World = slice.World * Matrix.CreateTranslation(0,10,0);
+                Box.Draw(camera, drawingReason, shadowMap);
+            }
+
             return true;
+        }
+
+        private class terrainSlice
+        {
+            public Vector4 TexOffsetAndScale;
+            public Matrix World;
+            public BoundingSphere BoundingSphere;
+            public bool Visible;
         }
 
     }

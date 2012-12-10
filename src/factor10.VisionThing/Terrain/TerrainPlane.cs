@@ -7,17 +7,21 @@ namespace factor10.VisionThing.Terrain
 {
     public class TerrainPlane
     {
-        private readonly PlanePrimitive<VertexPositionTexture> _plane;
+        private readonly PlaneMeshPrimitive<TerrainVertex> _plane;
 
         public readonly IEffect Effect;
 
         public TerrainPlane()
         {
+            const int sqsz = 64;
             Effect = VisionContent.LoadPlainEffect("Effects/TerrainEffects");
-            _plane = new PlanePrimitive<VertexPositionTexture>(
+            _plane = new PlaneMeshPrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
-                createVertex,
-                128, 128, 5);
+                (x, y, t) => new TerrainVertex(
+                new Vector3(x-sqsz/2f, 0, y-sqsz/2f),
+                new Vector2(x/sqsz, y/sqsz),
+                x / sqsz),
+                sqsz, sqsz, 4);
         }
 
         private VertexPositionTexture createVertex(float x, float y, int width, int height)

@@ -7,7 +7,7 @@ using factor10.VisionThing.Effects;
 
 namespace factor10.VisionThing.Primitives
 {
-    public abstract class GeometricPrimitive<T> : IDisposable, IDrawable where T: struct, IVertexType
+    public abstract class GeometricPrimitive<T> : IDisposable, IDrawable where T : struct, IVertexType
     {
         private List<T> _vertices = new List<T>();
         private List<List<uint>> _indicesOfLods = new List<List<uint>>();
@@ -30,7 +30,7 @@ namespace factor10.VisionThing.Primitives
         {
             if (index > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException("index");
-            _indices.Add((ushort)index);
+            _indices.Add((ushort) index);
         }
 
         protected void addLevelOfDetail()
@@ -39,6 +39,11 @@ namespace factor10.VisionThing.Primitives
                 return;
             _indices = new List<uint>();
             _indicesOfLods.Add(_indices);
+        }
+
+        protected void addNullLevelOfDetail()
+        {
+            _indicesOfLods.Add(null);
         }
 
         protected int CurrentVertex
@@ -57,7 +62,7 @@ namespace factor10.VisionThing.Primitives
 
             _indexBuffers = new IndexBuffer[_indicesOfLods.Count];
             for (var i = 0; i < _indexBuffers.Length; i++)
-                _indexBuffers[i] = createIndexBuffer(graphicsDevice,_indicesOfLods[i]);
+                _indexBuffers[i] = createIndexBuffer(graphicsDevice, _indicesOfLods[i]);
 
             _vertices = null;
             _indices = null;
@@ -66,6 +71,8 @@ namespace factor10.VisionThing.Primitives
 
         private IndexBuffer createIndexBuffer(GraphicsDevice graphicsDevice, List<uint> indices)
         {
+            if (indices == null)
+                return null;
             IndexBuffer indexBuffer;
             if (_vertices.Count < 65536)
             {
@@ -119,13 +126,18 @@ namespace factor10.VisionThing.Primitives
             var graphicsDevice = effect.GraphicsDevice;
 
             graphicsDevice.SetVertexBuffer(_vertexBuffer);
-            graphicsDevice.Indices = _indexBuffers[lod];            
+            graphicsDevice.Indices = _indexBuffers[lod];
 
             foreach (var effectPass in effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(
-                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount/3);
+                if (_indexBuffers[lod] != null)
+                    graphicsDevice.DrawIndexedPrimitives(
+                        PrimitiveType.TriangleList,
+                        0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount/3);
+                else
+                    graphicsDevice.DrawPrimitives(
+                        PrimitiveType.TriangleList, 0, _vertices.Count/3);
             }
 
             VisionContent.RenderedTriangles += _indexBuffers[lod].IndexCount/3;

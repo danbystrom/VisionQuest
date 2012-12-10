@@ -93,11 +93,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animation.cs" />
+    <Compile Include="Box.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
     <Compile Include="ColorSurface.cs" />
     <Compile Include="Ground.cs" />
+    <Compile Include="Primitives\PlaneMeshPrimitive.cs" />
     <Compile Include="ShadowMap.cs" />
     <Compile Include="DoubleSin.cs" />
     <Compile Include="Effects\IEffect.cs" />
@@ -127,6 +129,7 @@
     <Compile Include="Terrain\TerrainBase.cs" />
     <Compile Include="Terrain\TerrainPlane.cs" />
     <Compile Include="Terrain\BillboardVertex.cs" />
+    <Compile Include="Terrain\TerrainVertex.cs" />
     <Compile Include="VisionContent.cs" />
     <Compile Include="Water\WaterSurface.cs" />
     <Compile Include="Water\WaterFactory.cs" />

@@ -71,6 +71,11 @@ namespace TestBed
         /// </summary>
         protected override void LoadContent()
         {
+            var planeTest = new PlaneMeshPrimitive<VertexPositionTexture>(
+                GraphicsDevice,
+                (x, y, t) => new VertexPositionTexture(new Vector3(x, 0, y), new Vector2(x, y)),
+                4, 4, 3);
+
             // Create a new SpriteBatch, which can be used to draw textures.
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 

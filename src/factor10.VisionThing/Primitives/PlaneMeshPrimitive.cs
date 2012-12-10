@@ -6,11 +6,11 @@ using Microsoft.Xna.Framework.Graphics;
 namespace factor10.VisionThing.Primitives
 {
 
-    public class PlanePrimitive<T> : GeometricPrimitive<T> where T : struct, IVertexType
+    public class PlaneMeshPrimitive<T> : GeometricPrimitive<T> where T : struct, IVertexType
     {
-        public delegate T CreateVertex(float x, float y, int width, int height);
+        public delegate T CreateVertex(float x, float y, int triangle);
 
-        public PlanePrimitive(
+        public PlaneMeshPrimitive(
             GraphicsDevice graphicsDevice,
             CreateVertex createVertex,
             int width,
@@ -19,18 +19,28 @@ namespace factor10.VisionThing.Primitives
         {
             for (var y = 0; y <= height; y++)
                 for (var x = 0; x <= width; x++)
-                    addVertex(createVertex(x, y, width, height));
+                {
+                    addVertex(createVertex(x, y, 0));
+                    addVertex(createVertex(x + 1, y, 0));
+                    addVertex(createVertex(x, y + 1, 0));
 
-            for (var level = 0; level < levels; level++)
+                    addVertex(createVertex(x + 1, y + 1, 1));
+                    addVertex(createVertex(x + 1, y + 1, 1));
+                    addVertex(createVertex(x, y + 1, 1));
+                }
+
+            addNullLevelOfDetail();
+
+            for (var level = 1; level < levels; level++)
             {
                 addLevelOfDetail();
                 var p = 1 << level;
                 for (var y = 0; y < height; y += p)
+                {
+                    var top = width*6 * y;
+                    var bottom = width*6*(y + p - 1) + 2;
                     for (var x = 0; x < width; x += p)
                     {
-                        var top = y*(width + 1) + x;
-                        var bottom = (y + p)*(width + 1) + x;
-
                         addIndex(top + 0);
                         addIndex(top + p);
                         addIndex(bottom);
@@ -38,7 +48,11 @@ namespace factor10.VisionThing.Primitives
                         addIndex(top + p);
                         addIndex(bottom + p);
                         addIndex(bottom);
+
+                        top += 6*p;
+                        bottom += 6*p;
                     }
+                }
             }
 
             initializePrimitive(graphicsDevice);

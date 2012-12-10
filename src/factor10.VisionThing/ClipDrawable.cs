@@ -46,13 +46,12 @@ namespace factor10.VisionThing
             return true;
         }
 
-        public virtual void Draw(
+        public virtual void DrawReflection(
             Vector4? clipPlane,
-            Camera camera,
-            ShadowMap shadowMap = null)
+            Camera camera)
         {
             Effect.ClipPlane = clipPlane;
-            Draw(camera, DrawingReason.ReflectionMap, shadowMap);
+            Draw(camera, DrawingReason.ReflectionMap);
         }
 
         public virtual void Update(GameTime gameTime)
