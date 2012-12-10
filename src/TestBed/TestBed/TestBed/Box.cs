@@ -40,7 +40,7 @@ namespace TestBed
                 textureCoordinate * texScale);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
             Effect.World = _world;
@@ -50,6 +50,7 @@ namespace TestBed
                 Effect.Parameters["BumpMap"].SetValue(_bumpMap);
             }
             _cube.Draw(Effect);
+            return true;
         }
 
     }

@@ -45,7 +45,7 @@ namespace TestBed
             _model.CopyAbsoluteBoneTransformsTo(_bones);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
 
@@ -63,6 +63,8 @@ namespace TestBed
                 Effect.Apply();
                  mesh.Draw();
             }
+
+            return true;
         }
         
     }

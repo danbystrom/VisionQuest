@@ -385,8 +385,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Billboards\Billboard.fx">
-      <Name>Billboard</Name>
+    <Compile Include="Billboards\MSBillboard.fx">
+      <Name>MSBillboard</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>

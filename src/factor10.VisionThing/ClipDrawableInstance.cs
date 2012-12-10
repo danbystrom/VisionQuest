@@ -20,11 +20,12 @@ namespace factor10.VisionThing
             World = world;
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
             Effect.World = World;
             Thing.Draw(Effect);
+            return true;
         }
     }
 

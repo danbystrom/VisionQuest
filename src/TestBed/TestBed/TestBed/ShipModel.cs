@@ -77,12 +77,12 @@ namespace TestBed
             _bob2.Update(gameTime);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             BoundingSphere testSphere;
             _boundingSphere.Transform(ref World, out testSphere);
             if ( camera.BoundingFrustum.Contains(testSphere) == ContainmentType.Disjoint )
-                return;
+                return false;
             camera.UpdateEffect(Effect);
             Effect.Texture = _texture;
             foreach (var mesh in _model.Meshes)
@@ -95,6 +95,7 @@ namespace TestBed
                 Effect.Apply();
                 mesh.Draw();
             }
+            return true;
         }
         
     }

@@ -54,8 +54,8 @@ Content\ShadowEffects\VSM2.xnb
 Content\Effects\TerrainEffects.xnb
 Content\Effects\SimpleTextureEffect.xnb
 Content\Effects\SimpleBumpEffect.xnb
-Content\Billboards\Billboard.xnb
 Content\Billboards\cat.xnb
 Content\Billboards\grass.xnb
 Content\Billboards\tree.xnb
 Content\Textures\woodensign.xnb
+Content\Billboards\MSBillboard.xnb

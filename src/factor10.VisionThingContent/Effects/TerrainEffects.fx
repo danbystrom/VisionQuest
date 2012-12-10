@@ -4,6 +4,7 @@ float4x4 World;
 float3 CameraPosition;
 float4 ClipPlane;
 float3 LightingDirection = float3(0.7,0.7,0.7);
+float4 TexOffsetAndScale = float4(0,0,1,1);
 
 bool DoShadowMapping = true;
 float4x4 ShadowViewProjection;
@@ -45,10 +46,10 @@ struct MTVertexToPixel
     float4 Position         : POSITION;
     float3 WorldPosition    : TEXCOORD0;
     float2 TextureCoords    : TEXCOORD1;
-    float4 LightDirection   : TEXCOORD2;
-	float  Depth            : TEXCOORD3;
-    float4 PositionCopy     : TEXCOORD4;
-    float4 ShadowScreenPosition : TEXCOORD5;
+    //float4 LightDirection   : TEXCOORD2;
+	float  Depth            : TEXCOORD2;
+    float4 PositionCopy     : TEXCOORD3;
+    float4 ShadowScreenPosition : TEXCOORD4;
 };
 
 struct MTPixelToFrame
@@ -58,17 +59,19 @@ struct MTPixelToFrame
 
 MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float2 inTexCoords: TEXCOORD0)
 {
+    MTVertexToPixel output;
+
     float4 worldPosition = mul(inPos, World);
     float4x4 viewProjection = mul(View, Projection);
-    
-	worldPosition.y += tex2Dlod(HeightsSampler, float4(inTexCoords, 0.0f, 0.0f)).r;
 
-    MTVertexToPixel output;
+    output.TextureCoords = float2(
+	  TexOffsetAndScale.x + inTexCoords.x * TexOffsetAndScale.z,
+	  TexOffsetAndScale.y + inTexCoords.y * TexOffsetAndScale.w );
+    
+	worldPosition.y += tex2Dlod(HeightsSampler, float4(output.TextureCoords, 0.0f, 0.0f)).r;
+
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
     output.WorldPosition = worldPosition;
-    output.TextureCoords = inTexCoords;
-    output.LightDirection.xyz = -LightingDirection;
-    output.LightDirection.w = 1;
     
 	output.Depth = output.Position.z / output.Position.w;
 
@@ -92,8 +95,8 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel input)
     MTPixelToFrame Output = (MTPixelToFrame)0;        
     
 	float3 normal = tex2D(NormalsSampler, input.TextureCoords).xyz - float3(0.5,0.5,0.5);
-	normal = normalize(normal);
-    float lightingFactor = saturate(Ambient+dot(normal, normalize(input.LightDirection)));
+	//normal = normalize(normal);
+    float lightingFactor = saturate(Ambient+dot(normal, -LightingDirection));
 
     float blendDistance = 0.99f;
 	float blendWidth = 0.005f;

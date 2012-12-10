@@ -122,6 +122,11 @@
     <Compile Include="Effects\StockBasicEffect.cs" />
     <Compile Include="Primitives\PlanePrimitive.cs" />
     <Compile Include="Effects\EffectHelpers.cs" />
+    <Compile Include="Terrain\MicrosoftBillboards.cs" />
+    <Compile Include="Terrain\ReimersBillboards.cs" />
+    <Compile Include="Terrain\TerrainBase.cs" />
+    <Compile Include="Terrain\TerrainPlane.cs" />
+    <Compile Include="Terrain\BillboardVertex.cs" />
     <Compile Include="VisionContent.cs" />
     <Compile Include="Water\WaterSurface.cs" />
     <Compile Include="Water\WaterFactory.cs" />

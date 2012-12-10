@@ -28,10 +28,10 @@ namespace TestBed
             _world = Matrix.CreateScale(0.8f) * Matrix.CreateTranslation(_radius, 1f, 0) * Matrix.CreateRotationY((float)_angle);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _shipModel.World = _world;
-            _shipModel.Draw(camera, drawingReason, shadowMap);
+            return _shipModel.Draw(camera, drawingReason, shadowMap);
         }
 
         public override void Draw(

@@ -28,22 +28,22 @@ namespace factor10.VisionThing
         {
         }
 
-        protected abstract void draw(
+        protected abstract bool draw(
             Camera camera,
             DrawingReason drawingReason,
             ShadowMap shadowMap);
 
-        public void Draw(
+        public bool Draw(
             Camera camera,
             DrawingReason drawingReason = DrawingReason.Normal,
             ShadowMap shadowMap = null)
         {
             Effect.SetTechnique(drawingReason);
             Effect.SetShadowMapping(shadowMap);
-            draw(
-                camera,
-                drawingReason,
-                shadowMap);
+            if (!draw(camera, drawingReason, shadowMap))
+                return false;
+            Children.ForEach(cd => cd.Draw(camera, drawingReason, shadowMap));
+            return true;
         }
 
         public virtual void Draw(

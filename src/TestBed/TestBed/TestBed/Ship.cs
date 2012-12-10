@@ -26,10 +26,10 @@ namespace TestBed
             _shipModel.Update(gameTime);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _shipModel.World = World;
-            _shipModel.Draw(camera, drawingReason, shadowMap);
+            return _shipModel.Draw(camera, drawingReason, shadowMap);
         }
 
     }

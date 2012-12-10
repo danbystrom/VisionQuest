@@ -62,7 +62,7 @@ namespace factor10.VisionThing
 
         public static PlainEffectWrapper LoadPlainEffect(string name)
         {
-            return new PlainEffectWrapper( Content.Load<Effect>(name) );
+            return new PlainEffectWrapper( Content.Load<Effect>(name), name );
         }
 
     }

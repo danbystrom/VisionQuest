@@ -12,14 +12,8 @@ namespace factor10.VisionThing.Water
                 graphicsDevice,
                 new InitInfo
                     {
-                        Fx = VisionContent.Load<Effect>(@"effects\reflectedwater"),
-                        DirLight = new DirLight
-                                       {
-                                           Ambient = new Vector4(0.3f, 0.3f, 0.3f, 1.0f),
-                                           Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f),
-                                           Spec = new Vector4(0.7f, 0.7f, 0.7f, 1.0f),
-                                           DirW = VisionContent.SunlightDirectionReflectedWater
-                                       },
+                        Fx = VisionContent.Load<Effect>("effects/reflectedwater"),
+                        LightDirection = VisionContent.SunlightDirectionReflectedWater,
                         SquareSize = 128,
                         dx = 0.25f,
                         dz = 0.25f,
@@ -93,22 +87,23 @@ namespace factor10.VisionThing.Water
                             y%8);
                     }
 
-            for (var y = -5; y < 6; y++)
-                for (var x = -5; x < 6; x++)
+            var size = (int) Math.Sqrt(camera.Position.Y);
+            for (var y = -size+1; y < size; y++)
+                for (var x = -size+1; x < size; x++)
                 {
                     if (x == 0 && y == 0 && drawDetails)
                         continue;
                     var pos1 = new Vector3((gridStartX + x)*waterW +64, -0.5f, (gridStartY + y)*waterH + 64);
                     var pos2 = pos1 + new Vector3(1024, 1, 1024);
                     var bb = new BoundingBox(pos1, pos2);
-                    //if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
-                    //    continue;
+                    if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                        continue;
                     waterSurface.Draw(camera, pos1, -1, 0, 0);
                 }
 
         }
 
-        public static int[] RenderedWaterPlanes = new int[5];
+        public static int[] RenderedWaterPlanes = new int[6];
 
     }
 

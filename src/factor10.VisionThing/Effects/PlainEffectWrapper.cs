@@ -13,6 +13,8 @@ namespace factor10.VisionThing.Effects
         public GraphicsDevice GraphicsDevice { get; private set; }
         public Effect Effect { get; private set; }
 
+        public readonly string Name;
+
         protected readonly EffectParameter _epWorld;
         protected readonly EffectParameter _epView;
         protected readonly EffectParameter _epProjection;
@@ -31,10 +33,11 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectTechnique _techClipPlane;
         protected readonly EffectTechnique _techDepthMap;
 
-        public PlainEffectWrapper( Effect effect )
+        public PlainEffectWrapper( Effect effect, string name )
         {
             GraphicsDevice = effect.GraphicsDevice;
             Effect = effect;
+            Name = name;
 
             _epWorld = effect.Parameters["World"];
             _epView = effect.Parameters["View"];

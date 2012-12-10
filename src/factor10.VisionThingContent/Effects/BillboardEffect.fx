@@ -13,6 +13,15 @@ float WindSpeed = 0.8;
 float WindAmount = 0.15;
 float WindTime;
 
+// 1 means we should only accept opaque pixels.
+// -1 means only accept transparent pixels.
+float AlphaTestDirection = 1;
+float AlphaTestThreshold = 0.95;
+
+// Parameters describing the billboard itself.
+float BillboardWidth = 2;
+float BillboardHeight = 2;
+
 float3 AllowedRotDir;
 
 //------- Texture Samplers --------
@@ -41,8 +50,8 @@ VertexToPixel VSStandard(float4 inPos: POSITION0, float2 inTexCoord: TEXCOORD0)
 	sideVector = normalize(sideVector);
 	
 	float3 finalPosition = center;
-	finalPosition += (inTexCoord.x-0.5f)*sideVector*3;
-	finalPosition += (1.5f-inTexCoord.y*1.5f)*upVector*3;	
+	finalPosition += (inTexCoord.x-0.5f)*sideVector*BillboardWidth;
+	finalPosition += (1.5f-inTexCoord.y*1.5f)*upVector*BillboardHeight;	
 	
 	// Work out how this vertex should be affected by the wind effect.
     float waveOffset = dot(finalPosition, WindDirection) * WindWaveSize;
@@ -77,14 +86,14 @@ float4 PSClipPlane(VertexToPixel input) : COLOR0
 {
 	clip(dot(input.WorldPosition, ClipPlane));
 	float4 color = tex2D(textureSampler, input.TexCoord);
-	clip(color.a - 0.7843f);
+    clip((color.a - AlphaTestThreshold) * AlphaTestDirection);
 	return color;
 }
 
 float4 PSDepthMap(VertexToPixel input) : COLOR0
 {
 	float4 color = tex2D(textureSampler, input.TexCoord);
-	clip(color.a - 0.7843f);
+    clip((color.a - AlphaTestThreshold) * AlphaTestDirection);
 
 	// Determine the depth of this vertex / by the far plane distance, limited to [0, 1]
     float depth = clamp(input.PositionCopy.z / input.PositionCopy.w, 0, 1);

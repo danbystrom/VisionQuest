@@ -7,18 +7,11 @@ using factor10.VisionThing.Primitives;
 
 namespace factor10.VisionThing.Water
 {
-    public struct DirLight
-    {
-        public Vector4 Ambient;
-        public Vector4 Diffuse;
-        public Vector4 Spec;
-        public Vector3 DirW;
-    }
 
     public struct InitInfo
     {
         public Effect Fx;
-        public DirLight DirLight;
+        public Vector3 LightDirection;
         public int SquareSize;
         public float dx;
         public float dz;
@@ -63,7 +56,7 @@ namespace factor10.VisionThing.Water
             GraphicsDevice graphicsDevice,
             InitInfo initInfo)
         {
-            Effect = new PlainEffectWrapper( initInfo.Fx );
+            Effect = new PlainEffectWrapper(initInfo.Fx, "water");
 
             _waveBumpMapVelocity0 = initInfo.waveBumpMapVelocity0;
             _waveBumpMapVelocity1 = initInfo.waveBumpMapVelocity1;
@@ -149,6 +142,7 @@ namespace factor10.VisionThing.Water
 
             if ( distance < 0 )
             {
+                WaterFactory.RenderedWaterPlanes[5]++;
                 Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, 8, 8));
                 Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
                 _lakePlane.Draw(Effect);
@@ -166,8 +160,7 @@ namespace factor10.VisionThing.Water
             else if (distance < 160)
             {
                 WaterFactory.RenderedWaterPlanes[1]++;
-                world = Matrix.CreateTranslation(pos) *
-                        Matrix.CreateTranslation(0, -0.10f, 0);
+                world *= Matrix.CreateTranslation(0, -0.10f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
                 _hiPolyPlane.Draw(Effect, 1);
@@ -175,8 +168,7 @@ namespace factor10.VisionThing.Water
             else if (distance < 400)
             {
                 WaterFactory.RenderedWaterPlanes[2]++;
-                world = Matrix.CreateTranslation(pos) *
-                        Matrix.CreateTranslation(0, -0.20f, 0);
+                world *= Matrix.CreateTranslation(0, -0.20f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
                 _hiPolyPlane.Draw(Effect, 3);
@@ -192,8 +184,7 @@ namespace factor10.VisionThing.Water
                 }
                 else
                     WaterFactory.RenderedWaterPlanes[3]++;
-                world = Matrix.CreateTranslation(pos) *
-                        Matrix.CreateTranslation(0, -0.30f, 0);
+                world *= Matrix.CreateTranslation(0, -0.30f, 0);
                 _mhWorld.SetValue(world);
                 _mhWorldInv.SetValue(Matrix.Invert(world));
                 _hiPolyPlane.Draw(Effect, lod);
@@ -231,7 +222,7 @@ namespace factor10.VisionThing.Water
 
             p["gWaveDispMap0"].SetValue(initInfo.dmap0);
             p["gWaveDispMap1"].SetValue(initInfo.dmap1);
-            p["LightDirection"].SetValue(initInfo.DirLight.DirW);
+            p["LightDirection"].SetValue(initInfo.LightDirection);
             p["gScaleHeights"].SetValue(initInfo.scaleHeights);
             p["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
             p["WaveHeight"].SetValue(0.3f * 2);

@@ -44,27 +44,6 @@ namespace factor10.VisionThing.Primitives
             initializePrimitive(graphicsDevice);
         }
 
-        /*
-    for (var level = 0; level < levels; level++)
-    {
-        addLevelOfDetail();
-        var p = 1 << level;
-        var pheight = height*p;
-        for (var y = 0; y < height; y+=p)
-            for (var x = 0; x < width; x+=p)
-            {
-                var start = y*height + x;
-                addIndex(start + 0);
-                addIndex(start + p);
-                addIndex(start + pheight + p);
-
-                addIndex(start + p);
-                addIndex(start + pheight + 2*p);
-                addIndex(start + pheight + p);
-            }
-    }
- */
-
     }
 
 }

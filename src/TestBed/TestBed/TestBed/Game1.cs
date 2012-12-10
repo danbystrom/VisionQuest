@@ -22,7 +22,7 @@ namespace TestBed
 
         private Camera _camera;
         private WaterSurface _water;
-        private MovingShip _ship2;
+        private MovingShip _sailingShip;
 
         private BasicEffect _basicEffect;
         private IEffect _lightingffect;
@@ -82,12 +82,12 @@ namespace TestBed
             _camera = new Camera(Window.ClientBounds, new Vector3(10, 4, -20), Vector3.Up);
             _water = WaterFactory.Create(GraphicsDevice);
 
-            _sky1 = new SkySphere(VisionContent.Load<TextureCube>(@"textures\clouds"));
+            _sky1 = new SkySphere(VisionContent.Load<TextureCube>("textures/clouds"));
             var shipModel = new ShipModel();
-            _ship2 = new MovingShip(shipModel);
+            _sailingShip = new MovingShip(shipModel);
 
             _water.ReflectedObjects.Add(_sky1);
-            _water.ReflectedObjects.Add(_ship2);
+            _water.ReflectedObjects.Add(_sailingShip);
             _basicEffect = new BasicEffect(GraphicsDevice);
             _camera.HandleMouse(0, 0);
 
@@ -97,14 +97,8 @@ namespace TestBed
             var add = new Add(perlin, rigged);
 
             // Initialize the noise map
-            var _mNoiseMap = new Noise2D(128, 128, add);
-            _mNoiseMap.GeneratePlanar(-1, 1, -1, 1);
-
-            // Generate the textures
-            var _mTextures = new Texture2D[3];
-            _mTextures[0] = _mNoiseMap.GetTexture(this._graphics.GraphicsDevice, Gradient.Grayscale);
-            _mTextures[1] = _mNoiseMap.GetTexture(this._graphics.GraphicsDevice, Gradient.Terrain);
-            _mTextures[2] = _mNoiseMap.GetNormalMap(this._graphics.GraphicsDevice, 3.0f);
+            var noiseMap = new Noise2D(128, 128, add);
+            noiseMap.GeneratePlanar(-1, 1, -1, 1);
 
             // Zoom in or out do something like this.
             float zoom = 0.5f;
@@ -118,8 +112,16 @@ namespace TestBed
 
             var generatedTerrain = new GeneratedTerrain(
                 Matrix.CreateTranslation(600, -0.5f, 0),
-                _mTextures[0]);
+                noiseMap.GetTexture(_graphics.GraphicsDevice, Gradient.Grayscale));
             _water.ReflectedObjects.Add(generatedTerrain);
+
+            rigged.Seed = 42;
+            noiseMap = new Noise2D(128, 128, add);
+            noiseMap.GeneratePlanar(-1, 1, -1, 1);
+            var generatedTerrain2 = new LargeTerrain(
+                Matrix.CreateTranslation(700, -0.5f, 200),
+                noiseMap.GetTexture(_graphics.GraphicsDevice, Gradient.Grayscale));
+            _water.ReflectedObjects.Add(generatedTerrain2);
 
             _torus = new TorusPrimitive<VertexPositionNormal>(
                 GraphicsDevice,
@@ -143,7 +145,7 @@ namespace TestBed
                 DepthFormat.Depth24);
 
             _shadow = new ShadowMap(GraphicsDevice);
-            _shadow.ShadowCastingObjects.Add(_ship2);
+            _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
 

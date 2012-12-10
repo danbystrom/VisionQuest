@@ -12,13 +12,13 @@ namespace factor10.VisionThing
 
         public SkySphere(
              TextureCube texture)
-            : base( new PlainEffectWrapper( VisionContent.Load<Effect>("effects/skysphere")))
+            : base( VisionContent.LoadPlainEffect("effects/skysphere"))
         {
             _sphere = new SpherePrimitive( Effect.GraphicsDevice, 10000, 10);
             Effect.Parameters["CubeMap"].SetValue(texture);
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
             Effect.World = Matrix.CreateTranslation(camera.Position);
@@ -27,6 +27,7 @@ namespace factor10.VisionThing
             _sphere.Draw(Effect);
             Effect.GraphicsDevice.RasterizerState = saveCull;
             Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            return true;
         }
 
     }

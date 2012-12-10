@@ -16,15 +16,8 @@ namespace TestBed
             
         }
 
-        protected override void draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            var lightDirection = Vector3.Normalize(new Vector3(3, -1, 1));
-            var lightColor = new Vector3(0.3f, 0.4f, 0.2f);
-
-            // Time is scaled down to make things wave in the wind more slowly.
-            float time = 0; // (float)gameTime.TotalGameTime.TotalSeconds * 0.333f;
-
-
             // Then we use a two-pass technique to render alpha blended billboards with
             // almost-correct depth sorting. The only way to make blending truly proper for
             // alpha objects is to draw everything in sorted order, but manually sorting all
@@ -82,7 +75,7 @@ namespace TestBed
             //        mesh.Draw();
             //    }
             //}
-
+            return true;
         }
 
     }

@@ -28,14 +28,14 @@ namespace factor10.VisionThing
                 _heights[i] = fillValue;
         }
 
-        public Ground(Texture2D heightMap)
+        public Ground(Texture2D heightMap, Func<int,float> fx )
             : this(heightMap.Width, heightMap.Height)
         {
             var oldData = new Color[Width*Height];
             heightMap.GetData(oldData);
 
             for (var i = 0; i < _heights.Length; i++)
-                _heights[i] = oldData[i].R/10f;
+                _heights[i] = fx(oldData[i].R);
         }
 
         public static Ground CreateDoubleSize(Texture2D heightMap)
@@ -113,10 +113,10 @@ namespace factor10.VisionThing
             }
         }
 
-        public void AlterValues(Func<float> func)
+        public void AlterValues(Func<float,float> func)
         {
             for (var i = 0; i < _heights.Length; i++)
-                _heights[i] += func();
+                _heights[i] = func(_heights[i]);
         }
 
         public void FlattenRectangle(int x, int y, int size)
@@ -151,7 +151,7 @@ namespace factor10.VisionThing
             }
         }
 
-        public Texture2D CreateHeightTexture(GraphicsDevice graphicsDevice)
+        public Texture2D CreateHeightsTexture(GraphicsDevice graphicsDevice)
         {
             var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Single);
             result.SetData(_heights);
@@ -187,9 +187,7 @@ namespace factor10.VisionThing
         public ColorSurface CreateNormalsMap()
         {
             var normals = new Color[_heights.Length];
-            for (var i = 0; i < normals.Length; i++)
-                normals[i] = new Color(0f, 1f, 0f, 0);
-            for (int i = 0, x = 0, y = 0; i < normals.Length - Width - 1; i++)
+            for (var i = 0; i < normals.Length - Width - 1; i++)
             {
                 var h = _heights[i];
                 var v1 = new Vector3(0, _heights[i + Width] - h, 1);
@@ -197,11 +195,6 @@ namespace factor10.VisionThing
                 var n = Vector3.Cross(v1, v2);
                 n.Normalize();
                 normals[i] = new Color(n.X/2 + 0.5f, n.Y/2 + 0.5f, n.Z/2 + 0.5f, 0);
-                if (++x >= Width)
-                {
-                    x = 0;
-                    y++;
-                }
             }
             for (var x = 0; x < Width; x++)
                 normals[(Height - 1)*Width + x] = normals[(Height - 2)*Width + x];
@@ -244,6 +237,36 @@ namespace factor10.VisionThing
                     }
                 }
 
+        }
+
+        public void DrawLine( int x1, int y1, int x2, int y2, int width)
+        {
+            var dx = Math.Abs(x1 - x2);
+            var dy = Math.Abs(y1 - y2);
+            if (dx == 0 && dy == 0)
+                return;
+            if (dy > dx)
+                drawMostlyHorizontalLine(x1, y1, dy, dx/(float) dy, width);
+            else
+                drawMostlyVerticalLine(x1, y1, dx, dy/(float) dx, width);
+        }
+
+        private void drawMostlyHorizontalLine(int x, float y, int len, float d, int width)
+        {
+            for (var i = 0; i < len; i++ )
+            {
+                y += d;
+                x++;
+            }
+        }
+
+        private void drawMostlyVerticalLine(float x, int y, int len, float d, int width)
+        {
+            for (var i = 0; i < len; i++)
+            {
+                x += d;
+                y++;
+            }
         }
 
     }
