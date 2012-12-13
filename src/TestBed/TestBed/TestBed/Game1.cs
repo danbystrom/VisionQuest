@@ -1,5 +1,7 @@
+using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
+using factor10.VisionThing.Objects;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Water;
 using LibNoise.Xna;
@@ -102,7 +104,7 @@ namespace TestBed
             var add = new Add(perlin, rigged);
 
             // Initialize the noise map
-            var noiseMap = new Noise2D(128, 128, add);
+            var noiseMap = new Noise2D(512, 512, add);
             noiseMap.GeneratePlanar(-1, 1, -1, 1);
 
             // Zoom in or out do something like this.
@@ -112,19 +114,20 @@ namespace TestBed
             VisionContent.Init(this);
 
             var reimersTerrain = new ReimersTerrain(
-                Matrix.CreateTranslation(400, -0.5f, 0));
+                Matrix.CreateTranslation(200, -0.5f, 0));
             _water.ReflectedObjects.Add(reimersTerrain);
 
             var generatedTerrain = new GeneratedTerrain(
-                Matrix.CreateTranslation(600, -0.5f, 0),
+                Matrix.CreateTranslation(0, -0.5f, 100),
                 noiseMap.GetTexture(_graphics.GraphicsDevice, Gradient.Grayscale));
             _water.ReflectedObjects.Add(generatedTerrain);
+            _water.ReflectedObjects.Add(new Bridge(Matrix.Identity));
 
             rigged.Seed = 42;
             noiseMap = new Noise2D(128, 128, add);
             noiseMap.GeneratePlanar(-1, 1, -1, 1);
             var generatedTerrain2 = new LargeTerrain(
-                Matrix.CreateTranslation(700, -0.5f, 200),
+                Matrix.CreateTranslation(500, -0.5f, 200),
                 noiseMap.GetTexture(_graphics.GraphicsDevice, Gradient.Grayscale));
             _water.ReflectedObjects.Add(generatedTerrain2);
 
@@ -149,7 +152,7 @@ namespace TestBed
                 SurfaceFormat.Color,
                 DepthFormat.Depth24);
 
-            _shadow = new ShadowMap(GraphicsDevice);
+            _shadow = new ShadowMap(GraphicsDevice, 1024, 1024);
             _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
@@ -294,8 +297,8 @@ namespace TestBed
             //_spriteBatch.Draw(_shadow.ShadowDepthTarget, new Rectangle(1270-w, 10, w, h), Color.White);
             _spriteBatch.DrawString(_font, string.Format("Triangles: {0}", VisionContent.RenderedTriangles), new Vector2(10, 10), Color.Gold);
             _spriteBatch.DrawString(_font, string.Format("FPS: {0}", _fps), new Vector2(10, 30), Color.Gold);
-            _spriteBatch.DrawString(_font, string.Format("Water planes: {0}/{1}/{2}/{3}", WaterFactory.RenderedWaterPlanes[0],
-                WaterFactory.RenderedWaterPlanes[1], WaterFactory.RenderedWaterPlanes[2], WaterFactory.RenderedWaterPlanes[3]),
+            _spriteBatch.DrawString(_font, string.Format("Water planes: {0}",
+                string.Join(",",WaterFactory.RenderedWaterPlanes.Select(e => e.ToString()))),
                 new Vector2(10, 50), Color.Gold);
             var p = _camera.Position;
             _spriteBatch.DrawString(_font, string.Format("Campera pos: {0:0.0} / {1:0.0} / {2:0.0}", p.X, p.Y, p.Z ), new Vector2(10, 70), Color.Gold);

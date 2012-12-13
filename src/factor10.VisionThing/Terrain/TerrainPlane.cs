@@ -7,7 +7,8 @@ namespace factor10.VisionThing.Terrain
 {
     public class TerrainPlane
     {
-        private readonly PlaneMeshPrimitive<TerrainVertex> _plane;
+        private readonly PlaneMeshPrimitive<TerrainVertex> _hiPlane;
+        private readonly PlanePrimitive<TerrainVertex> _loPlane;
 
         public readonly IEffect Effect;
 
@@ -15,13 +16,20 @@ namespace factor10.VisionThing.Terrain
         {
             const int sqsz = 64;
             Effect = VisionContent.LoadPlainEffect("Effects/TerrainEffects");
-            _plane = new PlaneMeshPrimitive<TerrainVertex>(
+            _hiPlane = new PlaneMeshPrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
                 (x, y, t) => new TerrainVertex(
                 new Vector3(x-sqsz/2f, 0, y-sqsz/2f),
                 new Vector2(x/sqsz, y/sqsz),
                 x / sqsz),
-                sqsz, sqsz, 4);
+                sqsz, sqsz, 5);
+            _loPlane = new PlanePrimitive<TerrainVertex>(
+                Effect.GraphicsDevice,
+                (x, y, w, h) => new TerrainVertex(
+                new Vector3(x - sqsz / 2f, 0, y - sqsz / 2f),
+                new Vector2(x / sqsz, y / sqsz),
+                x / sqsz),
+                sqsz, sqsz, 5);
         }
 
         private VertexPositionTexture createVertex(float x, float y, int width, int height)
@@ -46,7 +54,7 @@ namespace factor10.VisionThing.Terrain
                 lod = 0;
             if (drawingReason != DrawingReason.Normal)
                 lod++;
-            _plane.Draw(Effect, lod);
+            _loPlane.Draw(Effect, lod);
         }
 
     }

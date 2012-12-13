@@ -87,18 +87,22 @@ namespace factor10.VisionThing.Water
                             y%8);
                     }
 
-            var size = (int) Math.Sqrt(camera.Position.Y);
+            if (camera.Position.Y < 100)
+                return;
+
+            var size = 5; // (int)Math.Sqrt(camera.Position.Y);
             for (var y = -size+1; y < size; y++)
                 for (var x = -size+1; x < size; x++)
                 {
                     if (x == 0 && y == 0 && drawDetails)
                         continue;
-                    var pos1 = new Vector3((gridStartX + x)*waterW +64, -0.5f, (gridStartY + y)*waterH + 64);
+                    var pos1 = new Vector3(gridStartX * waterW + x * 1024 + 64, 0.5f, gridStartY * waterH + y * 1024 + 64);
                     var pos2 = pos1 + new Vector3(1024, 1, 1024);
                     var bb = new BoundingBox(pos1, pos2);
                     if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
                         continue;
                     waterSurface.Draw(camera, pos1, -1, 0, 0);
+                    RenderedWaterPlanes[5]++;
                 }
 
         }

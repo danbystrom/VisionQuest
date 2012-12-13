@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing;
@@ -26,18 +27,16 @@ namespace TestBed
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 
-            foreach (var mesh in _model.Meshes)
-                foreach (var part in mesh.MeshParts)
+            foreach (var part in _model.Meshes.SelectMany(mesh => mesh.MeshParts))
+            {
+                if (_texture == null)
                 {
-                    if (_texture == null)
-
-                    {
-                        var basicEffect = part.Effect as BasicEffect;
-                        if (basicEffect != null)
-                            _texture = basicEffect.Texture;
-                    }
-                    part.Effect = Effect.Effect;
+                    var basicEffect = part.Effect as BasicEffect;
+                    if (basicEffect != null)
+                        _texture = basicEffect.Texture;
                 }
+                part.Effect = Effect.Effect;
+            }
 
             var modelCenter = Vector3.Zero;
 

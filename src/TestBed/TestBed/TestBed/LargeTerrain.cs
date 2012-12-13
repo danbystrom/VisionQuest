@@ -17,10 +17,10 @@ namespace factor10.VisionThing
             ground.ApplyNormalBellShape();
             var normals = ground.CreateNormalsMap();
 
-            var ms = new MicrosoftBillboards(world * Matrix.CreateTranslation(-64, -0.1f, -64), ground, normals);
+            var ms = new MicrosoftBillboards(world * Matrix.CreateTranslation(-64, 0.05f, -64), ground, normals);
             Children.Add(ms);
 
-            initialize(ground, normals);
+            initialize(ground, ground.CreateWeigthsMap(), normals);
         }
 
     }

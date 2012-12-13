@@ -24,7 +24,7 @@ namespace factor10.VisionThing.Primitives
                     addVertex(createVertex(x + 1, y, 0));
                     addVertex(createVertex(x, y + 1, 0));
 
-                    addVertex(createVertex(x + 1, y + 1, 1));
+                    addVertex(createVertex(x + 1, y, 1));
                     addVertex(createVertex(x + 1, y + 1, 1));
                     addVertex(createVertex(x, y + 1, 1));
                 }
@@ -35,6 +35,7 @@ namespace factor10.VisionThing.Primitives
             {
                 addLevelOfDetail();
                 var p = 1 << level;
+                var step = p*6;
                 for (var y = 0; y < height; y += p)
                 {
                     var top = width*6 * y;
@@ -42,15 +43,15 @@ namespace factor10.VisionThing.Primitives
                     for (var x = 0; x < width; x += p)
                     {
                         addIndex(top + 0);
-                        addIndex(top + p);
+                        addIndex(top + step - 5);
                         addIndex(bottom);
 
-                        addIndex(top + p);
-                        addIndex(bottom + p);
+                        addIndex(top + step - 5);
+                        addIndex(bottom + step - 5);
                         addIndex(bottom);
 
-                        top += 6*p;
-                        bottom += 6*p;
+                        top += step;
+                        bottom += step;
                     }
                 }
             }

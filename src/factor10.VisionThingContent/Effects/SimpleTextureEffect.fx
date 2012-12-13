@@ -27,7 +27,7 @@ sampler TextureSampler = sampler_state {
 	AddressV = Wrap; // Address Mode for V Coordinates
 };
 
-float3 DiffuseColor = float3(1, 1, 1);
+float3 DiffuseColor = float3(0.8, 0.8, 0.8);
 float3 AmbientColor = float3(0.4, 0.4, 0.4);
 float3 LightColor = float3(0.8, 0.8, 0.8);
 float SpecularPower = 32;
@@ -90,9 +90,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(-LightingDirection, normal)) * LightColor;
+	lighting += saturate(dot(LightingDirection, normal)) * LightColor;
 
-	float3 refl = reflect(-LightingDirection, normal);
+	float3 refl = reflect(LightingDirection, normal);
 	float3 view = normalize(input.ViewDirection);
 	
 	// Add specular highlights

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TestBed;
+using factor10.VisionThing.Objects;
 using factor10.VisionThing.Terrain;
 
 namespace factor10.VisionThing

@@ -16,7 +16,7 @@ float3 WindDirection = float3(1, 0, 0);
 float WindWaveSize = 0.001;
 float WindRandomness = 1;
 float WindSpeed = 4;
-float WindAmount = 0.5;
+float WindAmount = 0.05;
 float WindTime;
 
 

@@ -43,7 +43,7 @@ namespace factor10.VisionThing.Primitives
 
         protected void addNullLevelOfDetail()
         {
-            _indicesOfLods.Add(null);
+            _indicesOfLods.Insert(_indicesOfLods.Count - 1, null);
         }
 
         protected int CurrentVertex
@@ -132,15 +132,20 @@ namespace factor10.VisionThing.Primitives
             {
                 effectPass.Apply();
                 if (_indexBuffers[lod] != null)
+                {
                     graphicsDevice.DrawIndexedPrimitives(
                         PrimitiveType.TriangleList,
-                        0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount/3);
+                        0, 0, _vertexBuffer.VertexCount, 0, _indexBuffers[lod].IndexCount / 3);
+                    VisionContent.RenderedTriangles += _indexBuffers[lod].IndexCount / 3;
+                }
                 else
+                {
                     graphicsDevice.DrawPrimitives(
-                        PrimitiveType.TriangleList, 0, _vertices.Count/3);
+                        PrimitiveType.TriangleList, 0, _vertexBuffer.VertexCount/3);
+                    VisionContent.RenderedTriangles += _vertexBuffer.VertexCount / 3;
+                }
             }
 
-            VisionContent.RenderedTriangles += _indexBuffers[lod].IndexCount/3;
         }
 
     }

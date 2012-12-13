@@ -103,7 +103,7 @@ namespace factor10.VisionThing.Terrain
                     var height = ground[x, y];
                     if ( height <3 || height > 5)
                         continue;
-                    for (var currDetail = 0; currDetail < 10; currDetail++)
+                    for (var currDetail = 0; currDetail < 5; currDetail++)
                     {
                         var rand1 = (float) random.NextDouble();
                         var rand2 = (float) random.NextDouble();

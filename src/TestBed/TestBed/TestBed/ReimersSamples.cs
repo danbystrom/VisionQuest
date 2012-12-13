@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
+using factor10.VisionThing.Terrain;
 
 namespace TestBed
 {

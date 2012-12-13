@@ -1,38 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using factor10.VisionThing.Terrain;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace factor10.VisionThing
 {
-    public class ColorSurface
+    public class ColorSurface : Sculptable<Color>
     {
-        public readonly int Width;
-        public readonly int Height;
-        public readonly Color[] Surface;
+
+        public ColorSurface(int width, int height)
+            : base(width, height)
+        {
+        }
 
         public ColorSurface(int width, int height, Color[] surface)
+            : base(width,height,surface)
         {
-            if ( width*height != surface.Length )
-                throw new Exception();
-            Width = width;
-            Height = height;
-            Surface = surface;
         }
 
         public Vector3 AsVector3(int x, int y)
         {
-            var c = Surface[y*Width + x];
+            var c = Values[y*Width + x];
             return new Vector3(c.R/255f, c.G/255f, c.B/255f);
-        }
-
-        public Texture2D CreateTexture2D(GraphicsDevice graphicsDevice)
-        {
-            var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Color);
-            result.SetData(Surface);
-            return result;
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing.Terrain;
 
@@ -12,33 +13,33 @@ namespace factor10.VisionThing
             Texture2D heightsMap)
         {
             World = world;
-            var ground = new Ground(heightsMap, h => (255-h)/15f);
-            ground.AlterValues(h => h + 1);
-            //ground.ApplyNormalBellShape();
-            //for (var i = 0; i < 5; i++)
-            //{
-            //    for (var x = 2; x < 64; x++)
-            //    {
-            //        ground[x - 1, x] = 0;
-            //        ground[x, x - 1] = 0;
-            //        ground[x - 2, x] = 0;
-            //        ground[x, x - 2] = 0;
-            //    }
-            //    for (var x = 0; x < 128; x++)
-            //    {
-            //        ground[x, 0] = 0;
-            //        ground[x, 127] = 0;
-            //        ground[0, x] = 0;
-            //        ground[127, x] = 0;
-            //        ground[x, x] = 0;
-            //    }
-            //    ground.Soften();
-            //}
-            //ground.FlattenRectangle(10, 10, 20);
+            var ground = new Ground(heightsMap, h => (255 - h)/15f);
+            ground.AlterValues(h => h*3 + 2);
+            ground.ApplyNormalBellShape();
 
-            initialize(ground);
+            ground.DrawLine(5, 5, 200, 100, 5, t => 0);
+            ground.DrawLine(200, 100, 250, 300, 5, t => 0);
+            ground.DrawLine(250, 300, 500, 350, 5, t => 0);
+            ground.Soften();
+
+            var weights = ground.CreateWeigthsMap();
+            weights.DrawLine(15, 500, 500, 15, 5,
+                             c =>
+                                 {
+                                     c.R /= 2;
+                                     c.G /= 2;
+                                     c.B /= 2;
+                                     c.A = (byte)(255 - c.R - c.G - c.B);
+                                     return c;
+                                 },
+                                 200,
+                                 new Random());
+            //weights.AlterValues(c => new Color(255,0,0,0));
+
+            initialize(ground, weights, ground.CreateNormalsMap());
         }
 
     }
 
 }
+

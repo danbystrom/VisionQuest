@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Linq;
-using factor10.VisionThing.Primitives;
+using factor10.VisionThing.Objects;
 
 namespace factor10.VisionThing.Terrain
 {
@@ -42,10 +42,10 @@ namespace factor10.VisionThing.Terrain
 
         protected void initialize(Ground ground)
         {
-            initialize(ground, ground.CreateNormalsMap());
+            initialize(ground, ground.CreateWeigthsMap(), ground.CreateNormalsMap());
         }
 
-        protected void initialize(Ground ground, ColorSurface normals)
+        protected void initialize(Ground ground, WeightsMap weights, ColorSurface normals)
         {
             Debug.Assert((ground.Width%64) == 0 && (ground.Height%64) == 0);
 
@@ -57,21 +57,25 @@ namespace factor10.VisionThing.Terrain
             Texture3 = Texture3 ?? VisionContent.Load<Texture2D>("snow");
 
             HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
-            WeightsMap = ground.CreateWeigthsMap().CreateTexture2D(Effect.GraphicsDevice);
+            WeightsMap = weights.CreateTexture2D(Effect.GraphicsDevice);
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
-            _slices = new terrainSlice[4];
-            var raduis = 32*(float)Math.Sqrt(2);
+            var slicesW = ground.Width/64;
+            var slicesH = ground.Width/64;
+            var sliceFracX = 1f/slicesW;
+            var sliceFracY = 1f/slicesH;
+            _slices = new terrainSlice[slicesW*slicesH];
+            var raduis = 32*(float) Math.Sqrt(2);
             var i = 0;
-            for (var y = 0; y < 2; y++)
-                for (var x = 0; x < 2; x++)
+            for (var y = 0; y < slicesW; y++)
+                for (var x = 0; x < slicesH; x++)
                     _slices[i++] = new terrainSlice
                                        {
-                                           TexOffsetAndScale = new Vector4(x/2f, y/2f, 0.5f, 0.5f),
+                                           TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
                                            World = World*Matrix.CreateTranslation(64*x - 32, 0, 64*y - 32),
-                                           BoundingSphere = new BoundingSphere(_position + new Vector3(64 * x - 32, 0, 64 * y - 32), 32)
+                                           BoundingSphere =
+                                               new BoundingSphere(_position + new Vector3(64*x - 32, 0, 64*y - 32), raduis)
                                        };
-
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
@@ -98,8 +102,8 @@ namespace factor10.VisionThing.Terrain
             {
                 Effect.Parameters["TexOffsetAndScale"].SetValue(slice.TexOffsetAndScale);
                 TerrainPlane.Draw(camera, slice.World, drawingReason);
-                Box.World = slice.World * Matrix.CreateTranslation(0,10,0);
-                Box.Draw(camera, drawingReason, shadowMap);
+                //Box.World = slice.World * Matrix.CreateTranslation(0,10,0);
+                //Box.Draw(camera, drawingReason, shadowMap);
             }
 
             return true;

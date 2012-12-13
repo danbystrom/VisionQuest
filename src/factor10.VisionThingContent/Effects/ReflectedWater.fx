@@ -104,7 +104,7 @@ float DoDispMapping(float2 texC0, float2 texC1)
 	float h0 = lerp( lerp( dmap0[0], dmap0[1], lerps.x ),
                      lerp( dmap0[2], dmap0[3], lerps.x ),
                      lerps.y );
-	
+
 	texelpos = DMAP_SIZE * texC1;
 	lerps    = frac(texelpos);
 	
@@ -233,7 +233,9 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 {
     float4 bumpColor = tex2D(BumpMapSampler0, input.BumpSamplingPos0);
     float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
-	bumpColor = ( bumpColor + tex2D(BumpMapSampler1, input.BumpSamplingPos1) ) / 2;
+
+	float bumpMapDistribution = lerp( 0.5, 1, saturate(sqrt(abs(CameraPosition.y-3))/4) );
+	bumpColor = bumpColor * bumpMapDistribution + tex2D(BumpMapSampler1, input.BumpSamplingPos1) * (1-bumpMapDistribution);
 	    
     float2 ProjectedTexCoords;
     ProjectedTexCoords.x = input.ReflectionMapPos.x/input.ReflectionMapPos.w/2.0f + 0.5f;
@@ -241,7 +243,7 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
     float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
     float4 reflectiveColor = tex2D(reflectionSampler, perturbatedTexCoords);
     
-    float4 refractiveColor = float4(0.01,0.01,0.2,1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
+    float4 refractiveColor = float4(0.01,0.01,0.3,1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
     
     float3 eyeVector = normalize(CameraPosition - input.Position3D);
     float3 normalVector = (bumpColor.rbg-0.5f)*2.0f;
@@ -281,7 +283,6 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 
 			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
 			specular *= pow( shadowFactor, 32 );
-			//color.rgb = float3( shadowFactor, shadowFactor, shadowFactor );
 		}
 	}
 

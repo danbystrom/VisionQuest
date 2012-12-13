@@ -7,9 +7,9 @@ float3 LightingDirection = float3(0.7,0.7,0.7);
 float4 TexOffsetAndScale = float4(0,0,1,1);
 
 bool DoShadowMapping = true;
-float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
 float ShadowBias = 0.001f;
+float4x4 ShadowViewProjection;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
@@ -46,7 +46,6 @@ struct MTVertexToPixel
     float4 Position         : POSITION;
     float3 WorldPosition    : TEXCOORD0;
     float2 TextureCoords    : TEXCOORD1;
-    //float4 LightDirection   : TEXCOORD2;
 	float  Depth            : TEXCOORD2;
     float4 PositionCopy     : TEXCOORD3;
     float4 ShadowScreenPosition : TEXCOORD4;

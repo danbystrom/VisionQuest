@@ -23,31 +23,29 @@ namespace factor10.VisionThing
         private readonly RenderTarget2D _shadowBlurTarg;
         private readonly Effect _shadowBlurEffect;
 
-        public ShadowMap(GraphicsDevice graphicsDevice)
+        public ShadowMap(
+            GraphicsDevice graphicsDevice, int width, int height)
         {
-            var targetWidth = 2048;
-            var targetHeight = 2048;
-
             _graphicsDevice = graphicsDevice;
-            ShadowDepthTarget = new RenderTarget2D(graphicsDevice, targetWidth, targetHeight, false, SurfaceFormat.HalfVector2,
+            ShadowDepthTarget = new RenderTarget2D(graphicsDevice, width, height, false, SurfaceFormat.HalfVector2,
                                                    DepthFormat.Depth24);
 
             _spriteBatch = new SpriteBatch(graphicsDevice);
             _shadowBlurEffect = VisionContent.Load<Effect>("ShadowEffects/GaussianBlur");
-            _shadowBlurTarg = new RenderTarget2D(graphicsDevice, targetWidth, targetHeight, false, SurfaceFormat.HalfVector2,
+            _shadowBlurTarg = new RenderTarget2D(graphicsDevice, width, height, false, SurfaceFormat.HalfVector2,
                                                  DepthFormat.Depth24);
 
             Camera = new Camera(
-                new Vector2(targetWidth, targetHeight),
+                new Vector2(width, height),
                 Vector3.Zero,
                 Vector3.Up,
                 1,
                 ShadowFarPlane);
             Camera.Projection = Matrix.CreateOrthographic(
-                50,
-                50,
+                100,
+                100,
                 1,
-                100);
+                300);
         }
 
         public void Draw()
