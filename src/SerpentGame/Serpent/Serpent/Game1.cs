@@ -21,7 +21,7 @@ namespace factor10.SerpentGame
 
         private BillboardText _billboardText;
 
-        //private WaterSurface _water;
+        private WaterSurface _water;
 
         public Game1()
         {
@@ -62,7 +62,7 @@ namespace factor10.SerpentGame
                 GraphicsDevice,
                 Content.Load<SpriteFont>(@"Fonts\SpriteFont1"));
 
-            //_water = WaterFactory.Create(GraphicsDevice, new VisionContent(this, "Content").LibContent);
+            _water = WaterFactory.Create(GraphicsDevice);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace factor10.SerpentGame
             if (_data.HasKeyToggled(Keys.P))
                 _paused ^= true;
 
-            //_water.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            _water.Update((float)gameTime.ElapsedGameTime.TotalSeconds, _data.PlayerSerpent.Camera.Camera);
 
             if (_paused)
             {
@@ -149,7 +149,7 @@ namespace factor10.SerpentGame
             _data.PlayerSerpent.Draw(gameTime);
             foreach (var enemy in _data.Enemies)
                 enemy.Draw(gameTime);
-            //WaterFactory.DrawWaterSurfaceGrid(_water, camera);
+            //WaterFactory.DrawWaterSurfaceGrid(_water, camera, null, 0);
              base.Draw(gameTime);
             _billboardText.Draw(
                 camera,

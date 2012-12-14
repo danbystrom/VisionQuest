@@ -95,7 +95,6 @@
     <Compile Include="TreesModel.cs" />
     <Compile Include="SunflowersModel.cs" />
     <Compile Include="Serpent\EnemySerpent.cs" />
-    <Compile Include="Util\ArcGenerator.cs" />
     <Compile Include="Util\Direction.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Util\SinBump.cs" />

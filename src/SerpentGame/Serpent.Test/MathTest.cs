@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using NUnit.Framework;
 using Serpent.Util;
+using factor10.VisionThing;
 
 namespace Serpent.Test
 {

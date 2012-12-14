@@ -58,7 +58,6 @@ namespace Serpent
             _basicEffect.VertexColorEnabled = true;
             _basicEffect.CurrentTechnique.Passes[0].Apply();
             drawArc(textPosition, zzz);
-
         }
 
         private void drawArc( Vector3 point1, Vector3 point2 )

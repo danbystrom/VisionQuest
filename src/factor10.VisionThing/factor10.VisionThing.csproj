@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animation.cs" />
+    <Compile Include="ArcGenerator.cs" />
     <Compile Include="Objects\Box.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
