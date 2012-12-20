@@ -10,6 +10,7 @@ using LibNoise.Xna.Operator;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using factor10.VisionaryHeads;
 using BasicEffect = Microsoft.Xna.Framework.Graphics.BasicEffect;
 
 namespace TestBed
@@ -43,6 +44,8 @@ namespace TestBed
         private SpherePrimitive _sphere;
 
         private ShadowMap _shadow;
+
+        private Arcs _arcs;
 
         public Game1()
         {
@@ -152,13 +155,20 @@ namespace TestBed
                 SurfaceFormat.Color,
                 DepthFormat.Depth24);
 
+            var vprogram = new VProgram(@"C:\proj\photomic\src\Plata\bin\Release\Plåta.exe");
+            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -100), vprogram.VAssemblies[0]);
+            _water.ReflectedObjects.Add(codeIsland);
+
             _shadow = new ShadowMap(GraphicsDevice, 1024, 1024);
             _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
+            _shadow.ShadowCastingObjects.Add(codeIsland);
 
             _sphere = new SpherePrimitive(GraphicsDevice,0.25f);
             _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
+
+            _arcs = new Arcs();
         }
 
         /// <summary>
@@ -249,6 +259,8 @@ namespace TestBed
             foreach (var z in _water.ReflectedObjects)
                 z.Draw(_camera, DrawingReason.Normal, _shadow);
             WaterFactory.DrawWaterSurfaceGrid(_water, _camera, _shadow, _nisse);
+
+            _arcs.Draw(_camera);
 
             //_camera.UpdateEffect(_lightingffect);
             //_lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Target);

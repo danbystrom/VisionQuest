@@ -19,7 +19,7 @@ float AlphaTestDirection = 1;
 float AlphaTestThreshold = 0.95;
 
 // Parameters describing the billboard itself.
-float BillboardWidth = 2;
+float BillboardWidth = 4;
 float BillboardHeight = 2;
 
 float3 AllowedRotDir;

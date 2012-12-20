@@ -17,7 +17,7 @@ namespace factor10.VisionThing
 
         // Depth texture parameters
         public int ShadowFarPlane = 200;
-        public float ShadowMult = 0.6f;
+        public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
         private readonly RenderTarget2D _shadowBlurTarg;
@@ -54,7 +54,7 @@ namespace factor10.VisionThing
             _graphicsDevice.Clear(Color.White);  // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap);
-            _graphicsDevice.SetRenderTarget(null);
+            //_graphicsDevice.SetRenderTarget(null);
 
             blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
             blurShadow(ShadowDepthTarget, _shadowBlurTarg, 1);

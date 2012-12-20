@@ -94,7 +94,6 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel input)
     MTPixelToFrame Output = (MTPixelToFrame)0;        
     
 	float3 normal = tex2D(NormalsSampler, input.TextureCoords).xyz - float3(0.5,0.5,0.5);
-	//normal = normalize(normal);
     float lightingFactor = saturate(Ambient+dot(normal, -LightingDirection));
 
     float blendDistance = 0.99f;

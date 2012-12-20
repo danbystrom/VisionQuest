@@ -38,7 +38,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(788, 20);
             this.textBox1.TabIndex = 0;
-            this.textBox1.Text = "C:\\Users\\Dan\\Desktop\\Grammatik_New\\wfGrmUI\\bin\\Debug\\WordFinder.Grammatik.dll";
+            this.textBox1.Text = "C:\\proj\\photomic\\src\\Plata\\bin\\Release\\Plåta.exe";
             // 
             // button1
             // 

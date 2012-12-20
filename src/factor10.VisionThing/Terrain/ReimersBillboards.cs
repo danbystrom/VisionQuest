@@ -14,23 +14,27 @@ namespace factor10.VisionThing.Terrain
 
         public ReimersBillboards(
             Matrix world,
-            Ground ground,
-            ColorSurface normals)
+            Texture2D texture)
             : base(VisionContent.LoadPlainEffect("Effects/BillboardEffect"))
         {
             _world = world;
-
-            var treeMap = VisionContent.Load<Texture2D>("treeMap");
-            var treeList = generateTreePositions(treeMap, ground, normals);
-            createBillboardVerticesFromList(treeList);
-
-            _treeTexture = VisionContent.Load<Texture2D>("tree");
-            //_treeTexture = VisionContent.Load<Texture2D>("textures/woodensign");
-
+            _treeTexture = texture;
             Effect.Parameters["AllowedRotDir"].SetValue(new Vector3(0, 1, 0));
         }
 
-        private void createBillboardVerticesFromList(List<Vector3> treeList)
+        public ReimersBillboards(
+            Matrix world,
+            Ground ground,
+            ColorSurface normals,
+            Texture2D texture)
+            : this(world,texture)
+        {
+            var treeMap = VisionContent.Load<Texture2D>("treeMap");
+            var treeList = generateTreePositions(treeMap, ground, normals);
+            CreateBillboardVerticesFromList(treeList);
+        }
+
+        public void CreateBillboardVerticesFromList(List<Vector3> treeList)
         {
             if (!treeList.Any())
                 return;
@@ -121,7 +125,7 @@ namespace factor10.VisionThing.Terrain
             Effect.World = _world;
             Effect.Parameters["WindTime"].SetValue(_time);
             Effect.Parameters["AlphaTestDirection"].SetValue(1);
-            Effect.Parameters["BillboardWidth"].SetValue(3);
+            Effect.Parameters["BillboardWidth"].SetValue(10);
             Effect.Parameters["BillboardHeight"].SetValue(5);
             Effect.Texture = _treeTexture;
             Effect.GraphicsDevice.SetVertexBuffer(_treeVertexBuffer);

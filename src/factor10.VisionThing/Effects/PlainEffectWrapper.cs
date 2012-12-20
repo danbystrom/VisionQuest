@@ -116,6 +116,7 @@ namespace factor10.VisionThing.Effects
 
         public void Apply()
         {
+            Effect.CurrentTechnique.Passes[0].Apply();
         }
 
         public EffectParameterCollection Parameters

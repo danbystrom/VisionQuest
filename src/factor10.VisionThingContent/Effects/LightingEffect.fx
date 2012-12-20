@@ -57,7 +57,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-
 	// Start with diffuse color
 	float3 color = DiffuseColor;
 
@@ -67,9 +66,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(LightingDirection, normal)) * LightColor;
+	lighting += saturate(dot(-LightingDirection, normal)) * LightColor;
 
-	float3 refl = reflect(LightingDirection, normal);
+	float3 refl = reflect(-LightingDirection, normal);
 	float3 view = normalize(input.ViewDirection);
 
 	// Add specular highlights
@@ -89,7 +88,7 @@ float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
 }
 
 
-technique Technique1
+technique TechStandard
 {
     pass Pass1
     {
@@ -98,7 +97,7 @@ technique Technique1
     }
 }
 
-technique Technique2
+technique TechClipPlane
 {
     pass Pass1
     {

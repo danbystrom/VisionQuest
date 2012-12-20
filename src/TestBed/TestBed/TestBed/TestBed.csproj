@@ -90,6 +90,9 @@
     <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\..\..\3pp\MonoCecil\Mono.Cecil.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
@@ -110,7 +113,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BillboardSample.cs" />
+    <Compile Include="Arcs.cs" />
+    <Compile Include="CodeIsland.cs" />
     <Compile Include="LargeTerrain.cs" />
     <Compile Include="GeneratedTerrain.cs" />
     <Compile Include="MovingShip.cs" />
@@ -119,6 +123,7 @@
     <Compile Include="ReimersTerrain.cs" />
     <Compile Include="ShipModel.cs" />
     <Compile Include="VegetationProcessor.cs" />
+    <Compile Include="VisualClass.cs" />
     <Compile Include="Windmill.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
@@ -129,6 +134,10 @@
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj">
+      <Project>{DEDA88C6-08E4-4326-912D-3E1E1F537A72}</Project>
+      <Name>factor10.VisionaryHeads</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\factor10.VisionThing\factor10.VisionThing.csproj">
       <Project>{57F05DF6-C98A-4989-89C6-473773287427}</Project>
       <Name>factor10.VisionThing</Name>

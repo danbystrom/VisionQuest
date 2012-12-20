@@ -98,9 +98,9 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 	float3 normal = normalize( tex2D(BumpMapSampler, input.UV).rgb * 2 - 1 );
 
 	// Add lambertian lighting
-	lighting += saturate(dot(LightingDirection, normal)) * LightColor;
+	lighting += saturate(dot(-LightingDirection, normal)) * LightColor;
 
-	float3 refl = reflect(LightingDirection, normal);
+	float3 refl = reflect(-LightingDirection, normal);
 	float3 view = normalize(input.ViewDirection);
 	
 	// Add specular highlights

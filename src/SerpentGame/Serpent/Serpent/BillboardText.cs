@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Serpent.Util;
 using factor10.VisionThing;
+using factor10.VisionThing.Effects;
 
 namespace Serpent
 {
@@ -16,6 +17,8 @@ namespace Serpent
         private readonly SpriteBatch _spriteBatch;
         private readonly SpriteFont _spriteFont;
         private readonly BasicEffect _basicEffect;
+
+        private readonly IEffect _arcsEffect;
 
         public BillboardText(
             GraphicsDevice graphicsDevice,
@@ -30,6 +33,7 @@ namespace Serpent
                                    TextureEnabled = true,
                                    VertexColorEnabled = true,
                                };
+            _arcsEffect = VisionContent.LoadPlainEffect("Effects/ArcsEffect");
         }
 
         public void Draw( Camera camera, Vector3 textPosition, Vector3 zzz )
@@ -53,10 +57,11 @@ namespace Serpent
             _graphicsDevice.DepthStencilState = DepthStencilState.Default;
             _graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
-            _basicEffect.World = Matrix.Identity;
-            _basicEffect.TextureEnabled = false;
-            _basicEffect.VertexColorEnabled = true;
-            _basicEffect.CurrentTechnique.Passes[0].Apply();
+            //_basicEffect.World = Matrix.Identity;
+            //_basicEffect.TextureEnabled = false;
+            //_basicEffect.VertexColorEnabled = true;
+            //_basicEffect.CurrentTechnique.Passes[0].Apply();
+            _arcsEffect.Apply();
             drawArc(textPosition, zzz);
         }
 

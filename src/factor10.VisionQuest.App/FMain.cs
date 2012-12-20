@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using factor10.VisionQuest.Metrics;
+using factor10.VisionaryHeads;
 
 namespace factor10.VisionQuest.App
 {
@@ -19,7 +20,7 @@ namespace factor10.VisionQuest.App
 
         private void button1_Click(object sender, EventArgs e)
         {
-            new ReadAssembly().Z(textBox1.Text);
+            var vprogram = new VProgram(textBox1.Text);
         }
     }
 }

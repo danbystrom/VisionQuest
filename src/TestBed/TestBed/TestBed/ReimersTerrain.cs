@@ -45,7 +45,8 @@ namespace factor10.VisionThing
             _reimersBillboards = new ReimersBillboards(
                 world*Matrix.CreateTranslation(-64, -0.1f, -64),
                 ground,
-                ground.CreateNormalsMap());
+                ground.CreateNormalsMap(),
+                VisionContent.Load<Texture2D>("tree"));
             Children.Add(_reimersBillboards);
 
             initialize(ground);

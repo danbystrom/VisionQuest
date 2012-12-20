@@ -141,7 +141,7 @@ namespace factor10.VisionQuest.Metrics
             }
         }
 
-        /*     public static List<MethodReference> getConstructors(TypeDefinition tType)
+        /*     public static List<MethodReference> getConstructors(TypeDefinitionDefinition tType)
              {
                  try
                  {
@@ -183,7 +183,7 @@ namespace factor10.VisionQuest.Metrics
             {
                 return getMethods(getAssembly(assemblyToLoad));
                 /*      var methods = new List<MethodDefinition>();
-                      foreach (TypeDefinition typeDefinition in getTypes(assemblyToLoad))
+                      foreach (TypeDefinitionDefinition typeDefinition in getTypes(assemblyToLoad))
                           foreach (MethodDefinition methodDefinition in typeDefinition.Methods)
                               methods.Add(methodDefinition);
                       return methods;*/
