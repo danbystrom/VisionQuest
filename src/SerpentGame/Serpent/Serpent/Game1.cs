@@ -154,7 +154,7 @@ namespace factor10.SerpentGame
             _billboardText.Draw(
                 camera,
                 _data.PlayerSerpent.GetPosition() - new Vector3(0, -1.5f, 0),
-                _data.Enemies[0].GetPosition()
+                _data.Enemies[0].GetPosition() + Vector3.Up
                 );
         }
     }

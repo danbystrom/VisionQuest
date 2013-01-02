@@ -19,13 +19,15 @@ namespace factor10.VisionThing
         public float Pitch;
 
         public readonly Vector2 ClientSize;
- 
+
+        public GameTime GameTime;
+
         public Camera(
             Vector2 clientSize,
             Vector3 position,
             Vector3 target,
             float nearPlane = 1,
-            float farPlane = 10000)
+            float farPlane = 20000)
         {
             ClientSize = clientSize;
 
@@ -87,6 +89,8 @@ namespace factor10.VisionThing
 
         public void UpdateFreeFlyingCamera(GameTime gameTime)
         {
+            GameTime = gameTime;
+
             var mouse = Mouse.GetState();
             var delta = HandleMouse(mouse.X, mouse.Y);
  

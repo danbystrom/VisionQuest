@@ -122,7 +122,7 @@
     <Compile Include="ReimersSamples.cs" />
     <Compile Include="ReimersTerrain.cs" />
     <Compile Include="ShipModel.cs" />
-    <Compile Include="VegetationProcessor.cs" />
+    <Compile Include="Signs.cs" />
     <Compile Include="VisualClass.cs" />
     <Compile Include="Windmill.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

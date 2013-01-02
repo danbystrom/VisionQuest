@@ -36,7 +36,7 @@ namespace Serpent
             _arcsEffect = VisionContent.LoadPlainEffect("Effects/ArcsEffect");
         }
 
-        public void Draw( Camera camera, Vector3 textPosition, Vector3 zzz )
+        public void Draw(Camera camera, Vector3 zzz, Vector3 textPosition)
         {
             _basicEffect.World = Matrix.CreateConstrainedBillboard(textPosition, textPosition - camera.Front, Vector3.Down, null, null);
             _basicEffect.View = camera.View;

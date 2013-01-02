@@ -27,36 +27,40 @@ namespace factor10.VisionThing
             var ground = new Ground(surfaceSide*64, surfaceSide*64);
             var x = 16;
             var y = 16;
-            var signList = new List<Vector3>();
             foreach (var vc in vassembly.VClasses)
             {
                 var z = new VisualClass(vc, x, y);
-                Classes.Add(vc.TypeDefinition.Name, z);
-                ground.AlterValues(x-8, y-8, 16, 16, h => h + 2 + (float) Math.Pow(z.Instructions, 0.4));
-                signList.Add(new Vector3(x, ground[x, y], y));
+                ground.AlterValues(x - 8, y - 8, 16, 17, h => h + 2 + (float) Math.Pow(z.InstructionCount, 0.3));
+
+                var height = ground[x, y];
+                z.Height = height;
+                Classes.Add(vc.FullName, z);
                 x += 16;
-                if ( x >= side )
+                if (x >= side)
                 {
                     x = 16;
                     y += 16;
                 }
             }
+
             var rnd = new Random();
-            ground.AlterValues(h => h > 1 ? h + (float)rnd.NextDouble() : 0);
-            ground.Soften();
-            ground.AlterValues(h => h > 1 ? h + (float)rnd.NextDouble() : 0);
-            ground.Soften();
-            ground.Soften();
+            ground.AlterValues(h => h > 1 ? h + 8*(float)rnd.NextDouble() : 0);
+            ground.Soften(3);
+
+            foreach (var vc in Classes.Values)
+                vc.Height = ground[vc.X, vc.Y];
 
             var normals = ground.CreateNormalsMap();
 
-            var reimersBillboards = new ReimersBillboards(
+            var signs = new Signs( 
                 world * Matrix.CreateTranslation(-64, -0.1f, -64),
-                VisionContent.Load<Texture2D>("textures/woodensign"));
-            reimersBillboards.CreateBillboardVerticesFromList(signList);
-            Children.Add(reimersBillboards);
+                VisionContent.Load<Texture2D>("textures/woodensign"),
+                Classes.Values.ToList(),
+                8,
+                2);
+            Children.Add(signs);
 
-            initialize(ground, ground.CreateWeigthsMap(), normals);
+            initialize(ground, ground.CreateWeigthsMap(new[] { 0, 0.5f, 0.95f, 1 }), normals);
         }
 
     }

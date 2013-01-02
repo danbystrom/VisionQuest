@@ -51,6 +51,11 @@ namespace factor10.VisionaryHeads
                     Calling.RemoveAt(i);
         }
 
+        public override int GetHashCode()
+        {
+            return FullName.GetHashCode();
+        }
+
         public override string ToString()
         {
             return FullName;

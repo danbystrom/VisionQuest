@@ -18,7 +18,7 @@ namespace factor10.VisionaryHeads
             VProgram = vprogram;
             Filename = filename;
             AssemblyDefinition = AssemblyDefinition.ReadAssembly(filename);
-            foreach (var type in AssemblyDefinition.MainModule.Types)
+            foreach (var type in AssemblyDefinition.MainModule.Types.Where(t => t.Methods.Any(m => !m.IsConstructor)))
                 VClasses.Add(new VClass(this, type));
         }
 

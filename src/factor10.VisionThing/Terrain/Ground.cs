@@ -172,20 +172,23 @@ namespace factor10.VisionThing.Terrain
             return new ColorSurface(Width, Height, normals);
         }
 
-        public WeightsMap CreateWeigthsMap()
+        public WeightsMap CreateWeigthsMap( float[] levels = null)
         {
-            return new WeightsMap(this);    
+            return new WeightsMap(this, levels);    
         }
 
-        public void Soften()
+        public void Soften(int rounds = 1)
         {
-            var old = (float[])Values.Clone();
-            for (int i = Width + 1; i < Values.Length - Width - 1; i++)
-                Values[i] =
-                    (old[i - Width - 1] + old[i - Width] + old[i - Width + 1] +
-                     old[i - 1] + old[i] + old[i + 1] +
-                     old[i + Width - 1] + old[i + Width] + old[i + Width + 1])/9;
-
+            var end = Values.Length - Width - 1;
+            while (rounds-- > 0)
+            {
+                var old = (float[]) Values.Clone();
+                for (var i = Width + 1; i < end; i++)
+                    Values[i] =
+                        (old[i - Width - 1] + old[i - Width] + old[i - Width + 1] +
+                         old[i - 1] + old[i] + old[i + 1] +
+                         old[i + Width - 1] + old[i + Width] + old[i + Width + 1])/9;
+            }
         }
 
         public void LowerEdges()

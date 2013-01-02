@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class WeightsMap : ColorSurface
+    public class WeightsMap : Mt8Surface
     {
 
        public WeightsMap(int width, int height)
@@ -33,7 +33,10 @@ namespace factor10.VisionThing.Terrain
                 var t2 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[2])/span, 0, 1);
                 var t3 = MathHelper.Clamp(1.0f - Math.Abs(val - levels[3])/span, 0, 1);
                 var tot = 1/(t0 + t1 + t2 + t3 + 0.0001f);
-                Values[i] = new Color(t0*tot, t1*tot, t2*tot, t3*tot);
+                Values[i].A = t0*tot;
+                Values[i].B = t1*tot;
+                Values[i].C = t2*tot;
+                Values[i].D = t3*tot;
             }
         }
 

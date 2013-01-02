@@ -17,11 +17,10 @@ namespace factor10.VisionThing.Water
                         SquareSize = 128,
                         dx = 0.25f,
                         dz = 0.25f,
-                        dmap0 = foobar(graphicsDevice, @"textures\waterdmap0"),
-                        dmap1 = foobar(graphicsDevice, @"textures\waterdmap1"),
-                        waveMap0 = VisionContent.Load<Texture2D>(@"waterbump"),
-                        waveMap1 = VisionContent.Load<Texture2D>(@"textures/wave1"),
-                        Checker = VisionContent.Load<Texture2D>(@"checker"),
+                        dmap0 = foobar(graphicsDevice, "water/waterdmap0"),
+                        dmap1 = foobar(graphicsDevice, "water/waterdmap1"),
+                        waveMap0 = VisionContent.Load<Texture2D>("water/waterbump"),
+                        waveMap1 = VisionContent.Load<Texture2D>("water/wave1"),
                         waveBumpMapVelocity0 = new Vector2(0.012f, 0.016f),
                         waveBumpMapVelocity1 = new Vector2(0.014f, 0.018f),
                         waveDispMapVelocity0 = new Vector2(0.012f, 0.015f),
@@ -87,8 +86,8 @@ namespace factor10.VisionThing.Water
                             y%8);
                     }
 
-            if (camera.Position.Y < 100)
-                return;
+            //if (camera.Position.Y < 100)
+            //    return;
 
             var size = 5; // (int)Math.Sqrt(camera.Position.Y);
             for (var y = -size+1; y < size; y++)

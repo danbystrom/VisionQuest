@@ -12,16 +12,14 @@ namespace factor10.VisionThing.Terrain
         private static readonly TerrainPlane TerrainPlane;
         private static readonly Box Box;
 
-        protected Matrix World;
+        public Matrix World;
         private Vector3 _position;
 
-        protected Texture2D Texture0;
-        protected Texture2D Texture1;
-        protected Texture2D Texture2;
-        protected Texture2D Texture3;
+        protected readonly Texture2D[] Textures = new Texture2D[8];
 
         protected Texture2D HeightsMap;
-        protected Texture2D WeightsMap;
+        protected Texture2D WeightsMap1;
+        protected Texture2D WeightsMap2;
         protected Texture2D NormalsMap;
 
         private terrainSlice[] _slices;
@@ -51,13 +49,15 @@ namespace factor10.VisionThing.Terrain
 
             _position = World.Translation;
 
-            Texture0 = Texture0 ?? VisionContent.Load<Texture2D>("sand");
-            Texture1 = Texture1 ?? VisionContent.Load<Texture2D>("grass");
-            Texture2 = Texture2 ?? VisionContent.Load<Texture2D>("rock");
-            Texture3 = Texture3 ?? VisionContent.Load<Texture2D>("snow");
+            Textures[0] = Textures[0] ?? VisionContent.Load<Texture2D>("terraintextures/sahara");
+            Textures[1] = Textures[1] ?? VisionContent.Load<Texture2D>("grass");
+            Textures[2] = Textures[2] ?? VisionContent.Load<Texture2D>("terraintextures/canyon");
+            Textures[3] = Textures[3] ?? VisionContent.Load<Texture2D>("snow");
+            Textures[4] = Textures[4] ?? VisionContent.Load<Texture2D>("terraintextures/path");
 
             HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
-            WeightsMap = weights.CreateTexture2D(Effect.GraphicsDevice);
+            WeightsMap1 = weights.CreateTexture2D(Effect.GraphicsDevice,true);
+            WeightsMap2 = weights.CreateTexture2D(Effect.GraphicsDevice, false);
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
             var slicesW = ground.Width/64;
@@ -87,14 +87,13 @@ namespace factor10.VisionThing.Terrain
             if (!any)
                 return false;
 
-            Effect.Parameters["Texture0"].SetValue(Texture0);
-            Effect.Parameters["Texture1"].SetValue(Texture1);
-            Effect.Parameters["Texture2"].SetValue(Texture2);
-            Effect.Parameters["Texture3"].SetValue(Texture3);
+            for (var i = 0; i < 8; i++ )
+                Effect.Parameters["Texture" + (char)(65+i)].SetValue(Textures[i]);
 
             Effect.Parameters["HeightsMap"].SetValue(HeightsMap);
-            Effect.Parameters["WeightsMap"].SetValue(WeightsMap);
             Effect.Parameters["NormalsMap"].SetValue(NormalsMap);
+            Effect.Parameters["WeightsMap1"].SetValue(WeightsMap1);
+            Effect.Parameters["WeightsMap2"].SetValue(WeightsMap2);
 
             camera.UpdateEffect(Effect);
 

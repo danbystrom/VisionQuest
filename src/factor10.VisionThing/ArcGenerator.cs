@@ -63,16 +63,16 @@ namespace factor10.VisionThing
             Points[i] = end;
         }
 
-        public void StoreArc<T>(List<T> result, Func<Vector3, float, T> func)
+        public void StoreArc<T>(List<T> result, Func<Vector3, float, int, T> func)
         {
             var i = 0;
             var max = Points.Length - 1;
             foreach (var pt in Points)
             {
-                var vpc = func(pt, (float) i/max);
+                var where = (float) i/max;
                 if (i != 0 && i != max)
-                    result.Add(vpc);
-                result.Add(vpc);
+                    result.Add(func(pt, where, result.Count));
+                result.Add(func(pt, where, result.Count));
                 i++;
             }
         }

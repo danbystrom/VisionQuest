@@ -3,21 +3,21 @@ float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
-float3 LightingDirection = float3(-3, 1, 0);
+float Time;
 
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
-	float4 Color : COLOR0;
+	float A : TEXCOORD00;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
     float4 PositionCopy : TEXCOORD00;
-	float3 ViewDirection : TEXCOORD1;
-	float3 WorldPosition : TEXCOORD2;
-	float4 Color : COLOR0;
+	float3 WorldPosition : TEXCOORD1;
+	float A : TEXCOORD02;
+	float D : TEXCOORD03;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -30,8 +30,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.WorldPosition = worldPosition;
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
-	output.ViewDirection = worldPosition - CameraPosition;
-	output.Color = input.Color;
+	output.A = input.A + Time;
+	output.D = sqrt(distance(worldPosition,CameraPosition));
 
     return output;
 }
@@ -39,14 +39,16 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-    return input.Color;
+	float c = 0.5 + sin(input.A)/ input.D;
+    return float4(c,c,c,1);
 }
 
 
 float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
 {
 	clip(dot(float4(input.WorldPosition,1), ClipPlane));
-    return input.Color;
+	float c = 0.5 + sin(input.A)/ input.D;
+    return float4(c,c,c,1);
 }
 
 

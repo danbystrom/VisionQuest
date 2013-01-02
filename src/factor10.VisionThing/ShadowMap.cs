@@ -12,6 +12,7 @@ namespace factor10.VisionThing
 
         public readonly List<ClipDrawable> ShadowCastingObjects = new List<ClipDrawable>();
         public readonly Camera Camera;
+        public readonly Camera RealCamera;
 
         public readonly RenderTarget2D ShadowDepthTarget;
 
@@ -24,9 +25,14 @@ namespace factor10.VisionThing
         private readonly Effect _shadowBlurEffect;
 
         public ShadowMap(
-            GraphicsDevice graphicsDevice, int width, int height)
+            GraphicsDevice graphicsDevice,
+            Camera camera,
+            int width,
+            int height)
         {
             _graphicsDevice = graphicsDevice;
+            RealCamera = camera;
+
             ShadowDepthTarget = new RenderTarget2D(graphicsDevice, width, height, false, SurfaceFormat.HalfVector2,
                                                    DepthFormat.Depth24);
 
@@ -53,8 +59,7 @@ namespace factor10.VisionThing
             _graphicsDevice.SetRenderTarget(ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White);  // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
-                obj.Draw(Camera, DrawingReason.ShadowDepthMap);
-            //_graphicsDevice.SetRenderTarget(null);
+                obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
 
             blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
             blurShadow(ShadowDepthTarget, _shadowBlurTarg, 1);

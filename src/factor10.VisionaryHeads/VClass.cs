@@ -17,9 +17,14 @@ namespace factor10.VisionaryHeads
                 VMethods.Add(new VMethod(this, method));
         }
 
+        public string FullName
+        {
+           get { return TypeDefinition.ToString();}
+        }
+
         public override string ToString()
         {
-            return TypeDefinition.ToString();
+            return FullName;
         }
 
     }

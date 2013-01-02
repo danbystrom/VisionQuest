@@ -37,9 +37,6 @@ namespace TestBed
         private KeyboardState _kbd;
         private bool _controlCameraWithMouse = true;
 
-        private RenderTarget2D _target1;
-        private RenderTarget2D _target2;
-
         private TorusPrimitive<VertexPositionNormal> _torus;
         private SpherePrimitive _sphere;
 
@@ -87,7 +84,7 @@ namespace TestBed
             // TODO: use this.Content to load your game content here
 
             VisionContent.Init(this);
-            _font = VisionContent.Load<SpriteFont>("fonts/spritefont1");
+            _font = VisionContent.Load<SpriteFont>("fonts/BlackCastle");
 
             _camera = new Camera(Window.ClientBounds, new Vector3(10, 4, -20), Vector3.Up);
             _water = WaterFactory.Create(GraphicsDevice);
@@ -139,27 +136,11 @@ namespace TestBed
                 (p, n) => new VertexPositionNormal(p, n),
                 50, 10, 32);
 
-            _target1 = new RenderTarget2D(
-                GraphicsDevice,
-                GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height,
-                false,
-                SurfaceFormat.Color,
-                DepthFormat.Depth24);
-
-            _target2 = new RenderTarget2D(
-                GraphicsDevice,
-                GraphicsDevice.Viewport.Width/2,
-                GraphicsDevice.Viewport.Height/2,
-                false,
-                SurfaceFormat.Color,
-                DepthFormat.Depth24);
-
-            var vprogram = new VProgram(@"C:\proj\photomic\src\Plata\bin\Release\Plåta.exe");
-            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -100), vprogram.VAssemblies[0]);
+            var vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
+            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -200), vprogram.VAssemblies[0]);
             _water.ReflectedObjects.Add(codeIsland);
 
-            _shadow = new ShadowMap(GraphicsDevice, 1024, 1024);
+            _shadow = new ShadowMap(GraphicsDevice, _camera,1024, 1024);
             _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
@@ -168,7 +149,7 @@ namespace TestBed
             _sphere = new SpherePrimitive(GraphicsDevice,0.25f);
             _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
 
-            _arcs = new Arcs();
+            _arcs = new Arcs(codeIsland);
         }
 
         /// <summary>
@@ -210,6 +191,7 @@ namespace TestBed
 
             foreach(var cd in _water.ReflectedObjects)
                 cd.Update(gameTime);
+            _arcs.Update(gameTime);
 
             _frames++;
             _frameTime += dt;
@@ -260,7 +242,8 @@ namespace TestBed
                 z.Draw(_camera, DrawingReason.Normal, _shadow);
             WaterFactory.DrawWaterSurfaceGrid(_water, _camera, _shadow, _nisse);
 
-            _arcs.Draw(_camera);
+            if ( _nisse == 0)
+                _arcs.Draw(_camera);
 
             //_camera.UpdateEffect(_lightingffect);
             //_lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Target);
@@ -269,23 +252,6 @@ namespace TestBed
             //_sphere.Draw(_lightingffect);
 
             zzz();
-
-            base.Draw(gameTime);
-        }
-
-        protected void NewDraw(GameTime gameTime)
-        {
-            GraphicsDevice.SetRenderTarget(_target1);
-
-            _water.RenderReflection(_camera);
-            foreach (var z in _water.ReflectedObjects)
-                z.Draw(_camera, DrawingReason.Normal, _shadow);
-            WaterFactory.DrawWaterSurfaceGrid(_water, _camera, null,0);
-
-            GraphicsDevice.SetRenderTarget(_target2);
-            GraphicsDevice.Clear(Color.Black);
-
-            GraphicsDevice.SetRenderTarget(null);
 
             base.Draw(gameTime);
         }

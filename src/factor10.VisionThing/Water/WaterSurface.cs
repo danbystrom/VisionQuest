@@ -226,8 +226,6 @@ namespace factor10.VisionThing.Water
             p["gScaleHeights"].SetValue(initInfo.scaleHeights);
             p["gGridStepSizeL"].SetValue(new Vector2(initInfo.dx, initInfo.dz));
             p["WaveHeight"].SetValue(0.3f * 2);
-
-            p["checkerTexture"].SetValue( VisionContent.Load<Texture2D>("checker"));
         }
 
         public void RenderReflection(Camera camera)

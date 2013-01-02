@@ -22,23 +22,33 @@ float Ambient = 0.2;
 
 //------- Texture Samplers --------
 
-Texture Texture0;
-Texture Texture1;
-Texture Texture2;
-Texture Texture3;
+Texture TextureA;
+Texture TextureB;
+Texture TextureC;
+Texture TextureD;
+Texture TextureE;
+Texture TextureF;
+Texture TextureG;
+Texture TextureH;
 
 Texture HeightsMap;
 Texture NormalsMap;
-Texture WeightsMap;
+Texture WeightsMap1;
+Texture WeightsMap2;
 
-sampler TextureSampler0 = sampler_state { texture = <Texture0> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
-sampler TextureSampler1 = sampler_state { texture = <Texture1> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
-sampler TextureSampler2 = sampler_state { texture = <Texture2> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
-sampler TextureSampler3 = sampler_state { texture = <Texture3> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerA = sampler_state { texture = <TextureA> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerB = sampler_state { texture = <TextureB> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerC = sampler_state { texture = <TextureC> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerD = sampler_state { texture = <TextureD> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerE = sampler_state { texture = <TextureE> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerF = sampler_state { texture = <TextureF> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerG = sampler_state { texture = <TextureG> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler TextureSamplerH = sampler_state { texture = <TextureH> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
 
 sampler HeightsSampler = sampler_state { texture = <HeightsMap> ; magfilter = POINT; minfilter = POINT; mipfilter=POINT; AddressU = mirror; AddressV = mirror;};
 sampler NormalsSampler = sampler_state { texture = <NormalsMap> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
-sampler WeightsSampler = sampler_state { texture = <WeightsMap> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler WeightsSampler1 = sampler_state { texture = <WeightsMap1> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
+sampler WeightsSampler2 = sampler_state { texture = <WeightsMap2> ; magfilter = LINEAR; minfilter = LINEAR; mipfilter=LINEAR; AddressU = mirror; AddressV = mirror;};
 
 
 struct MTVertexToPixel
@@ -100,21 +110,32 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel input)
 	float blendWidth = 0.005f;
 	float blendFactor = clamp((input.Depth-blendDistance)/blendWidth, 0, 1);
 
-	float4 textureWeights = tex2D(WeightsSampler, input.TextureCoords);
+	float4 textureWeights1 = tex2D(WeightsSampler1, input.TextureCoords);
+	float4 textureWeights2 = tex2D(WeightsSampler2, input.TextureCoords);
 
 	float4 farColor;
-	float2 farTextureCoords = input.TextureCoords*2;
-	farColor = tex2D(TextureSampler0, farTextureCoords)*textureWeights.x;
-	farColor += tex2D(TextureSampler1, farTextureCoords)*textureWeights.y;
-	farColor += tex2D(TextureSampler2, farTextureCoords)*textureWeights.z;
-	farColor += tex2D(TextureSampler3, farTextureCoords)*textureWeights.w;
+	float2 farTextureCoords = input.TextureCoords*3;
+	farColor  = tex2D(TextureSamplerA, farTextureCoords)*textureWeights1.x;
+	farColor += tex2D(TextureSamplerB, farTextureCoords)*textureWeights1.y;
+	farColor += tex2D(TextureSamplerC, farTextureCoords)*textureWeights1.z;
+	farColor += tex2D(TextureSamplerD, farTextureCoords)*textureWeights1.w;
+	farTextureCoords *= 40;
+	farColor += tex2D(TextureSamplerE, farTextureCoords)*textureWeights2.x;
+	farColor += tex2D(TextureSamplerF, farTextureCoords)*textureWeights2.y;
+	farColor += tex2D(TextureSamplerG, farTextureCoords)*textureWeights2.z;
+	farColor += tex2D(TextureSamplerH, farTextureCoords)*textureWeights2.w;
     
 	float4 nearColor;
-	float2 nearTextureCoords = farTextureCoords*3;
-	nearColor = tex2D(TextureSampler0, nearTextureCoords)*textureWeights.x;
-	nearColor += tex2D(TextureSampler1, nearTextureCoords)*textureWeights.y;
-	nearColor += tex2D(TextureSampler2, nearTextureCoords)*textureWeights.z;
-	nearColor += tex2D(TextureSampler3, nearTextureCoords)*textureWeights.w;
+	float2 nearTextureCoords = input.TextureCoords*9;
+	nearColor  = tex2D(TextureSamplerA, nearTextureCoords)*textureWeights1.x;
+	nearColor += tex2D(TextureSamplerB, nearTextureCoords)*textureWeights1.y;
+	nearColor += tex2D(TextureSamplerC, nearTextureCoords)*textureWeights1.z;
+	nearColor += tex2D(TextureSamplerD, nearTextureCoords)*textureWeights1.w;
+	nearTextureCoords = farTextureCoords;
+	nearColor += tex2D(TextureSamplerE, nearTextureCoords)*textureWeights2.x;
+	nearColor += tex2D(TextureSamplerF, nearTextureCoords)*textureWeights2.y;
+	nearColor += tex2D(TextureSamplerG, nearTextureCoords)*textureWeights2.z;
+	nearColor += tex2D(TextureSamplerH, nearTextureCoords)*textureWeights2.w;
 
 	if (DoShadowMapping)
 	{

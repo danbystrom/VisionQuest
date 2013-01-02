@@ -39,7 +39,7 @@ namespace factor10.VisionThing
             ShadowMap shadowMap = null)
         {
             Effect.SetTechnique(drawingReason);
-            Effect.SetShadowMapping(shadowMap);
+            Effect.SetShadowMapping(drawingReason != DrawingReason.ShadowDepthMap ? shadowMap : null);
             if (!draw(camera, drawingReason, shadowMap))
                 return false;
             Children.ForEach(cd => cd.Draw(camera, drawingReason, shadowMap));

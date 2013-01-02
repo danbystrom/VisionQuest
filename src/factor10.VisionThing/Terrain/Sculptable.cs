@@ -80,18 +80,18 @@ namespace factor10.VisionThing.Terrain
             return result;
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2, int width, Func<T, T> fx, int winding = 0, Random rnd = null)
+        public void DrawLine(int x1, int y1, int x2, int y2, int width, Func<T, int, T> fx, int winding = 0, Random rnd = null)
         {
             var dx = x2 - x1;
             var dy = y2 - y1;
             if (dx == 0 && dy == 0)
                 return;
 
-            if ( winding != 0 && winding * 20 > Math.Sqrt(dx*dx + dy*dy))
+            if (winding != 0 && winding*20 > Math.Sqrt(dx*dx + dy*dy))
             {
                 rnd = rnd ?? new Random();
-                var mx = (x1 + x2)/2 + (int)(winding*(rnd.NextDouble() - 0.5));
-                var my = (y1 + y2)/2 + (int)(winding*(rnd.NextDouble() - 0.5));
+                var mx = (x1 + x2)/2 + (int) (winding*(rnd.NextDouble() - 0.5));
+                var my = (y1 + y2)/2 + (int) (winding*(rnd.NextDouble() - 0.5));
                 DrawLine(x1, y1, mx, my, width, fx, winding/2, rnd);
                 DrawLine(mx, my, x2, y2, width, fx, winding/2, rnd);
                 return;
@@ -103,16 +103,17 @@ namespace factor10.VisionThing.Terrain
                 drawMostlyVerticalLine(x1 - width/2, y1, dy, dx/(float) dy, width, fx);
         }
 
-        private void drawMostlyHorizontalLine(int x, float y, int len, float d, int width, Func<T, T> fx)
+        private void drawMostlyHorizontalLine(int x, float y, int len, float d, int width, Func<T, int, T> fx)
         {
-            if ( len<0 )
+            var wh = width/2;
+            if (len < 0)
                 drawMostlyHorizontalLine(x + len, y + len*d, -len, d, width, fx);
             for (var i = 0; i < len; i++)
             {
                 var p = (int) y*Width + x;
                 for (var j = 0; j < width; j++)
                 {
-                    Values[p] = fx(Values[p]);
+                    Values[p] = fx(Values[p], Math.Abs(j - wh));
                     p += Width;
                 }
                 y += d;
@@ -120,8 +121,9 @@ namespace factor10.VisionThing.Terrain
             }
         }
 
-        private void drawMostlyVerticalLine(float x, int y, int len, float d, int width, Func<T, T> fx)
+        private void drawMostlyVerticalLine(float x, int y, int len, float d, int width, Func<T, int, T> fx)
         {
+            var wh = width/2;
             if (len < 0)
                 drawMostlyVerticalLine(x + len*d, y + len, -len, d, width, fx);
             else
@@ -130,7 +132,7 @@ namespace factor10.VisionThing.Terrain
                     var p = y*Width + (int) x;
                     for (var j = 0; j < width; j++)
                     {
-                        Values[p] = fx(Values[p]);
+                        Values[p] = fx(Values[p], Math.Abs(j - wh));
                         p++;
                     }
                     x += d;

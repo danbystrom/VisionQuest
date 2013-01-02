@@ -135,6 +135,8 @@ float DoDispMapping(float2 texC0, float2 texC1)
 	// Sum and scale the sampled heights.  
     return gScaleHeights.x*h0 + gScaleHeights.y*h1;
 }
+
+
 OutputVS WaterVS(float3 posL           : POSITION0, 
                  float2 scaledTexC     : TEXCOORD0,
                  float2 normalizedTexC : TEXCOORD1)
@@ -150,10 +152,8 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	posL.y = DoDispMapping(vTex0, vTex1);
 	
 	// Estimate TBN-basis using finite differencing in local space.  
-	float r = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), 
-	                        vTex1 + float2(0.0f, DMAP_DX));
-	float b = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), 
-	                        vTex1 + float2(0.0f, DMAP_DX));  
+	float r = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), vTex1 + float2(0.0f, DMAP_DX));
+	float b = DoDispMapping(vTex0 + float2(DMAP_DX, 0.0f), vTex1 + float2(0.0f, DMAP_DX));  
 	                        
 	float3x3 TBN;                       
 	TBN[0] = normalize(float3(1.0f, (r-posL.y)/gGridStepSizeL.x, 0.0f)); 
@@ -185,6 +185,7 @@ OutputVS WaterVS(float3 posL           : POSITION0,
 	// Done--return the output.
     return outVS;
 }
+
 
 float4 WaterPS(float3 toEyeT    : TEXCOORD0,
                float3 lightDirT : TEXCOORD1,
@@ -224,7 +225,7 @@ float4 WaterPS(float3 toEyeT    : TEXCOORD0,
 	// If the diffuse light intensity is low, kill the specular lighting term.
 	// It doesn't look right to add specular light when the surface receives 
 	// little diffuse light.
-	if(s <= 0.0f)
+	if (s <= 0.0f)
 	     t = 0.0f;
 	
 	// Compute the ambient, diffuse and specular terms separatly. 
@@ -238,11 +239,11 @@ float4 WaterPS(float3 toEyeT    : TEXCOORD0,
     return float4(final, gMtrlDiffuse.a);
 }
 
+
 technique WaterTech
 {
     pass P0
     {
-        // Specify the vertex and pixel shader associated with this pass.
         vertexShader = compile vs_3_0 WaterVS();
         pixelShader  = compile ps_3_0 WaterPS();
     }    

@@ -36,20 +36,14 @@ uniform float4 LakeTextureTransformation;
 
 bool DoShadowMapping = true;
 float4x4 ShadowViewProjection;
-float ShadowMult = 0.3f;
-float ShadowBias = 0.001;
+float ShadowMult = 0.95f;
+float ShadowBias = 0.01;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
 	minfilter = point;
 	magfilter = point;
 	mipfilter = point;
-};
-
-texture checkerTexture;
-sampler CheckerSampler = sampler_state
-{
-	Texture = <checkerTexture>; MinFilter = POINT; MagFilter = POINT; MipFilter = POINT; AddressU  = WRAP; AddressV  = WRAP;
 };
 
 sampler DMapS0 = sampler_state
@@ -269,7 +263,7 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 			// mapping demo code @ http://www.punkuser.net/vsm/
 
 			// Sample from depth texture
-			float2 moments = sampleShadowMap(shadowTexCoord);
+			float2 moments = sampleShadowMap(shadowTexCoord+perturbation);
 
 			// Check if we're in shadow
 			float lit_factor = (realDepth <= moments.x);
@@ -283,11 +277,11 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 
 			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
 			specular *= pow( shadowFactor, 32 );
+			color.rgb *= shadowFactor;
 		}
 	}
 
     color.rgb += specular;
-//    color = tex2D(CheckerSampler, input.BumpMapSamplingPos);
 
     return color;
 }

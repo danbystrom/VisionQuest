@@ -17,19 +17,21 @@ namespace factor10.VisionThing
             ground.AlterValues(h => h*3 + 2);
             ground.ApplyNormalBellShape();
 
-            ground.DrawLine(5, 5, 200, 100, 5, t => 0);
-            ground.DrawLine(200, 100, 250, 300, 5, t => 0);
-            ground.DrawLine(250, 300, 500, 350, 5, t => 0);
+            ground.DrawLine(5, 5, 200, 100, 5, (t,o) => 0);
+            ground.DrawLine(200, 100, 250, 300, 5, (t, o) => 0);
+            ground.DrawLine(250, 300, 500, 350, 5, (t, o) => 0);
             ground.Soften();
 
             var weights = ground.CreateWeigthsMap();
             weights.DrawLine(15, 500, 500, 15, 5,
-                             c =>
+                             (c,o) =>
                                  {
-                                     c.R /= 2;
-                                     c.G /= 2;
-                                     c.B /= 2;
-                                     c.A = (byte)(255 - c.R - c.G - c.B);
+                                     var factor = (1+o)/4f;
+                                     c.A *= factor;
+                                     c.B *= factor;
+                                     c.C *= factor;
+                                     c.D *= factor;
+                                     c.E = 1 - c.A - c.B - c.C - c.D;
                                      return c;
                                  },
                                  200,
