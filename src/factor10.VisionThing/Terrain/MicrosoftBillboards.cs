@@ -17,15 +17,11 @@ namespace factor10.VisionThing.Terrain
         private readonly Texture2D _catTexture;
 
         public MicrosoftBillboards(
-            Matrix world,
-            Ground ground,
-            ColorSurface normals)
+            Matrix world)
             : base(VisionContent.LoadPlainEffect("Billboards/MSBillboard"))
         {
             _world = world;
 
-            var treeList = generateTreePositions(ground, normals);
-            createBillboardVerticesFromList(treeList);
 
             _grassTexture = VisionContent.Load<Texture2D>("billboards/grass");
             _treeTexture = VisionContent.Load<Texture2D>("billboards/tree");
@@ -34,7 +30,13 @@ namespace factor10.VisionThing.Terrain
             Effect.Texture = _grassTexture;
         }
 
-        private void createBillboardVerticesFromList(List<Tuple<Vector3, Vector3>> treeList)
+        public void GenerateTreePositions(Ground ground, ColorSurface normals)
+        {
+            var treeList = generateTreePositions(ground, normals);
+            CreateBillboardVerticesFromList(treeList);
+        }
+
+        public void CreateBillboardVerticesFromList(List<Tuple<Vector3, Vector3>> treeList)
         {
             if (!treeList.Any())
                 return;
@@ -146,14 +148,17 @@ namespace factor10.VisionThing.Terrain
             Effect.Effect.CurrentTechnique.Passes[0].Apply();
             Effect.GraphicsDevice.DrawIndexedPrimitives(
                 PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount / 3);
- 
-            //pass two
-            Effect.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
-            Effect.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            Effect.Parameters["AlphaTestDirection"].SetValue(-1f);
-            Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            Effect.GraphicsDevice.DrawIndexedPrimitives(
-                PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount / 3);
+
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+            {
+                //pass two
+                Effect.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+                Effect.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                Effect.Parameters["AlphaTestDirection"].SetValue(-1f);
+                Effect.Effect.CurrentTechnique.Passes[0].Apply();
+                Effect.GraphicsDevice.DrawIndexedPrimitives(
+                    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount/3);
+            }
 
             //restore
             Effect.GraphicsDevice.BlendState = BlendState.Opaque;

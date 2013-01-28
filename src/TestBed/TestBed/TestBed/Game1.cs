@@ -137,7 +137,8 @@ namespace TestBed
                 50, 10, 32);
 
             var vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
-            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -200), vprogram.VAssemblies[0]);
+            GenerateMetrics.FromPregeneratedFile(@"c:\users\dan\desktop\tmpF9EB.tmp.xml").UpdateProgramWithMetrics(vprogram);
+            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -600), vprogram.VAssemblies[0]);
             _water.ReflectedObjects.Add(codeIsland);
 
             _shadow = new ShadowMap(GraphicsDevice, _camera,1024, 1024);

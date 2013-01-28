@@ -10,7 +10,13 @@ namespace TestBed
     public class VisualClass
     {
         public readonly VClass VClass;
-        public readonly int InstructionCount;
+
+        public int InstructionCount { get; set; }
+        public int MaintainabilityIndex { get; set; }
+        public int CyclomaticComplexity { get; set; }
+        public int ClassCoupling { get; set; }
+        public int LinesOfCode { get; set; }
+        
         public readonly int X;
         public readonly int Y;
         public float Height;
@@ -21,6 +27,10 @@ namespace TestBed
             X = x;
             Y = y;
             InstructionCount = vclass.VMethods.Sum(vm => vm.InstructionCount);
+            MaintainabilityIndex = vclass.MaintainabilityIndex;
+            CyclomaticComplexity = vclass.CyclomaticComplexity;
+            ClassCoupling = vclass.ClassCoupling;
+            LinesOfCode = vclass.LinesOfCode;
         }
 
         public Vector3 Position

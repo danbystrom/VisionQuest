@@ -7,7 +7,7 @@ using Mono.Cecil.Cil;
 
 namespace factor10.VisionaryHeads
 {
-    public class VMethod
+    public class VMethod : IMetrics
     {
         public readonly VClass VClass;
         public readonly MethodDefinition MethodDefinition;
@@ -16,7 +16,11 @@ namespace factor10.VisionaryHeads
         public readonly List<string> Calling = new List<string>();
         public readonly List<string> CalledBy = new List<string>();
 
-        public readonly int InstructionCount;
+        public int InstructionCount { get; set; }
+        public int MaintainabilityIndex { get; set; }
+        public int CyclomaticComplexity { get; set; }
+        public int ClassCoupling { get; set; }
+        public int LinesOfCode { get; set; }
 
         public VMethod(VClass vclass, MethodDefinition methodDefinition)
         {

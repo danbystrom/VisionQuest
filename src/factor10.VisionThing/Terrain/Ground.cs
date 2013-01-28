@@ -90,6 +90,13 @@ namespace factor10.VisionThing.Terrain
             return MathHelper.Lerp(topHeight, bottomHeight, fracy);
         }
 
+        public float GetExactHeight( float x, float y)
+        {
+            var ix = (int) x;
+            var iy = (int) y;
+            return GetExactHeight(ix, iy, x - ix, y - iy);
+        }
+
         public void ApplyNormalBellShape()
         {
             var wh = Width/2f;

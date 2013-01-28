@@ -17,6 +17,8 @@ namespace TestBed
         private readonly SpriteBatch _spriteBatch;
         private readonly List<VisualClass> _vclasses;
 
+        public readonly float TextSize = 0.05f;
+
         public Signs(
             Matrix world,
             Texture2D texture,
@@ -33,15 +35,13 @@ namespace TestBed
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            const float textSize = 0.025f;
-
             base.draw(camera, drawingReason, shadowMap);
 
             if (drawingReason != DrawingReason.Normal)
                 return true;
 
             camera.UpdateEffect(_signTextEffect);
-            var world = World*Matrix.CreateTranslation(0, 2.5f, 0);
+            var world = World*Matrix.CreateTranslation(0, 5f, 0);
 
             foreach (var vc in _vclasses)
             {
@@ -51,7 +51,7 @@ namespace TestBed
                 var viewDirection = Vector3.Normalize(pos - camera.Position);
                 _signTextEffect.World = createConstrainedBillboard(pos - viewDirection*0.2f, viewDirection, Vector3.Down);
                 _spriteBatch.Begin(0, null, null, DepthStencilState.DepthRead, RasterizerState.CullNone, _signTextEffect.Effect);
-                _spriteBatch.DrawString(_spriteFont, text, Vector2.Zero, Color.White, 0, _spriteFont.MeasureString(text)/2, textSize, 0, 0);
+                _spriteBatch.DrawString(_spriteFont, text, Vector2.Zero, Color.White, 0, _spriteFont.MeasureString(text) / 2, TextSize, 0, 0);
                 _spriteBatch.End();
             }
 

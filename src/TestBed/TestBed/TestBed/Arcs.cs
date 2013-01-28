@@ -39,7 +39,14 @@ namespace TestBed
                             distance);
                         arc.StoreArc(
                             lines,
-                            (p, f, idx) => new ArcVertex(p, (idx%2) == 0 ? 0 : (MathHelper.TwoPi*(int) (distance/8 + 1))));
+                            (p, f, idx) =>
+                                {
+                                    var c = 0.25f + f/2;
+                                    return new ArcVertex(
+                                        p,
+                                        new Color(c, c, 1 - c, 1f),
+                                        (idx%2) == 1 ? 0 : (MathHelper.TwoPi*(int) (distance/16 + 1)));
+                                });
                     }
 
             _lines = lines.ToArray();
@@ -49,7 +56,7 @@ namespace TestBed
 
         public override void Update(GameTime gameTime)
         {
-            _time = MathHelper.WrapAngle(_time + (float) gameTime.ElapsedGameTime.TotalSeconds*5);
+            _time = MathHelper.WrapAngle(_time + (float) gameTime.ElapsedGameTime.TotalSeconds*10);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

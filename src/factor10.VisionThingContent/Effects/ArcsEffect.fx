@@ -8,12 +8,14 @@ float Time;
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
+    float4 Color : COLOR0;
 	float A : TEXCOORD00;
 };
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
+	float4 Color : COLOR0;
     float4 PositionCopy : TEXCOORD00;
 	float3 WorldPosition : TEXCOORD1;
 	float A : TEXCOORD02;
@@ -30,6 +32,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.WorldPosition = worldPosition;
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
+	output.Color = input.Color;
+
 	output.A = input.A + Time;
 	output.D = sqrt(distance(worldPosition,CameraPosition));
 
@@ -40,7 +44,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
 	float c = 0.5 + sin(input.A)/ input.D;
-    return float4(c,c,c,1);
+    return input.Color + sin(input.A)/ input.D;
 }
 
 

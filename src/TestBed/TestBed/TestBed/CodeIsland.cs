@@ -11,6 +11,8 @@ namespace factor10.VisionThing
 {
     public class CodeIsland : TerrainBase
     {
+        public const int ClassSide = 32;
+
         public readonly VAssembly VAssembly;
         public readonly Dictionary<string, VisualClass> Classes = new Dictionary<string, VisualClass>();
 
@@ -21,31 +23,34 @@ namespace factor10.VisionThing
             World = world;
             VAssembly = vassembly;
 
-            var side = 16 * (int)Math.Ceiling(Math.Sqrt(vassembly.VClasses.Count));
-            var surfaceSide = (side + 16 + 15)/32;
+            var rnd = new Random();
 
-            var ground = new Ground(surfaceSide*64, surfaceSide*64);
-            var x = 16;
-            var y = 16;
+            var side = (ClassSide/2) * (int)Math.Ceiling(Math.Sqrt(vassembly.VClasses.Count));
+            var surfaceSide = (side + ClassSide - 1) / ClassSide;
+            surfaceSide *= ClassSide*2;
+
+            var ground = new Ground(surfaceSide, surfaceSide);
+            var x = ClassSide;
+            var y = ClassSide;
             foreach (var vc in vassembly.VClasses)
             {
                 var z = new VisualClass(vc, x, y);
-                ground.AlterValues(x - 8, y - 8, 16, 17, h => h + 2 + (float) Math.Pow(z.InstructionCount, 0.3));
+                var instructHeight = 2 + (float)Math.Pow(z.InstructionCount, 0.3);
+                ground.AlterValues(x - ClassSide / 2, y - ClassSide / 2, ClassSide, ClassSide, h => h + instructHeight + (4 - vc.MaintainabilityIndex / 25) * (float)rnd.NextDouble());
 
                 var height = ground[x, y];
                 z.Height = height;
                 Classes.Add(vc.FullName, z);
-                x += 16;
-                if (x >= side)
+                x += ClassSide;
+                if (x + ClassSide > surfaceSide)
                 {
-                    x = 16;
-                    y += 16;
+                    x = ClassSide;
+                    y += ClassSide;
                 }
             }
 
-            var rnd = new Random();
-            ground.AlterValues(h => h > 1 ? h + 8*(float)rnd.NextDouble() : 0);
-            ground.Soften(3);
+            //ground.AlterValues(h => h > 1 ? h + 6*(float)rnd.NextDouble() : 0);
+            ground.Soften(1);
 
             foreach (var vc in Classes.Values)
                 vc.Height = ground[vc.X, vc.Y];
@@ -56,9 +61,25 @@ namespace factor10.VisionThing
                 world * Matrix.CreateTranslation(-64, -0.1f, -64),
                 VisionContent.Load<Texture2D>("textures/woodensign"),
                 Classes.Values.ToList(),
-                8,
-                2);
+                16,
+                4);
             Children.Add(signs);
+
+            var ms = new MicrosoftBillboards(world * Matrix.CreateTranslation(-64, 0.05f, -64));
+            var grass = new List<Tuple<Vector3, Vector3>>();
+            foreach ( var vc in Classes.Values )
+            {
+                for ( var i = (vc.CyclomaticComplexity-1)*2; i>0 ; i--)
+                {
+                    var gx = vc.X + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 2);
+                    var gy = vc.Y + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 2);
+                    grass.Add(new Tuple<Vector3, Vector3>(
+                                  new Vector3(gx, ground.GetExactHeight(gx, gy), gy),
+                                  normals.AsVector3(vc.X, vc.Y)));
+                }
+            }
+            ms.CreateBillboardVerticesFromList(grass);
+            Children.Add(ms);
 
             initialize(ground, ground.CreateWeigthsMap(new[] { 0, 0.5f, 0.95f, 1 }), normals);
         }

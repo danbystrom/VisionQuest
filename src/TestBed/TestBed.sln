@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThing", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionaryHeads", "..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj", "{DEDA88C6-08E4-4326-912D-3E1E1F537A72}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionaryHeads.Tests", "..\factor10.VisionaryHeads.Tests\factor10.VisionaryHeads.Tests.csproj", "{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,16 @@ Global
 		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Release|x86.ActiveCfg = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
