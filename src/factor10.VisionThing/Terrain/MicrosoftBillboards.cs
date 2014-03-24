@@ -130,6 +130,8 @@ namespace factor10.VisionThing.Terrain
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
+            if (_vertexBuffer == null)
+                return false;
             camera.UpdateEffect(Effect);
             Effect.World = _world;
             Effect.Texture = _grassTexture;

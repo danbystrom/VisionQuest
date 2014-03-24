@@ -57,13 +57,13 @@ namespace factor10.VisionThing.Terrain
                 Values[i] = func(Values[i]);
         }
 
-        public void AlterValues(int x, int y, int w, int h, Func<T, T> func)
+        public void AlterValues(int x, int y, int w, int h, Func<int, int, T, T> func)
         {
             for (var j = 0; j < h; j++)
             {
                 var p = (y + j)*Width + x;
                 for (var i = 0; i < w; i++)
-                    Values[p + i] = func(Values[p + i]);
+                    Values[p + i] = func(x + i, y + j, Values[p + i]);
             }
         }
 

@@ -19,13 +19,15 @@ namespace TestBed
         
         public readonly int X;
         public readonly int Y;
+        public readonly int R;
         public float Height;
 
-        public VisualClass(VClass vclass, int x, int y)
+        public VisualClass(VClass vclass, int x, int y, int r)
         {
             VClass = vclass;
             X = x;
             Y = y;
+            R = r;
             InstructionCount = vclass.VMethods.Sum(vm => vm.InstructionCount);
             MaintainabilityIndex = vclass.MaintainabilityIndex;
             CyclomaticComplexity = vclass.CyclomaticComplexity;

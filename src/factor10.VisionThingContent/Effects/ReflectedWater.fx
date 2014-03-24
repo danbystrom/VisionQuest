@@ -34,6 +34,10 @@ uniform extern float4x4 ReflectedView;
 
 uniform float4 LakeTextureTransformation;
 
+uniform extern float   FogStart = 50;
+uniform extern float   FogRange = 2000;
+uniform extern float4   FogColor = float4(0,0,0,1);
+
 bool DoShadowMapping = true;
 float4x4 ShadowViewProjection;
 float ShadowMult = 0.95f;
@@ -75,8 +79,7 @@ struct OceanWaterVertexOutput
     float2 tex1             : TEXCOORD5;
     float3 toEyeT           : TEXCOORD6;
     float3 lightDirT        : TEXCOORD7;
-	float  LakeBlendFactor  : TEXCOORD8;
-	float4 ShadowScreenPosition  : TEXCOORD9;
+	float4 ShadowScreenPosition : TEXCOORD8;
 };
 
 
@@ -145,10 +148,10 @@ OceanWaterVertexOutput OceanWaterVS(
 	float4 depthVector = mul( posLocal, wvp );      
 	float blendDistance = 0.97f;
 	float blendWidth = 0.03f;
-	output.LakeBlendFactor = clamp((depthVector.z/depthVector.w-blendDistance)/blendWidth, 0, 1);
+	float lakeBlendFactor = clamp((depthVector.z/depthVector.w-blendDistance)/blendWidth, 0, 1);
 
 	// Set y-coordinate of water grid vertices based on displacement mapping.
-	posLocal.y = lerp( DoDispMapping(vTex0, vTex1), 0.75, output.LakeBlendFactor );
+	posLocal.y = lerp( DoDispMapping(vTex0, vTex1), 0.75, lakeBlendFactor );
 
 	float4x4 rwvp = mul( World, mul(ReflectedView, Projection));
     output.ReflectionMapPos =  mul(posLocal, rwvp);
@@ -199,31 +202,31 @@ sampler BumpMapSampler1 = sampler_state { texture = <BumpMap1> ; magfilter = LIN
    float2 normalizedTexC : TEXCOORD0,
    float2 scaledTexC     : TEXCOORD1)
 {    
-    OceanWaterVertexOutput Output = (OceanWaterVertexOutput)0;
+    OceanWaterVertexOutput output = (OceanWaterVertexOutput)0;
 
     float4x4 preViewProjection = mul (View, Projection);
     float4x4 preWorldViewProjection = mul (World, preViewProjection);
     float4x4 preReflectionViewProjection = mul (ReflectedView, Projection);
     float4x4 preWorldReflectionViewProjection = mul (World, preReflectionViewProjection);
 
-    Output.Position = mul(posLocal, preWorldViewProjection);
-    Output.ReflectionMapPos = mul(posLocal, preWorldReflectionViewProjection);
-    Output.Position3D = mul(posLocal, World);        
+    output.Position = mul(posLocal, preWorldViewProjection);
+    output.ReflectionMapPos = mul(posLocal, preWorldReflectionViewProjection);
+    output.Position3D = mul(posLocal, World);        
     
 	float2 bmsp = scaledTexC/8 + gWaveNMapOffset0;
-    Output.BumpSamplingPos0 = float2(
+    output.BumpSamplingPos0 = float2(
 	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
 	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
 
 	bmsp = scaledTexC/8 + gWaveNMapOffset1;
-    Output.BumpSamplingPos1 = float2(
+    output.BumpSamplingPos1 = float2(
 	  (bmsp.x + LakeTextureTransformation.x) * LakeTextureTransformation.z,
 	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
 
-    return Output;
+    return output;
 }
 
-float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
+float4 WaterPS(OceanWaterVertexOutput input) : COLOR0
 {
     float4 bumpColor = tex2D(BumpMapSampler0, input.BumpSamplingPos0);
     float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
@@ -237,14 +240,18 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
     float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
     float4 reflectiveColor = tex2D(reflectionSampler, perturbatedTexCoords);
     
-    float4 refractiveColor = float4(0.01,0.01,0.3,1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
+    float4 dullColor = float4(0.1f, 0.1f, 0.3f, 1.0f);
+    float4 refractiveColor = float4(0.1,0.1,0.3,1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
     
     float3 eyeVector = normalize(CameraPosition - input.Position3D);
     float3 normalVector = (bumpColor.rbg-0.5f)*2.0f;
     
+	float2 cameraPosXZ = float2(CameraPosition.x,CameraPosition.z);
+	float2 worldPosXZ = float2(input.Position3D.x,input.Position3D.z);
+	float fog = saturate((distance(cameraPosXZ,worldPosXZ) - FogStart) / FogRange);
+
     float fresnelTerm = dot(eyeVector, normalVector);    
-    float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm));
-    float4 dullColor = float4(0.3f, 0.3f, 0.5f, 1.0f);
+    float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm) * (1-fog) );
     float4 color = lerp(combinedColor, dullColor, 0.4f);    
     
     float3 reflectionVector = -reflect(LightDirection, normalVector);
@@ -276,12 +283,20 @@ float4 LakeWaterPS(OceanWaterVertexOutput input) : COLOR0
 			float p = variance / (variance + m_d * m_d);
 
 			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
-			specular *= pow( shadowFactor, 32 );
+			specular *= pow( shadowFactor, 32 );  //no specular when in shadow
 			color.rgb *= shadowFactor;
 		}
 	}
 
     color.rgb += specular;
+
+//    float2 cameraPosXZ = float2(CameraPosition.x,CameraPosition.z);
+//    float2 worldPosXZ = float2(input.Position3D.x,input.Position3D.z);
+//	float fog = saturate((distance(cameraPosXZ,worldPosXZ) - FogStart) / FogRange);
+
+//	color.r = fog;
+//	color.g = fog;
+//	color.b = fog;
 
     return color;
 }
@@ -303,6 +318,7 @@ OceanWaterVertexOutput CombinedWaterVS(
 	  (bmsp.y + LakeTextureTransformation.y) * LakeTextureTransformation.w);
 
 	oceanVS.Position3D = mul( posLocal, World );
+
 	return oceanVS;
 }
 
@@ -311,7 +327,7 @@ OceanWaterVertexOutput CombinedWaterVS(
      pass Pass0
      {
          VertexShader = compile vs_3_0 CombinedWaterVS();
-         PixelShader = compile ps_3_0 LakeWaterPS();
+         PixelShader = compile ps_3_0 WaterPS();
      }
  }
 
@@ -320,8 +336,6 @@ OceanWaterVertexOutput CombinedWaterVS(
      pass Pass0
      {
          VertexShader = compile vs_3_0 LakeWaterVS();
-         PixelShader = compile ps_3_0 LakeWaterPS();
+         PixelShader = compile ps_3_0 WaterPS();
      }
  }
-
-

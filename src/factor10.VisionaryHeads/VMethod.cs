@@ -32,6 +32,7 @@ namespace factor10.VisionaryHeads
                 return;
 
             InstructionCount = MethodDefinition.Body.Instructions.Count;
+            VClass.InstructionCount += InstructionCount;
             foreach (var instruction in MethodDefinition.Body.Instructions)
                 if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt)
                 {

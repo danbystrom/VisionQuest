@@ -19,7 +19,15 @@ namespace factor10.VisionaryHeads
             Filename = filename;
             AssemblyDefinition = AssemblyDefinition.ReadAssembly(filename);
             foreach (var type in AssemblyDefinition.MainModule.Types.Where(t => t.Methods.Any(m => !m.IsConstructor)))
+            {
+                if (type.BaseType!=null && type.BaseType.Name == "MulticastDelegate")
+                    continue;
+                if (type.Name.Contains("Nytt"))
+                {
+                    
+                }
                 VClasses.Add(new VClass(this, type));
+            }
         }
 
         public override string ToString()

@@ -17,7 +17,7 @@ namespace factor10.VisionThing
         public readonly RenderTarget2D ShadowDepthTarget;
 
         // Depth texture parameters
-        public int ShadowFarPlane = 200;
+        public int ShadowFarPlane = 200; //200;
         public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
@@ -48,10 +48,10 @@ namespace factor10.VisionThing
                 1,
                 ShadowFarPlane);
             Camera.Projection = Matrix.CreateOrthographic(
-                100,
-                100,
+                50,
+                50,
                 1,
-                300);
+                ShadowFarPlane /*300*/ );
         }
 
         public void Draw()

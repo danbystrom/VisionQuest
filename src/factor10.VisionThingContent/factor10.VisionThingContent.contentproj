@@ -42,13 +42,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Effects\GlassPostProcess.fx">
-      <Name>GlassPostProcess</Name>
-      <Importer>EffectImporter</Importer>
-      <Processor>EffectProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Water\waterdmap0.jpg">
       <Name>waterdmap0</Name>
       <Importer>TextureImporter</Importer>

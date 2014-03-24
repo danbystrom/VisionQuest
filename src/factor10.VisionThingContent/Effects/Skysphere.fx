@@ -38,8 +38,23 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
 	float3 viewDirection = normalize(input.WorldPosition - CameraPosition);
+
+	if ( viewDirection.y < 0.001 )
+	{
+		float3 normalVector = float3(0,1,0);
+		float3 LightDirection = float3(11, -2, -6);
+	    float3 reflectionVector = -reflect(LightDirection, normalVector);
+		float specular = dot(normalize(reflectionVector), viewDirection);
+		specular = pow(abs(specular), 256);  
+
+		viewDirection.y = abs(viewDirection.y);
+		float4 dullColor = float4(0.1, 0.1, 0.3, 1.0f);
+		return lerp( texCUBE(CubeMapSampler, viewDirection), dullColor, 0.4 ) + specular;
+	}
+
 	viewDirection.y = abs(viewDirection.y);
 	return texCUBE(CubeMapSampler, viewDirection);
+
 }
 
 float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0

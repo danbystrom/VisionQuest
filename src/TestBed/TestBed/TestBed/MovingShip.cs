@@ -10,7 +10,7 @@ namespace TestBed
     {
         private readonly ShipModel _shipModel;
 
-        private float _radius = 500;
+        private float _radius = 400;
         private double _angle;
 
         private Matrix _world;

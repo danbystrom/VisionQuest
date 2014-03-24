@@ -12,34 +12,48 @@ namespace factor10.VisionaryHeads.Tests
     public class MetricsTests
     {
         public const string Program = @"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe";
+        public const string Assembly1 = @"C:\proj\photomic.old\src\Plata\bin\Release\vdXceed.dll";
+        public const string Assembly2 = @"C:\proj\photomic.old\src\Plata\bin\Release\Photomic.Common.dll";
+        public const string Assembly3 = @"C:\proj\photomic.old\src\Plata\bin\Release\vdUsr.dll";
 
-        [Test]
+        private static void saveMetrics(string source, string destination)
+        {
+            var arguments = string.Format("/f:{0} /d:{1} /o:{2}",
+                                          source, Path.GetDirectoryName(Program), destination);
+            var p = new Process
+            {
+                StartInfo = new ProcessStartInfo(GenerateMetrics.MetricsExe)
+                {
+                    Arguments = arguments
+                }
+            };
+            Assert.IsTrue(p.Start());
+            p.WaitForExit();
+        }
+
+        [Test, Explicit]
         public void TestMetrics()
         {
             var destination = Path.GetTempFileName();
-            var arguments = string.Format("/f:{0} /d:{1} /o:{2}",
-                                          Program, Path.GetDirectoryName(Program), destination);
-            var p = new Process
-                        {
-                            StartInfo = new ProcessStartInfo(GenerateMetrics.MetricsExe)
-                                            {
-                                                Arguments = arguments
-                                            }
-                        };
-            Assert.IsTrue(p.Start());
-            p.WaitForExit();
-
+            saveMetrics(Program, destination);
             var result = File.ReadAllText(destination);
             File.Delete(destination);
         }
 
-        [Test]
-        public void TestGenerateMetrics()
+        [Test, Explicit]
+        public void SaveOne()
         {
-            var genMet = GenerateMetrics.FromCode(new[] {Program});
+            saveMetrics(Assembly3, @"c:\users\dan\desktop\VisionQuest\vdUsr.Metrics.txt");
         }
 
-        [Test]
+        [Test, Explicit]
+        public void TestGenerateMetrics()
+        {
+            var vprogram = new VProgram(Program);
+            var genMet = GenerateMetrics.FromCode(vprogram.VAssemblies.Select(a => a.Filename).ToArray());
+        }
+
+        [Test, Explicit]
         public void TestGenerateMetricsWithProgram()
         {
             var genMet = GenerateMetrics.FromCode(new[] { Program });

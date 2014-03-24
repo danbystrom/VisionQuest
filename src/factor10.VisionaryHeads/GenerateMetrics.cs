@@ -35,9 +35,11 @@ namespace factor10.VisionaryHeads
 
         public static GenerateMetrics FromCode(string[] assemblies)
         {
+            var filenames = string.Join(" ", assemblies.Select(a => "/f:" + a));
+
             var destination = Path.GetTempFileName();
-            var arguments = string.Format("/f:{0} /d:{1} /o:{2}",
-                                          assemblies[0], Path.GetDirectoryName(assemblies[0]), destination);
+            var arguments = string.Format("{0} /d:{1} /o:{2}",
+                                          filenames, Path.GetDirectoryName(assemblies[0]), destination);
             var p = new Process
             {
                 StartInfo = new ProcessStartInfo(MetricsExe)
@@ -63,28 +65,28 @@ namespace factor10.VisionaryHeads
             var methods = buildMethodIndex(vprogram);
             var classes = buildClassIndex(vprogram);
 
-            _x.descend("Targets");
-            _x.descend("Target");
-            _x.descend("Modules");
-            _x.descend("Module");
-            _x.descend("Namespaces");
-            for ( _x.descendCollection("Namespace"); _x.nextInCollection() ;)
-            {
-                var ns = _x["Name"] + ".";
-                _x.descend("Types");
-                for (_x.descendCollection("Type"); _x.nextInCollection(); )
-                {
-                    var typeName = ns + _x["Name"];
-                    if ( typeName.Contains("Image"))
-                    {
-                        
-                    }
-                    if (classes.ContainsKey(typeName))
-                        setMetrics(classes[typeName]);
-                    updateMethods(typeName + "::", methods);
-                }
-                _x.ascend();
-            }
+            for (_x.descendCollection("Targets"); _x.nextInCollection();)
+                for (_x.descendCollection("Target"); _x.nextInCollection();)
+                    for (_x.descendCollection("Modules"); _x.nextInCollection();)
+                        for (_x.descendCollection("Module"); _x.nextInCollection();)
+                            for (_x.descendCollection("Namespaces"); _x.nextInCollection();)
+                                for (_x.descendCollection("Namespace"); _x.nextInCollection();)
+                                {
+                                    var ns = _x["Name"] + ".";
+                                    _x.descend("Types");
+                                    for (_x.descendCollection("Type"); _x.nextInCollection();)
+                                    {
+                                        var typeName = ns + _x["Name"];
+                                        if (typeName.Contains("NyttFoto"))
+                                        {
+
+                                        }
+                                        if (classes.ContainsKey(typeName))
+                                            setMetrics(classes[typeName]);
+                                        updateMethods(typeName + "::", methods);
+                                    }
+                                    _x.ascend();
+                                }
         }
 
         private void updateMethods(string typeName, Dictionary<string, VMethod> methods)

@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
@@ -137,25 +138,35 @@ namespace TestBed
                 50, 10, 32);
 
             var vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
-            GenerateMetrics.FromPregeneratedFile(@"c:\users\dan\desktop\tmpF9EB.tmp.xml").UpdateProgramWithMetrics(vprogram);
-            var codeIsland = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -600), vprogram.VAssemblies[0]);
-            _water.ReflectedObjects.Add(codeIsland);
+            foreach(var fil in Directory.GetFiles(@"c:\users\dan\desktop\VisionQuest\","*.metrics.txt"))
+                GenerateMetrics.FromPregeneratedFile(fil).UpdateProgramWithMetrics(vprogram);
+            var codeIsland1 = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -900), vprogram.VAssemblies[0]);
+            var codeIsland2 = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -1300), vprogram.VAssemblies[1]);
+            var codeIsland3 = new CodeIsland(Matrix.CreateTranslation(-400, -0.5f, -900), vprogram.VAssemblies[2]);
+            var codeIsland4 = new CodeIsland(Matrix.CreateTranslation(-400, -0.5f, -1300), vprogram.VAssemblies[3]);
+            _water.ReflectedObjects.Add(codeIsland1);
+            _water.ReflectedObjects.Add(codeIsland2);
+            _water.ReflectedObjects.Add(codeIsland3);
+            _water.ReflectedObjects.Add(codeIsland4);
 
-            _shadow = new ShadowMap(GraphicsDevice, _camera,1024, 1024);
+            _shadow = new ShadowMap(GraphicsDevice, _camera, 1024, 1024);
             _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
-            _shadow.ShadowCastingObjects.Add(codeIsland);
+            _shadow.ShadowCastingObjects.Add(codeIsland1);
+            _shadow.ShadowCastingObjects.Add(codeIsland2);
+            _shadow.ShadowCastingObjects.Add(codeIsland3);
+            _shadow.ShadowCastingObjects.Add(codeIsland4);
 
-            _sphere = new SpherePrimitive(GraphicsDevice,0.25f);
+            _sphere = new SpherePrimitive(GraphicsDevice, 0.25f);
             _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
 
-            _arcs = new Arcs(codeIsland);
+            _arcs = new Arcs(new[] { codeIsland1, codeIsland2, codeIsland3, codeIsland4 });
         }
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
+        /// all content.shadow
         /// </summary>
         protected override void UnloadContent()
         {
