@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using factor10.VisionThing;
@@ -122,7 +123,8 @@ namespace TestBed
                 Matrix.CreateTranslation(0, -0.5f, 100),
                 noiseMap.GetTexture(_graphics.GraphicsDevice, Gradient.Grayscale));
             _water.ReflectedObjects.Add(generatedTerrain);
-            _water.ReflectedObjects.Add(new Bridge(Matrix.Identity));
+            var bridge = new Bridge(Matrix.Identity);
+            _water.ReflectedObjects.Add(bridge);
 
             rigged.Seed = 42;
             noiseMap = new Noise2D(128, 128, add);
@@ -140,28 +142,30 @@ namespace TestBed
             var vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
             foreach(var fil in Directory.GetFiles(@"c:\users\dan\desktop\VisionQuest\","*.metrics.txt"))
                 GenerateMetrics.FromPregeneratedFile(fil).UpdateProgramWithMetrics(vprogram);
-            var codeIsland1 = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -900), vprogram.VAssemblies[0]);
-            var codeIsland2 = new CodeIsland(Matrix.CreateTranslation(0, -0.5f, -1300), vprogram.VAssemblies[1]);
-            var codeIsland3 = new CodeIsland(Matrix.CreateTranslation(-400, -0.5f, -900), vprogram.VAssemblies[2]);
-            var codeIsland4 = new CodeIsland(Matrix.CreateTranslation(-400, -0.5f, -1300), vprogram.VAssemblies[3]);
-            _water.ReflectedObjects.Add(codeIsland1);
-            _water.ReflectedObjects.Add(codeIsland2);
-            _water.ReflectedObjects.Add(codeIsland3);
-            _water.ReflectedObjects.Add(codeIsland4);
 
             _shadow = new ShadowMap(GraphicsDevice, _camera, 1024, 1024);
             _shadow.ShadowCastingObjects.Add(_sailingShip);
             _shadow.ShadowCastingObjects.Add(reimersTerrain);
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
-            _shadow.ShadowCastingObjects.Add(codeIsland1);
-            _shadow.ShadowCastingObjects.Add(codeIsland2);
-            _shadow.ShadowCastingObjects.Add(codeIsland3);
-            _shadow.ShadowCastingObjects.Add(codeIsland4);
+            _shadow.ShadowCastingObjects.Add(bridge);
+
+            var codeIslands = new List<CodeIsland>();
+            var ii = 0;
+            for(var x = 0 ;x<4;x++)
+                for (var y = 0; y < 4; y++)
+                {
+                    var t = Matrix.CreateTranslation(-y*1600, -0.5f, -900 - x*1600);
+                    var codeIsland = new CodeIsland(t, vprogram.VAssemblies[ii++]);
+                    codeIsland.World = t;
+                    _water.ReflectedObjects.Add(codeIsland);
+                    _shadow.ShadowCastingObjects.Add(codeIsland);
+                    codeIslands.Add(codeIsland);
+                }
 
             _sphere = new SpherePrimitive(GraphicsDevice, 0.25f);
             _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
 
-            _arcs = new Arcs(new[] { codeIsland1, codeIsland2, codeIsland3, codeIsland4 });
+            _arcs = new Arcs(codeIslands);
         }
 
         /// <summary>

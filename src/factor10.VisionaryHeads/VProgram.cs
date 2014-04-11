@@ -17,11 +17,24 @@ namespace factor10.VisionaryHeads
             loadAssembly(filename);
 
             foreach (var vm in from va in VAssemblies from vc in va.VClasses from vm in vc.VMethods select vm)
-                if ( !VMethods.ContainsKey(vm.FullName))
+                if (!VMethods.ContainsKey(vm.FullName))
                     VMethods.Add(vm.FullName, vm);
 
-            foreach (var vm in from va in VAssemblies from vc in va.VClasses from vm in vc.VMethods select vm)
+            foreach (var vm in from va in VAssemblies where !va.IsFortress from vc in va.VClasses from vm in vc.VMethods select vm)
                 vm.BuildCallingRelations();
+
+            // check for orphan assemblies - but don't check the first one (the program itself)
+            for (var i = VAssemblies.Count - 1; i >= 1; i--)
+                switch (VAssemblies[i].CalledBy.Count)
+                {
+                    case 0:  // no calls to the assembly
+                        VAssemblies.RemoveAt(i);
+                        break;
+                    case 1:  // the assembly only calles itself
+                        if (VAssemblies[i].CalledBy.Single() == VAssemblies[i])
+                            VAssemblies.RemoveAt(i);
+                        break;
+                }
         }
 
         private void loadAssembly(string filename)
@@ -33,6 +46,8 @@ namespace factor10.VisionaryHeads
 
             if (!File.Exists(filename))
                 return;
+
+            System.Diagnostics.Debug.Print(filename);
 
             var vassembly = new VAssembly(this, filename);
             VAssemblies.Add(vassembly);

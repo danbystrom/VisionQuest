@@ -11,7 +11,7 @@ namespace TestBed
         private readonly Model _model;
         private readonly Matrix[] _bones;
 
-        public Matrix World; // = Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateScale(0.006f) * Matrix.CreateTranslation(-2, 1.3f, 7);
+        public Matrix World;
 
         private readonly ObjectAnimation _animation;
         private readonly Texture2D _texture;

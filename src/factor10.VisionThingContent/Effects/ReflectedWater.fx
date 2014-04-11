@@ -252,8 +252,8 @@ float4 WaterPS(OceanWaterVertexOutput input) : COLOR0
 
     float fresnelTerm = dot(eyeVector, normalVector);    
     float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm) * (1-fog) );
-    float4 color = lerp(combinedColor, dullColor, 0.4f);    
-    
+    float4 color = lerp(combinedColor, dullColor, 0.4);
+
     float3 reflectionVector = -reflect(LightDirection, normalVector);
     float specular = dot(normalize(reflectionVector), eyeVector);
     specular = pow(abs(specular), 256);  

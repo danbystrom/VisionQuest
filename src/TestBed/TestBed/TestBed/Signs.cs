@@ -47,6 +47,8 @@ namespace TestBed
             {
                 var text = vc.VClass.TypeDefinition.Name;
                 var pos = Vector3.Transform(vc.Position, world);
+                if (Vector3.DistanceSquared(pos, camera.Position) > 100000)
+                    continue;
 
                 var viewDirection = Vector3.Normalize(pos - camera.Position);
                 _signTextEffect.World = createConstrainedBillboard(pos - viewDirection*0.2f, viewDirection, Vector3.Down);

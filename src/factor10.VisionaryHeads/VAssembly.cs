@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
@@ -13,8 +14,14 @@ namespace factor10.VisionaryHeads
         public readonly AssemblyDefinition AssemblyDefinition;
         public readonly List<VClass> VClasses = new List<VClass>();
 
+        public readonly HashSet<VAssembly> Calling = new HashSet<VAssembly>();
+        public readonly HashSet<VAssembly> CalledBy = new HashSet<VAssembly>();
+
+        public readonly bool IsFortress;
+
         public VAssembly(VProgram vprogram, string filename)
         {
+            IsFortress = Path.GetFileName(filename).First() == 'x';
             VProgram = vprogram;
             Filename = filename;
             AssemblyDefinition = AssemblyDefinition.ReadAssembly(filename);
@@ -28,6 +35,11 @@ namespace factor10.VisionaryHeads
                 }
                 VClasses.Add(new VClass(this, type));
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return Filename.GetHashCode();
         }
 
         public override string ToString()

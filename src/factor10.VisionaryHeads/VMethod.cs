@@ -51,9 +51,13 @@ namespace factor10.VisionaryHeads
             VMethod vmcalled;
             for (var i = Calling.Count - 1; i >= 0; i--)
                 if (VClass.VAssembly.VProgram.VMethods.TryGetValue(Calling[i], out vmcalled))
+                {
                     vmcalled.CalledBy.Add(FullName);
+                    VClass.VAssembly.Calling.Add(vmcalled.VClass.VAssembly);
+                    vmcalled.VClass.VAssembly.CalledBy.Add(VClass.VAssembly);
+                }
                 else
-                    Calling.RemoveAt(i);
+                    Calling.RemoveAt(i); // this call is to a method not loaded, typically in System.xxx
         }
 
         public override int GetHashCode()

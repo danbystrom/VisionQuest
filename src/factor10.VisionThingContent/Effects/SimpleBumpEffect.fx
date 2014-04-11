@@ -8,7 +8,7 @@ float3 LightingDirection = float3(-10, 20, 5);
 bool DoShadowMapping = true;
 float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
-float ShadowBias = 0.001f;
+float ShadowBias = 0.0001f;
 texture2D ShadowMap;
 sampler2D shadowSampler = sampler_state {
 	texture = <ShadowMap>;
@@ -16,7 +16,6 @@ sampler2D shadowSampler = sampler_state {
 	magfilter = point;
 	mipfilter = point;
 };
-
 
 texture Texture;
 texture BumpMap;
@@ -78,7 +77,6 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
     return output;
-
 }
 
 float2 sampleShadowMap(float2 UV)
@@ -147,7 +145,6 @@ float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
 	clip(dot(float4(input.WorldPosition,1), ClipPlane));
 	return PixelShaderFunction(input);
 }
-
 
 float4 PixelShaderFunctionDepthMap(VertexShaderOutput input) : COLOR0
 {

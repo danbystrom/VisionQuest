@@ -59,6 +59,8 @@ namespace factor10.VisionThing.Terrain
 
         public void AlterValues(int x, int y, int w, int h, Func<int, int, T, T> func)
         {
+            if (x < 0 || y < 0 || (x + w) >= Width || (y + h) >= Height)
+                throw new Exception();
             for (var j = 0; j < h; j++)
             {
                 var p = (y + j)*Width + x;

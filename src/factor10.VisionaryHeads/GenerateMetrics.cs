@@ -99,7 +99,7 @@ namespace factor10.VisionaryHeads
                 var memberName = typeName + (i < 0 ? name : name.Substring(0, i - 1));
                 if (!methods.ContainsKey(memberName))
                 {
-                    System.Diagnostics.Debug.Print(memberName);
+                    //System.Diagnostics.Debug.Print(memberName);
                     continue;
                 }
                 setMetrics(methods[memberName]);

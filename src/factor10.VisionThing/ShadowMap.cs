@@ -17,7 +17,7 @@ namespace factor10.VisionThing
         public readonly RenderTarget2D ShadowDepthTarget;
 
         // Depth texture parameters
-        public int ShadowFarPlane = 200; //200;
+        public int ShadowFarPlane = 200;
         public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
@@ -51,7 +51,7 @@ namespace factor10.VisionThing
                 50,
                 50,
                 1,
-                ShadowFarPlane /*300*/ );
+                ShadowFarPlane);
         }
 
         public void Draw()
