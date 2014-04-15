@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionaryHeads;
 using Microsoft.Xna.Framework;
@@ -32,6 +33,9 @@ namespace TestBed
             VProgram vp,
             Dictionary<ModuleDefinition, CodeIsland> modules)
         {
+            if (island.VAssembly.IsFortress)
+                return;
+
             var arc = new ArcGenerator(4);
 
             foreach (var vclass in island.Classes.Values)
@@ -82,13 +86,19 @@ namespace TestBed
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            camera.UpdateEffect(Effect);
-            Effect.Parameters["Time"].SetValue(_time);
-            Effect.Apply();
-            Effect.GraphicsDevice.DrawUserPrimitives(
-                PrimitiveType.LineList,
-                _lines,
-                0, _lines.Length / 2 - 1);
+            try
+            {
+                camera.UpdateEffect(Effect);
+                Effect.Parameters["Time"].SetValue(_time);
+                Effect.Apply();
+                Effect.GraphicsDevice.DrawUserPrimitives(
+                    PrimitiveType.LineList,
+                    _lines,
+                    0, _lines.Length/2 - 1);
+            }
+            catch (Exception)
+            {
+            }
             return true;
         }
 

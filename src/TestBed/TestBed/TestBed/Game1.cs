@@ -45,6 +45,7 @@ namespace TestBed
         private ShadowMap _shadow;
 
         private Arcs _arcs;
+        private SignsBig _signsBig;
 
         public Game1()
         {
@@ -149,22 +150,17 @@ namespace TestBed
             _shadow.ShadowCastingObjects.Add(generatedTerrain);
             _shadow.ShadowCastingObjects.Add(bridge);
 
-            var codeIslands = new List<CodeIsland>();
-            var ii = 0;
-            for(var x = 0 ;x<4;x++)
-                for (var y = 0; y < 4; y++)
-                {
-                    var t = Matrix.CreateTranslation(-y*1600, -0.5f, -900 - x*1600);
-                    var codeIsland = new CodeIsland(t, vprogram.VAssemblies[ii++]);
-                    codeIsland.World = t;
-                    _water.ReflectedObjects.Add(codeIsland);
-                    _shadow.ShadowCastingObjects.Add(codeIsland);
-                    codeIslands.Add(codeIsland);
-                }
+            var codeIslands = CodeIsland.Create(vprogram.VAssemblies);
+            foreach (var codeIsland in codeIslands)
+            {
+                _water.ReflectedObjects.Add(codeIsland);
+                _shadow.ShadowCastingObjects.Add(codeIsland);
+            }
 
             _sphere = new SpherePrimitive(GraphicsDevice, 0.25f);
             _lightingffect = VisionContent.LoadPlainEffect("effects/LightingEffect");
 
+            _signsBig = new SignsBig(codeIslands);
             _arcs = new Arcs(codeIslands);
         }
 
@@ -193,16 +189,16 @@ namespace TestBed
             var oldKbd = _kbd;
             _kbd = Keyboard.GetState();
 
-            if (_kbd.IsKeyDown(Keys.C) && !oldKbd.IsKeyDown(Keys.C))
+            if (_kbd.IsKeyDown(Keys.R) && !oldKbd.IsKeyDown(Keys.R))
                 _controlCameraWithMouse ^= true;
 
-            if (_kbd.IsKeyDown(Keys.Q) && !oldKbd.IsKeyDown(Keys.Q))
+            if (_kbd.IsKeyDown(Keys.D1) && !oldKbd.IsKeyDown(Keys.D1))
                 _nisse++;
-            if (_kbd.IsKeyDown(Keys.W) && !oldKbd.IsKeyDown(Keys.W))
+            if (_kbd.IsKeyDown(Keys.D2) && !oldKbd.IsKeyDown(Keys.D2))
                 _nisse--;
 
             if (_controlCameraWithMouse)
-                _camera.UpdateFreeFlyingCamera(gameTime);
+                _camera.UpdateFreeFlyingCamera(gameTime, _kbd);
             _water.Update(dt, _camera);
 
             foreach(var cd in _water.ReflectedObjects)
@@ -261,13 +257,15 @@ namespace TestBed
             if ( _nisse == 0)
                 _arcs.Draw(_camera);
 
+            _signsBig.Draw(_camera);
+
             //_camera.UpdateEffect(_lightingffect);
             //_lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Target);
             //_sphere.Draw(_lightingffect);
             //_lightingffect.World = Matrix.CreateTranslation(_shadow.Camera.Position);
             //_sphere.Draw(_lightingffect);
 
-            zzz();
+            //zzz();
 
             base.Draw(gameTime);
         }

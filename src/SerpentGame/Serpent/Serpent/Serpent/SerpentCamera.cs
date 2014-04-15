@@ -61,7 +61,8 @@ namespace Serpent.Serpent
         public void Update(
             GameTime gameTime,
             Vector3 target,
-            Direction direction)
+            Direction direction,
+            KeyboardState kbd)
         {
             Camera.UpVector = Vector3.Lerp(Camera.UpVector, _desiredUpVector, 0.03f);
 
@@ -96,7 +97,7 @@ namespace Serpent.Serpent
                     break;
 
                 case CameraBehavior.FreeFlying:
-                    Camera.UpdateFreeFlyingCamera(gameTime);
+                    Camera.UpdateFreeFlyingCamera(gameTime, kbd);
                     return;
 
                 default:

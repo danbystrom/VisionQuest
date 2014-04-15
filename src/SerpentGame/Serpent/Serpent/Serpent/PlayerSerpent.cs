@@ -37,16 +37,16 @@ namespace Serpent
             return base.modifySpeed()*1.3f;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime, KeyboardState kbd)
         {
-            UpdateCameraOnly(gameTime);
+            UpdateCameraOnly(gameTime, kbd);
             _turnAround ^= Data.Instance.HasKeyToggled(Keys.Down);
-            base.Update(gameTime);
+            base.Update(gameTime, kbd);
         }
 
-        public void UpdateCameraOnly(GameTime gameTime)
+        public void UpdateCameraOnly(GameTime gameTime, KeyboardState kbd)
         {
-            _camera.Update(gameTime, LookAtPosition, _headDirection);
+            _camera.Update(gameTime, LookAtPosition, _headDirection, kbd);
         }
 
         public Vector3 LookAtPosition

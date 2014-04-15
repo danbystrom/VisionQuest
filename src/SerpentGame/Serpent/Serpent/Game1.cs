@@ -97,14 +97,14 @@ namespace factor10.SerpentGame
 
             if (_paused)
             {
-                _data.PlayerSerpent.UpdateCameraOnly(gameTime);
+                _data.PlayerSerpent.UpdateCameraOnly(gameTime, _data.KeyboardState);
                 return;
             }
 
-            _data.PlayerSerpent.Update(gameTime);
+            _data.PlayerSerpent.Update(gameTime, _data.KeyboardState);
             foreach (var enemy in _data.Enemies)
             {
-                enemy.Update(gameTime);
+                enemy.Update(gameTime, _data.KeyboardState);
                 if (enemy.EatAt(_data.PlayerSerpent))
                     startGame();
                 else if (enemy.SerpentStatus == SerpentStatus.Alive && _data.PlayerSerpent.EatAt(enemy))

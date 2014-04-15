@@ -116,6 +116,7 @@
     <Compile Include="Arcs.cs" />
     <Compile Include="CircleContainer.cs" />
     <Compile Include="CodeIsland.cs" />
+    <Compile Include="SignsBig.cs" />
     <Compile Include="LargeTerrain.cs" />
     <Compile Include="GeneratedTerrain.cs" />
     <Compile Include="MovingShip.cs" />

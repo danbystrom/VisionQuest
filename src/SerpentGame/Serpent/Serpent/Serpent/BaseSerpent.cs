@@ -78,7 +78,7 @@ namespace Serpent
             return 1f;
         }
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime, KeyboardState kbd)
         {
             var lengthSpeed = (11 - _serpentLength)/10f;
             var speed = (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.0045f*lengthSpeed*modifySpeed();

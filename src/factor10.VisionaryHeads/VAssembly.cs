@@ -21,7 +21,7 @@ namespace factor10.VisionaryHeads
 
         public VAssembly(VProgram vprogram, string filename)
         {
-            IsFortress = Path.GetFileName(filename).First() == 'x';
+            IsFortress = Path.GetFileName(filename).First() == 'x' || Path.GetFileName(filename).First() == 'i';
             VProgram = vprogram;
             Filename = filename;
             AssemblyDefinition = AssemblyDefinition.ReadAssembly(filename);

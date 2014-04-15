@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using factor10.VisionThing.Objects;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TestBed;
@@ -16,12 +17,27 @@ namespace factor10.VisionThing
         public readonly VAssembly VAssembly;
         public readonly Dictionary<string, VisualClass> Classes = new Dictionary<string, VisualClass>();
 
+        public readonly Box Box;
+
         public CodeIsland(
             Matrix world,
             VAssembly vassembly)
         {
             World = world;
             VAssembly = vassembly;
+
+            if (VAssembly.IsFortress)
+            {
+                Box = new Box(World, new Vector3(50, 20, 50), 0.01f);
+                foreach (var vclass in vassembly.VClasses)
+                {
+                    var vc = new VisualClass(vclass, 75, 75, 5);
+                    vc.Height = 10;
+                    Classes.Add(vclass.FullName, vc);
+
+                }
+                return;
+            }
 
             var rnd = new Random();
 
@@ -70,7 +86,7 @@ namespace factor10.VisionThing
 
             foreach (var vc in Classes.Values)
             {
-                var instructHeight = 10 + (float) Math.Pow(vc.VClass.InstructionCount, 0.3);
+                var instructHeight = (vc.VClass.TypeDefinition.IsInterface ? 40 : 10) + (float) Math.Pow(vc.VClass.InstructionCount, 0.3);
                 var maintainabilityFactor = 3*(10 - vc.MaintainabilityIndex/10);
                 var middleX = vc.X - vc.R;
                 var middleY = vc.Y - vc.R;
@@ -155,6 +171,45 @@ namespace factor10.VisionThing
             for (var i = 3; i < surfaceSide*surfaceSide; i++)
                 yield return new Point(x += ClassSide, y);
         }
+
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        {
+            if(!VAssembly.IsFortress)
+                return base.draw(camera, drawingReason, shadowMap);
+            Box.Draw(camera, drawingReason, shadowMap);
+            return true;
+        }
+
+        public static List<CodeIsland> Create(List<VAssembly> assemblies)
+        {
+            var codeIslands = new List<CodeIsland>();
+
+            int x = 0, y = 0;
+            foreach (var assembly in assemblies.Where(_ => !_.IsFortress))
+                codeIslands.Add(createOne(assembly, ref x, ref y));
+            foreach (var assembly in assemblies.Where(_ => _.IsFortress))
+                codeIslands.Add(createOne(assembly, ref x, ref y));
+
+            return codeIslands;
+        }
+
+        private static CodeIsland createOne(VAssembly assembly, ref int x, ref int y)
+        {
+            var t = Matrix.CreateTranslation(-y * 300, -0.5f, -900 - x * 300);
+            var codeIsland = new CodeIsland(t, assembly);
+            //                codeIsland.World = t;
+
+            x++;
+            if (x > 4)
+            {
+                x = 0;
+                y++;
+                
+            }
+
+            return codeIsland;
+        }
+
     }
 
 }

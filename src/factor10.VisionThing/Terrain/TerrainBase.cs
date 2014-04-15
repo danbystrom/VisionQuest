@@ -26,6 +26,9 @@ namespace factor10.VisionThing.Terrain
 
         protected Vector4 TexOffsetAndScale = new Vector4(0, 0, 1, 1);
 
+        public int GroundExtentX { get; private set; }
+        public int GroundExtentZ { get; private set; }
+
         static TerrainBase()
         {
             TerrainPlane = new TerrainPlane();
@@ -61,7 +64,7 @@ namespace factor10.VisionThing.Terrain
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
             var slicesW = ground.Width/64;
-            var slicesH = ground.Width/64;
+            var slicesH = ground.Height/64;
             var sliceFracX = 1f/slicesW;
             var sliceFracY = 1f/slicesH;
             _slices = new terrainSlice[slicesW*slicesH];
@@ -76,6 +79,9 @@ namespace factor10.VisionThing.Terrain
                                            BoundingSphere =
                                                new BoundingSphere(_position + new Vector3(64*x - 32, 0, 64*y - 32), raduis)
                                        };
+
+            GroundExtentX = slicesW;
+            GroundExtentZ = slicesH;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

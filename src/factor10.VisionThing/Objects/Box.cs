@@ -19,23 +19,24 @@ namespace factor10.VisionThing.Objects
             _bumpMap = VisionContent.Load<Texture2D>("textures/brick_normal_map");
             _cube = new CubePrimitive<VertexPositionNormalTexture>(
                 Effect.GraphicsDevice,
-                (p,n,t) => createVertex(p,n,t,size,texScale),
+                (p, n, t) => createVertex(p, n, t, size, texScale),
                 1);
             World = world;
         }
 
-        private VertexPositionNormalTexture createVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, Vector3 size, float texScale)
+        private VertexPositionNormalTexture createVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, Vector3 size,
+            float texScale)
         {
-            if ( normal.X != 0 )
+            if (normal.X != 0)
                 textureCoordinate *= new Vector2(size.Z, size.Y);
             else if (normal.Y != 0)
                 textureCoordinate *= new Vector2(size.X, size.Z);
             else if (normal.Z != 0)
                 textureCoordinate *= new Vector2(size.Y, size.X);
             return new VertexPositionNormalTexture(
-                position * size,
+                position*size,
                 normal,
-                textureCoordinate * texScale);
+                textureCoordinate*texScale);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

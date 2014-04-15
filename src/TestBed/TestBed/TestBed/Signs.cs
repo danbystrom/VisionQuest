@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using factor10.VisionaryHeads;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using factor10.VisionThing;
@@ -45,11 +46,11 @@ namespace TestBed
 
             foreach (var vc in _vclasses)
             {
-                var text = vc.VClass.TypeDefinition.Name;
                 var pos = Vector3.Transform(vc.Position, world);
                 if (Vector3.DistanceSquared(pos, camera.Position) > 100000)
                     continue;
 
+                var text = vc.VClass.TypeDefinition.Name;
                 var viewDirection = Vector3.Normalize(pos - camera.Position);
                 _signTextEffect.World = createConstrainedBillboard(pos - viewDirection*0.2f, viewDirection, Vector3.Down);
                 _spriteBatch.Begin(0, null, null, DepthStencilState.DepthRead, RasterizerState.CullNone, _signTextEffect.Effect);

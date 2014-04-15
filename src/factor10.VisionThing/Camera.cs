@@ -87,7 +87,7 @@ namespace factor10.VisionThing
             return new Vector2(mouseX - centerX, mouseY - centerY);
         }
 
-        public void UpdateFreeFlyingCamera(GameTime gameTime)
+        public void UpdateFreeFlyingCamera(GameTime gameTime, KeyboardState kbd)
         {
             GameTime = gameTime;
 
@@ -95,7 +95,32 @@ namespace factor10.VisionThing
             var delta = HandleMouse(mouse.X, mouse.Y);
  
             var forward = Vector3.Normalize(new Vector3((float) Math.Sin(-Yaw), (float) Math.Sin(Pitch), (float) Math.Cos(-Yaw)));
-            var left = Vector3.Normalize(new Vector3((float) Math.Cos(Yaw), 0f, (float) Math.Sin(Yaw)));
+            var forwardSameHeight = Vector3.Normalize(new Vector3(forward.X, 0, forward.Z));
+            var left = Vector3.Normalize(new Vector3((float)Math.Cos(Yaw), 0f, (float)Math.Sin(Yaw)));
+
+            var step = (float) (50*gameTime.ElapsedGameTime.TotalSeconds);
+            if (kbd.IsKeyDown(Keys.LeftShift))
+                step *= 2;
+
+            if (kbd.IsKeyDown(Keys.W))
+                Position -= forward * step;
+            if (kbd.IsKeyDown(Keys.S))
+                Position += forward * step;
+
+            if (kbd.IsKeyDown(Keys.Q))
+                Position -= forwardSameHeight * step;
+            if (kbd.IsKeyDown(Keys.Z))
+                Position += forwardSameHeight * step;
+
+            if (kbd.IsKeyDown(Keys.E))
+                Position += Vector3.Up * step;
+            if (kbd.IsKeyDown(Keys.C))
+                Position += Vector3.Down * step;
+
+            if (kbd.IsKeyDown(Keys.A))
+                Position -= left * step;
+            if (kbd.IsKeyDown(Keys.D))
+                Position += left * step;
 
             if (mouse.RightButton == ButtonState.Released)
             {
