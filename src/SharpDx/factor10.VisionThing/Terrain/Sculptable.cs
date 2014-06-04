@@ -2,7 +2,6 @@
 using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
-using Texture2D = SharpDX.Direct3D11.Texture2D;
 
 namespace factor10.VisionThing.Terrain
 {

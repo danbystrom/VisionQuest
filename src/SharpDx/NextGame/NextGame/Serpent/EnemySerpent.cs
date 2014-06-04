@@ -1,4 +1,5 @@
 ﻿using System;
+using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -13,12 +14,11 @@ namespace Serpent
         public EnemySerpent(
             Game game,
             PlayingField pf,
-            ModelWrapper modelHead,
-            ModelWrapper modelSegment,
+            GeometricPrimitive<VertexPositionNormal> sphere,
             SerpentCamera camera,
             Whereabouts whereabouts,
             int x)
-            : base( game, pf, modelHead, modelSegment, whereabouts)
+            : base( game, pf, sphere, whereabouts)
         {
             _whereabouts = whereabouts;
              _rnd.NextBytes(new byte[x]);

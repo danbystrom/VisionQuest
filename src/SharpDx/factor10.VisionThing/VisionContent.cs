@@ -46,7 +46,7 @@ namespace factor10.VisionThing
             }
         }
 
-        public static void Init(Game game, string contentdirectory = "Content")
+        public static void Init(Game game, string contentdirectory = "")
         {
             Content = new ContentManager(game.Services) {RootDirectory = contentdirectory};
         }

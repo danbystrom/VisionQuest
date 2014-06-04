@@ -75,6 +75,15 @@
     <ToolkitTexture Include="Content\ShipDiffuse.dds" />
     <ToolkitFxc Include="Content\Bloom.fx" />
   </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\woodfloor.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Effects\SimpleTextureEffect.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Effects\MicroEffect.fx" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SharpDXSdkDir)\SharpDX.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

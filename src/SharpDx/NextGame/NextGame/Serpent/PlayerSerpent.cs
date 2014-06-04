@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -16,10 +17,8 @@ namespace Serpent
         public PlayerSerpent(
             Game game,
             MouseManager mouseManager,
-            PlayingField pf,
-            ModelWrapper modelHead,
-            ModelWrapper modelSegment)
-            : base( game, pf, modelHead, modelSegment, new Whereabouts(0, new Point(0,0), Direction.East))
+            PlayingField pf, GeometricPrimitive<VertexPositionNormal> sphere )
+            : base( game, pf, sphere, new Whereabouts(0, new Point(0,0), Direction.East))
         {
             _camera = new SerpentCamera(
                 mouseManager,

@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using factor10.VisionThing;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
+using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace Serpent
 {
     public class PlayingField : IDisposable
     {
         public readonly int Floors, Width, Height;
-        public readonly ModelData.VertexBuffer VertexBuffer;
-        public readonly ModelData.VertexBuffer VertexBufferShadow;
+        public readonly Buffer<VertexPositionNormalTexture> VertexBuffer;
+        public readonly Buffer<VertexPositionColor> VertexBufferShadow;
         public readonly PlayingFieldSquare[, ,] TheField;
 
         private readonly BasicEffect _effect;
@@ -21,7 +22,7 @@ namespace Serpent
             _effect = new BasicEffect(graphicsDevice);
             _texture = texture;
 
-            var field = PlayingFields.GetQ() ;
+            var field = PlayingFields.GetZ();
 
             Floors = field.Count;
             Height = field[0].Length;
@@ -49,12 +50,9 @@ namespace Serpent
                             x--;
                         }
 
-            //TODO
-            //VertexBuffer = new ModelData.VertexBuffer(graphicsDevice, typeof(VertexPositionNormalTexture), verts.Count, BufferUsage.None);
-            //VertexBuffer.SetData(verts.ToArray(), 0, verts.Count);
- 
-            //VertexBufferShadow = new ModelData.VertexBuffer(graphicsDevice, typeof(VertexPositionColor), vertsShadow.Count, BufferUsage.None);
-            //VertexBufferShadow.SetData(vertsShadow.ToArray(), 0, vertsShadow.Count);
+
+            VertexBuffer = Buffer.Vertex.New(graphicsDevice, verts.ToArray());
+            VertexBufferShadow = Buffer.Vertex.New(graphicsDevice, vertsShadow.ToArray());
         }
 
         private void foobar(
@@ -87,9 +85,9 @@ namespace Serpent
             int h)
         {
             verts.Add(new VertexPositionNormalTexture(
-                new Vector3((x+w), (floor+z) / 3f, (y+h)),
-                Vector3.Up,
-                new Vector2((x+w)/2f, (y+h)/2f)));
+                new Vector3((x + w), (floor + z)/3f, (y + h)),
+                Vector3.Up, 
+                new Vector2((w%8)*0.25f,(h%8)*0.25f)));//TODOnew Vector2((x+w)/2f, (y+h)/2f)));
 
             var dx = w == 0 ? -1 : 1;
             var dy = h == 0 ? -1 : 1;
@@ -113,31 +111,31 @@ namespace Serpent
             _effect.View = camera.View;
             _effect.Projection = camera.Projection;
 
-            _effect.World = Matrix.Translation( -0.5f, 0, -0.5f );
+            _effect.World = Matrix.Translation(-0.5f, 0, -0.5f);
             _effect.Texture = _texture;
             _effect.TextureEnabled = true;
             _effect.VertexColorEnabled = false;
+
             foreach (var pass in _effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 _effect.GraphicsDevice.SetVertexBuffer(VertexBuffer);
-                _effect.GraphicsDevice.DrawPrimitives(
+                _effect.GraphicsDevice.Draw(
                     PrimitiveType.TriangleList,
-                    0,
-                    VertexBuffer.VertexCount);
+                    VertexBuffer.ElementCount);
             }
 
-            _effect.TextureEnabled = false;
-            _effect.VertexColorEnabled = true;
-            foreach (var pass in _effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                _effect.GraphicsDevice.SetVertexBuffer(VertexBufferShadow);
-                _effect.GraphicsDevice.DrawPrimitives(
-                    PrimitiveType.TriangleList,
-                    0,
-                    VertexBufferShadow.VertexCount);
-            }
+            //TODO
+            //_effect.TextureEnabled = false;
+            //_effect.VertexColorEnabled = true;
+            //foreach (var pass in _effect.CurrentTechnique.Passes)
+            //{
+            //    pass.Apply();
+            //    _effect.GraphicsDevice.SetVertexBuffer(VertexBufferShadow);
+            //    _effect.GraphicsDevice.Draw(
+            //        PrimitiveType.TriangleList,
+            //        VertexBufferShadow.ElementCount/3);
+            //}
 
         }
 

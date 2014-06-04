@@ -7,15 +7,20 @@ namespace factor10.VisionThing.Primitives
     /// <summary>
     /// Geometric primitive class for drawing spheres.
     /// </summary>
-    public class SpherePrimitive : GeometricPrimitive<VertexPositionNormal>
+    public class SpherePrimitive<T> : GeometricPrimitive<T> where T : struct, IEquatable<T>
     {
+        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate);
 
         /// <summary>
         /// Constructs a new sphere primitive,
         /// with the specified size and tessellation level.
         /// </summary>
-        public SpherePrimitive(GraphicsDevice graphicsDevice,
-                               float diameter = 1, int tessellation = 16)
+        public SpherePrimitive(
+            GraphicsDevice graphicsDevice,
+            CreateVertex createVertex,
+            float diameter = 1,
+            int tessellation = 16,
+            bool swap = true)
         {
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");
@@ -26,7 +31,7 @@ namespace factor10.VisionThing.Primitives
             var radius = diameter/2;
 
             // Start with a single vertex at the bottom of the sphere.
-            addVertex(new VertexPositionNormal(Vector3.Down*radius, Vector3.Down));
+            addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector2.Zero));
 
             // Create rings of vertices at progressively higher latitudes.
             for (var i = 0; i < verticalSegments - 1; i++)
@@ -47,20 +52,16 @@ namespace factor10.VisionThing.Primitives
 
                     var normal = new Vector3(dx, dy, dz);
 
-                    addVertex(new VertexPositionNormal(normal*radius, normal));
+                    addVertex(createVertex(normal * radius, normal, Vector2.Zero));
                 }
             }
 
             // Finish with a single vertex at the top of the sphere.
-            addVertex(new VertexPositionNormal(Vector3.Up*radius, Vector3.Up));
+            addVertex(createVertex(Vector3.Up * radius, Vector3.Up, Vector2.Zero));
 
             // Create a fan connecting the bottom vertex to the bottom latitude ring.
             for (var i = 0; i < horizontalSegments; i++)
-            {
-                addIndex(0);
-                addIndex(1 + (i + 1)%horizontalSegments);
-                addIndex(1 + i);
-            }
+                addTriangle(0, 1 + (i + 1)%horizontalSegments, 1 + i, swap);
 
             // Fill the sphere body with triangles joining each pair of latitude rings.
             for (var i = 0; i < verticalSegments - 2; i++)
@@ -70,23 +71,14 @@ namespace factor10.VisionThing.Primitives
                     var nextI = i + 1;
                     var nextJ = (j + 1)%horizontalSegments;
 
-                    addIndex(1 + i*horizontalSegments + j);
-                    addIndex(1 + i*horizontalSegments + nextJ);
-                    addIndex(1 + nextI*horizontalSegments + j);
-
-                    addIndex(1 + i*horizontalSegments + nextJ);
-                    addIndex(1 + nextI*horizontalSegments + nextJ);
-                    addIndex(1 + nextI*horizontalSegments + j);
+                    addTriangle(1 + i*horizontalSegments + j, 1 + i*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + j, swap);
+                    addTriangle(1 + i*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + j, swap);
                 }
             }
 
             // Create a fan connecting the top vertex to the top latitude ring.
             for (var i = 0; i < horizontalSegments; i++)
-            {
-                addIndex(CurrentVertex - 1);
-                addIndex(CurrentVertex - 2 - (i + 1)%horizontalSegments);
-                addIndex(CurrentVertex - 2 - i);
-            }
+                addTriangle(CurrentVertex - 1, CurrentVertex - 2 - (i + 1)%horizontalSegments, CurrentVertex - 2 - i, swap);
 
             initializePrimitive(graphicsDevice);
         }

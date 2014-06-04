@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Text;
+using factor10.VisionThing.Effects;
+using factor10.VisionThing.Primitives;
 using Serpent;
 using SharpDX;
+using SharpDX.Direct3D11;
+using SharpDX.Toolkit.Content;
 
 
 namespace NextGame
@@ -26,10 +30,10 @@ namespace NextGame
 
         private Model model;
 
-        private Effect bloomEffect;
-        private RenderTarget2D renderTargetOffScreen;
-        private RenderTarget2D[] renderTargetDownScales;
-        private RenderTarget2D renderTargetBlurTemp;
+        //private Effect bloomEffect;
+        //private RenderTarget2D renderTargetOffScreen;
+        //private RenderTarget2D[] renderTargetDownScales;
+        //private RenderTarget2D renderTargetBlurTemp;
 
         private BasicEffect basicEffect;
         private GeometricPrimitive primitive;
@@ -44,6 +48,9 @@ namespace NextGame
         private PointerState pointerState;
 
         public Data Data;
+
+        public IGeometricPrimitive _cylinder;
+        public PlainEffectWrapper _myEffect;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NextGame" /> class.
@@ -69,7 +76,6 @@ namespace NextGame
             // Initialize input pointer system
             pointer = new PointerManager(this);
 
-            Data = new Data(this, keyboard, mouse);
         }
 
         protected override void Initialize()
@@ -89,6 +95,8 @@ namespace NextGame
             // The [Balls.dds] file is defined with the build action [ToolkitTexture] in the project
             ballsTexture = Content.Load<Texture2D>("Balls");
 
+            Data = new Data(this, keyboard, mouse);
+
             // Loads a sprite font
             // The [Arial16.xml] file is defined with the build action [ToolkitFont] in the project
             arial16Font = Content.Load<SpriteFont>("Arial16");
@@ -102,17 +110,17 @@ namespace NextGame
 
             // Bloom Effect
             // The [Bloom.fx] file is defined with the build action [ToolkitFxc] in the project
-            bloomEffect = Content.Load<Effect>("Bloom");
+            //bloomEffect = Content.Load<Effect>("Bloom");
 
             // Creates render targets for bloom effect
-            renderTargetDownScales = new RenderTarget2D[5];
-            var backDesc = GraphicsDevice.BackBuffer.Description;
-            renderTargetOffScreen = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, backDesc.Width, backDesc.Height, 1, backDesc.Format));
-            for (int i = 0; i < renderTargetDownScales.Length; i++)
-            {
-                renderTargetDownScales[i] = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, backDesc.Width >> i, backDesc.Height >> i, 1, backDesc.Format));
-            }
-            renderTargetBlurTemp = ToDisposeContent((RenderTarget2D)renderTargetDownScales[renderTargetDownScales.Length - 1].Clone());
+            //renderTargetDownScales = new RenderTarget2D[5];
+            //var backDesc = GraphicsDevice.BackBuffer.Description;
+            //renderTargetOffScreen = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, backDesc.Width, backDesc.Height, 1, backDesc.Format));
+            //for (int i = 0; i < renderTargetDownScales.Length; i++)
+            //{
+            //    renderTargetDownScales[i] = ToDisposeContent(RenderTarget2D.New(GraphicsDevice, backDesc.Width >> i, backDesc.Height >> i, 1, backDesc.Format));
+            //}
+            //renderTargetBlurTemp = ToDisposeContent((RenderTarget2D)renderTargetDownScales[renderTargetDownScales.Length - 1].Clone());
 
             // Creates a basic effect
             basicEffect = ToDisposeContent(new BasicEffect(GraphicsDevice));
@@ -121,6 +129,24 @@ namespace NextGame
 
             // Creates torus primitive
             primitive = ToDisposeContent(GeometricPrimitive.Torus.New(GraphicsDevice));
+
+            _cylinder = new CubePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, c) => new VertexPositionNormalTexture(p, n, c), 2);
+            _myEffect = new PlainEffectWrapper(Content.Load<Effect>(@"Effects\SimpleTextureEffect"), "nisse");
+            _myEffect.Texture = Content.Load<Texture2D>(@"Textures\woodfloor");
+
+            _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
+            {
+                FillMode = FillMode.Solid,
+                CullMode = CullMode.None,
+                IsFrontCounterClockwise = false,
+                DepthBias = 0,
+                SlopeScaledDepthBias = 0.0f,
+                DepthBiasClamp = 0.0f,
+                IsDepthClipEnabled = true,
+                IsScissorEnabled = false,
+                IsMultisampleEnabled = false,
+                IsAntialiasedLineEnabled = false
+            });
 
             base.LoadContent();
         }
@@ -139,7 +165,7 @@ namespace NextGame
 
             // Get the current state of the keyboard
             keyboardState = keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.Q))
+            if (keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
             // Get the current state of the mouse
@@ -147,15 +173,22 @@ namespace NextGame
 
             // Get the current state of the pointer
             pointerState = pointer.GetState();
+
+            Data.UpdateKeyboard();
+            Data.PlayerSerpent.Update(gameTime);
         }
+
+        private RasterizerState _rasterizerState;
 
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.SetRasterizerState(_rasterizerState);
+
             // Use time in seconds directly
             var time = (float)gameTime.TotalGameTime.TotalSeconds;
 
             // Make offline rendering
-            GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, renderTargetOffScreen);
+            //GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, renderTargetOffScreen);
 
             // Clears the screen with the Color.CornflowerBlue
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -181,6 +214,18 @@ namespace NextGame
                                 Matrix.RotationZ(0) *
                                 Matrix.Translation(translateX, -1.0f, 0);
             primitive.Draw(basicEffect);
+
+            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
+                                Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
+                                Matrix.RotationY(time * 2.0f) *
+                                Matrix.RotationZ(0) *
+                                Matrix.Translation(-5, -1.0f, 0);
+            _myEffect.View = Data.PlayerSerpent.Camera.Camera.View;
+            _myEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
+            _cylinder.Draw(_myEffect);
+
+            Data.PlayingField.Draw(Data.PlayerSerpent.Camera.Camera);
+            Data.PlayerSerpent.Draw(gameTime);
 
             // ------------------------------------------------------------------------
             // Draw the some 2d text
@@ -222,7 +267,7 @@ namespace NextGame
             {
                 var posX = (float)Math.Cos(time * 4.5f + i * 0.1f) * 60.0f + 136.0f;
                 var posY = GraphicsDevice.BackBuffer.Height * 2.0f / 3.0f + 100.0f * (float)Math.Sin(time * 10.0f + i * 0.4f);
-
+ 
                 spriteBatch.Draw(
                     ballsTexture,
                     new Vector2(posX, posY),
@@ -242,48 +287,48 @@ namespace NextGame
             // ------------------------------------------------------------------------
 
             // Setup states for posteffect
-            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.Default);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
-            GraphicsDevice.SetDepthStencilState(GraphicsDevice.DepthStencilStates.None);
+            //GraphicsDevice.SetRasterizerState(_rasterizerState);
+            //GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+            //GraphicsDevice.SetDepthStencilState(GraphicsDevice.DepthStencilStates.None);
 
             // Apply BrightPass
-            const float brightPassThreshold = 0.5f;
-            GraphicsDevice.SetRenderTargets(renderTargetDownScales[0]);
-            bloomEffect.CurrentTechnique = bloomEffect.Techniques["BrightPassTechnique"];
-            bloomEffect.Parameters["Texture"].SetResource(renderTargetOffScreen);
-            bloomEffect.Parameters["PointSampler"].SetResource(GraphicsDevice.SamplerStates.PointClamp);
-            bloomEffect.Parameters["BrightPassThreshold"].SetValue(brightPassThreshold);
-            GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[0]);
+            //const float brightPassThreshold = 0.5f;
+            //GraphicsDevice.SetRenderTargets(renderTargetDownScales[0]);
+            //bloomEffect.CurrentTechnique = bloomEffect.Techniques["BrightPassTechnique"];
+            //bloomEffect.Parameters["Texture"].SetResource(renderTargetOffScreen);
+            //bloomEffect.Parameters["PointSampler"].SetResource(GraphicsDevice.SamplerStates.PointClamp);
+            //bloomEffect.Parameters["BrightPassThreshold"].SetValue(brightPassThreshold);
+            //GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[0]);
 
-            // Down scale passes
-            for (int i = 1; i < renderTargetDownScales.Length; i++)
-            {
-                GraphicsDevice.SetRenderTargets(renderTargetDownScales[i]);
-                GraphicsDevice.DrawQuad(renderTargetDownScales[0]);
-            }
+            //// Down scale passes
+            //for (int i = 1; i < renderTargetDownScales.Length; i++)
+            //{
+            //    GraphicsDevice.SetRenderTargets(renderTargetDownScales[i]);
+            //    GraphicsDevice.DrawQuad(renderTargetDownScales[0]);
+            //}
 
-            // Horizontal blur pass
-            var renderTargetBlur = renderTargetDownScales[renderTargetDownScales.Length - 1];
-            GraphicsDevice.SetRenderTargets(renderTargetBlurTemp);
-            bloomEffect.CurrentTechnique = bloomEffect.Techniques["BlurPassTechnique"];
-            bloomEffect.Parameters["Texture"].SetResource(renderTargetBlur);
-            bloomEffect.Parameters["LinearSampler"].SetResource(GraphicsDevice.SamplerStates.LinearClamp);
-            bloomEffect.Parameters["TextureTexelSize"].SetValue(new Vector2(1.0f / renderTargetBlurTemp.Width, 1.0f / renderTargetBlurTemp.Height));
-            GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[0]);
+            //// Horizontal blur pass
+            //var renderTargetBlur = renderTargetDownScales[renderTargetDownScales.Length - 1];
+            //GraphicsDevice.SetRenderTargets(renderTargetBlurTemp);
+            //bloomEffect.CurrentTechnique = bloomEffect.Techniques["BlurPassTechnique"];
+            //bloomEffect.Parameters["Texture"].SetResource(renderTargetBlur);
+            //bloomEffect.Parameters["LinearSampler"].SetResource(GraphicsDevice.SamplerStates.LinearClamp);
+            //bloomEffect.Parameters["TextureTexelSize"].SetValue(new Vector2(1.0f / renderTargetBlurTemp.Width, 1.0f / renderTargetBlurTemp.Height));
+            //GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[0]);
 
-            // Vertical blur pass
-            GraphicsDevice.SetRenderTargets(renderTargetBlur);
-            bloomEffect.Parameters["Texture"].SetResource(renderTargetBlurTemp);
-            GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[1]);
+            //// Vertical blur pass
+            //GraphicsDevice.SetRenderTargets(renderTargetBlur);
+            //bloomEffect.Parameters["Texture"].SetResource(renderTargetBlurTemp);
+            //GraphicsDevice.DrawQuad(bloomEffect.CurrentTechnique.Passes[1]);
 
-            // Render to screen
-            GraphicsDevice.SetRenderTargets(GraphicsDevice.BackBuffer);
-            GraphicsDevice.DrawQuad(renderTargetOffScreen);
+            //// Render to screen
+            //GraphicsDevice.SetRenderTargets(GraphicsDevice.BackBuffer);
+            //GraphicsDevice.DrawQuad(renderTargetOffScreen);
 
-            // Add bloom on top of it
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Additive);
-            GraphicsDevice.DrawQuad(renderTargetBlur);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+            //// Add bloom on top of it
+            //GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Additive);
+            //GraphicsDevice.DrawQuad(renderTargetBlur);
+            //GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
 
             base.Draw(gameTime);
         }

@@ -7,13 +7,13 @@ namespace factor10.VisionThing
 {
     public class SkySphere : ClipDrawable
     {
-        readonly SpherePrimitive _sphere;
+        readonly SpherePrimitive<VertexPositionNormal> _sphere;
 
         public SkySphere(
              TextureCube texture)
             : base( VisionContent.LoadPlainEffect("effects/skysphere"))
         {
-            _sphere = new SpherePrimitive( Effect.GraphicsDevice, 20000, 10);
+            _sphere = new SpherePrimitive<VertexPositionNormal>(Effect.GraphicsDevice, (p, n, t) => new VertexPositionNormal(p, n), 20000, 10);
             Effect.Parameters["CubeMap"].SetResource(texture);
         }
 

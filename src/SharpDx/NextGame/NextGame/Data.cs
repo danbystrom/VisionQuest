@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using factor10.VisionThing;
+using factor10.VisionThing.Primitives;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -37,38 +38,40 @@ namespace Serpent
             MouseManager = mouseManager;
 
             VisionContent.Init(game1);
-            var texture = game1.Content.Load<Texture2D>("Textures/woodfloor");
+            var texture = game1.Content.Load<Texture2D>(@"Textures\woodfloor");
  
             if ( PlayingField == null )
                 PlayingField = new PlayingField(
                     game1.GraphicsDevice,
                     texture );
 
-            if ( Sky == null )
-                Sky = new SkySphere(VisionContent.Load<TextureCube>(@"Textures\clouds"));
+            //TODO
+            //if ( Sky == null )
+            //    Sky = new SkySphere(VisionContent.Load<TextureCube>(@"Textures\clouds"));
 
-            var serpentHead = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\SerpentHead") );
-            var serpentSegment = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\serpentsegment") );
+            //var serpentHead = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\SerpentHead") );
+            //var serpentSegment = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\serpentsegment") );
+
+            var sphere = new SpherePrimitive<VertexPositionNormal>(game1.GraphicsDevice, (p, n, t) => new VertexPositionNormal(p, n), 2);
 
             PlayerSerpent = new PlayerSerpent(
                 game1,
                 MouseManager,
                 PlayingField,
-                serpentHead,
-                serpentSegment);
+                sphere);
 
-            for (var i = 0; i < 5; i++)
-            {
-                var enemy = new EnemySerpent(
-                    game1,
-                    PlayingField,
-                    serpentHead,
-                    serpentSegment,
-                    PlayerSerpent.Camera,
-                    new Whereabouts(0, new Point(20, 0), Direction.West),
-                    i);
-                Enemies.Add(enemy);
-            }
+            //for (var i = 0; i < 5; i++)
+            //{
+            //    var enemy = new EnemySerpent(
+            //        game1,
+            //        PlayingField,
+            //        serpentHead,
+            //        serpentSegment,
+            //        PlayerSerpent.Camera,
+            //        new Whereabouts(0, new Point(20, 0), Direction.West),
+            //        i);
+            //    Enemies.Add(enemy);
+            //}
         }
 
         public void UpdateKeyboard()

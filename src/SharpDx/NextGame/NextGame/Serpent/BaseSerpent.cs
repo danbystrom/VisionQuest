@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using factor10.VisionThing.Effects;
+using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 
 namespace Serpent
 {
@@ -25,8 +28,8 @@ namespace Serpent
 
         protected double _fractionAngle;
 
-        protected readonly ModelWrapper _modelHead;
-        protected readonly ModelWrapper _modelSegment;
+        protected readonly BasicEffect _effect;
+        protected readonly factor10.VisionThing.Primitives.GeometricPrimitive<VertexPositionNormal> _sphere;
 
         protected readonly SerpentTailSegment _tail;
         protected int _serpentLength;
@@ -43,14 +46,16 @@ namespace Serpent
 
         protected BaseSerpent(
             Game game,
-            PlayingField pf,
-            ModelWrapper modelHead,
-            ModelWrapper modelSegment,
+            PlayingField pf, factor10.VisionThing.Primitives.GeometricPrimitive<VertexPositionNormal> sphere,
             Whereabouts whereabouts)
         {
             _pf = pf;
-            _modelHead = modelHead;
-            _modelSegment = modelSegment;
+            _sphere = sphere;
+
+            //_effect = new PlainEffectWrapper(game.Content.Load<Effect>(@"Effects\SimpleTextureEffect"), "nisse");
+
+            _effect = new BasicEffect(game.GraphicsDevice);
+            _effect.EnableDefaultLighting();
 
             _whereabouts = whereabouts;
             _headDirection = _whereabouts.Direction;
@@ -117,19 +122,20 @@ namespace Serpent
         public virtual void Draw(GameTime gameTime)
         {
             var p = GetPosition();
-            _modelHead.Draw(
-                _camera.Camera,
-                _headRotation[_headDirection]*
-                Matrix.Scaling(0.5f)*
-                Matrix.Translation(p.X,0.4f + p.Y,p.Z),
-                tintColor(),
-                0.5f,
-                SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f);
+
+//            _effect.DiffuseColor = Vector4.Lerp(new Vector4(0.5f, 0.5f, 0.5f, 1), tintColor(), 0.5f);
+//            _effect.Alpha = SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f;
+            _effect.View = _camera.Camera.View;
+            _effect.Projection = _camera.Camera.Projection;
+            _effect.World = _headRotation[_headDirection]*
+                            Matrix.Scaling(0.5f)*
+                            Matrix.Translation(p.X, 0.4f + p.Y, p.Z);
+            _sphere.Draw(_effect);
 
             var worlds = new List<Matrix>();
 
             var segment = _tail;
-            while ( true )
+            while (true)
             {
                 var p2 = segment.GetPosition();
                 worlds.Add(
@@ -145,7 +151,7 @@ namespace Serpent
                         0.3f + p2.Y,
                         p2.Z));
                 p = p2;
-                if ( segment.Next == null )
+                if (segment.Next == null)
                     break;
                 segment = segment.Next;
             }
@@ -153,36 +159,41 @@ namespace Serpent
             if (_pendingEatenSegments <= SegmentEatTreshold/2)
                 worlds.RemoveAt(worlds.Count - 1);
 
-            if (_layingEgg > -500)
+            //TODO
+            //if (_layingEgg > -500)
+            //{
+            //    var d = segment.Whereabouts.Direction;
+            //    var t = d == Direction.North || d == Direction.South
+            //        ? Matrix.Scaling(0.6f, 0.6f, 0.8f)
+            //        : Matrix.Scaling(0.8f, 0.6f, 0.6f);
+            //    var off = d.DirectionAsVector2()*(-0.3f);
+            //    t *= Matrix.Translation(off.X, -0.3f, off.Y);
+            //    _modelSegment.Draw(
+            //        _camera.Camera,
+            //        t*worlds[worlds.Count - 1],
+            //        Vector4.One,
+            //        1,
+            //        1);
+            //    _modelSegment.Draw(
+            //        _camera.Camera,
+            //        worlds[worlds.Count - 1],
+            //        tintColor(),
+            //        0.5f,
+            //        0.9f);
+            //    worlds.RemoveAt(worlds.Count - 1);
+            //}
+
+            foreach (var world in worlds)
             {
-                var d = segment.Whereabouts.Direction;
-                var t = d == Direction.North || d == Direction.South
-                                   ? Matrix.Scaling(0.6f, 0.6f, 0.8f)
-                                   : Matrix.Scaling(0.8f, 0.6f, 0.6f);
-                var off = d.DirectionAsVector2()*(-0.3f);
-                t *= Matrix.Translation(off.X, -0.3f, off.Y);
-                _modelSegment.Draw(
-                    _camera.Camera,
-                    t*worlds[worlds.Count - 1],
-                    Vector4.One,
-                    1,
-                    1);
-                _modelSegment.Draw(
-                    _camera.Camera,
-                    worlds[worlds.Count - 1],
-                    tintColor(),
-                    0.5f,
-                    0.9f);
-                worlds.RemoveAt(worlds.Count - 1);
+                _effect.World = world;
+                _sphere.Draw(_effect);
             }
 
-            foreach ( var world in worlds )
-                _modelSegment.Draw(
-                    _camera.Camera,
-                    world,
-                    tintColor(),
-                    0.5f,
-                    SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f);
+            //_camera.Camera,
+                    //world,
+                    //tintColor(),
+                    //0.5f,
+                    //SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f);
         }
 
         protected virtual Vector4 tintColor()

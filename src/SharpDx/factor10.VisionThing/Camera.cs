@@ -33,7 +33,7 @@ namespace factor10.VisionThing
             ClientSize = clientSize;
 
             Update(position, target);
-            Projection = Matrix.PerspectiveFovLH(
+            Projection = Matrix.PerspectiveFovRH(
                 MathUtil.PiOverFour,
                 clientSize.X / clientSize.Y,
                 nearPlane, farPlane);
@@ -64,7 +64,7 @@ namespace factor10.VisionThing
             Position = position;
             Target = target;
 
-            View = Matrix.LookAtLH(
+            View = Matrix.LookAtRH(
                 Position,
                 Target,
                 UpVector);

@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using factor10.VisionThing.Terrain;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
-using Texture2D = SharpDX.Direct3D11.Texture2D;
 
 namespace factor10.VisionThing
 {
@@ -37,13 +36,10 @@ namespace factor10.VisionThing
 
         public Texture2D CreateTexture2D(GraphicsDevice graphicsDevice, bool first)
         {
-            //TODO
-            //var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Color);
-            //result.SetData(first
-            //                   ? Values.Select(mt => new Color(mt.A, mt.B, mt.C, mt.D)).ToArray()
-            //                   : Values.Select(mt => new Color(mt.E, mt.F, mt.G, mt.H)).ToArray());
-            //return result;
-            return null;
+            return Texture2D.New(graphicsDevice, Width, Height, PixelFormat.B8G8R8A8.UNorm,
+                first
+                    ? Values.Select(mt => new Color(mt.A, mt.B, mt.C, mt.D)).ToArray()
+                    : Values.Select(mt => new Color(mt.E, mt.F, mt.G, mt.H)).ToArray());
         }
 
     }

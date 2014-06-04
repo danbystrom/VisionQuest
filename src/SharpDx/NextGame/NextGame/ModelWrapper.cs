@@ -53,7 +53,7 @@ namespace Serpent
                         e.Projection = camera.Projection;
                         e.World = _bones[mesh.ParentBone.Index]*world;
                     }
-                    mesh.Draw();
+                    mesh.Draw(mesh.Effects[0].GraphicsDevice);
                 }
         }
 

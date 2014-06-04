@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing.Objects;
 using SharpDX;
-using SharpDX.Direct3D11;
+using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Terrain
 {

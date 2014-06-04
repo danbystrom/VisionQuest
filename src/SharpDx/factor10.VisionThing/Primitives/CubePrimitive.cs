@@ -14,7 +14,7 @@ namespace factor10.VisionThing.Primitives
         /// <summary>
         /// Constructs a new cube primitive, with the specified size.
         /// </summary>
-        public CubePrimitive(GraphicsDevice graphicsDevice, CreateVertex createVertex, float size)
+        public CubePrimitive(GraphicsDevice graphicsDevice, CreateVertex createVertex, float size, bool swap = false)
         {
             // A cube has six faces, each one pointing in a different direction.
             Vector3[] normals =
@@ -34,14 +34,9 @@ namespace factor10.VisionThing.Primitives
                 var side1 = new Vector3(normal.Y, normal.Z, normal.X);
                 var side2 = Vector3.Cross(normal, side1);
 
-                // Six indices (two triangles) per face.
-                addIndex(CurrentVertex + 0);
-                addIndex(CurrentVertex + 1);
-                addIndex(CurrentVertex + 2);
-
-                addIndex(CurrentVertex + 0);
-                addIndex(CurrentVertex + 2);
-                addIndex(CurrentVertex + 3);
+                // Two triangles per face.
+                addTriangle(CurrentVertex + 0, CurrentVertex + 1, CurrentVertex + 2, swap);
+                addTriangle(CurrentVertex + 0, CurrentVertex + 2, CurrentVertex + 3, swap);
 
                 // Four vertices per face.
                 addVertex(createVertex((normal - side1 - side2)*size/2, normal, new Vector2(0, 0)));
