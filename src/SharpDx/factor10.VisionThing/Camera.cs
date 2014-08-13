@@ -78,17 +78,23 @@ namespace factor10.VisionThing
             get { return (_boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(View*Projection))).Value; }
         }
 
+        public Vector3 Forward = Vector3.One;
+
         public void UpdateFreeFlyingCamera(GameTime gameTime, MouseManager mouseManager)
         {
             GameTime = gameTime;
 
-            var center = new Vector2(ClientSize.X / 2, ClientSize.Y / 2);
+            var center = new Vector2(0.5f, 0.5f);
             var mouse = mouseManager.GetState();
             mouseManager.SetPosition(center);
-            var delta = center - new Vector2(mouse.X, mouse.Y);
+            var delta = (center - new Vector2(mouse.X, mouse.Y))*100;
 
-            var forward = Vector3.Normalize(new Vector3((float) Math.Sin(-Yaw), (float) Math.Sin(Pitch), (float) Math.Cos(-Yaw)));
-            var left = Vector3.Normalize(new Vector3((float) Math.Cos(Yaw), 0f, (float) Math.Sin(Yaw)));
+            var sinPitch = (float) Math.Sin(Pitch);
+            var cosPitch = (float) Math.Cos(Pitch);
+            var sinYaw = (float) Math.Sin(Yaw);
+            var cosYaw = (float) Math.Cos(Yaw);
+
+            Forward = Vector3.Normalize(new Vector3(sinYaw*cosPitch, -sinPitch, cosYaw*cosPitch));
 
             if (mouse.Right == ButtonState.Released)
             {
@@ -96,12 +102,14 @@ namespace factor10.VisionThing
                 Pitch += MathUtil.DegreesToRadians(delta.Y*0.50f);
                 //if (Yaw < 0 || Yaw > MathHelper.TwoPi)
                 //    Yaw -= MathHelper.TwoPi*Math.Sign(Yaw);
-               // if (Pitch < 0 || Pitch > MathHelper.TwoPi)
-               //     Pitch -= MathHelper.TwoPi*Math.Sign(Pitch);
+                // if (Pitch < 0 || Pitch > MathHelper.TwoPi)
+                //     Pitch -= MathHelper.TwoPi*Math.Sign(Pitch);
             }
             else
             {
-                Position += forward*delta.Y*0.1f;
+                var left = Vector3.Normalize(Vector3.Cross(Forward, Vector3.Up));
+
+                Position += Forward * delta.Y * 0.1f;
                 Position += left*delta.X*0.1f;
 
                 //if (Data.Instance.KeyboardState.IsKeyDown(Keys.PageUp))
@@ -111,9 +119,7 @@ namespace factor10.VisionThing
                 //    Position += Vector3.Up*delta;
             }
 
-            var rotation = Matrix.RotationYawPitchRoll(-Yaw, -Pitch, 0);
-            var z = Vector3.ForwardLH;
-            var r = rotation;
+            var rotation = Matrix.RotationYawPitchRoll(Yaw, Pitch, 0);
             Target = Position + Vector3.TransformCoordinate(Vector3.ForwardLH, rotation);
             View = Matrix.LookAtLH(Position, Target, Vector3.Up);
             _boundingFrustum = null;

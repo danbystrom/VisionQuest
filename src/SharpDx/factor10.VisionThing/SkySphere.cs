@@ -1,30 +1,32 @@
 ﻿using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
+using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing
 {
     public class SkySphere : ClipDrawable
     {
-        readonly SpherePrimitive<VertexPositionNormal> _sphere;
+        readonly IGeometricPrimitive _sphere;
 
         public SkySphere(
-             TextureCube texture)
-            : base( VisionContent.LoadPlainEffect("effects/skysphere"))
+            Game game,
+            TextureCube texture)
+            : base(new PlainEffectWrapper(game.Content.Load<Effect>("effects/skysphere")))
         {
-            _sphere = new SpherePrimitive<VertexPositionNormal>(Effect.GraphicsDevice, (p, n, t) => new VertexPositionNormal(p, n), 20000, 10);
-            Effect.Parameters["CubeMap"].SetResource(texture);
+            _sphere = new SpherePrimitive<VertexPosition>(game.GraphicsDevice, (p, n, t) => new VertexPosition(p), 5, 10);
+            Effect.Parameters["Texture"].SetResource(texture);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
-            Effect.World = Matrix.Translation(camera.Position);
+            Effect.World = Matrix.Translation( Vector3.Right*10 /*camera.Position*/);
 
             //TODO
             //var saveCull = Effect.GraphicsDevice.RasterizerState;
-            //_sphere.Draw(Effect);
+            _sphere.Draw(Effect);
             //Effect.GraphicsDevice.RasterizerState = saveCull;
             //Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             return true;

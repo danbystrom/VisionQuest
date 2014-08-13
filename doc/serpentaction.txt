@@ -1,0 +1,17 @@
+1. göra klart skybox
+
+2. fienden ska kunna dö
+
+3. spelaren ska kunna dö
+
+4. bygga spelstart - påfartsramp
+
+5. bygga spelstart - påfartsramp för fienden 
+
+
+
+D3D11 ERROR: ID3D11Device::CreateInputLayout: The provided input signature expects to read an element with SemanticName/Index: 'NORMAL'/0, but the declaration doesn't provide a matching name. [ STATE_CREATION ERROR #163: CREATEINPUTLAYOUT_MISSINGELEMENT]
+
+
+D3D11 WARNING: ID3D11DeviceContext::DrawIndexed: The Pixel Shader unit expects a Sampler to be set at Slot 0, but none is bound. This is perfectly valid, as a NULL Sampler maps to default Sampler state. However, the developer may not want to rely on the defaults.  [ EXECUTION WARNING #352: DEVICE_DRAW_SAMPLER_NOT_SET]
+D3D11 ERROR: ID3D11DeviceContext::DrawIndexed: The Shader Resource View dimension declared in the shader code (TEXTURE2D) does not match the view type bound to slot 0 of the Pixel Shader unit (TEXTURECUBE).  This mismatch is invalid if the shader actually uses the view (e.g. it is not skipped due to shader code branching). [ EXECUTION ERROR #354: DEVICE_DRAW_VIEW_DIMENSION_MISMATCH]

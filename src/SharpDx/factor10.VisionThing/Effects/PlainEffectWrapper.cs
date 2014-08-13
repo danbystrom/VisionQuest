@@ -29,11 +29,11 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectTechnique _techClipPlane;
         protected readonly EffectTechnique _techDepthMap;
 
-        public PlainEffectWrapper( Effect effect, string name )
+        public PlainEffectWrapper(Effect effect)
         {
             GraphicsDevice = effect.GraphicsDevice;
             Effect = effect;
-            Name = name;
+            Name = effect.Name;
 
             _epWorld = effect.Parameters["World"];
             _epView = effect.Parameters["View"];

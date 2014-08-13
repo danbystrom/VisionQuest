@@ -74,6 +74,7 @@
     <Compile Include="Primitives\SpherePrimitive.cs" />
     <Compile Include="Primitives\TeapotPrimitive.cs" />
     <Compile Include="Primitives\TorusPrimitive.cs" />
+    <Compile Include="Primitives\VertexPosition.cs" />
     <Compile Include="Primitives\VertexPositionNormal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShadowMap.cs" />
@@ -94,16 +95,41 @@
     <Compile Include="Water\WaterVertex.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Textures\bigstone.jpg" />
-    <Content Include="Content\Textures\brick_normal_map.jpg" />
-    <Content Include="Content\Textures\brick_texture_map.jpg" />
-    <Content Include="Content\Textures\clouds.dds" />
-    <Content Include="Content\Textures\sand.bmp" />
-    <Content Include="Content\Textures\woodensign.png" />
+    <ToolkitTexture Include="Content\Textures\bigstone.jpg" />
+    <ToolkitTexture Include="Content\Textures\brick_normal_map.jpg" />
+    <ToolkitTexture Include="Content\Textures\brick_texture_map.jpg" />
+    <ToolkitTexture Include="Content\Textures\clouds.dds" />
+    <ToolkitTexture Include="Content\Textures\sand.bmp" />
+    <ToolkitTexture Include="Content\Textures\woodensign.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Textures\windmill_diffuse.tga" />
-    <None Include="Content\Textures\windmill_normal.tga" />
+    <ToolkitTexture Include="Content\Textures\windmill_diffuse.tga" />
+    <ToolkitTexture Include="Content\Textures\windmill_normal.tga" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Water\waterbump.dds" />
+    <ToolkitTexture Include="Content\Water\waterdmap0.jpg" />
+    <ToolkitTexture Include="Content\Water\waterdmap1.jpg" />
+    <ToolkitTexture Include="Content\Water\wave1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Effects\ArcsEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\BillboardEffect.fx" />
+    <Content Include="Content\Effects\LightingEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\ReflectedWater.fx" />
+    <ToolkitFxc Include="Content\Effects\ReflectedWaterErrorDemo.fx" />
+    <Content Include="Content\Effects\Series4Effects.fx" />
+    <Content Include="Content\Effects\SignTextEffect.fx" />
+    <Content Include="Content\Effects\SimpleBumpEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\Skysphere.fx" />
+    <ToolkitFxc Include="Content\Effects\TerrainEffects.fx" />
+    <ToolkitFxc Include="Content\Effects\Water.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Effects\Common.fxh" />
+    <None Include="Content\Effects\Lighting.fxh" />
+    <None Include="Content\Effects\Macros.fxh" />
+    <None Include="Content\Effects\Structures.fxh" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SharpDXSdkDir)\SharpDX.targets" />

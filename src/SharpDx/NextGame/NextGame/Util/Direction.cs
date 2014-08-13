@@ -42,17 +42,17 @@ namespace Serpent
             AllDirections = new[] {South, West, North, East};
         }
 
-        private Direction( DirectionValue dir )
+        private Direction(DirectionValue dir)
         {
             _dir = dir;
         }
 
-        public Direction Turn( RelativeDirection rd )
+        public Direction Turn(RelativeDirection rd)
         {
             if (_dir == 0)
                 return None;
             var dir = 1 + (((int) _dir + (int) rd - 1) & 3);
-            return new Direction((DirectionValue)dir);
+            return new Direction((DirectionValue) dir);
         }
 
         public Direction Right
@@ -72,14 +72,14 @@ namespace Serpent
 
         public Point DirectionAsPoint()
         {
-            return new []
-                       {
-                           new Point(0,0),
-                           new Point( 0, -1), 
-                           new Point( -1, 0), 
-                           new Point( 0, 1), 
-                           new Point( 1, 0)
-                       }[(int)_dir];
+            return new[]
+            {
+                new Point(0, 0),
+                new Point(0, -1),
+                new Point(-1, 0),
+                new Point(0, 1),
+                new Point(1, 0)
+            }[(int) _dir];
         }
 
         public Vector2 DirectionAsVector2()
@@ -94,7 +94,7 @@ namespace Serpent
             return new Vector3(p.X, 0, p.Y);
         }
 
-        public static bool operator == (Direction d1, Direction d2)
+        public static bool operator ==(Direction d1, Direction d2)
         {
             return d1._dir == d2._dir;
         }
@@ -111,21 +111,21 @@ namespace Serpent
 
         public override int GetHashCode()
         {
-            return (int)_dir;
+            return (int) _dir;
         }
 
         public override string ToString()
         {
-            return new[] {"South", "West", "North", "East"}[(int)_dir];
+            return new[] {"South", "West", "North", "East"}[(int) _dir];
         }
 
         public static Direction FromPoints(Point currentLocation, Point newLocation)
         {
-            if ( currentLocation == newLocation )
+            if (currentLocation == newLocation)
                 return None;
-            if ( currentLocation.X == newLocation.X)
+            if (currentLocation.X == newLocation.X)
                 return currentLocation.Y < newLocation.Y ? North : South;
-            if ( currentLocation.Y == newLocation.Y)
+            if (currentLocation.Y == newLocation.Y)
                 return currentLocation.X < newLocation.X ? East : West;
             return None;
         }

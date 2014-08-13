@@ -22,7 +22,7 @@ namespace Serpent
             _effect = new BasicEffect(graphicsDevice);
             _texture = texture;
 
-            var field = PlayingFields.GetZ();
+            var field = PlayingFields.GetQ();
 
             Floors = field.Count;
             Height = field[0].Length;
@@ -171,30 +171,37 @@ namespace Serpent
         }
 
         public float GetElevation(
-            Whereabouts whereabouts )
+            Whereabouts whereabouts)
         {
-            if ( whereabouts.Direction == Direction.None )
-            {
-                
-            }
             var p = whereabouts.NextLocation;
             var square = fieldValue(whereabouts.Floor, p);
             if (square.IsNone)
                 return 0;
-            switch ( square.PlayingFieldSquareType )
+            switch (square.PlayingFieldSquareType)
             {
                 case PlayingFieldSquareType.None:
                     throw new Exception();
                 case PlayingFieldSquareType.Flat:
-                    return whereabouts.Floor * 1.333f;
+                    return whereabouts.Floor * 1.3333f;
                 default:
+                    //här e något som ska ändras
                     var fraction = whereabouts.Fraction;
-                    if (square.SlopeDirection.Backward == whereabouts.Direction )
-                        fraction = 1-fraction;
+                    if (square.SlopeDirection.Backward == whereabouts.Direction)
+                        fraction = 1 - fraction;
                     else if (square.SlopeDirection != whereabouts.Direction)
                         throw new Exception();
-                    return whereabouts.Floor * 1.33f + (square.Elevation + fraction) / 3f;
+                    return whereabouts.Floor * 1.3333f + (square.Elevation + fraction) / 3f;
             }
+
+            //var p = whereabouts.Location;
+            //var square = fieldValue(whereabouts.Floor, p);
+            //if (square.IsNone)
+            //    return 0;
+            //var dp = whereabouts.Direction.DirectionAsPoint();
+            //var diffX = (square.Corners[2] - square.Corners[0]) * dp.X;
+            //var diffY = (square.Corners[3] - square.Corners[1]) * dp.Y;
+
+            //return whereabouts.Floor * 1.3333f + (diffX + diffY);
         }
 
         public void Dispose()

@@ -3,10 +3,10 @@ using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 
 namespace Serpent
 {
-
     public class EnemySerpent : BaseSerpent
     {
         private readonly Random _rnd = new Random();
@@ -14,11 +14,11 @@ namespace Serpent
         public EnemySerpent(
             Game game,
             PlayingField pf,
-            GeometricPrimitive<VertexPositionNormal> sphere,
+            factor10.VisionThing.IDrawable sphere,
             SerpentCamera camera,
             Whereabouts whereabouts,
             int x)
-            : base( game, pf, sphere, whereabouts)
+            : base(game, pf, sphere, whereabouts, game.Content.Load<Texture2D>(@"Textures\sn"))
         {
             _whereabouts = whereabouts;
              _rnd.NextBytes(new byte[x]);

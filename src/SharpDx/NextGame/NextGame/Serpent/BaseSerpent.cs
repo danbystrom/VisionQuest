@@ -18,18 +18,23 @@ namespace Serpent
 
     public abstract class BaseSerpent
     {
+        public const float HeadSize = 0.5f;
+        public const float SegmentSize = 0.4f;
+
         public SerpentStatus SerpentStatus;
 
         protected readonly PlayingField _pf;
 
-        protected Whereabouts _whereabouts = new Whereabouts();
+        public Whereabouts _whereabouts = new Whereabouts();
         protected Direction _headDirection;
         protected SerpentCamera _camera;
 
         protected double _fractionAngle;
 
-        protected readonly BasicEffect _effect;
-        protected readonly factor10.VisionThing.Primitives.GeometricPrimitive<VertexPositionNormal> _sphere;
+        protected readonly IEffect _effect;
+        protected readonly factor10.VisionThing.IDrawable _sphere;
+        protected readonly Texture2D _skin;
+        protected readonly EffectParameter _diffuseParameter;
 
         protected readonly SerpentTailSegment _tail;
         protected int _serpentLength;
@@ -46,16 +51,19 @@ namespace Serpent
 
         protected BaseSerpent(
             Game game,
-            PlayingField pf, factor10.VisionThing.Primitives.GeometricPrimitive<VertexPositionNormal> sphere,
-            Whereabouts whereabouts)
+            PlayingField pf,
+            factor10.VisionThing.IDrawable sphere,
+            Whereabouts whereabouts,
+            Texture2D serpentSkin)
         {
             _pf = pf;
             _sphere = sphere;
+            _skin = serpentSkin;
+            _effect = new PlainEffectWrapper(game.Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
+            _diffuseParameter = _effect.Parameters["DiffuseColor"];
 
-            //_effect = new PlainEffectWrapper(game.Content.Load<Effect>(@"Effects\SimpleTextureEffect"), "nisse");
-
-            _effect = new BasicEffect(game.GraphicsDevice);
-            _effect.EnableDefaultLighting();
+            //_effect = new BasicEffect(game.GraphicsDevice);
+            //_effect.EnableDefaultLighting();
 
             _whereabouts = whereabouts;
             _headDirection = _whereabouts.Direction;
@@ -123,13 +131,15 @@ namespace Serpent
         {
             var p = GetPosition();
 
-//            _effect.DiffuseColor = Vector4.Lerp(new Vector4(0.5f, 0.5f, 0.5f, 1), tintColor(), 0.5f);
+
+            _diffuseParameter.SetValue(Vector4.Lerp(new Vector4(0.7f, 0.7f, 0.7f, 1), tintColor(), 0.5f));
 //            _effect.Alpha = SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f;
             _effect.View = _camera.Camera.View;
             _effect.Projection = _camera.Camera.Projection;
             _effect.World = _headRotation[_headDirection]*
-                            Matrix.Scaling(0.5f)*
-                            Matrix.Translation(p.X, 0.4f + p.Y, p.Z);
+                            Matrix.Scaling(HeadSize)*
+                            Matrix.Translation(p.X, HeadSize + p.Y, p.Z);
+            _effect.Texture = _skin;
             _sphere.Draw(_effect);
 
             var worlds = new List<Matrix>();
@@ -139,16 +149,16 @@ namespace Serpent
             {
                 var p2 = segment.GetPosition();
                 worlds.Add(
-                    Matrix.Scaling(0.4f)*
+                    Matrix.Scaling(SegmentSize) *
                     Matrix.Translation(
                         (p.X + p2.X)/2,
-                        0.3f + (p.Y + p2.Y)/2,
+                        SegmentSize + (p.Y + p2.Y) / 2,
                         (p.Z + p2.Z)/2));
                 worlds.Add(
-                    Matrix.Scaling(0.4f)*
+                    Matrix.Scaling(SegmentSize)*
                     Matrix.Translation(
                         p2.X,
-                        0.3f + p2.Y,
+                        SegmentSize + p2.Y,
                         p2.Z));
                 p = p2;
                 if (segment.Next == null)

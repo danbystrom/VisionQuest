@@ -26,7 +26,7 @@ namespace Serpent
         public static SkySphere Sky;
 
         public Data(
-            Game game1,
+            NextGame.NextGame game1,
             KeyboardManager keyboardManager,
             MouseManager mouseManager)
         {
@@ -46,13 +46,10 @@ namespace Serpent
                     texture );
 
             //TODO
-            //if ( Sky == null )
-            //    Sky = new SkySphere(VisionContent.Load<TextureCube>(@"Textures\clouds"));
+            if ( Sky == null )
+                Sky = new SkySphere(game1, VisionContent.Load<TextureCube>(@"Textures\clouds"));
 
-            //var serpentHead = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\SerpentHead") );
-            //var serpentSegment = new ModelWrapper( game1, game1.Content.Load<Model>(@"Models\serpentsegment") );
-
-            var sphere = new SpherePrimitive<VertexPositionNormal>(game1.GraphicsDevice, (p, n, t) => new VertexPositionNormal(p, n), 2);
+            var sphere = new SpherePrimitive<VertexPositionNormalTexture>(game1.GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t*2), 2);
 
             PlayerSerpent = new PlayerSerpent(
                 game1,
@@ -60,18 +57,17 @@ namespace Serpent
                 PlayingField,
                 sphere);
 
-            //for (var i = 0; i < 5; i++)
-            //{
-            //    var enemy = new EnemySerpent(
-            //        game1,
-            //        PlayingField,
-            //        serpentHead,
-            //        serpentSegment,
-            //        PlayerSerpent.Camera,
-            //        new Whereabouts(0, new Point(20, 0), Direction.West),
-            //        i);
-            //    Enemies.Add(enemy);
-            //}
+            for (var i = 0; i < 5; i++)
+            {
+                var enemy = new EnemySerpent(
+                    game1,
+                    PlayingField,
+                    sphere,
+                    PlayerSerpent.Camera,
+                    new Whereabouts(0, new Point(20, 0), Direction.West),
+                    i);
+                Enemies.Add(enemy);
+            }
         }
 
         public void UpdateKeyboard()

@@ -6,6 +6,7 @@ using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
 namespace Serpent
@@ -14,11 +15,19 @@ namespace Serpent
     {
         private bool _turnAround;
 
+        public float Speed = 1.3f;
+
         public PlayerSerpent(
             Game game,
             MouseManager mouseManager,
-            PlayingField pf, GeometricPrimitive<VertexPositionNormal> sphere )
-            : base( game, pf, sphere, new Whereabouts(0, new Point(0,0), Direction.East))
+            PlayingField pf,
+            factor10.VisionThing.IDrawable sphere)
+            : base(
+                game,
+                pf,
+                sphere,
+                new Whereabouts(0, new Point(0, 0), Direction.East),
+                game.Content.Load<Texture2D>(@"Textures\sn"))
         {
             _camera = new SerpentCamera(
                 mouseManager,
@@ -35,7 +44,7 @@ namespace Serpent
 
         protected override float modifySpeed()
         {
-            return base.modifySpeed()*1.3f;
+            return base.modifySpeed()*Speed;
         }
 
         public override void Update(GameTime gameTime)

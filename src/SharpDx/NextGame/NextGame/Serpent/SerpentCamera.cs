@@ -51,9 +51,9 @@ namespace Serpent.Serpent
                     case CameraBehavior.FreeFlying:
                         var t = Camera.Target;
                         var p = Camera.Position;
-                        Camera.Yaw = -(float)Math.Atan2(p.X - t.X, p.Z - t.Z);
-                        Camera.Pitch = (float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
-                        MouseManager.SetPosition(Camera.ClientSize/2);
+                        Camera.Yaw = (float)Math.Atan2(p.X - t.X, p.Z - t.Z);
+                        Camera.Pitch = -(float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
+                        MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
                         break;
                 }
             }

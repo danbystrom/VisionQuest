@@ -21,6 +21,7 @@ namespace factor10.VisionThing.Primitives
 
         private Buffer<T> _vertexBuffer;
         private Buffer[] _indexBuffers;
+        private VertexInputLayout _vertexInputLayout;
 
         protected GeometricPrimitive()
         {
@@ -67,6 +68,7 @@ namespace factor10.VisionThing.Primitives
         protected void initializePrimitive(GraphicsDevice graphicsDevice)
         {
             _vertexBuffer = Buffer.Vertex.New(graphicsDevice, _vertices.ToArray());
+            _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
 
             _indexBuffers = new Buffer[_indicesOfLods.Count];
             for (var i = 0; i < _indexBuffers.Length; i++)
@@ -118,12 +120,14 @@ namespace factor10.VisionThing.Primitives
         {
             var graphicsDevice = effect.GraphicsDevice;
 
-            graphicsDevice.SetVertexBuffer(_vertexBuffer);
-            graphicsDevice.SetIndexBuffer(_indexBuffers[lod], false);
-
             foreach (var effectPass in effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
+
+                graphicsDevice.SetVertexBuffer(_vertexBuffer);
+                graphicsDevice.SetVertexInputLayout(_vertexInputLayout);
+                graphicsDevice.SetIndexBuffer(_indexBuffers[lod], false);
+
                 graphicsDevice.DrawIndexed(PrimitiveType.TriangleList, _indexBuffers[lod].ElementCount);
                 VisionContent.RenderedTriangles += _indexBuffers[lod].ElementCount;
             }

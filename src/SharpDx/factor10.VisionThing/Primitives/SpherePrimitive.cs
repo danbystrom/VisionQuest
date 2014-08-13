@@ -36,8 +36,7 @@ namespace factor10.VisionThing.Primitives
             // Create rings of vertices at progressively higher latitudes.
             for (var i = 0; i < verticalSegments - 1; i++)
             {
-                var latitude = ((i + 1)*MathUtil.Pi/
-                                  verticalSegments) - MathUtil.PiOverTwo;
+                var latitude = ((i + 1)*MathUtil.Pi/verticalSegments) - MathUtil.PiOverTwo;
 
                 var dy = (float) Math.Sin(latitude);
                 var dxz = (float) Math.Cos(latitude);
@@ -46,13 +45,11 @@ namespace factor10.VisionThing.Primitives
                 for (var j = 0; j < horizontalSegments; j++)
                 {
                     var longitude = j * MathUtil.TwoPi / horizontalSegments;
-
                     var dx = (float) Math.Cos(longitude)*dxz;
                     var dz = (float) Math.Sin(longitude)*dxz;
-
                     var normal = new Vector3(dx, dy, dz);
-
-                    addVertex(createVertex(normal * radius, normal, Vector2.Zero));
+                    var textureCoordinate = new Vector2((float) (Math.Asin(dx)/Math.PI + 0.5), (float) (Math.Asin(dy)/Math.PI + 0.5));
+                    addVertex(createVertex(normal * radius, normal, textureCoordinate));
                 }
             }
 
