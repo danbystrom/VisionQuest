@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <!-- Common Properties -->
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}</ProjectGuid>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>factor10.VisionThing</RootNamespace>
+    <AssemblyName>factor10.VisionThing</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <!-- Platform Dependent Properties -->
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\VisionQuest\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>bbef3608</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Game, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Game.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Graphics, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Graphics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Input, Version=2.6.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SharpDXPackageBinDir)\SharpDX.Toolkit.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Animation.cs" />
+    <Compile Include="ArcGenerator.cs" />
+    <Compile Include="ArcVertex.cs" />
+    <Compile Include="Camera.cs" />
+    <Compile Include="ClipDrawable.cs" />
+    <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="ColorSurface.cs" />
+    <Compile Include="DoubleSin.cs" />
+    <Compile Include="Effects\EffectHelpers.cs" />
+    <Compile Include="Effects\IEffect.cs" />
+    <Compile Include="Effects\NewBasicEffect.cs" />
+    <Compile Include="Effects\VisionEffect.cs" />
+    <Compile Include="Effects\StockBasicEffect.cs" />
+    <Compile Include="IDrawable.cs" />
+    <Compile Include="Mt8Surface.cs" />
+    <Compile Include="Objects\Box.cs" />
+    <Compile Include="Objects\Bridge.cs" />
+    <Compile Include="Primitives\BezierPrimitive.cs" />
+    <Compile Include="Primitives\CubePrimitive.cs" />
+    <Compile Include="Primitives\CylinderPrimitive.cs" />
+    <Compile Include="Primitives\GeometricPrimitive.cs" />
+    <Compile Include="Primitives\PlaneMeshPrimitive.cs" />
+    <Compile Include="Primitives\PlanePrimitive.cs" />
+    <Compile Include="Primitives\SpherePrimitive.cs" />
+    <Compile Include="Primitives\TeapotPrimitive.cs" />
+    <Compile Include="Primitives\TorusPrimitive.cs" />
+    <Compile Include="Primitives\VertexPosition.cs" />
+    <Compile Include="Primitives\VertexPositionNormal.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShadowMap.cs" />
+    <Compile Include="SkySphere.cs" />
+    <Compile Include="Terrain\BillboardVertex.cs" />
+    <Compile Include="Terrain\Ground.cs" />
+    <Compile Include="Terrain\MicrosoftBillboards.cs" />
+    <Compile Include="Terrain\ReimersBillboards.cs" />
+    <Compile Include="Terrain\Sculptable.cs" />
+    <Compile Include="Terrain\SimpleBillboards.cs" />
+    <Compile Include="Terrain\TerrainBase.cs" />
+    <Compile Include="Terrain\TerrainPlane.cs" />
+    <Compile Include="Terrain\TerrainVertex.cs" />
+    <Compile Include="Terrain\WeightsMap.cs" />
+    <Compile Include="VisionContent.cs" />
+    <Compile Include="Water\WaterFactory.cs" />
+    <Compile Include="Water\WaterSurface.cs" />
+    <Compile Include="Water\WaterVertex.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\bigstone.jpg" />
+    <ToolkitTexture Include="Content\Textures\brick_normal_map.jpg" />
+    <ToolkitTexture Include="Content\Textures\brick_texture_map.jpg" />
+    <ToolkitTexture Include="Content\Textures\clouds.dds" />
+    <ToolkitTexture Include="Content\Textures\sand.bmp" />
+    <ToolkitTexture Include="Content\Textures\woodensign.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\windmill_diffuse.tga" />
+    <ToolkitTexture Include="Content\Textures\windmill_normal.tga" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Water\waterbump.dds" />
+    <ToolkitTexture Include="Content\Water\waterdmap0.jpg" />
+    <ToolkitTexture Include="Content\Water\waterdmap1.jpg" />
+    <ToolkitTexture Include="Content\Water\wave1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Effects\SimpleTextureEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\ArcsEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\BillboardEffect.fx" />
+    <Content Include="Content\Effects\LightingEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\ReflectedWater2.fx" />
+    <ToolkitFxc Include="Content\Effects\ReflectedWater.hlsl" />
+    <Content Include="Content\Effects\Series4Effects.fx" />
+    <Content Include="Content\Effects\SignTextEffect.fx" />
+    <Content Include="Content\Effects\SimpleBumpEffect.fx" />
+    <ToolkitFxc Include="Content\Effects\Skysphere.fx" />
+    <ToolkitFxc Include="Content\Effects\TerrainEffects.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Effects\Common.fxh" />
+    <None Include="Content\Effects\Lighting.fxh" />
+    <None Include="Content\Effects\Macros.fxh" />
+    <None Include="Content\Effects\Structures.fxh" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpDX.2.6.2\build\SharpDX.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpDX.2.6.2\build\SharpDX.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpDX.Toolkit.2.6.2\build\SharpDX.Toolkit.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpDX.Toolkit.2.6.2\build\SharpDX.Toolkit.targets'))" />
+  </Target>
+  <Import Project="..\packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.2\build\SharpDX.targets')" />
+  <Import Project="..\packages\SharpDX.Toolkit.2.6.2\build\SharpDX.Toolkit.targets" Condition="Exists('..\packages\SharpDX.Toolkit.2.6.2\build\SharpDX.Toolkit.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -8,6 +8,7 @@ Backup/
 private/
 _UpgradeReport_Files/
 UpgradeLog.XML
+Packages
 *.suo
 *.sdf
 *.user

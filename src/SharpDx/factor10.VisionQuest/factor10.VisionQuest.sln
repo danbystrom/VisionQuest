@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionQuest", "factor10.VisionQuest\factor10.VisionQuest.csproj", "{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{41644B4C-8FE8-4A7D-8472-5CB45C202CB1}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThing", "factor10.VisionThing\factor10.VisionThing.csproj", "{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextGame", "NextGame\NextGame.csproj", "{AA27018E-86F2-4E27-B107-070715556827}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionaryHeads", "..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj", "{DEDA88C6-08E4-4326-912D-3E1E1F537A72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionaryHeads.Tests", "..\factor10.VisionaryHeads.Tests\factor10.VisionaryHeads.Tests.csproj", "{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA27018E-86F2-4E27-B107-070715556827}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA27018E-86F2-4E27-B107-070715556827}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA27018E-86F2-4E27-B107-070715556827}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA27018E-86F2-4E27-B107-070715556827}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDA88C6-08E4-4326-912D-3E1E1F537A72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5765F9EC-C5DE-4E47-912E-38A3A9E4BA7D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
