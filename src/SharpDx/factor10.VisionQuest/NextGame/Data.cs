@@ -56,6 +56,7 @@ namespace Serpent
             PlayerSerpent = new PlayerSerpent(
                 VContent,
                 MouseManager,
+                KeyboardManager,
                 PlayingField,
                 sphere);
 

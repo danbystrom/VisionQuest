@@ -10,7 +10,7 @@ namespace factor10.VisionThing.Terrain
     public class TerrainBase : ClipDrawable
     {
         public static TerrainPlane TerrainPlane { get; private set; }
-        public static Box Box { get; private set; }
+        public static Box Box { get; protected set; }
 
         public readonly VisionContent VContent;
 
@@ -22,7 +22,7 @@ namespace factor10.VisionThing.Terrain
         protected Texture2D HeightsMap;
         protected Texture2D WeightsMap1;
         protected Texture2D WeightsMap2;
-        protected Texture2D NormalsMap;
+        //protected Texture2D NormalsMap;
 
         private terrainSlice[] _slices;
 
@@ -60,15 +60,15 @@ namespace factor10.VisionThing.Terrain
             _position = World.TranslationVector;
 
             Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/sahara");
-            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("grass");
+            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/grass");
             Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/canyon");
-            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("snow");
+            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/snow");
             Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/path");
 
             HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
             WeightsMap1 = weights.CreateTexture2D(Effect.GraphicsDevice,true);
             WeightsMap2 = weights.CreateTexture2D(Effect.GraphicsDevice, false);
-            NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
+            //NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
             var slicesW = ground.Width/64;
             var slicesH = ground.Width/64;
@@ -93,18 +93,16 @@ namespace factor10.VisionThing.Terrain
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            var any = false;
-            foreach (var slice in _slices)
-                any |= slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint;
+            var anyPartIsVisible = _slices.Aggregate(false, (current, slice) => current | (slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint));
 
-            if (!any)
+            if (!anyPartIsVisible)
                 return false;
 
             for (var i = 0; i < 8; i++ )
                 Effect.Parameters["Texture" + (char)(65+i)].SetResource(Textures[i]);
 
             Effect.Parameters["HeightsMap"].SetResource(HeightsMap);
-            Effect.Parameters["NormalsMap"].SetResource(NormalsMap);
+            //Effect.Parameters["NormalsMap"].SetResource(NormalsMap);
             Effect.Parameters["WeightsMap1"].SetResource(WeightsMap1);
             Effect.Parameters["WeightsMap2"].SetResource(WeightsMap2);
 
@@ -114,7 +112,7 @@ namespace factor10.VisionThing.Terrain
             {
                 Effect.Parameters["TexOffsetAndScale"].SetValue(slice.TexOffsetAndScale);
                 TerrainPlane.Draw(camera, slice.World, drawingReason);
-                //Box.World = slice.World * Matrix.CreateTranslation(0,10,0);
+                //Box.World = slice.World * Matrix.Translation(0,10,0);
                 //Box.Draw(camera, drawingReason, shadowMap);
             }
 

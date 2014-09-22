@@ -29,8 +29,7 @@ struct VertexShaderInput
 {
 	float4 Position : SV_Position;
 	float2 UV : TEXCOORD0;
-	//float3 Normal : NORMAL0;
-	float2 UV2 : TEXCOORD0;
+	float3 Normal : NORMAL0;
 };
 
 struct VertexShaderOutput
@@ -55,7 +54,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
-	output.Normal = float3(0,0,0); // mul(input.Normal, World);
+	output.Normal = mul(input.Normal, World);
 	output.ViewDirection = worldPosition - CameraPosition;
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
@@ -118,7 +117,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	// Calculate final color
 	float3 output = saturate(lighting) * color;
 
-    return float4(output, 1) + float4(0.9,0.9,0.9,1);
+    return float4(output, 1);
 }
 
 

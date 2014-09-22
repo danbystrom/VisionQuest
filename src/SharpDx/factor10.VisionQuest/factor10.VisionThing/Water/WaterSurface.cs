@@ -56,7 +56,10 @@ namespace factor10.VisionThing.Water
             GraphicsDevice graphicsDevice,
             InitInfo initInfo)
         {
-            Effect = new VisionEffect(initInfo.Fx, graphicsDevice.SamplerStates.LinearWrap);
+            Effect = new VisionEffect(initInfo.Fx, graphicsDevice.SamplerStates.LinearClamp)
+            {
+                SunlightDirection = VisionContent.SunlightDirection - new Vector3(0, VisionContent.SunlightDirection.Y/2, 0)
+            };
 
             _waveBumpMapVelocity0 = initInfo.waveBumpMapVelocity0;
             _waveBumpMapVelocity1 = initInfo.waveBumpMapVelocity1;
@@ -70,14 +73,13 @@ namespace factor10.VisionThing.Water
 
             buildFx(initInfo);
 
-            var targetWidth = 512; //(int)graphicsDevice.Viewport.Width;
-            var targetHeight = 512; //(int)graphicsDevice.Viewport.Height;
+            var targetWidth = graphicsDevice.BackBuffer.Width;
+            var targetHeight = graphicsDevice.BackBuffer.Height;
             _reflectionTarget = RenderTarget2D.New(
                 graphicsDevice,
                 targetWidth,
                 targetHeight*11/10, //compensate for displaced waves
-                MSAALevel.X2,
-                PixelFormat.R8G8B8A8.UInt);
+                graphicsDevice.BackBuffer.Format);
 
             _reflectionCamera = new Camera(
                 new Vector2(targetWidth, targetHeight),
@@ -195,6 +197,9 @@ namespace factor10.VisionThing.Water
         private EffectParameter _mhWaveDispMapOffset0;
         private EffectParameter _mhWaveDispMapOffset1;
 
+        private EffectParameter _reflectedView;
+        private EffectParameter _reflectedMap;
+
         private void buildFx(InitInfo initInfo)
         {
             var p = Effect.Effect.Parameters;
@@ -207,6 +212,8 @@ namespace factor10.VisionThing.Water
             _mhWaveBumpMapOffset1 = p["WaveNMapOffset1"];
             _mhWaveDispMapOffset0 = p["WaveDMapOffset0"];
             _mhWaveDispMapOffset1 = p["WaveDMapOffset1"];
+            _reflectedView = p["ReflectedView"];
+            _reflectedMap = p["ReflectedMap"];
 
             p["BumpMap0"].SetResource(initInfo.waveMap0);
             p["BumpMap1"].SetResource(initInfo.waveMap1);
@@ -218,7 +225,7 @@ namespace factor10.VisionThing.Water
             p["WaveHeight"].SetValue(0.3f * 2);
         }
 
-        public void RenderReflection(Camera camera)
+        public void RenderReflection(Camera camera, ClipDrawable z)
         {
             const float waterMeshPositionY = 0.75f; //experimenting with this
 
@@ -233,15 +240,18 @@ namespace factor10.VisionThing.Water
                 reflectedCameraTarget);
 
             Effect.GraphicsDevice.SetRenderTargets(_reflectionTarget);
+            Effect.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             var clipPlane = new Vector4(0, 1, 0, -waterMeshPositionY);
             foreach (var cd in ReflectedObjects)
                 cd.DrawReflection(clipPlane, _reflectionCamera);
 
-            Effect.GraphicsDevice.SetRenderTargets(Effect.GraphicsDevice.BackBuffer);
+            z.Draw(_reflectionCamera, DrawingReason.ReflectionMap);
 
-            Effect.Parameters["ReflectedView"].SetValue(_reflectionCamera.View);
-            Effect.Parameters["ReflectedMap"].SetResource(_reflectionTarget);
+            Effect.GraphicsDevice.SetRenderTargets(Effect.GraphicsDevice.DepthStencilBuffer, Effect.GraphicsDevice.BackBuffer);
+
+            _reflectedView.SetValue(_reflectionCamera.View);
+            _reflectedMap.SetResource(_reflectionTarget);
         }
 
     }

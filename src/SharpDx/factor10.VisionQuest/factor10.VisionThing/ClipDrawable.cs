@@ -38,10 +38,13 @@ namespace factor10.VisionThing
             DrawingReason drawingReason = DrawingReason.Normal,
             ShadowMap shadowMap = null)
         {
-            Effect.SetTechnique(drawingReason);
-            Effect.SetShadowMapping(drawingReason != DrawingReason.ShadowDepthMap ? shadowMap : null);
-            if (!draw(camera, drawingReason, shadowMap))
-                return false;
+            if (Effect != null)
+            {
+                Effect.SetTechnique(drawingReason);
+                Effect.SetShadowMapping(drawingReason != DrawingReason.ShadowDepthMap ? shadowMap : null);
+                if (!draw(camera, drawingReason, shadowMap))
+                    return false;
+            }
             Children.ForEach(cd => cd.Draw(camera, drawingReason, shadowMap));
             return true;
         }
@@ -50,8 +53,10 @@ namespace factor10.VisionThing
             Vector4? clipPlane,
             Camera camera)
         {
-            Effect.ClipPlane = clipPlane;
+            if(Effect!=null)
+                Effect.ClipPlane = clipPlane;
             Draw(camera, DrawingReason.ReflectionMap);
+            Children.ForEach(cd => cd.DrawReflection(clipPlane, camera));
         }
 
         public virtual void Update(GameTime gameTime)

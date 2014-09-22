@@ -27,8 +27,11 @@ namespace factor10.VisionQuest
             //    processOneIsland(lines, island, island.VAssembly.VProgram, modules);
 
 
-            _vertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, lines.ToArray());
-            _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
+            if (lines.Any())
+            {
+                _vertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, lines.ToArray());
+                _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
+            }
         }
 
 #if false

@@ -1,4 +1,7 @@
-﻿using factor10.VisionThing;
+﻿using System.Drawing;
+using factor10.VisionThing;
+using factor10.VisionThing.Effects;
+using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Water;
 using ShaderLinking;
 using SharpDX;
@@ -6,7 +9,12 @@ using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
+using TestBed;
+using Color = SharpDX.Color;
+using IDrawable = factor10.VisionThing.IDrawable;
 using RasterizerState = SharpDX.Toolkit.Graphics.RasterizerState;
+using Rectangle = SharpDX.Rectangle;
+using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
 namespace factor10.VisionQuest
 {
@@ -17,69 +25,81 @@ namespace factor10.VisionQuest
     internal sealed class VisionQuestGame : Game
     {
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
-        private VisionContent VContent;
+        private VisionContent _vContent;
 
         private readonly SharedData _data; // holds shader source, parameters and dirty state
 
-        private GeometricPrimitive<Vertex> _cubeGeometry; // cube geometrc primitive, contains vertex and index buffers
-        private BasicEffect _effect; // the applied effect, rebuild by ShaderBuilder class
+        private SharpDX.Toolkit.Graphics.GeometricPrimitive<VertexPositionNormalTexture> _cubeGeometry;
+            // cube geometrc primitive, contains vertex and index buffers
 
-        // transformation matrices
-        private Matrix _view;
-        private Matrix _projection;
-        private Matrix _world;
+        private VBasicEffect _basicEffect; // the applied effect, rebuild by ShaderBuilder class
 
         private KeyboardManager _keyboardManager;
         private MouseManager _mouseManager;
- 
+
         public Camera Camera;
         private WaterSurface _water;
         public SkySphere Sky;
+        private IDrawable _ball;
+
+        private RasterizerState _rasterizerState;
+        private MovingShip _movingShip;
+        private SpriteBatch _spriteBatch;
+        private ClipDrawableInstance _ballInstance;
+        private ShadowMap _shadow;
 
         public VisionQuestGame()
         {
+            _data = new SharedData
+            {
+                Size = new Size(1024, 768)
+            };
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
+            _graphicsDeviceManager.PreferredBackBufferWidth = _data.Size.Width;
+            _graphicsDeviceManager.PreferredBackBufferHeight = _data.Size.Height;
             Content.RootDirectory = "Content";
-            _data = new SharedData();
         }
 
-        public SharedData Data { get { return _data; } }
+        public SharedData Data
+        {
+            get { return _data; }
+        }
 
         protected override void LoadContent()
         {
             base.LoadContent();
 
-            // mark data as dirty at loading
-            _data.IsDirty = true;
+            _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
-            VContent = new VisionContent(_graphicsDeviceManager.GraphicsDevice, Content);
+            _vContent = new VisionContent(_graphicsDeviceManager.GraphicsDevice, Content);
             _keyboardManager = new KeyboardManager(this);
             _mouseManager = new MouseManager(this);
 
-            // initialize transformation matrices
-            _view = Matrix.LookAtRH(new Vector3(0, 1.2f, 3f), new Vector3(0, 0, 0), new Vector3(0f, 1f, 0f));
-            _projection = Matrix.PerspectiveFovRH(35f * MathUtil.Pi / 180f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 10.0f);
-            _world = Matrix.RotationY(45f * MathUtil.Pi / 180f);
+            _basicEffect = new VBasicEffect(_graphicsDeviceManager.GraphicsDevice);
+            _basicEffect.EnableDefaultLighting();
 
-            // load geometry
-            LoadGeometry();
+            _ball = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 4);
+            var x = _vContent.LoadPlainEffect("effects/simpletextureeffect");
+            x.Texture = _vContent.Load<Texture2D>("textures/sand");
+            _ballInstance = new ClipDrawableInstance(x, _ball, Matrix.Translation(10, 2, 10));
 
-            _effect = new BasicEffect(_graphicsDeviceManager.GraphicsDevice);
+            Sky = new SkySphere(_vContent, _vContent.Load<TextureCube>(@"Textures\clouds"));
+            _movingShip = new MovingShip(new ShipModel(_vContent));
 
-            Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
-
-            _water = WaterFactory.Create(VContent);
+            _water = WaterFactory.Create(_vContent);
+            _water.ReflectedObjects.Add(_movingShip);
+            _water.ReflectedObjects.Add(_ballInstance);
             _water.ReflectedObjects.Add(Sky);
 
             Camera = new Camera(
-                VContent.ClientSize,
-                new Vector3(0,5,0), 
-                Vector3.Left);
+                _vContent.ClientSize,
+                new Vector3(0, 10, 0),
+                new Vector3(50, 0, 50));
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
                 FillMode = FillMode.Solid,
-                CullMode = CullMode.Back,
+                CullMode = CullMode.None,
                 IsFrontCounterClockwise = false,
                 DepthBias = 0,
                 SlopeScaledDepthBias = 0.0f,
@@ -89,53 +109,22 @@ namespace factor10.VisionQuest
                 IsMultisampleEnabled = false,
                 IsAntialiasedLineEnabled = false
             });
+
+            _shadow = new ShadowMap(_vContent, Camera, 1024, 1024);
+            //_shadow.ShadowCastingObjects.Add(_sailingShip);
+            //_shadow.ShadowCastingObjects.Add(reimersTerrain);
+            //_shadow.ShadowCastingObjects.Add(generatedTerrain);
+            //_shadow.ShadowCastingObjects.Add(bridge);
+
+            var archipelag = new Archipelag(_vContent, _water, _shadow);
         }
-
-        private void LoadGeometry()
-        {
-            // constants for easy manipulation
-            const float f = 0.5f;
-            const float c = 0.75f;
-
-            var vertices = new[]
-                           {
-                               new Vertex(new Vector3(f, f, f), new Vector3(c, 0f, 0f)),
-                               new Vertex(new Vector3(f, f, -f), new Vector3(0, c, 0f)),
-                               new Vertex(new Vector3(f, -f, f), new Vector3(0f, 0f, c)),
-                               new Vertex(new Vector3(f, -f, -f), new Vector3(c, c, 0f)),
-
-                               new Vertex(new Vector3(-f, f, f), new Vector3(c, 0f, c)),
-                               new Vertex(new Vector3(-f, f, -f), new Vector3(0f, c, c)),
-                               new Vertex(new Vector3(-f, -f, f), new Vector3(0f, 0f, 0f)),
-                               new Vertex(new Vector3(-f, -f, -f), new Vector3(c, c, c))
-                           };
-
-            var indices = new short[]
-                          {
-                              0,2,1, 1,2,3,
-                              1,3,7, 7,5,1,
-
-                              5,7,6, 5,6,4,
-                              0,6,2, 0,4,6,
-
-                              0,1,5, 0,5,4,
-                              3,7,6, 3,6,2
-                          };
-
-            _cubeGeometry = ToDisposeContent(new GeometricPrimitive<Vertex>(GraphicsDevice, vertices, indices, false));
-        }
-
-        private bool _isFreeFlying;
-        private RasterizerState _rasterizerState;
 
         protected override void Update(GameTime gameTime)
         {
-            if (_keyboardManager.GetState().IsKeyPressed(Keys.F))
-                _isFreeFlying ^= true;
-            if(_isFreeFlying)
-                Camera.UpdateFreeFlyingCamera(gameTime, _mouseManager);
+            Camera.UpdateFreeFlyingCamera(gameTime, _mouseManager, _mouseManager.GetState(), _keyboardManager.GetState());
 
-            _water.Update((float)gameTime.ElapsedGameTime.TotalSeconds, Camera);
+            _movingShip.Update(gameTime);
+            _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds, Camera);
 
             base.Update(gameTime);
         }
@@ -143,29 +132,34 @@ namespace factor10.VisionQuest
         protected override void Draw(GameTime gameTime)
         {
             _graphicsDeviceManager.GraphicsDevice.SetRasterizerState(_rasterizerState);
+
+            _water.RenderReflection(Camera, _ballInstance);
+            GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, GraphicsDevice.BackBuffer);
+
             _graphicsDeviceManager.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // if the effect is loaded...
-            if (_effect != null)
-            {
-                // update cube rotation
-                var rot = Matrix.RotationY((float)gameTime.TotalGameTime.TotalSeconds);
+            foreach (var x in _water.ReflectedObjects)
+                x.Draw(Camera);
 
-                // set the parameters
-                _effect.World = rot*_world;
-                _effect.View = _view;
-                _effect.Projection = _projection;
-
-                // draw cube
-                _cubeGeometry.Draw(_effect);
-            }
-
-            WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0);
-            //_water.Draw(Camera, Vector3.Zero, 15, 0, 0);
-
+           // WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0);
             Sky.Draw(Camera);
+
+            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
+            _spriteBatch.Draw(
+                _water._reflectionTarget,
+                Vector2.Zero,
+                new Rectangle(0, 0, 320, 320),
+                Color.White,
+                0.0f,
+                new Vector2(16, 16),
+                Vector2.One,
+                SpriteEffects.None,
+                0f);
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
+
     }
+
 }

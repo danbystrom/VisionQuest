@@ -10,6 +10,7 @@ namespace factor10.VisionThing.Effects
         Matrix View { get; set; }
         Matrix Projection { get; set; }
         Vector3 CameraPosition { get; set; }
+        Vector3 SunlightDirection { get; set; }
         Vector4? ClipPlane { set; }
         Texture2DBase Texture { get; set; }
         Effect Effect { get; }
@@ -27,6 +28,7 @@ namespace factor10.VisionThing.Effects
         }
 
         public Vector3 CameraPosition { get; set; }
+        public Vector3 SunlightDirection { get; set; }
         public Vector4? ClipPlane { set; private get; }
         public Effect Effect {
             get { return this; } 

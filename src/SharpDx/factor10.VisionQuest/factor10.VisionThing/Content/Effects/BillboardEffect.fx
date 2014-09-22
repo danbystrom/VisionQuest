@@ -5,6 +5,10 @@ float4x4 Projection;
 float3 CameraPosition;
 float4 ClipPlane;
 
+//------- Texture Samplers --------
+Texture2D Texture;
+SamplerState TextureSampler;
+
 // Parameters controlling the wind effect.
 float3 WindDirection = float3(0, 0, 1);
 float WindWaveSize = 0.1;
@@ -19,25 +23,16 @@ float BillboardHeight = 2;
 
 float3 AllowedRotDir;
 
-//------- Texture Samplers --------
-Texture2D Texture;
-SamplerState MySampler
-{
-	Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Clamp;
-    AddressV = Clamp;
-};
-
 struct VertexToPixel
 {
-	float4 Position : POSITION;
+	float4 Position : SV_position;
 	float2 TexCoord	: TEXCOORD0;
 	float4 WorldPosition: TEXCOORD1;
 	float4 PositionCopy : TEXCOORD2;
 };
 
 
-VertexToPixel VSStandard(float4 inPos: POSITION0, float2 inTexCoord: TEXCOORD0)
+VertexToPixel VSStandard(float4 inPos: SV_position, float2 inTexCoord: TEXCOORD0)
 {
 	VertexToPixel output = (VertexToPixel)0;	
 
@@ -75,7 +70,7 @@ VertexToPixel VSStandard(float4 inPos: POSITION0, float2 inTexCoord: TEXCOORD0)
 
 float4 PSStandard(VertexToPixel input) : SV_Target
 {
-	float4 color = Texture.Sample(MySampler, input.TexCoord);
+	float4 color = Texture.Sample(TextureSampler, input.TexCoord);
 	clip(color.a - 0.7843f);
 	return color;
 }
@@ -88,7 +83,7 @@ float4 PSClipPlane(VertexToPixel input) : SV_Target
 
 float4 PSDepthMap(VertexToPixel input) : SV_Target
 {
-	float4 color = Texture.Sample(MySampler, input.TexCoord);
+	float4 color = Texture.Sample(TextureSampler, input.TexCoord);
 	clip(color.a - 0.7843f);
 
 	// Determine the depth of this vertex / by the far plane distance, limited to [0, 1]

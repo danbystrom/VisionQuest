@@ -38,7 +38,8 @@ namespace factor10.VisionThing.Effects
             Name = effect.Name;
 
             _epTextureSampler = effect.Parameters["TextureSampler"];
-            Sampler = samplerState ?? GraphicsDevice.SamplerStates.Default;
+            if(_epTextureSampler!=null)
+                Sampler = samplerState ?? GraphicsDevice.SamplerStates.LinearWrap;
 
             _epWorld = effect.Parameters["World"];
             _epView = effect.Parameters["View"];
@@ -90,6 +91,16 @@ namespace factor10.VisionThing.Effects
             {
                 if ( _epCameraPosition != null)
                     _epCameraPosition.SetValue(value);
+            }
+        }
+
+        public Vector3 SunlightDirection
+        {
+            get { return _epSunlightDirection.GetValue<Vector3>(); }
+            set
+            {
+                if (_epSunlightDirection != null)
+                    _epSunlightDirection.SetValue(value);
             }
         }
 

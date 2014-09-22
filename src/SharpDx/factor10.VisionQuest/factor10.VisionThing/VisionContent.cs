@@ -16,7 +16,7 @@ namespace factor10.VisionThing
         public readonly ContentManager Content;
         public readonly GraphicsDevice GraphicsDevice;
 
-        public VisionContent()
+        static VisionContent()
         {
             SunlightDirectionReflectedWater = new Vector3(11f, -2f, -6f);
             SunlightDirection = new Vector3(11f, -7f, -6f);

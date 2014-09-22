@@ -18,8 +18,6 @@ namespace factor10.VisionQuest
         public readonly VAssembly VAssembly;
         public readonly Dictionary<string, VisualClass> Classes = new Dictionary<string, VisualClass>();
 
-        public readonly Box Box;
-
         public CodeIsland(
             VisionContent vContent,
             Matrix world,
@@ -34,8 +32,7 @@ namespace factor10.VisionQuest
                 Box = new Box(vContent, World, new Vector3(50, 20, 50), 0.01f);
                 foreach (var vclass in vassembly.VClasses)
                 {
-                    var vc = new VisualClass(vclass, 75, 75, 5);
-                    vc.Height = 10;
+                    var vc = new VisualClass(vclass, 75, 75, 5) {Height = 10};
                     Classes.Add(vclass.FullName, vc);
 
                 }
@@ -208,7 +205,6 @@ namespace factor10.VisionQuest
             {
                 x = 0;
                 y++;
-                
             }
 
             return codeIsland;

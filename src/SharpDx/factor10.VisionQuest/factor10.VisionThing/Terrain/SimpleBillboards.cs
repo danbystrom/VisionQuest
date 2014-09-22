@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
+using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace factor10.VisionThing.Terrain
 {
     public class SimpleBillboards : ClipDrawable
     {
         public readonly Matrix World;
-        private ModelData.VertexBuffer _treeVertexBuffer;
+        private Buffer<VertexPositionTexture> _vertexBuffer;
+        private VertexInputLayout _vertexInputLayout;
         private readonly Texture2D _treeTexture;
 
         public readonly float Width;
@@ -50,31 +52,26 @@ namespace factor10.VisionThing.Terrain
                 billboardVertices[i++] = new VertexPositionTexture(currentV3, new Vector2(0, 1));
             }
 
-            //TODO
-            //_treeVertexBuffer = new ModelData.VertexBuffer(
-            //    Effect.GraphicsDevice,
-            //    typeof(VertexPositionTexture),
-            //    billboardVertices.Length,
-            //    BufferUsage.WriteOnly);
-            //_treeVertexBuffer.SetData(billboardVertices);
+            _vertexBuffer = Buffer.Vertex.New(Effect.GraphicsDevice, billboardVertices);
+            _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
         }
 
         protected float Time;
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            //TODO
-            //camera.UpdateEffect(Effect);
-            //if ( drawingReason == DrawingReason.ShadowDepthMap )
-            //    Effect.CameraPosition = shadowMap.RealCamera.Position;
-            //Effect.World = World;
-            //Effect.Parameters["WindTime"].SetValue(Time);
-            //Effect.Parameters["BillboardWidth"].SetValue(Width);
-            //Effect.Parameters["BillboardHeight"].SetValue(Height);
-            //Effect.Texture = _treeTexture;
-            //Effect.GraphicsDevice.SetVertexBuffer(_treeVertexBuffer);
-            //Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            //Effect.GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, _treeVertexBuffer.VertexCount / 3);
+            camera.UpdateEffect(Effect);
+            if (drawingReason == DrawingReason.ShadowDepthMap)
+                Effect.CameraPosition = shadowMap.RealCamera.Position;
+            Effect.World = World;
+            Effect.Parameters["WindTime"].SetValue(Time);
+            Effect.Parameters["BillboardWidth"].SetValue(Width);
+            Effect.Parameters["BillboardHeight"].SetValue(Height);
+            Effect.Texture = _treeTexture;
+            Effect.GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
+            Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+            Effect.Effect.CurrentTechnique.Passes[0].Apply();
+            Effect.GraphicsDevice.Draw(PrimitiveType.TriangleList, 0, _vertexBuffer.ElementCount);
             return true;
         }
 

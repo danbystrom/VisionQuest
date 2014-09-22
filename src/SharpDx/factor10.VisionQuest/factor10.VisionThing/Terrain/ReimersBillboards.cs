@@ -23,7 +23,7 @@ namespace factor10.VisionThing.Terrain
         private static List<Vector3> generateTreePositions(Texture2D treeMap, Ground ground, ColorSurface normals)
         {
             var treeMapColors = new Color[treeMap.Description.Width*treeMap.Description.Height];
-//TODO            treeMap. GetData(treeMapColors);
+            treeMap. GetData(treeMapColors);
 
             var sz = new Size2(treeMap.Description.Width, treeMap.Description.Height);
             var noiseData = new int[sz.Width,sz.Height];

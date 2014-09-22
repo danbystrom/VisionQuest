@@ -18,10 +18,7 @@ namespace factor10.VisionThing.Terrain
             Effect = vContent.LoadPlainEffect("Effects/TerrainEffects");
             _hiPlane = new PlaneMeshPrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
-                (x, y, t) => new TerrainVertex(
-                new Vector3(x-sqsz/2f, 0, y-sqsz/2f),
-                new Vector2(x/sqsz, y/sqsz),
-                x / sqsz),
+                (x, y, t) => new TerrainVertex( new Vector3(x-sqsz/2f, 0, y-sqsz/2f), new Vector2(x/sqsz, y/sqsz),x / sqsz),
                 sqsz, sqsz, 5);
             _loPlane = new PlanePrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,

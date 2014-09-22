@@ -30,7 +30,7 @@ namespace factor10.VisionThing.Terrain
             : this(heightMap.Description.Width, heightMap.Description.Height)
         {
             var oldData = new Color[Width*Height];
-//TODO            heightMap.GetData(oldData);
+            heightMap.GetData(oldData);
 
             for (var i = 0; i < Values.Length; i++)
                 Values[i] = fx(oldData[i].R);

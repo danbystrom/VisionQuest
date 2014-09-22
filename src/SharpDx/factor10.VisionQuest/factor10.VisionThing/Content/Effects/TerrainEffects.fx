@@ -3,7 +3,9 @@ float4x4 Projection;
 float4x4 World;
 float3 CameraPosition;
 float4 ClipPlane;
-float3 SunlightDirection = float3(0.7,0.7,0.7);
+float3 SunlightDirection = float3(0.7, 0.7, 0.7);
+SamplerState TextureSampler;
+
 float4 TexOffsetAndScale = float4(0,0,1,1);
 
 bool DoShadowMapping = true;
@@ -11,12 +13,6 @@ float ShadowMult = 0.3f;
 float ShadowBias = 0.001f;
 float4x4 ShadowViewProjection;
 texture2D ShadowMap;
-sampler2D shadowSampler = sampler_state {
-	texture = <ShadowMap>;
-	minfilter = point;
-	magfilter = point;
-	mipfilter = point;
-};
 
 float Ambient = 0.2;
 
@@ -36,12 +32,6 @@ Texture2D NormalsMap;
 Texture2D WeightsMap1;
 Texture2D WeightsMap2;
 
-SamplerState mySampler
-{
-	magfilter = LINEAR; minfilter = LINEAR; mipfilter = LINEAR; AddressU = mirror; AddressV = mirror;
-};
-
-
 struct MTVertexToPixel
 {
 	float4 Position         : SV_Position;
@@ -54,10 +44,10 @@ struct MTVertexToPixel
 
 float DispMap(float2 tex)
 {
-	return HeightsMap.SampleLevel(mySampler, tex, 0).r;
+	return HeightsMap.SampleLevel(TextureSampler, tex, 0).r;
 }
 
-MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float2 inTexCoords: TEXCOORD0)
+MTVertexToPixel MultiTexturedVS(float4 inPos : SV_Position, float2 inTexCoords: TEXCOORD0)
 {
     MTVertexToPixel output;
 
@@ -86,7 +76,7 @@ float2 sampleShadowMap(float2 UV)
 	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
 		return float2(1, 1);
 
-	return ShadowMap.Sample(mySampler, UV).rg;
+	return ShadowMap.Sample(TextureSampler, UV).rg;
 }
 
 
@@ -94,39 +84,39 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 {
     float4 Outpu;        
     
-	float3 normal = HeightsMap.SampleLevel(mySampler, input.TextureCoords, 0).xyz - float3(0.5, 0.5, 0.5);
+	float3 normal = HeightsMap.SampleLevel(TextureSampler, input.TextureCoords, 0).xyz - float3(0.5, 0.5, 0.5);
     float lightingFactor = saturate(Ambient+dot(normal, -SunlightDirection));
 
     float blendDistance = 0.99f;
 	float blendWidth = 0.005f;
 	float blendFactor = clamp((input.Depth-blendDistance)/blendWidth, 0, 1);
 
-	float4 textureWeights1 = WeightsMap1.Sample(mySampler, input.TextureCoords);
-	float4 textureWeights2 = WeightsMap2.Sample(mySampler, input.TextureCoords);
+	float4 textureWeights1 = WeightsMap1.Sample(TextureSampler, input.TextureCoords);
+	float4 textureWeights2 = WeightsMap2.Sample(TextureSampler, input.TextureCoords);
 
 	float4 farColor;
 	float2 farTextureCoords = input.TextureCoords*3;
-	farColor  = TextureA.Sample(mySampler, farTextureCoords)*textureWeights1.x;
-	farColor += TextureB.Sample(mySampler, farTextureCoords)*textureWeights1.y;
-	farColor += TextureC.Sample(mySampler, farTextureCoords)*textureWeights1.z;
-	farColor += TextureD.Sample(mySampler, farTextureCoords)*textureWeights1.w;
+	farColor  = TextureA.Sample(TextureSampler, farTextureCoords)*textureWeights1.x;
+	farColor += TextureB.Sample(TextureSampler, farTextureCoords)*textureWeights1.y;
+	farColor += TextureC.Sample(TextureSampler, farTextureCoords)*textureWeights1.z;
+	farColor += TextureD.Sample(TextureSampler, farTextureCoords)*textureWeights1.w;
 	farTextureCoords *= 40;
-	farColor += TextureE.Sample(mySampler, farTextureCoords)*textureWeights2.x;
-	farColor += TextureF.Sample(mySampler, farTextureCoords)*textureWeights2.y;
-	farColor += TextureG.Sample(mySampler, farTextureCoords)*textureWeights2.z;
-	farColor += TextureH.Sample(mySampler, farTextureCoords)*textureWeights2.w;
+	farColor += TextureE.Sample(TextureSampler, farTextureCoords)*textureWeights2.x;
+	farColor += TextureF.Sample(TextureSampler, farTextureCoords)*textureWeights2.y;
+	farColor += TextureG.Sample(TextureSampler, farTextureCoords)*textureWeights2.z;
+	farColor += TextureH.Sample(TextureSampler, farTextureCoords)*textureWeights2.w;
     
 	float4 nearColor;
 	float2 nearTextureCoords = input.TextureCoords*9;
-	nearColor = TextureA.Sample(mySampler, nearTextureCoords)*textureWeights1.x;
-	nearColor += TextureB.Sample(mySampler, nearTextureCoords)*textureWeights1.y;
-	nearColor += TextureC.Sample(mySampler, nearTextureCoords)*textureWeights1.z;
-	nearColor += TextureD.Sample(mySampler, nearTextureCoords)*textureWeights1.w;
+	nearColor = TextureA.Sample(TextureSampler, nearTextureCoords)*textureWeights1.x;
+	nearColor += TextureB.Sample(TextureSampler, nearTextureCoords)*textureWeights1.y;
+	nearColor += TextureC.Sample(TextureSampler, nearTextureCoords)*textureWeights1.z;
+	nearColor += TextureD.Sample(TextureSampler, nearTextureCoords)*textureWeights1.w;
 	nearTextureCoords = farTextureCoords;
-	nearColor += TextureE.Sample(mySampler, nearTextureCoords)*textureWeights2.x;
-	nearColor += TextureF.Sample(mySampler, nearTextureCoords)*textureWeights2.y;
-	nearColor += TextureG.Sample(mySampler, nearTextureCoords)*textureWeights2.z;
-	nearColor += TextureH.Sample(mySampler, nearTextureCoords)*textureWeights2.w;
+	nearColor += TextureE.Sample(TextureSampler, nearTextureCoords)*textureWeights2.x;
+	nearColor += TextureF.Sample(TextureSampler, nearTextureCoords)*textureWeights2.y;
+	nearColor += TextureG.Sample(TextureSampler, nearTextureCoords)*textureWeights2.z;
+	nearColor += TextureH.Sample(TextureSampler, nearTextureCoords)*textureWeights2.w;
 
 	if (DoShadowMapping)
 	{

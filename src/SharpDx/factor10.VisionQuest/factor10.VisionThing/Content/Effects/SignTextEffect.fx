@@ -5,6 +5,9 @@ float3 CameraPosition;
 float4 ClipPlane;
 float3 SunlightDirection = float3(-10, 20, 5);
 
+Texture2D Texture;
+SamplerState TextureSampler;
+
 float3 RotateAxis = float3(0,-1,0);
 
 bool DoShadowMapping = true;
@@ -19,27 +22,17 @@ sampler2D shadowSampler = sampler_state {
 	mipfilter = point;
 };
 
-texture Texture;
-sampler TextureSampler = sampler_state {
-	Texture = <Texture>;
-	MinFilter = Anisotropic; // Minification Filter
-	MagFilter = Anisotropic; // Magnification Filter
-	MipFilter = Linear; // Mip-mapping
-	AddressU = Wrap; // Address Mode for U Coordinates
-	AddressV = Wrap; // Address Mode for V Coordinates
-};
-
 float4 DiffuseColor = float4(240, 70, 20, 1);
 
 struct VertexShaderInput
 {
-    float4 Position : POSITION0;
+	float4 Position : SV_Position;
 	float2 UV : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
+ 	float4 Position : SV_Position;
 	float2 UV : TEXCOORD0;
 	float3 WorldPosition : TEXCOORD1;
 };
@@ -68,13 +61,13 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     return output;
 }
 
-float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
+float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
-	return tex2D(TextureSampler, input.UV) * 0.8; // * DiffuseColor;
+	return Texture.Sample(TextureSampler, input.UV) * 0.8; // * DiffuseColor;
 }
 
 
-float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : COLOR0
+float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : SV_Target
 {
 	clip(dot(float4(input.WorldPosition,1), ClipPlane));
 	return PixelShaderFunction(input);
@@ -85,16 +78,18 @@ technique TechStandard
 {
     pass Pass1
     {
-        VertexShader = compile vs_1_1 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunction();
-    }
+		SetGeometryShader(0);
+		SetVertexShader(CompileShader(vs_4_0, VertexShaderFunction()));
+		SetPixelShader(CompileShader(ps_4_0, PixelShaderFunction()));
+	}
 }
 
 technique TechClipPlane
 {
     pass Pass1
     {
-        VertexShader = compile vs_1_1 VertexShaderFunction();
-        PixelShader = compile ps_2_0 PixelShaderFunctionClipPlane();
-    }
+		SetGeometryShader(0);
+		SetVertexShader(CompileShader(vs_4_0, VertexShaderFunction()));
+		SetPixelShader(CompileShader(ps_4_0, PixelShaderFunctionClipPlane()));
+	}
 }

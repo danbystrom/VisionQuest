@@ -45,7 +45,7 @@ namespace factor10.VisionThing.Objects
             if (drawingReason != DrawingReason.ShadowDepthMap)
             {
                 Effect.Texture = _texture;
-                Effect.Parameters["BumpMap"].SetResource(_bumpMap);
+//TODO                Effect.Parameters["BumpMap"].SetResource(_bumpMap);
             }
             _cube.Draw(Effect);
             return true;

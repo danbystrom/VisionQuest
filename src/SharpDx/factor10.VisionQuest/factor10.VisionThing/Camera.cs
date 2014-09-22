@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using factor10.VisionThing.Effects;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -11,18 +13,22 @@ namespace factor10.VisionThing
     {
         public Matrix View { get; protected set; }
         public Matrix Projection { get; set; }
+
         public Vector3 Position { get; protected set; }
         public Vector3 Target { get; protected set; }
+        public Vector3 Forward { get; protected set; }
+        public Vector3 Left { get; protected set; }
+        public Vector3 Up { get; set; }
 
-        public Vector3 UpVector = Vector3.Up;
-
-        public float Yaw;
-        public float Pitch;
+        public float Yaw { get; protected set; }
+        public float Pitch { get; protected set; }
 
         public readonly Vector2 ClientSize;
 
-        public GameTime GameTime;
+        private Vector2 _lastMousePosition;
 
+        private readonly List<Keys> _downKeys = new List<Keys>();
+ 
         public Camera(
             Vector2 clientSize,
             Vector3 position,
@@ -32,6 +38,7 @@ namespace factor10.VisionThing
         {
             ClientSize = clientSize;
 
+            Up = Vector3.Up;
             Update(position, target);
             Projection = Matrix.PerspectiveFovRH(
                 MathUtil.PiOverFour,
@@ -59,7 +66,12 @@ namespace factor10.VisionThing
             View = Matrix.LookAtRH(
                 Position,
                 Target,
-                UpVector);
+                Vector3.Up);
+            Yaw = (float)Math.Atan2(position.X - target.X, position.Z - target.Z);
+            Pitch = -(float)Math.Asin((position.Y - target.Y) / Vector3.Distance(position, target));
+            Forward = Vector3.Normalize(target - position);
+            Left = Vector3.Normalize(Vector3.Cross(Up, Forward));
+
             _boundingFrustum = null;
         }
 
@@ -70,51 +82,64 @@ namespace factor10.VisionThing
             get { return (_boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(View*Projection))).Value; }
         }
 
-        public Vector3 Forward = Vector3.One;
-
-        public void UpdateFreeFlyingCamera(GameTime gameTime, MouseManager mouseManager)
+        public void UpdateFreeFlyingCamera(GameTime gameTime, MouseManager mouseManager, MouseState mouseState, KeyboardState keyboardState)
         {
-            GameTime = gameTime;
+            var mousePos = new Vector2(mouseState.X, mouseState.Y);
+            if (mouseState.LeftButton.Pressed || mouseState.RightButton.Pressed)
+                _lastMousePosition = mousePos;
+            
+            var delta = (_lastMousePosition - mousePos) * 100;
 
-            var center = new Vector2(0.5f, 0.5f);
-            var mouse = mouseManager.GetState();
-            mouseManager.SetPosition(center);
-            var delta = (center - new Vector2(mouse.X, mouse.Y))*100;
+            var step = (float) gameTime.ElapsedGameTime.TotalSeconds*4;
+            var pos = Position;
 
-            var sinPitch = (float) Math.Sin(Pitch);
-            var cosPitch = (float) Math.Cos(Pitch);
-            var sinYaw = (float) Math.Sin(Yaw);
-            var cosYaw = (float) Math.Cos(Yaw);
-
-            Forward = Vector3.Normalize(new Vector3(sinYaw*cosPitch, -sinPitch, cosYaw*cosPitch));
-
-            if (!mouse.RightButton.Down)
+            if (mouseState.LeftButton.Down)
             {
                 Yaw += MathUtil.DegreesToRadians(delta.X*0.50f);
                 Pitch += MathUtil.DegreesToRadians(delta.Y*0.50f);
-                //if (Yaw < 0 || Yaw > MathHelper.TwoPi)
-                //    Yaw -= MathHelper.TwoPi*Math.Sign(Yaw);
-                // if (Pitch < 0 || Pitch > MathHelper.TwoPi)
-                //     Pitch -= MathHelper.TwoPi*Math.Sign(Pitch);
+                mouseManager.SetPosition(_lastMousePosition);
+            }
+            else if (mouseState.RightButton.Down)
+            {
+                pos -= Forward*delta.Y*0.1f;
+                pos += Left*delta.X*0.1f;
+                mouseManager.SetPosition(_lastMousePosition);
             }
             else
             {
-                var left = Vector3.Normalize(Vector3.Cross(Forward, Vector3.Up));
-
-                Position += Forward * delta.Y * 0.1f;
-                Position += left*delta.X*0.1f;
-
-                //if (Data.Instance.KeyboardState.IsKeyDown(Keys.PageUp))
-                //    Position += Vector3.Down*delta;
-
-                //if (Data.Instance.KeyboardState.IsKeyDown(Keys.PageDown))
-                //    Position += Vector3.Up*delta;
+                keyboardState.GetDownKeys(_downKeys);
+                if (!_downKeys.Any())
+                    return;
+                if (_downKeys.Contains(Keys.Shift))
+                    step *= 3;
+                if (_downKeys.Contains(Keys.R))
+                    pos.Y += step;
+                if (keyboardState.IsKeyDown(Keys.F))
+                    pos.Y -= step;
+                if (keyboardState.IsKeyDown(Keys.A))
+                    pos += Left*step;
+                if (keyboardState.IsKeyDown(Keys.D))
+                    pos -= Left*step;
+                if (keyboardState.IsKeyDown(Keys.W))
+                    pos += Forward*step;
+                if (keyboardState.IsKeyDown(Keys.S))
+                    pos -= Forward*step;
+                if (keyboardState.IsKeyDown(Keys.Left))
+                    Yaw += step*0.1f;
+                if (keyboardState.IsKeyDown(Keys.Right))
+                    Yaw -= step*0.1f;
+                if (keyboardState.IsKeyDown(Keys.Up))
+                    Pitch += step*0.1f;
+                if (keyboardState.IsKeyDown(Keys.Down))
+                    Pitch -= step*0.1f;
             }
-
             var rotation = Matrix.RotationYawPitchRoll(Yaw, Pitch, 0);
-            Target = Position + Vector3.TransformCoordinate(Vector3.ForwardLH, rotation);
-            View = Matrix.LookAtLH(Position, Target, Vector3.Up);
-            _boundingFrustum = null;
+            Update(
+                pos,
+                pos + Vector3.TransformCoordinate(Vector3.ForwardRH * 10, rotation));
+
+            //System.Diagnostics.Debug.Print("({0:0.0},{1:0.0},{2:0.0}) ({3:0.0},{4:0.0},{5:0.0}) ({6:0.0},{7:0.0},{8:0.0}) ({9:0.0},{10:0.0},{11:0.0})", Position.X, Position.Y, Position.Z, Target.X, Target.Y, Target.Z,
+            //    Forward.X, Forward.Y, Forward.Z, Left.X, Left.Y, Left.Z);
         }
 
         public void UpdateEffect(IEffect effect)

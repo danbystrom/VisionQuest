@@ -10,11 +10,14 @@ namespace factor10.VisionThing
     {
         public static readonly int Size = sizeof (float)*3 + 3 + sizeof (float);
 
-        [VertexElement("POSITION")] public readonly Vector3 Position;
+        [VertexElement("POSITION")] 
+        public readonly Vector3 Position;
 
-        [VertexElement("COLOR")] public readonly Color Color;
+        [VertexElement("COLOR")]
+        public readonly Color Color;
 
-        [VertexElement("SINGLE")] public readonly float A;
+        [VertexElement("SINGLE")]
+        public readonly float A;
 
         public ArcVertex(Vector3 position, Color color, float a)
         {

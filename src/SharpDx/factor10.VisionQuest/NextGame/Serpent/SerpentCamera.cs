@@ -18,6 +18,7 @@ namespace Serpent.Serpent
     {
         public readonly Camera Camera;
         public readonly MouseManager MouseManager;
+        public readonly KeyboardManager KeyboardManager;
 
         private CameraBehavior _cameraBehavior;
         private float _acc;
@@ -25,12 +26,14 @@ namespace Serpent.Serpent
 
         public SerpentCamera(
             MouseManager mouseManager,
+            KeyboardManager keyboardManager,
             Vector2 clientBounds,
             Vector3 position,
             Vector3 target,
             CameraBehavior cameraBehavior)
         {
             MouseManager = mouseManager;
+            KeyboardManager = keyboardManager;
             _cameraBehavior = cameraBehavior;
             Camera = new Camera(clientBounds, position, target);
         }
@@ -51,10 +54,10 @@ namespace Serpent.Serpent
                         _desiredUpVector = Vector3.ForwardLH;
                         break;
                     case CameraBehavior.FreeFlying:
-                        var t = Camera.Target;
-                        var p = Camera.Position;
-                        Camera.Yaw = (float)Math.Atan2(p.X - t.X, p.Z - t.Z);
-                        Camera.Pitch = -(float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
+                        //var t = Camera.Target;
+                        //var p = Camera.Position;
+                        //Camera.Yaw = (float)Math.Atan2(p.X - t.X, p.Z - t.Z);
+                        //Camera.Pitch = -(float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
                         MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
                         break;
                 }
@@ -66,7 +69,7 @@ namespace Serpent.Serpent
             Vector3 target,
             Direction direction)
         {
-            Camera.UpVector = Vector3.Lerp(Camera.UpVector, _desiredUpVector, 0.03f);
+            Camera.Up = Vector3.Lerp(Camera.Up, _desiredUpVector, 0.03f);
 
             switch (CameraBehavior)
             {
@@ -99,7 +102,7 @@ namespace Serpent.Serpent
                     break;
 
                 case CameraBehavior.FreeFlying:
-                    Camera.UpdateFreeFlyingCamera(gameTime, MouseManager);
+                    Camera.UpdateFreeFlyingCamera(gameTime, MouseManager, MouseManager.GetState(), KeyboardManager.GetState());
                     break;
 
                 case CameraBehavior.Head:

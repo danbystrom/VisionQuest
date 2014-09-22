@@ -21,6 +21,7 @@ namespace Serpent
         public PlayerSerpent(
             VisionContent vContent,
             MouseManager mouseManager,
+            KeyboardManager keyboardManager,
             PlayingField pf,
             factor10.VisionThing.IDrawable sphere)
             : base(
@@ -32,6 +33,7 @@ namespace Serpent
         {
             _camera = new SerpentCamera(
                 mouseManager,
+                keyboardManager,
                 vContent.ClientSize,
                 new Vector3(0, 20, 2),
                 Vector3.Zero,

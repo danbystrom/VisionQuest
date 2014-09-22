@@ -15,7 +15,6 @@ namespace factor10.VisionThing.Terrain
 
         private readonly Texture2D _grassTexture;
         private readonly Texture2D _treeTexture;
-        private readonly Texture2D _catTexture;
 
         public MicrosoftBillboards(
             VisionContent vContent,
@@ -25,9 +24,8 @@ namespace factor10.VisionThing.Terrain
             _world = world;
 
 
-            _grassTexture = vContent.Load<Texture2D>("billboards/grass");
-            _treeTexture = vContent.Load<Texture2D>("billboards/tree");
-            _catTexture = vContent.Load<Texture2D>("billboards/cat");
+            _grassTexture = vContent.Load<Texture2D>("billboards/grassms");
+            _treeTexture = vContent.Load<Texture2D>("billboards/treems");
 
             Effect.Texture = _grassTexture;
         }

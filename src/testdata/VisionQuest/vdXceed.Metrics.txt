@@ -1,0 +1,816 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeMetricsReport Version="10.0">
+  <Targets>
+    <Target Name="C:\proj\photomic.old\src\Plata\bin\Release\vdXceed.dll">
+      <Modules>
+        <Module Name="vdXceed.dll" AssemblyVersion="1.0.0.0">
+          <Metrics>
+            <Metric Name="MaintainabilityIndex" Value="87" />
+            <Metric Name="CyclomaticComplexity" Value="170" />
+            <Metric Name="ClassCoupling" Value="62" />
+            <Metric Name="DepthOfInheritance" Value="7" />
+            <Metric Name="LinesOfCode" Value="288" />
+          </Metrics>
+          <Namespaces>
+            <Namespace Name="vdXceed">
+              <Metrics>
+                <Metric Name="MaintainabilityIndex" Value="87" />
+                <Metric Name="CyclomaticComplexity" Value="170" />
+                <Metric Name="ClassCoupling" Value="62" />
+                <Metric Name="DepthOfInheritance" Value="7" />
+                <Metric Name="LinesOfCode" Value="288" />
+              </Metrics>
+              <Types>
+                <Type Name="DragDropEvent">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="100" />
+                    <Metric Name="CyclomaticComplexity" Value="4" />
+                    <Metric Name="ClassCoupling" Value="6" />
+                    <Metric Name="DepthOfInheritance" Value="1" />
+                    <Metric Name="LinesOfCode" Value="0" />
+                  </Metrics>
+                  <Members>
+                    <Member Name="DragDropEvent(object, IntPtr)">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Invoke(vdPlainGrid, vdPlainGrid.DragDropAction, Cell, DragEventArgs, ref bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BeginInvoke(vdPlainGrid, vdPlainGrid.DragDropAction, Cell, DragEventArgs, ref bool, AsyncCallback, object) : IAsyncResult">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="6" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="EndInvoke(ref bool, IAsyncResult) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                  </Members>
+                </Type>
+                <Type Name="AutoAddingEditRow">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="100" />
+                    <Metric Name="CyclomaticComplexity" Value="4" />
+                    <Metric Name="ClassCoupling" Value="4" />
+                    <Metric Name="DepthOfInheritance" Value="1" />
+                    <Metric Name="LinesOfCode" Value="0" />
+                  </Metrics>
+                  <Members>
+                    <Member Name="AutoAddingEditRow(object, IntPtr)">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Invoke(vdPlainGrid, DataRow) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BeginInvoke(vdPlainGrid, DataRow, AsyncCallback, object) : IAsyncResult">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="EndInvoke(IAsyncResult) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                  </Members>
+                </Type>
+                <Type Name="vdPlainGrid">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="75" />
+                    <Metric Name="CyclomaticComplexity" Value="142" />
+                    <Metric Name="ClassCoupling" Value="56" />
+                    <Metric Name="DepthOfInheritance" Value="7" />
+                    <Metric Name="LinesOfCode" Value="245" />
+                  </Metrics>
+                  <Members>
+                    <Member Name="CellDoubleClick.add(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="CellDoubleClick.remove(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="CellValueChanged.add(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="CellValueChanged.remove(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="SelectedRowsChanged.add(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="SelectedRowsChanged.remove(EventHandler) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="DragDropEvent.add(DragDropEvent) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="DragDropEvent.remove(DragDropEvent) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="AutoAddingEditRow.add(AutoAddingEditRow) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="AutoAddingEditRow.remove(AutoAddingEditRow) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="vdPlainGrid()">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="vdPlainGrid()">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="84" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="OnLoad(EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="subscribeToEvents() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="54" />
+                        <Metric Name="CyclomaticComplexity" Value="6" />
+                        <Metric Name="ClassCoupling" Value="12" />
+                        <Metric Name="LinesOfCode" Value="17" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BackColor.get() : Color">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="94" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BackColor.set(Color) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BackgroundImage.get() : Image">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="94" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BackgroundImage.set(Image) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="OnPaintBackground(PaintEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="ReadOnly.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="94" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="ReadOnly.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="ISupportReadOnly.ReadOnly.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="ISupportReadOnly.ReadOnly.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="CanBeSorted.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="CanBeSorted.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="68" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="5" />
+                        <Metric Name="LinesOfCode" Value="6" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="AutoAddNewRow.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="AutoAddNewRow.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="SupportDragDrop.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="SupportDragDrop.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Caption.get() : string">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Caption.set(string) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="71" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="5" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Dispose(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="cell_DoubleClick(object, EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="86" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_SelectedRowsChanged(object, EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="80" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="InitializeComponent() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="52" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="11" />
+                        <Metric Name="LinesOfCode" Value="21" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="BeginInit() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="0" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="EndInit() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="66" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="5" />
+                        <Metric Name="LinesOfCode" Value="7" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="setColumnFullWidth(int) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="84" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="setColumnFullWidth(Column) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="92" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="setLastColumnFullWidth() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="78" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="addColumn(string, Type, int) : Column">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="68" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="5" />
+                        <Metric Name="LinesOfCode" Value="6" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="addColumn(string, int) : Column">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="91" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="addRow() : DataRow">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="64" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="7" />
+                        <Metric Name="LinesOfCode" Value="8" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="addEditRow() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="60" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="12" />
+                        <Metric Name="LinesOfCode" Value="11" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="row_CellValueChanged(object, EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="65" />
+                        <Metric Name="CyclomaticComplexity" Value="6" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="8" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="isEditRow(DataRow) : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="77" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="beginCleanFillup() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="83" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="beginFillup() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="71" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="5" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="endFillup() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="60" />
+                        <Metric Name="CyclomaticComplexity" Value="7" />
+                        <Metric Name="ClassCoupling" Value="8" />
+                        <Metric Name="LinesOfCode" Value="11" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="IsInitializing.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Dirty.get() : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Dirty.set(bool) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="selectedDataRow.get() : DataRow">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="77" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="selectedDataRow.set(DataRow) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="78" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="selectedRowTag.get() : object">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="77" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="selectedRowTag.set(object) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="68" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="6" />
+                        <Metric Name="LinesOfCode" Value="6" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="HighlightRow.get() : Row">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="HighlightRow.set(Row) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="69" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="5" />
+                        <Metric Name="LinesOfCode" Value="6" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="findRowWithTag(object) : DataRow">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="66" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="6" />
+                        <Metric Name="LinesOfCode" Value="7" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="DataRows.get() : DataRowList">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="94" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="DataRowTags&lt;T&gt;() : List&lt;T&gt;">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="65" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="6" />
+                        <Metric Name="LinesOfCode" Value="7" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Mouse_Down(object, MouseEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="83" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Mouse_Up(object, MouseEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="95" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="fireUserAction(vdPlainGrid.DragDropAction, Cell, DragEventArgs) : bool">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="78" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="4" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Mouse_Move(object, MouseEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="60" />
+                        <Metric Name="CyclomaticComplexity" Value="7" />
+                        <Metric Name="ClassCoupling" Value="7" />
+                        <Metric Name="LinesOfCode" Value="10" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_DragOver(object, DragEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="92" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_DragDrop(object, DragEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="92" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="cell_DragOver(object, DragEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="86" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="cell_DragDrop(object, DragEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="86" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_KeyPress(object, KeyPressEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="63" />
+                        <Metric Name="CyclomaticComplexity" Value="4" />
+                        <Metric Name="ClassCoupling" Value="8" />
+                        <Metric Name="LinesOfCode" Value="9" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_KeyDown(object, KeyEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="G_KeyUp(object, KeyEventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="OnResize(EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="85" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="fixSpringColumn(int) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="76" />
+                        <Metric Name="CyclomaticComplexity" Value="3" />
+                        <Metric Name="ClassCoupling" Value="3" />
+                        <Metric Name="LinesOfCode" Value="4" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="sillyXceed(object, EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="88" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="2" />
+                      </Metrics>
+                    </Member>
+                  </Members>
+                </Type>
+                <Type Name="vdPlainGrid.DragDropAction">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="100" />
+                    <Metric Name="CyclomaticComplexity" Value="0" />
+                    <Metric Name="ClassCoupling" Value="0" />
+                    <Metric Name="DepthOfInheritance" Value="1" />
+                    <Metric Name="LinesOfCode" Value="0" />
+                  </Metrics>
+                  <Members />
+                </Type>
+                <Type Name="Global">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="91" />
+                    <Metric Name="CyclomaticComplexity" Value="4" />
+                    <Metric Name="ClassCoupling" Value="3" />
+                    <Metric Name="DepthOfInheritance" Value="1" />
+                    <Metric Name="LinesOfCode" Value="6" />
+                  </Metrics>
+                  <Members>
+                    <Member Name="Global()">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="XceedLic() : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="98" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="1" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Global()">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="100" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="0" />
+                        <Metric Name="LinesOfCode" Value="1" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="defaultGridColors(GridControl) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="77" />
+                        <Metric Name="CyclomaticComplexity" Value="1" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                  </Members>
+                </Type>
+                <Type Name="vdXceedColumnFullWidth">
+                  <Metrics>
+                    <Metric Name="MaintainabilityIndex" Value="58" />
+                    <Metric Name="CyclomaticComplexity" Value="16" />
+                    <Metric Name="ClassCoupling" Value="13" />
+                    <Metric Name="DepthOfInheritance" Value="1" />
+                    <Metric Name="LinesOfCode" Value="37" />
+                  </Metrics>
+                  <Members>
+                    <Member Name="vdXceedColumnFullWidth(GridControl, Column)">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="54" />
+                        <Metric Name="CyclomaticComplexity" Value="7" />
+                        <Metric Name="ClassCoupling" Value="8" />
+                        <Metric Name="LinesOfCode" Value="17" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="extendSpringColumn(Column) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="53" />
+                        <Metric Name="CyclomaticComplexity" Value="7" />
+                        <Metric Name="ClassCoupling" Value="11" />
+                        <Metric Name="LinesOfCode" Value="17" />
+                      </Metrics>
+                    </Member>
+                    <Member Name="Cols_WidthChanged(object, EventArgs) : void">
+                      <Metrics>
+                        <Metric Name="MaintainabilityIndex" Value="80" />
+                        <Metric Name="CyclomaticComplexity" Value="2" />
+                        <Metric Name="ClassCoupling" Value="2" />
+                        <Metric Name="LinesOfCode" Value="3" />
+                      </Metrics>
+                    </Member>
+                  </Members>
+                </Type>
+              </Types>
+            </Namespace>
+          </Namespaces>
+        </Module>
+      </Modules>
+    </Target>
+  </Targets>
+</CodeMetricsReport>

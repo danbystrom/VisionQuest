@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using SharpDX.Windows;
 
 namespace factor10.VisionQuest
 {

@@ -31,11 +31,11 @@ namespace factor10.VisionThing
             _graphicsDevice = vContent.GraphicsDevice;
             RealCamera = camera;
 
-            ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, MSAALevel.None, PixelFormat.R16G16.Float);
+            ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             _spriteBatch = new SpriteBatch(_graphicsDevice);
             _shadowBlurEffect = vContent.Load<Effect>("ShadowEffects/GaussianBlur");
-            _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, MSAALevel.None, PixelFormat.R16G16.Float);
+            _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             Camera = new Camera(
                 new Vector2(width, height),

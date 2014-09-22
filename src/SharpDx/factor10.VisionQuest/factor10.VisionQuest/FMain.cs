@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using ShaderLinking;
 using SharpDX.Windows;
@@ -18,16 +19,30 @@ namespace factor10.VisionQuest
 
             _data = data;
 
-            // create the RenderControl
-            _renderControl = new MyRenderControl();
-            _renderControl.Dock = DockStyle.Fill;
-            pnRenderControlPanel.Controls.Add(_renderControl);
+             // create the RenderControl
+            _renderControl = new RenderControl
+            {
+                //Dock = DockStyle.Fill,
+                MinimumSize = data.Size,
+                MaximumSize = data.Size,
+                Size = data.Size,
+                Left = pnRenderControlPanel.Left,
+                Top = pnRenderControlPanel.Top,
+            };
+            //pnRenderControlPanel.Controls.Add(_renderControl);
+            Controls.Add(_renderControl);
+            pnRenderControlPanel.Visible = false;
         }
 
         // Expose the render conttrol to the game class
         public RenderControl RenderControl
         {
             get { return _renderControl; }
+        }
+
+        public void Render()
+        {
+            //_renderControl.Render();
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -60,6 +75,11 @@ namespace factor10.VisionQuest
                 //return true;
             }
             return false;
+        }
+
+        private void pnRenderControlPanel_Paint(object sender, PaintEventArgs e)
+        {
+
         }
 
     }

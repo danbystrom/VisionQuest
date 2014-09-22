@@ -35,14 +35,12 @@
             // 
             // pnRenderControlPanel
             // 
-            this.pnRenderControlPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnRenderControlPanel.Location = new System.Drawing.Point(172, 20);
             this.pnRenderControlPanel.Margin = new System.Windows.Forms.Padding(4);
             this.pnRenderControlPanel.Name = "pnRenderControlPanel";
-            this.pnRenderControlPanel.Size = new System.Drawing.Size(1620, 942);
+            this.pnRenderControlPanel.Size = new System.Drawing.Size(480, 393);
             this.pnRenderControlPanel.TabIndex = 3;
+            this.pnRenderControlPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.pnRenderControlPanel_Paint);
             // 
             // button1
             // 
@@ -65,11 +63,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1805, 975);
+            this.ClientSize = new System.Drawing.Size(1719, 1081);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pnRenderControlPanel);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FMain";
             this.Text = "FMain";

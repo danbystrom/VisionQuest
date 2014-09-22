@@ -279,13 +279,13 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 	float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
 
 	float bumpMapDistribution = lerp(0.5, 1, saturate(sqrt(abs(CameraPosition.y - 3)) / 4));
-	bumpColor = bumpColor * bumpMapDistribution + BumpMap1.Sample(TextureSampler, input.BumpSamplingPos1)   * (1 - bumpMapDistribution);
+	bumpColor = bumpColor * bumpMapDistribution + BumpMap1.Sample(TextureSampler, input.BumpSamplingPos1) * (1 - bumpMapDistribution);
 
 	float2 ProjectedTexCoords;
 	ProjectedTexCoords.x = input.ReflectionMapPos.x / input.ReflectionMapPos.w / 2.0f + 0.5f;
 	ProjectedTexCoords.y = -input.ReflectionMapPos.y / input.ReflectionMapPos.w / 2.0f + 0.5f;
 	float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
-	float4 reflectiveColor = ReflectedMap.Sample(MirrorSampler, perturbatedTexCoords);
+	float4 reflectiveColor = ReflectedMap.Sample(TextureSampler, perturbatedTexCoords);
 
 	float4 dullColor = float4(0.1f, 0.1f, 0.3f, 1.0f);
 	float4 refractiveColor = float4(0.1, 0.1, 0.3, 1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
@@ -296,19 +296,19 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 	float2 cameraPosXZ = float2(CameraPosition.x, CameraPosition.z);
 	float2 worldPosXZ = float2(input.Position3D.x, input.Position3D.z);
 	float fog = saturate((distance(cameraPosXZ, worldPosXZ) - FogStart) / FogRange);
+	fog = 0;
 
-	float fresnelTerm = dot(eyeVector, normalVector);
+	float fresnelTerm = saturate(dot(eyeVector, normalVector));
 	float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm) * (1 - fog));
 	float4 color = lerp(combinedColor, dullColor, 0.4);
 
 	float3 reflectionVector = -reflect(SunlightDirection, normalVector);
 	float specular = dot(normalize(reflectionVector), eyeVector);
-	specular = pow(abs(specular), 256);
+	specular = pow(abs(specular), 64);
 
-	color = bumpColor;  // until all the above gets resolved
 	color.rgb += specular;
 
-	return bumpColor;
+	return color;
 }
 
 

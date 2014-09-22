@@ -1,0 +1,13 @@
+<CLASS name="Kalle">
+  <WAS name="Nisse"/>
+  <METHOD name="AttachProcess" type="void" modifiers="public" signature="int,string">
+    <WAS name="attachProcess" type="void" modifiers="private" signature="int,string,string">
+    <CALLS name="Q.Z.y(string,string)" />
+    <CALLS name="Q.Y.x(string,string)" />
+    <CALLEDBY name="A.B.z(int,decimal)" />
+    <INTRODUCED current="2012-01-12" original="2011-07-01" />
+    <CHANGES last="2012-01-12" frequency="3" count="54 total="710" />
+    <METRIC name="complexity" value="7">
+    <METRIC name="blah" value="8">
+  </METHOD>
+</CLASS>

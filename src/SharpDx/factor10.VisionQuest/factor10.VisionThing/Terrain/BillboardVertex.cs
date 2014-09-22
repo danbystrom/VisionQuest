@@ -10,10 +10,17 @@ namespace factor10.VisionThing.Terrain
     {
         public static readonly int Size = sizeof (float)*(3 + 2 + 2);
 
-        [VertexElement("POSITION")] public readonly Vector3 Position;
-        [VertexElement("NORMAL")] public readonly Vector3 Normal;
-        [VertexElement("TEXCOORD0")] public readonly Vector2 TexCoord;
-        [VertexElement("TEXCOORD1")] public readonly Vector2 Random;
+        [VertexElement("POSITION")]
+        public readonly Vector3 Position;
+
+        [VertexElement("NORMAL")]
+        public readonly Vector3 Normal;
+
+        [VertexElement("TEXCOORD0")]
+        public readonly Vector2 TexCoord;
+
+        [VertexElement("TEXCOORD1")]
+        public readonly Vector2 Random;
 
         public BillboardVertex(Vector3 position, Vector3 normal, Vector2 texCoord, float random)
         {

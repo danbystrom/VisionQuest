@@ -23,7 +23,7 @@ namespace factor10.VisionThing.Terrain
             : this(heightMap.Description.Width, heightMap.Description.Height)
         {
             var oldData = new Color[Width*Height];
-//TODO            heightMap.GetData(oldData);
+            heightMap.GetData(oldData);
 
             for (var i = 0; i < Values.Length; i++)
                 Values[i] = fx(oldData[i].R);
@@ -34,7 +34,7 @@ namespace factor10.VisionThing.Terrain
             var sz = new Size2(heightMap.Description.Width, heightMap.Description.Height);
             var ground = new Ground(sz.Width*2, sz.Height*2);
             var oldData = new Color[sz.Width*sz.Height];
-//TODO            heightMap.GetData(oldData);
+            heightMap.GetData(oldData);
 
             for (var y = 0; y < sz.Height; y++)
                 for (var x = 0; x < sz.Width; x++)
@@ -51,7 +51,7 @@ namespace factor10.VisionThing.Terrain
             var sz = new Size2(heightMap.Description.Width, heightMap.Description.Height);
             var ground = new Ground(sz.Width * 2, sz.Height * 2);
             var oldData = new Color[sz.Width*sz.Height];
-//TODO            heightMap.GetData(oldData);
+            heightMap.GetData(oldData);
 
             for (var y = 0; y < sz.Height; y++)
                 for (var x = 0; x < sz.Width; x++)
@@ -68,7 +68,7 @@ namespace factor10.VisionThing.Terrain
         public void Merge( int x, int y, Texture2D heightMap)
         {
             var oldData = new Color[Width*Height];
-//TODO            heightMap.GetData(oldData);
+            heightMap.GetData(oldData);
 
             var sz = new Size2(heightMap.Description.Width, heightMap.Description.Height);
             var i = 0;
@@ -153,11 +153,9 @@ namespace factor10.VisionThing.Terrain
 
         public Texture2D CreateHeightsTexture(GraphicsDevice graphicsDevice)
         {
-            //TODO
-            //var result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Single);
-            //result.SetData(Values);
-            //return result;
-            return null;
+            var result = Texture2D.New(graphicsDevice, Width, Height, false, PixelFormat.R32.Float);
+            result.SetData(Values);
+            return result;
         }
 
         public ColorSurface CreateNormalsMap()

@@ -8,26 +8,29 @@ namespace factor10.VisionThing.Terrain
     [StructLayout(LayoutKind.Sequential)]
     public struct TerrainVertex : IEquatable<TerrainVertex>
     {
-        public static readonly int Size = sizeof (float)*(3 + 2 + 1);
+        public static readonly int Size = sizeof (float)*(3 + 2);
 
-        [VertexElement("POSITION")] public readonly Vector3 Position;
+        [VertexElement("SV_Position")]
+        public readonly Vector3 Position;
 
-        [VertexElement("COLOR")] public readonly Vector2 TexCoord;
+        [VertexElement("TEXCOORD0")]
+        public readonly Vector2 TexCoord;
 
-        [VertexElement("SINGLE")] public readonly float NormCoordX;
+        //[VertexElement("BLENDWEIGHT")]
+        //public readonly float NormCoordX;
 
 
         public TerrainVertex(Vector3 position, Vector2 texCoord, float normCoordX)
         {
             Position = position;
             TexCoord = texCoord;
-            NormCoordX = normCoordX;
+            //NormCoordX = normCoordX;
         }
 
         public bool Equals(TerrainVertex other)
         {
-            return Position.Equals(other.Position) && TexCoord.Equals(other.TexCoord) &&
-                   NormCoordX.Equals(other.NormCoordX);
+            return Position.Equals(other.Position) && TexCoord.Equals(other.TexCoord);
+            //&& NormCoordX.Equals(other.NormCoordX);
         }
 
         public override bool Equals(object obj)
@@ -42,7 +45,7 @@ namespace factor10.VisionThing.Terrain
             {
                 var hashCode = Position.GetHashCode();
                 hashCode = (hashCode*397) ^ TexCoord.GetHashCode();
-                hashCode = (hashCode*397) ^ NormCoordX.GetHashCode();
+//                hashCode = (hashCode*397) ^ NormCoordX.GetHashCode();
                 return hashCode;
             }
         }
@@ -59,7 +62,7 @@ namespace factor10.VisionThing.Terrain
 
         public override string ToString()
         {
-            return string.Format("Position: {0}, TexCoord: {1}, NormCoordX: {2}", Position, TexCoord, NormCoordX);
+            return string.Format("Position: {0}, TexCoord: {1}, NormCoordX: {2}", Position, TexCoord, 0);
         }
     }
 
