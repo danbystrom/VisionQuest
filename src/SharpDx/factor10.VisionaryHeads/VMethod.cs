@@ -22,6 +22,8 @@ namespace factor10.VisionaryHeads
         public int ClassCoupling { get; set; }
         public int LinesOfCode { get; set; }
 
+        public string AssemblyName { get { return MethodDefinition.Module.Assembly.Name.Name; } }
+
         public VMethod(VClass vclass, MethodDefinition methodDefinition)
         {
             VClass = vclass;

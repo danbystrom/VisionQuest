@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using factor10.VisionThing;
+using SharpDX;
+
+namespace factor10.VisionQuest
+{
+    public class ProjectAssembly
+    {
+        public string AssemblyName;
+        public string FullFilename;
+    }
+
+    public class Project
+    {
+        public string Name;
+
+        public Vector3 CameraPosition = new Vector3(0, 5, 0);
+        public Vector3 CameraLookAt = new Vector3(10, 4, 10);
+
+        public DateTime Created;
+        public DateTime Accessed;
+
+        public string MainAssemblyName;
+
+        public List<ProjectAssembly> Assemblies;
+        public List<ProjectAssembly> ThirdPartyAssemblies;
+        public List<ProjectAssembly> IgnoredAssemblies;
+
+        private Project()
+        {
+        }
+
+        private static string fullName(string folder, string filename)
+        {
+            return Path.Combine(folder, filename) + ".vqp";
+        }
+
+        private Project(string name)
+        {
+            Name = name;
+            Created = DateTime.Now;
+            Assemblies = new List<ProjectAssembly>();
+            ThirdPartyAssemblies = new List<ProjectAssembly>();
+            IgnoredAssemblies = new List<ProjectAssembly>();
+        }
+
+        public static Project Load(string projectsFolder, string name)
+        {
+            try
+            {
+                return File.ReadAllText(fullName(projectsFolder,name)).FromXml<Project>();
+            }
+            catch (Exception ex)
+            {
+                return new Project(name);
+            }
+        }
+
+        public void Save(string projectsFolder)
+        {
+            File.WriteAllText(fullName(projectsFolder, Name), this.ToXml());
+        }
+
+        public static IList<Project> LoadAll(string projectsFolder)
+        {
+            return Directory.GetFiles(fullName(projectsFolder, "*")).Select(_ => Load(projectsFolder, _)).ToList();
+        }
+
+    }
+
+}

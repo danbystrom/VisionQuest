@@ -26,9 +26,18 @@ namespace factor10.VisionThing
         public readonly Vector2 ClientSize;
 
         private Vector2 _lastMousePosition;
+        private Vector2 _lastPointerPosition;
 
         private readonly List<Keys> _downKeys = new List<Keys>();
- 
+
+        public readonly KeyboardManager KeyboardManager;
+        public readonly MouseManager MouseManager;
+        public readonly PointerManager PointerManager;
+
+        public KeyboardState KeyboardState;
+        public MouseState MouseState;
+        public PointerState PointerState;
+
         public Camera(
             Vector2 clientSize,
             Vector3 position,
@@ -44,6 +53,22 @@ namespace factor10.VisionThing
                 MathUtil.PiOverFour,
                 clientSize.X / clientSize.Y,
                 nearPlane, farPlane);
+        }
+
+        public Camera(
+            Vector2 clientSize,
+            KeyboardManager keyboardManager,
+            MouseManager mouseManager,
+            PointerManager pointerManager,
+            Vector3 position,
+            Vector3 target,
+            float nearPlane = 1,
+            float farPlane = 20000)
+            :this(clientSize,position,target,nearPlane,farPlane)
+        {
+            KeyboardManager = keyboardManager;
+            MouseManager = mouseManager;
+            PointerManager = pointerManager;
         }
 
         public Vector3 Front
@@ -76,67 +101,101 @@ namespace factor10.VisionThing
         }
 
         private BoundingFrustum? _boundingFrustum;
+        private int _lastMouseDelta;
 
         public BoundingFrustum BoundingFrustum
         {
             get { return (_boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(View*Projection))).Value; }
         }
 
-        public void UpdateFreeFlyingCamera(GameTime gameTime, MouseManager mouseManager, MouseState mouseState, KeyboardState keyboardState)
+        public void UpdateInputDevices()
         {
-            var mousePos = new Vector2(mouseState.X, mouseState.Y);
-            if (mouseState.LeftButton.Pressed || mouseState.RightButton.Pressed)
-                _lastMousePosition = mousePos;
-            
-            var delta = (_lastMousePosition - mousePos) * 100;
+            KeyboardState = KeyboardManager.GetState();
+            KeyboardState.GetDownKeys(_downKeys);
+            MouseState = MouseManager.GetState();
+            if(PointerManager!=null)
+                PointerState = PointerManager.GetState();
+        }
 
-            var step = (float) gameTime.ElapsedGameTime.TotalSeconds*4;
+        public void UpdateFreeFlyingCamera(GameTime gameTime)
+        {
+            var mouseWheelChanged = MouseState.WheelDelta != _lastMouseDelta;
+
+            if (!MouseState.LeftButton.Down && !MouseState.RightButton.Down && !mouseWheelChanged && !_downKeys.Any())
+                return;
+
+            var mousePos = new Vector2(MouseState.X, MouseState.Y);
+            if (MouseState.LeftButton.Pressed || MouseState.RightButton.Pressed)
+                _lastMousePosition = mousePos;
+
+            var delta = (_lastMousePosition - mousePos)*150;
+            if (mouseWheelChanged)
+            {
+                delta.Y += (MouseState.WheelDelta - _lastMouseDelta)*1.0f;
+                _lastMouseDelta = MouseState.WheelDelta;
+            }
+
             var pos = Position;
 
-            if (mouseState.LeftButton.Down)
+            //if (PointerState.Points.Any())
+            //    foreach(var point in PointerState.Points)
+            //        switch (point.EventType)
+            //        {
+            //            case PointerEventType.Pressed:
+            //                _lastPointerPosition = point.Position;
+            //                break;
+            //            case PointerEventType.Moved:
+            //                delta += _lastMousePosition - point.Position;
+            //                Yaw += MathUtil.DegreesToRadians(delta.X*0.50f);
+            //                Pitch += MathUtil.DegreesToRadians(delta.Y*0.50f);
+            //                _lastPointerPosition = point.Position;
+            //                break;
+            //        }
+            //else
+                if (MouseState.LeftButton.Down)
             {
                 Yaw += MathUtil.DegreesToRadians(delta.X*0.50f);
                 Pitch += MathUtil.DegreesToRadians(delta.Y*0.50f);
-                mouseManager.SetPosition(_lastMousePosition);
+                MouseManager.SetPosition(_lastMousePosition);
             }
-            else if (mouseState.RightButton.Down)
+            else if (MouseState.RightButton.Down || mouseWheelChanged)
             {
                 pos -= Forward*delta.Y*0.1f;
                 pos += Left*delta.X*0.1f;
-                mouseManager.SetPosition(_lastMousePosition);
+                MouseManager.SetPosition(_lastMousePosition);
             }
-            else
-            {
-                keyboardState.GetDownKeys(_downKeys);
-                if (!_downKeys.Any())
-                    return;
-                if (_downKeys.Contains(Keys.Shift))
-                    step *= 3;
-                if (_downKeys.Contains(Keys.R))
-                    pos.Y += step;
-                if (keyboardState.IsKeyDown(Keys.F))
-                    pos.Y -= step;
-                if (keyboardState.IsKeyDown(Keys.A))
-                    pos += Left*step;
-                if (keyboardState.IsKeyDown(Keys.D))
-                    pos -= Left*step;
-                if (keyboardState.IsKeyDown(Keys.W))
-                    pos += Forward*step;
-                if (keyboardState.IsKeyDown(Keys.S))
-                    pos -= Forward*step;
-                if (keyboardState.IsKeyDown(Keys.Left))
-                    Yaw += step*0.1f;
-                if (keyboardState.IsKeyDown(Keys.Right))
-                    Yaw -= step*0.1f;
-                if (keyboardState.IsKeyDown(Keys.Up))
-                    Pitch += step*0.1f;
-                if (keyboardState.IsKeyDown(Keys.Down))
-                    Pitch -= step*0.1f;
-            }
+
+            var step = (float) gameTime.ElapsedGameTime.TotalSeconds*30;
+
+            var rotStep = step*0.05f;
+            if (_downKeys.Contains(Keys.Shift))
+                step *= 5;
+
+            if (_downKeys.Contains(Keys.R))
+                pos.Y += step;
+            if (KeyboardState.IsKeyDown(Keys.F))
+                pos.Y -= step;
+            if (KeyboardState.IsKeyDown(Keys.A))
+                pos += Left*step;
+            if (KeyboardState.IsKeyDown(Keys.D))
+                pos -= Left*step;
+            if (KeyboardState.IsKeyDown(Keys.W))
+                pos += Forward*step;
+            if (KeyboardState.IsKeyDown(Keys.S))
+                pos -= Forward*step;
+            if (KeyboardState.IsKeyDown(Keys.Left))
+                Yaw += rotStep;
+            if (KeyboardState.IsKeyDown(Keys.Right))
+                Yaw -= rotStep;
+            if (KeyboardState.IsKeyDown(Keys.Up))
+                Pitch += rotStep;
+            if (KeyboardState.IsKeyDown(Keys.Down))
+                Pitch -= rotStep;
+
             var rotation = Matrix.RotationYawPitchRoll(Yaw, Pitch, 0);
             Update(
                 pos,
-                pos + Vector3.TransformCoordinate(Vector3.ForwardRH * 10, rotation));
+                pos + Vector3.TransformCoordinate(Vector3.ForwardRH*10, rotation));
 
             //System.Diagnostics.Debug.Print("({0:0.0},{1:0.0},{2:0.0}) ({3:0.0},{4:0.0},{5:0.0}) ({6:0.0},{7:0.0},{8:0.0}) ({9:0.0},{10:0.0},{11:0.0})", Position.X, Position.Y, Position.Z, Target.X, Target.Y, Target.Z,
             //    Forward.X, Forward.Y, Forward.Z, Left.X, Left.Y, Left.Z);

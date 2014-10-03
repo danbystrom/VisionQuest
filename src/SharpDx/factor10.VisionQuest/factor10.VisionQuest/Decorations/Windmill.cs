@@ -36,7 +36,7 @@ namespace factor10.VisionQuest
                 TimeSpan.FromSeconds(10), true);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             _animation.Update(gameTime.ElapsedGameTime);
             //TODO _model.Meshes["Fan"].ParentBone.Transform =

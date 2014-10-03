@@ -82,21 +82,21 @@ float2 sampleShadowMap(float2 UV)
 
 float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 {
-    float4 Outpu;        
-    
-	float3 normal = HeightsMap.SampleLevel(TextureSampler, input.TextureCoords, 0).xyz - float3(0.5, 0.5, 0.5);
-    float lightingFactor = saturate(Ambient+dot(normal, -SunlightDirection));
+	float4 Outpu;
 
-    float blendDistance = 0.99f;
+	float3 normal = NormalsMap.SampleLevel(TextureSampler, input.TextureCoords, 0).xyz - float3(0.5, 0.5, 0.5);
+		float lightingFactor = saturate(Ambient + dot(normal, -SunlightDirection));
+
+	float blendDistance = 0.99f;
 	float blendWidth = 0.005f;
-	float blendFactor = clamp((input.Depth-blendDistance)/blendWidth, 0, 1);
+	float blendFactor = clamp((input.Depth - blendDistance) / blendWidth, 0, 1);
 
 	float4 textureWeights1 = WeightsMap1.Sample(TextureSampler, input.TextureCoords);
-	float4 textureWeights2 = WeightsMap2.Sample(TextureSampler, input.TextureCoords);
+		float4 textureWeights2 = WeightsMap2.Sample(TextureSampler, input.TextureCoords);
 
-	float4 farColor;
-	float2 farTextureCoords = input.TextureCoords*3;
-	farColor  = TextureA.Sample(TextureSampler, farTextureCoords)*textureWeights1.x;
+		float4 farColor;
+	float2 farTextureCoords = input.TextureCoords * 3;
+		farColor = TextureA.Sample(TextureSampler, farTextureCoords)*textureWeights1.x;
 	farColor += TextureB.Sample(TextureSampler, farTextureCoords)*textureWeights1.y;
 	farColor += TextureC.Sample(TextureSampler, farTextureCoords)*textureWeights1.z;
 	farColor += TextureD.Sample(TextureSampler, farTextureCoords)*textureWeights1.w;
@@ -105,9 +105,9 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 	farColor += TextureF.Sample(TextureSampler, farTextureCoords)*textureWeights2.y;
 	farColor += TextureG.Sample(TextureSampler, farTextureCoords)*textureWeights2.z;
 	farColor += TextureH.Sample(TextureSampler, farTextureCoords)*textureWeights2.w;
-    
+
 	float4 nearColor;
-	float2 nearTextureCoords = input.TextureCoords*9;
+	float2 nearTextureCoords = input.TextureCoords * 9;
 	nearColor = TextureA.Sample(TextureSampler, nearTextureCoords)*textureWeights1.x;
 	nearColor += TextureB.Sample(TextureSampler, nearTextureCoords)*textureWeights1.y;
 	nearColor += TextureC.Sample(TextureSampler, nearTextureCoords)*textureWeights1.z;
@@ -124,17 +124,17 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 		if (realDepth < 1)
 		{
 			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+				float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
 
-			// Variance shadow mapping code below from the variance shadow
-			// mapping demo code @ http://www.punkuser.net/vsm/
+				// Variance shadow mapping code below from the variance shadow
+				// mapping demo code @ http://www.punkuser.net/vsm/
 
-			// Sample from depth texture
-			float2 moments = sampleShadowMap(shadowTexCoord);
+				// Sample from depth texture
+				float2 moments = sampleShadowMap(shadowTexCoord);
 
-			// Check if we're in shadow
-			float lit_factor = (realDepth <= moments.x);
-    
+				// Check if we're in shadow
+				float lit_factor = (realDepth <= moments.x);
+
 			// Variance shadow mapping
 			float E_x2 = moments.y;
 			float Ex_2 = moments.x * moments.x;
@@ -146,7 +146,9 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 		}
 	}
 
-	return lerp(nearColor, farColor, blendFactor) * lightingFactor;
+	float4 color = lerp(nearColor, farColor, blendFactor) * lightingFactor;
+	color.w = 1;
+	return color;
 }
 
 float4 MultiTexturedPSClipPlane(MTVertexToPixel input) : SV_Target

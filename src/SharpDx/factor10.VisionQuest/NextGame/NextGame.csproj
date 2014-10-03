@@ -112,6 +112,7 @@
     <ToolkitTexture Include="Content\Textures\sn.dds" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Content\Models\GalleonModel.3ds" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

@@ -22,9 +22,9 @@ namespace factor10.VisionQuest
 
             var lines = new List<ArcVertex>();
 
-            //var modules = codeIslands.ToDictionary(ci => ci.VAssembly.AssemblyDefinition.MainModule, ci => ci);
-            //foreach (var island in modules.Values)
-            //    processOneIsland(lines, island, island.VAssembly.VProgram, modules);
+            var modules = codeIslands.ToDictionary(ci => ci.VAssembly.Name, ci => ci);
+            foreach (var island in modules.Values)
+                processOneIsland(lines, island, island.VAssembly.VProgram, modules);
 
 
             if (lines.Any())
@@ -34,14 +34,13 @@ namespace factor10.VisionQuest
             }
         }
 
-#if false
         private static void processOneIsland(
             List<ArcVertex> lines,
             CodeIsland island,
             VProgram vp,
-            Dictionary<ModuleDefinition, CodeIsland> modules)
+            Dictionary<string, CodeIsland> modules)
         {
-            if (island.VAssembly.IsFortress)
+            if (island.VAssembly.Is3dParty)
                 return;
 
             var arc = new ArcGenerator(4);
@@ -56,15 +55,14 @@ namespace factor10.VisionQuest
                         if (!vp.VMethods.TryGetValue(name, out callTo))
                             continue;
                         CodeIsland islandD;
-                        if (!modules.TryGetValue(callTo.MethodDefinition.Module, out islandD))
+                        if (!modules.TryGetValue(callTo.AssemblyName, out islandD))
                             continue;
                         var calledClass = islandD.Classes[callTo.VClass.FullName];
                         if (done.Contains(calledClass))
                             continue;
                         done.Add(calledClass);
-                        var v1 = island.World.Translation + new Vector3(vclass.X - 64, vclass.Height, vclass.Y - 64);
-                        var v2 = islandD.World.Translation +
-                                 new Vector3(calledClass.X - 64, calledClass.Height, calledClass.Y - 64);
+                        var v1 = island.World.TranslationVector + new Vector3(vclass.X - 64, vclass.Height, vclass.Y - 64);
+                        var v2 = islandD.World.TranslationVector + new Vector3(calledClass.X - 64, calledClass.Height, calledClass.Y - 64);
                         var distance = Vector3.Distance(v1, v2)/8;
                         arc.CreateArc(
                             v1,
@@ -79,16 +77,15 @@ namespace factor10.VisionQuest
                                 return new ArcVertex(
                                     p,
                                     new Color(c, c, 1 - c, 1f),
-                                    (idx%2) == 1 ? 0 : (MathHelper.TwoPi*(int) (distance/16 + 1)));
+                                    (idx%2) == 1 ? 0 : (MathUtil.TwoPi*(int) (distance/16 + 1)));
                             });
                     }
             }
         }
-#endif
 
         private float _time;
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             _time = MathUtil.Mod2PI(_time + (float) gameTime.ElapsedGameTime.TotalSeconds*10);
         }
@@ -103,7 +100,8 @@ namespace factor10.VisionQuest
 
                 Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
                 Effect.GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
-                Effect.GraphicsDevice.Draw(PrimitiveType.LineList, 0);
+                Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.DepthRead);
+                Effect.GraphicsDevice.Draw(PrimitiveType.LineList, _vertexBuffer.ElementCount);
             }
             catch (Exception)
             {

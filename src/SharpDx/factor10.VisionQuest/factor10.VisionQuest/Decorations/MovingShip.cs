@@ -20,9 +20,9 @@ namespace factor10.VisionQuest
             Children.Add(_shipModel);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
-            _shipModel.Update(gameTime);
+            _shipModel.Update(camera, gameTime);
             _angle += gameTime.ElapsedGameTime.TotalSeconds / 100;
             _world = Matrix.Scaling(0.08f) * Matrix.Translation(_radius, 1f, 0) * Matrix.RotationY((float)_angle);
             _shipModel.World = _world;

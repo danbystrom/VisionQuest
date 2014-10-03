@@ -7,14 +7,14 @@ float Time;
 
 struct VertexShaderInput
 {
-    float4 Position : POSITION0;
+	float4 Position : SV_Position;
     float4 Color : COLOR0;
-	float A : TEXCOORD00;
+	float A : BLENDWEIGHT0;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : POSITION0;
+    float4 Position : SV_Position;
 	float4 Color : COLOR0;
     float4 PositionCopy : TEXCOORD00;
 	float3 WorldPosition : TEXCOORD1;

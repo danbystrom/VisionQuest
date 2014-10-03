@@ -4,6 +4,7 @@ using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
+using SharpDX.Toolkit.Input;
 
 namespace factor10.VisionThing.Water
 {
@@ -83,6 +84,9 @@ namespace factor10.VisionThing.Water
 
             _reflectionCamera = new Camera(
                 new Vector2(targetWidth, targetHeight),
+                null,
+                null,
+                null,
                 Vector3.Zero,
                 Vector3.Up);
         }

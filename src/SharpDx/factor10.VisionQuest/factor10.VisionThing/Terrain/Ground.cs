@@ -19,7 +19,7 @@ namespace factor10.VisionThing.Terrain
                 Values[i] = fillValue;
         }
 
-        public Ground(Texture2D heightMap, Func<int,float> fx )
+        public Ground(Texture heightMap, Func<int,float> fx )
             : this(heightMap.Description.Width, heightMap.Description.Height)
         {
             var oldData = new Color[Width*Height];

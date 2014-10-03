@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
@@ -71,7 +70,7 @@ namespace factor10.VisionThing.Terrain
             Effect.GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
             Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
             Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            Effect.GraphicsDevice.Draw(PrimitiveType.TriangleList, 0, _vertexBuffer.ElementCount);
+            Effect.GraphicsDevice.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
             return true;
         }
 

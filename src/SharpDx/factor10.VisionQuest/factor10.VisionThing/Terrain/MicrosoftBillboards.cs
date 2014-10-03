@@ -122,7 +122,7 @@ namespace factor10.VisionThing.Terrain
         }
 
         private float _time;
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             _time += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }

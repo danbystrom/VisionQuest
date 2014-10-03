@@ -11,6 +11,10 @@
       <Start>32</Start>
       <End>127</End>
     </CharacterRegion>
+    <CharacterRegion>
+      <Start>228</Start>
+      <End>230</End>
+    </CharacterRegion>
   </CharacterRegions>
   <DefaultCharacter>32</DefaultCharacter>
   <Style>Regular</Style>

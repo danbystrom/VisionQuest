@@ -37,7 +37,7 @@ namespace factor10.VisionThing
                     Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.25f)*world*
                     Matrix.Translation(-79, 2, 5)
             };
-            _ship2.Update(new GameTime(new TimeSpan(0, 0, 0, 5), new TimeSpan(0, 0, 0, 5)));
+            _ship2.Update(null, new GameTime(new TimeSpan(0, 0, 0, 5), new TimeSpan(0, 0, 0, 5)));
 
 
             Children.Add(_windmill);

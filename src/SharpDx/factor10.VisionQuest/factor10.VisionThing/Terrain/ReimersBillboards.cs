@@ -73,7 +73,7 @@ namespace factor10.VisionThing.Terrain
             return treeList;
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             Time += (float) gameTime.ElapsedGameTime.TotalSeconds;
         }

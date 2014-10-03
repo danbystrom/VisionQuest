@@ -1,0 +1,158 @@
+# 
+# Wavefront material file
+# Created with Kaydara FBX
+# 
+
+newmtl gal_mast__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_brass__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_cabin__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_deck__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_fcourse__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_fighead__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_flag__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_ftop__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_hull__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_int__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_mcourse__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_metal__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_mizzen__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_mtop__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_railing__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_rope__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_spritsail__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_trim__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_trim2__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_trim3__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_windows__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000
+
+newmtl gal_yardarm__Galleon_jpg
+map_Kd Galleon.jpg
+Ka 0.000000 0.000000 0.000000
+Kd 0.599200 0.599200 0.599200
+illum 1
+Tr 1.000000

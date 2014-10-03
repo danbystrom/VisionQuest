@@ -22,27 +22,27 @@ namespace factor10.VisionQuest
         public ShipModel(VisionContent vContent)
             : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
         {
-            _model = vContent.Load<Model>(@"Models/ship");
+            _model = vContent.Load<Model>(@"Models/galleonmodel");
             BasicEffect.EnableDefaultLighting(_model, true);
 
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 
-//            foreach (var part in _model.Meshes.SelectMany(mesh => mesh.MeshParts))
-//            {
-//                if (_texture == null)
-//                {
-//                    var basicEffect = part.Effect as BasicEffect;
-//                    if (basicEffect != null)
-//                        _texture = (Texture2D)basicEffect.Texture;
-//                }
-////                part.Effect = Effect.Effect;
-//            }
+            foreach (var part in _model.Meshes.SelectMany(mesh => mesh.MeshParts))
+            {
+                //if (_texture == null)
+                //{
+                //    var basicEffect = part.Effect as BasicEffect;
+                //    if (basicEffect != null)
+                //        _texture = (Texture2D)basicEffect.Texture;
+                //}
+                part.Effect = Effect.Effect;
+            }
 
             _boundingSphere = _model.CalculateBounds();
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             _bob1.Update(gameTime);
             _bob2.Update(gameTime);

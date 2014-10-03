@@ -55,8 +55,8 @@ namespace factor10.VisionThing.Water
         {
             const int waterW = 64;
             const int waterH = 64;
-            const int worldW = 32;
-            const int worldH = 32;
+            const int worldW = 0; //32;
+            const int worldH = 0; //32;
 
             var boundingFrustum = camera.BoundingFrustum;
 
@@ -67,24 +67,24 @@ namespace factor10.VisionThing.Water
 
             Array.Clear(RenderedWaterPlanes, 0, RenderedWaterPlanes.Length);
 
-            var drawDetails = camera.Position.Y < 300;
-            if (drawDetails)
-                for (var y = 0; y <= worldH; y++)
-                    for (var x = 0; x <= worldW; x++)
-                    {
-                        var pos1 = new Vector3((gridStartX + x)*waterW, 0, (gridStartY + y)*waterH);
-                        var pos2 = pos1 + new Vector3(waterW, 1, waterH);
-                        var bb = new BoundingBox(pos1, pos2);
-                        if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
-                            continue;
+            //var drawDetails = camera.Position.Y < 300;
+            //if (drawDetails)
+            //    for (var y = 0; y <= worldH; y++)
+            //        for (var x = 0; x <= worldW; x++)
+            //        {
+            //            var pos1 = new Vector3((gridStartX + x) * waterW, 0, (gridStartY + y) * waterH);
+            //            var pos2 = pos1 + new Vector3(waterW, 1, waterH);
+            //            var bb = new BoundingBox(pos1, pos2);
+            //            if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+            //                continue;
 
-                        waterSurface.Draw(
-                            camera,
-                            pos1,
-                            Vector3.Distance(camera.Position, pos1 - new Vector3(-32, 0, -32)) ,
-                            x%8,
-                            y%8);
-                    }
+            //            waterSurface.Draw(
+            //                camera,
+            //                pos1,
+            //                Vector3.Distance(camera.Position, pos1 - new Vector3(-32, 0, -32)),
+            //                x % 8,
+            //                y % 8);
+            //        }
 
             //if (camera.Position.Y < 100)
             //    return;
@@ -93,8 +93,8 @@ namespace factor10.VisionThing.Water
             for (var y = -size+1; y < size; y++)
                 for (var x = -size+1; x < size; x++)
                 {
-                    if (x == 0 && y == 0 && drawDetails)
-                        continue;
+                    //if (x == 0 && y == 0 && drawDetails)
+                    //    continue;
                     var pos1 = new Vector3(gridStartX * waterW + x * 1024 + 64, 0.5f, gridStartY * waterH + y * 1024 + 64);
                     var pos2 = pos1 + new Vector3(1024, 1, 1024);
                     var bb = new BoundingBox(pos1, pos2);

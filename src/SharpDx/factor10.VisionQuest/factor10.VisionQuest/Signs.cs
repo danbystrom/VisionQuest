@@ -45,22 +45,20 @@ namespace factor10.VisionQuest
             foreach (var vc in _vclasses)
             {
                 var pos = Vector3.TransformCoordinate(vc.Position, world);
-                if (Vector3.DistanceSquared(pos, camera.Position) > 100000)
+                var viewDirection = Vector3.Normalize(pos - camera.Position);
+
+                if (Vector3.DistanceSquared(pos, camera.Position) > 200000 || Vector3.Dot(viewDirection, camera.Front)<0)
                     continue;
 
                 var text = vc.VClass.Name;
-                var viewDirection = Vector3.Normalize(pos - camera.Position);
                 _signTextEffect.World = createConstrainedBillboard(pos - viewDirection*0.2f, viewDirection, Vector3.Down);
-                //_spriteBatch.Begin(0, null, null, DepthStencilState.Default, RasterizerState.None, _signTextEffect.Effect);
-                _spriteBatch.Begin(SpriteSortMode.Deferred, _signTextEffect.Effect);
+                _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, _signTextEffect.Effect);
                 _spriteBatch.DrawString(_spriteFont, text, Vector2.Zero, Color.White, 0, _spriteFont.MeasureString(text) / 2, TextSize, 0, 0);
                 _spriteBatch.End();
             }
 
-            //Effect.GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-            //Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            //Effect.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            //Effect.GraphicsDevice.BlendState = BlendState.Opaque;
+            Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);
+            Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.Opaque);
 
             return true;
         }

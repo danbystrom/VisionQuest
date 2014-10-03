@@ -21,9 +21,9 @@ namespace factor10.VisionQuest
             Children.Add(_shipModel);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
-            _shipModel.Update(gameTime);
+            _shipModel.Update(camera, gameTime);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

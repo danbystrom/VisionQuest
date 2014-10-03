@@ -59,9 +59,9 @@ namespace factor10.VisionThing
             Children.ForEach(cd => cd.DrawReflection(clipPlane, camera));
         }
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update(Camera camera, GameTime gameTime)
         {
-            Children.ForEach(cd => cd.Update(gameTime));
+            Children.ForEach(cd => cd.Update(camera, gameTime));
         }
 
     }

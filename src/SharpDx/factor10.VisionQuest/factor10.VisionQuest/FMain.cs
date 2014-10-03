@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using ShaderLinking;
+using factor10.VisionaryHeads;
+using factor10.VisionQuest.x;
 using SharpDX.Windows;
 
 namespace factor10.VisionQuest
@@ -17,21 +18,34 @@ namespace factor10.VisionQuest
             InitializeComponent();
             Application.AddMessageFilter(this);
 
-            _data = data;
+            var wa = SystemInformation.WorkingArea;
+            wa.Inflate(-wa.Width / 20, -wa.Height / 20);
+            Bounds = wa;
 
-             // create the RenderControl
+            _data = data;
+            _data.Size = new Size(ClientSize.Width - pnRenderControlPanel.Left - 10, ClientSize.Height - pnRenderControlPanel.Top - 10);
+            _data.Size = new Size(_data.Size.Width/2, _data.Size.Height/2);
+            _data.Storage = Storage.Load();
+
+            // create the RenderControl
             _renderControl = new RenderControl
             {
-                //Dock = DockStyle.Fill,
-                MinimumSize = data.Size,
-                MaximumSize = data.Size,
+                Dock = DockStyle.Fill,
                 Size = data.Size,
-                Left = pnRenderControlPanel.Left,
-                Top = pnRenderControlPanel.Top,
+                Location = Point.Empty
             };
-            //pnRenderControlPanel.Controls.Add(_renderControl);
-            Controls.Add(_renderControl);
-            pnRenderControlPanel.Visible = false;
+
+            pnRenderControlPanel.Size = data.Size;
+            pnRenderControlPanel.Controls.Add(_renderControl);
+
+            optAllLines.CheckedChanged += (sender, args) => uiChanged();
+            optNoLines.CheckedChanged += (sender, args) => uiChanged();
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            pnRenderControlPanel.Size = new Size(pnRenderControlPanel.Width * 2, pnRenderControlPanel.Height * 2);
         }
 
         // Expose the render conttrol to the game class
@@ -45,6 +59,11 @@ namespace factor10.VisionQuest
             //_renderControl.Render();
         }
 
+        public void uiChanged()
+        {
+            _data.Storage.DrawLines = optAllLines.Checked;
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == Keys.Escape)
@@ -52,13 +71,9 @@ namespace factor10.VisionQuest
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void BtnRebuildClick(object sender, EventArgs e)
-        {
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Close();
+            FManageProjects.showDialog(this, _data.Storage);
         }
 
         public bool PreFilterMessage(ref Message m)
@@ -77,9 +92,9 @@ namespace factor10.VisionQuest
             return false;
         }
 
-        private void pnRenderControlPanel_Paint(object sender, PaintEventArgs e)
+        private void btnProperties_Click(object sender, EventArgs e)
         {
-
+            _data.LoadProgram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
         }
 
     }

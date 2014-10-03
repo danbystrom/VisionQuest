@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Mono.Cecil;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using Mono.Cecil;
 
 namespace factor10.VisionaryHeads
 {
@@ -17,13 +15,13 @@ namespace factor10.VisionaryHeads
         public readonly HashSet<VAssembly> Calling = new HashSet<VAssembly>();
         public readonly HashSet<VAssembly> CalledBy = new HashSet<VAssembly>();
 
-        public readonly bool IsFortress;
+        public bool Is3dParty;
 
         public string Name { get { return AssemblyDefinition.Name.Name; } }
 
         public VAssembly(VProgram vprogram, string filename)
         {
-            IsFortress = Path.GetFileName(filename).First() == 'x' || Path.GetFileName(filename).First() == 'i';
+            Is3dParty = Path.GetFileName(filename).First() == 'x' || Path.GetFileName(filename).First() == 'i';
             VProgram = vprogram;
             Filename = filename;
             AssemblyDefinition = AssemblyDefinition.ReadAssembly(filename);

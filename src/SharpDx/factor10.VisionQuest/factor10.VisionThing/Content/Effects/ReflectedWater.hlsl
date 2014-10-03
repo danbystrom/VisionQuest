@@ -249,12 +249,6 @@ OceanWaterVertexOutput LakeWaterVS(
 	float4x4 preReflectionViewProjection = mul(ReflectedView, Projection);
 	float4x4 preWorldReflectionViewProjection = mul(World, preReflectionViewProjection);
 
-	//////
-	//float4 worldPosition = mul(posLocal, World);
- //   float4x4 viewProjection = mul(View, Projection);
- //   output.Position = mul(worldPosition, viewProjection);
-	//////
-
 	output.Position = mul(posLocal, preWorldViewProjection);
 	output.ReflectionMapPos = mul(posLocal, preWorldReflectionViewProjection);
 	output.Position3D = mul(posLocal, World);
@@ -278,7 +272,7 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 	float4 bumpColor = BumpMap0.Sample(MirrorSampler, input.BumpSamplingPos0);
 	float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
 
-	float bumpMapDistribution = lerp(0.5, 1, saturate(sqrt(abs(CameraPosition.y - 3)) / 4));
+	float bumpMapDistribution = 0.5; // lerp(0.5, 1, saturate(sqrt(abs(CameraPosition.y - 3)) / 4));
 	bumpColor = bumpColor * bumpMapDistribution + BumpMap1.Sample(TextureSampler, input.BumpSamplingPos1) * (1 - bumpMapDistribution);
 
 	float2 ProjectedTexCoords;
@@ -304,7 +298,7 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 
 	float3 reflectionVector = -reflect(SunlightDirection, normalVector);
 	float specular = dot(normalize(reflectionVector), eyeVector);
-	specular = pow(abs(specular), 64);
+	specular = pow(abs(specular), 64) * saturate(1.1 - CameraPosition.y / 200);
 
 	color.rgb += specular;
 

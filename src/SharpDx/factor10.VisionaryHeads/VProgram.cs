@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace factor10.VisionaryHeads
 {
@@ -20,7 +18,7 @@ namespace factor10.VisionaryHeads
                 if (!VMethods.ContainsKey(vm.FullName))
                     VMethods.Add(vm.FullName, vm);
 
-            foreach (var vm in from va in VAssemblies where !va.IsFortress from vc in va.VClasses from vm in vc.VMethods select vm)
+            foreach (var vm in from va in VAssemblies where !va.Is3dParty from vc in va.VClasses from vm in vc.VMethods select vm)
                 vm.BuildCallingRelations();
 
             // check for orphan assemblies - but don't check the first one (the program itself)
@@ -30,7 +28,7 @@ namespace factor10.VisionaryHeads
                     case 0:  // no calls to the assembly
                         VAssemblies.RemoveAt(i);
                         break;
-                    case 1:  // the assembly only calles itself
+                    case 1:  // tmaybe he assembly only calles itself
                         if (VAssemblies[i].CalledBy.Single() == VAssemblies[i])
                             VAssemblies.RemoveAt(i);
                         break;
@@ -47,17 +45,12 @@ namespace factor10.VisionaryHeads
             if (!File.Exists(filename))
                 return;
 
-            System.Diagnostics.Debug.Print(filename);
-
             var vassembly = new VAssembly(this, filename);
             VAssemblies.Add(vassembly);
 
             foreach (var m in vassembly.AssemblyDefinition.Modules)
                 foreach (var ar in m.AssemblyReferences)
-                {
                     loadAssembly(Path.Combine(Path.GetDirectoryName(filename), ar.Name + ".dll"));
-                }
-
         }
 
     }

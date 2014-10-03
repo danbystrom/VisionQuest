@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SharpDX;
+using System;
 using System.Linq;
-using System.Text;
-using SharpDX;
 
 namespace factor10.VisionThing.Terrain
 {
     public class WeightsMap : Mt8Surface
     {
 
-       public WeightsMap(int width, int height)
-            : base(width,height)
-       {
-       }
+        public WeightsMap(int width, int height)
+            : base(width, height)
+        {
+        }
 
         public WeightsMap(Ground ground, float[] levels = null)
-            : base(ground.Width,ground.Height)
+            : base(ground.Width, ground.Height)
         {
             var min = ground.Values.Min();
             var max = ground.Values.Max();
@@ -29,10 +27,10 @@ namespace factor10.VisionThing.Terrain
             {
                 var val = ground.Values[i];
                 var t0 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[0])/span, 0, 1);
-                var t1 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[1]) / span, 0, 1);
-                var t2 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[2]) / span, 0, 1);
-                var t3 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[3]) / span, 0, 1);
-                var tot = 1/(t0 + t1 + t2 + t3 + 0.0001f);
+                var t1 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[1])/span, 0, 1);
+                var t2 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[2])/span, 0, 1);
+                var t3 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[3])/span, 0, 1);
+                var tot = 1/(t0 + t1 + t2 + t3 + 0.00001f);
                 Values[i].A = t0*tot;
                 Values[i].B = t1*tot;
                 Values[i].C = t2*tot;

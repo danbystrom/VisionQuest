@@ -1,9 +1,10 @@
 ﻿using System.Drawing;
+using System.Text;
+using factor10.VisionaryHeads;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Water;
-using ShaderLinking;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
@@ -29,13 +30,9 @@ namespace factor10.VisionQuest
 
         private readonly SharedData _data; // holds shader source, parameters and dirty state
 
-        private SharpDX.Toolkit.Graphics.GeometricPrimitive<VertexPositionNormalTexture> _cubeGeometry;
-            // cube geometrc primitive, contains vertex and index buffers
-
         private VBasicEffect _basicEffect; // the applied effect, rebuild by ShaderBuilder class
 
-        private KeyboardManager _keyboardManager;
-        private MouseManager _mouseManager;
+        private SpriteFont _arial16Font;
 
         public Camera Camera;
         private WaterSurface _water;
@@ -47,16 +44,19 @@ namespace factor10.VisionQuest
         private SpriteBatch _spriteBatch;
         private ClipDrawableInstance _ballInstance;
         private ShadowMap _shadow;
+        private Archipelag _archipelag;
+        private int _frames;
+        private double _frameTime;
+        private int _fps;
 
-        public VisionQuestGame()
+        public VisionQuestGame(SharedData data)
         {
-            _data = new SharedData
+            _data = data;
+            _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
-                Size = new Size(1024, 768)
+                PreferredBackBufferWidth = _data.Size.Width,
+                PreferredBackBufferHeight = _data.Size.Height                
             };
-            _graphicsDeviceManager = new GraphicsDeviceManager(this);
-            _graphicsDeviceManager.PreferredBackBufferWidth = _data.Size.Width;
-            _graphicsDeviceManager.PreferredBackBufferHeight = _data.Size.Height;
             Content.RootDirectory = "Content";
         }
 
@@ -72,8 +72,7 @@ namespace factor10.VisionQuest
             _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
             _vContent = new VisionContent(_graphicsDeviceManager.GraphicsDevice, Content);
-            _keyboardManager = new KeyboardManager(this);
-            _mouseManager = new MouseManager(this);
+            _arial16Font = Content.Load<SpriteFont>("Fonts/Arial16");
 
             _basicEffect = new VBasicEffect(_graphicsDeviceManager.GraphicsDevice);
             _basicEffect.EnableDefaultLighting();
@@ -93,8 +92,11 @@ namespace factor10.VisionQuest
 
             Camera = new Camera(
                 _vContent.ClientSize,
-                new Vector3(0, 10, 0),
-                new Vector3(50, 0, 50));
+                new KeyboardManager(this),
+                new MouseManager(this),
+                null, //new PointerManager(this),
+                new Vector3(0, 15, 0),
+                new Vector3(-10, 15, 0));
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
@@ -116,15 +118,39 @@ namespace factor10.VisionQuest
             //_shadow.ShadowCastingObjects.Add(generatedTerrain);
             //_shadow.ShadowCastingObjects.Add(bridge);
 
-            var archipelag = new Archipelag(_vContent, _water, _shadow);
+            //_archipelag = new Archipelag(_vContent, _water, _shadow);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            Camera.UpdateFreeFlyingCamera(gameTime, _mouseManager, _mouseManager.GetState(), _keyboardManager.GetState());
+            Camera.UpdateInputDevices();
+            Camera.UpdateFreeFlyingCamera(gameTime);
 
-            _movingShip.Update(gameTime);
+            if (_data.LoadProgram != null)
+            {
+                if (_archipelag != null)
+                    _archipelag.Kill(_water, _shadow);
+                _archipelag = new Archipelag(
+                    _vContent,
+                    _data.LoadProgram,
+                    _water,
+                    _shadow);
+                _data.LoadProgram = null;
+            }
+
+            _movingShip.Update(Camera, gameTime);
+            if(_archipelag!=null)
+                _archipelag.Update(Camera, gameTime);
             _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds, Camera);
+
+            _frames++;
+            _frameTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (_frameTime >= 1000)
+            {
+                _fps = _frames;
+                _frames = 0;
+                _frameTime = 0;
+            }
 
             base.Update(gameTime);
         }
@@ -138,23 +164,36 @@ namespace factor10.VisionQuest
 
             _graphicsDeviceManager.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            foreach (var x in _water.ReflectedObjects)
-                x.Draw(Camera);
+            //_movingShip.Draw(Camera);
+            //foreach (var x in _water.ReflectedObjects)
+            //    x.Draw(Camera);
+            if(_archipelag!=null)
+                _archipelag.Draw(Camera);
 
-           // WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0);
+            WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0);
             Sky.Draw(Camera);
 
-            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
-            _spriteBatch.Draw(
-                _water._reflectionTarget,
-                Vector2.Zero,
-                new Rectangle(0, 0, 320, 320),
-                Color.White,
-                0.0f,
-                new Vector2(16, 16),
-                Vector2.One,
-                SpriteEffects.None,
-                0f);
+            if (_archipelag != null)
+                _archipelag.DrawSignsAndArchs(Camera, _data.Storage.DrawLines);
+
+            //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
+            //_spriteBatch.Draw(
+            //    _water._reflectionTarget,
+            //    Vector2.Zero,
+            //    new Rectangle(0, 0, 320, 320),
+            //    Color.White,
+            //    0.0f,
+            //    new Vector2(16, 16),
+            //    Vector2.One,
+            //    SpriteEffects.None,
+            //    0f);
+            //_spriteBatch.End();
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("FPS: {0}", _fps).AppendLine();
+            sb.AppendFormat("Pos: {0}   Look at: {1}", Camera.Position, Camera.Target);
+            _spriteBatch.Begin();
+            _spriteBatch.DrawString(_arial16Font, sb.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();
 
             base.Draw(gameTime);

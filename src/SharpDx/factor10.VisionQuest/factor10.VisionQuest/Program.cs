@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
-using SharpDX.Windows;
 
 namespace factor10.VisionQuest
 {
@@ -11,9 +11,12 @@ namespace factor10.VisionQuest
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            using(var game = new VisionQuestGame())
+
+            var data = new SharedData();
+            var form = new FMain(data);
+
+            using (var game = new VisionQuestGame(data))
             {
-                var form = new FMain(game.Data);
                 form.Show();
 
                 game.IsMouseVisible = true;

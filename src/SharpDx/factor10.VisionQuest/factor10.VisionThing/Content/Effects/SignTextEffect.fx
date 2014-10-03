@@ -9,19 +9,6 @@ Texture2D Texture;
 SamplerState TextureSampler;
 
 float3 RotateAxis = float3(0,-1,0);
-
-bool DoShadowMapping = true;
-float4x4 ShadowViewProjection;
-float ShadowMult = 0.3f;
-float ShadowBias = 0.001f;
-texture2D ShadowMap;
-sampler2D shadowSampler = sampler_state {
-	texture = <ShadowMap>;
-	minfilter = point;
-	magfilter = point;
-	mipfilter = point;
-};
-
 float4 DiffuseColor = float4(240, 70, 20, 1);
 
 struct VertexShaderInput
@@ -40,16 +27,7 @@ struct VertexShaderOutput
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    /*
-	float3 viewDirection = normalize(cross(RotateAxis, normalize(input.Position - CameraPosition)));
-	float4x4 constrainedBillboard = 
-	{
-		float4(viewDirection,0),
-		float4(RotateAxis,0),
-		float4(normalize(cross(viewDirection, RotateAxis)),0),
-		float4(input.Position.xyz,1)
-	};
-	*/
+
 	float4 worldPosition = mul(input.Position, World);
     float4x4 viewProjection = mul(View, Projection);
     
@@ -63,9 +41,11 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
-	return Texture.Sample(TextureSampler, input.UV) * 0.8; // * DiffuseColor;
+	float4 sampledColor = Texture.Sample(TextureSampler, input.UV);
+	return sampledColor; //float4(0. 8,0.7,0,sampled Color.w);
 }
 
+ 
 
 float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : SV_Target
 {

@@ -102,7 +102,8 @@ namespace Serpent.Serpent
                     break;
 
                 case CameraBehavior.FreeFlying:
-                    Camera.UpdateFreeFlyingCamera(gameTime, MouseManager, MouseManager.GetState(), KeyboardManager.GetState());
+                    Camera.UpdateInputDevices();
+                    Camera.UpdateFreeFlyingCamera(gameTime);
                     break;
 
                 case CameraBehavior.Head:
