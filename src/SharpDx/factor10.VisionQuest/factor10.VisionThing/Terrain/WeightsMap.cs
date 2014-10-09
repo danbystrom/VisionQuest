@@ -12,7 +12,7 @@ namespace factor10.VisionThing.Terrain
         {
         }
 
-        public WeightsMap(Ground ground, float[] levels = null)
+        public WeightsMap(Sculptable<float> ground, float[] levels = null)
             : base(ground.Width, ground.Height)
         {
             var min = ground.Values.Min();
@@ -31,6 +31,10 @@ namespace factor10.VisionThing.Terrain
                 var t2 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[2])/span, 0, 1);
                 var t3 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[3])/span, 0, 1);
                 var tot = 1/(t0 + t1 + t2 + t3 + 0.00001f);
+                if (tot < 0.5f)
+                {
+                    
+                }
                 Values[i].A = t0*tot;
                 Values[i].B = t1*tot;
                 Values[i].C = t2*tot;

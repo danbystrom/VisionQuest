@@ -31,7 +31,7 @@ namespace NextGame
         private Matrix view;
         private Matrix projection;
 
-        private Model model;
+        private Model _model;
         private Texture2D _snakeSkin;
 
         //private Effect bloomEffect;
@@ -112,9 +112,8 @@ namespace NextGame
 
             arial16Font = Content.Load<SpriteFont>("Arial16");
 
-            model = Content.Load<Model>("Ship");
-
-            VBasicEffect.EnableDefaultLighting(model, true);
+            _model = Content.Load<Model>("Models/GalleonModel");
+            BasicEffect.EnableDefaultLighting(_model, true);
 
             basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
             basicEffect.PreferPerPixelLighting = true;
@@ -226,6 +225,8 @@ namespace NextGame
 
             // Constant used to translate 3d models
             float translateX = 0.0f;
+
+            _model.Draw(GraphicsDevice, Matrix.Translation(15,0,5) * Matrix.RotationZ(MathUtil.Pi)* Matrix.Scaling(0.2f), Data.PlayerSerpent.Camera.Camera.View, Data.PlayerSerpent.Camera.Camera.Projection);
 
             // ------------------------------------------------------------------------
             // Draw the 3d primitive using BasicEffect

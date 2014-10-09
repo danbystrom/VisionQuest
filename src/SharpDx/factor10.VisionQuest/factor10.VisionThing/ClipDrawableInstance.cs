@@ -5,10 +5,10 @@ namespace factor10.VisionThing
 {
     public class ClipDrawableInstance : ClipDrawable
     {
-        public readonly IDrawable Thing;
+        public readonly IVDrawable Thing;
         public Matrix World;
 
-        public ClipDrawableInstance(IEffect effect, IDrawable thing, Matrix world )
+        public ClipDrawableInstance(IVEffect effect, IVDrawable thing, Matrix world )
             : base(effect)
         {
             Thing = thing;

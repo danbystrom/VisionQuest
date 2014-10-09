@@ -92,10 +92,10 @@
     <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
     <Compile Include="DoubleSin.cs" />
     <Compile Include="Effects\EffectHelpers.cs" />
-    <Compile Include="Effects\IEffect.cs" />
+    <Compile Include="Effects\IVEffect.cs" />
     <Compile Include="Effects\VisionEffect.cs" />
     <Compile Include="ExtensionMethods.cs" />
-    <Compile Include="IDrawable.cs" />
+    <Compile Include="IVDrawable.cs" />
     <Compile Include="Mt8Surface.cs" />
     <Compile Include="Objects\Box.cs" />
     <Compile Include="Objects\Bridge.cs" />

@@ -9,7 +9,7 @@ Texture2D Texture;
 SamplerState TextureSampler;
 
 float3 RotateAxis = float3(0,-1,0);
-float4 DiffuseColor = float4(240, 70, 20, 1);
+float4 DiffuseColor = float4(255, 255, 255, 1);
 
 struct VertexShaderInput
 {
@@ -42,7 +42,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
 	float4 sampledColor = Texture.Sample(TextureSampler, input.UV);
-	return sampledColor; //float4(0. 8,0.7,0,sampled Color.w);
+	return sampledColor * DiffuseColor;
 }
 
  

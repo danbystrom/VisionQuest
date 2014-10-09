@@ -9,14 +9,13 @@ namespace factor10.VisionQuest
     internal class ShipModel : ClipDrawable
     {
         private readonly Model _model;
-        private readonly Matrix[] _bones;
 
         public Matrix World = Matrix.Scaling(5f)*Matrix.Translation(-7, 1f, 33);
 
-        private DoubleSin _bob1 = new DoubleSin(0.05f, 0.010f, 0.3f, 0.9f, 0, 1);
+        private DoubleSin _bob1 = new DoubleSin(0.00f, 0.010f, 0.3f, 0.9f, 0, 1);
         private DoubleSin _bob2 = new DoubleSin(0.04f, 0.008f, 0.5f, 0.8f, 2, 3);
 
-        private static Texture2D _texture;
+        private static Texture2DBase _texture;
         private BoundingSphere _boundingSphere;
 
         public ShipModel(VisionContent vContent)
@@ -25,20 +24,7 @@ namespace factor10.VisionQuest
             _model = vContent.Load<Model>(@"Models/galleonmodel");
             BasicEffect.EnableDefaultLighting(_model, true);
 
-            _bones = new Matrix[_model.Bones.Count];
-            _model.CopyAbsoluteBoneTransformsTo(_bones);
-
-            foreach (var part in _model.Meshes.SelectMany(mesh => mesh.MeshParts))
-            {
-                //if (_texture == null)
-                //{
-                //    var basicEffect = part.Effect as BasicEffect;
-                //    if (basicEffect != null)
-                //        _texture = (Texture2D)basicEffect.Texture;
-                //}
-                part.Effect = Effect.Effect;
-            }
-
+            _texture = _model.Meshes.SelectMany(_ => _.MeshParts).Select(_ => _.Effect).OfType<BasicEffect>().Select(_ => _.Texture).FirstOrDefault(_ => _ != null);
             _boundingSphere = _model.CalculateBounds();
         }
 
@@ -50,11 +36,15 @@ namespace factor10.VisionQuest
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            _model.Draw(Effect.GraphicsDevice, World, camera.View, camera.Projection);
-            //var testSphere = new BoundingSphere(Vector3.TransformCoordinate(_boundingSphere.Center, World), _boundingSphere.Radius);
-            //if (camera.BoundingFrustum.Contains(testSphere) == ContainmentType.Disjoint)
-            //    return false;
-            //camera.UpdateEffect(Effect);
+            var testSphere = new BoundingSphere(Vector3.TransformCoordinate(_boundingSphere.Center, World), _boundingSphere.Radius);
+            if (camera.BoundingFrustum.Contains(testSphere) == ContainmentType.Disjoint)
+                return false;
+
+            camera.UpdateEffect(Effect);
+            Effect.Texture = _texture;
+
+            var world = Matrix.RotationZ((float) _bob1.Value)*Matrix.RotationX((float) _bob2.Value)*World;
+            _model.Draw(Effect.GraphicsDevice, world, camera.View, camera.Projection, Effect.Effect);
             //Effect.Texture = _texture;
             //foreach (var mesh in _model.Meshes)
             //{

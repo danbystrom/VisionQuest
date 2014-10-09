@@ -11,8 +11,12 @@ namespace factor10.VisionThing
 
     public class Camera
     {
-        public Matrix View { get; protected set; }
-        public Matrix Projection { get; set; }
+        private Matrix _view;
+        private Matrix _projection;
+
+        private bool _dirtyViewProj;
+        private Matrix _viewProjection;
+        public BoundingSphere _boundingSphere;
 
         public Vector3 Position { get; protected set; }
         public Vector3 Target { get; protected set; }
@@ -38,21 +42,26 @@ namespace factor10.VisionThing
         public MouseState MouseState;
         public PointerState PointerState;
 
+        public readonly float ZNear;
+        public readonly float ZFar;
+
         public Camera(
             Vector2 clientSize,
             Vector3 position,
             Vector3 target,
-            float nearPlane = 1,
-            float farPlane = 20000)
+            float zNear = 1,
+            float zFar = 20000)
         {
             ClientSize = clientSize;
 
             Up = Vector3.Up;
             Update(position, target);
+            ZNear = zNear;
+            ZFar = zFar;
             Projection = Matrix.PerspectiveFovRH(
                 MathUtil.PiOverFour,
                 clientSize.X / clientSize.Y,
-                nearPlane, farPlane);
+                ZNear, ZFar);
         }
 
         public Camera(
@@ -69,6 +78,42 @@ namespace factor10.VisionThing
             KeyboardManager = keyboardManager;
             MouseManager = mouseManager;
             PointerManager = pointerManager;
+        }
+
+        public Matrix View
+        {
+            get { return _view; }
+            set
+            {
+                _view = value;
+                _dirtyViewProj = true;
+                _boundingFrustum = null;
+            }
+        }
+
+        public Matrix Projection
+        {
+            get { return _projection; }
+            set
+            {
+                _projection = value;
+                _dirtyViewProj = true;
+                _boundingFrustum = null;
+            }
+        }
+
+        public Matrix ViewProjection
+        {
+            get
+            {
+                if (_dirtyViewProj)
+                {
+                    _viewProjection = View*Projection;
+                    _boundingFrustum = null;
+                    _dirtyViewProj = false;
+                }
+                return _viewProjection;
+            }
         }
 
         public Vector3 Front
@@ -96,8 +141,6 @@ namespace factor10.VisionThing
             Pitch = -(float)Math.Asin((position.Y - target.Y) / Vector3.Distance(position, target));
             Forward = Vector3.Normalize(target - position);
             Left = Vector3.Normalize(Vector3.Cross(Up, Forward));
-
-            _boundingFrustum = null;
         }
 
         private BoundingFrustum? _boundingFrustum;
@@ -105,7 +148,7 @@ namespace factor10.VisionThing
 
         public BoundingFrustum BoundingFrustum
         {
-            get { return (_boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(View*Projection))).Value; }
+            get { return (_boundingFrustum ?? (_boundingFrustum = new BoundingFrustum(ViewProjection))).Value; }
         }
 
         public void UpdateInputDevices()
@@ -201,11 +244,26 @@ namespace factor10.VisionThing
             //    Forward.X, Forward.Y, Forward.Z, Left.X, Left.Y, Left.Z);
         }
 
-        public void UpdateEffect(IEffect effect)
+        public void UpdateEffect(IVEffect effect)
         {
             effect.View = View;
             effect.Projection = Projection;
             effect.CameraPosition = Position;
+        }
+
+        public Ray GetPickingRay()
+        {
+            var viewProj = View * Projection;
+
+            var mouseNearVector = new Vector3(MouseState.X, MouseState.Y, ZNear);
+            Vector3 pointNear;
+            Vector3.Unproject(ref mouseNearVector, 0, 0, 1, 1, ZNear, ZFar, ref viewProj, out pointNear);
+
+            var mouseFarVector = new Vector3(MouseState.X, MouseState.Y, ZFar);
+            Vector3 pointFar;
+            Vector3.Unproject(ref mouseFarVector, 0, 0, 1, 1, ZNear, ZFar, ref viewProj, out pointFar);
+
+            return new Ray(pointNear, Vector3.Normalize(pointFar - pointNear));
         }
 
     }

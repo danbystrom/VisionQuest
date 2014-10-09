@@ -30,10 +30,7 @@ namespace factor10.VisionThing
 
         public static Vector3 SunlightDirectionReflectedWater
         {
-            get
-            {
-                return _sunlightDirectionReflectedWater;
-            }
+            get { return _sunlightDirectionReflectedWater; }
             set
             {
                 _sunlightDirectionReflectedWater = value;
@@ -43,10 +40,7 @@ namespace factor10.VisionThing
 
         public static Vector3 SunlightDirection
         {
-            get
-            {
-                return _sunlightDirection;
-            }
+            get { return _sunlightDirection; }
             set
             {
                 _sunlightDirection = value;
@@ -54,16 +48,19 @@ namespace factor10.VisionThing
             }
         }
 
-        public Vector2 ClientSize { get { return new Vector2(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height); }}
+        public Vector2 ClientSize
+        {
+            get { return new Vector2(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height); }
+        }
 
-        public T Load<T>( string name)
+        public T Load<T>(string name)
         {
             return Content.Load<T>(name);
         }
 
         public VisionEffect LoadPlainEffect(string name)
         {
-            return new VisionEffect( Content.Load<Effect>(name) );
+            return new VisionEffect(Content.Load<Effect>(name));
         }
 
     }

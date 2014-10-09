@@ -12,16 +12,10 @@ float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
 float ShadowBias = 0.001f;
 texture2D ShadowMap;
-sampler2D shadowSampler = sampler_state {
-	texture = <ShadowMap>;
-	minfilter = point;
-	magfilter = point;
-	mipfilter = point;
-};
 
 float3 DiffuseColor = float3(1, 1, 1);
-float3 AmbientColor = float3(0.9, 0.9, 0.9);
-float3 LightColor = float3(0.8, 0.8, 0.8);
+float3 AmbientColor = float3(0.3, 0.3, 0.3);
+float3 LightColor = float3(0.7, 0.7, 0.7);
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
 
@@ -71,8 +65,7 @@ float2 sampleShadowMap(float2 UV)
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
 	// Start with diffuse color
-	float3 color = DiffuseColor * Texture.Sample(TextureSampler, float2(frac(input.UV.x), frac(input.UV.y)));
-	//float3 color = DiffuseColor * Texture.Sample(TextureSampler, input.UV);
+	float3 color = DiffuseColor * Texture.Sample(TextureSampler, input.UV);
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;

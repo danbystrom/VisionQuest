@@ -68,7 +68,7 @@ namespace factor10.VisionQuest
 
         public static IList<Project> LoadAll(string projectsFolder)
         {
-            return Directory.GetFiles(fullName(projectsFolder, "*")).Select(_ => Load(projectsFolder, _)).ToList();
+            return Directory.GetFiles(projectsFolder, "*.vqp").Select(_ => Load(projectsFolder, _)).ToList();
         }
 
     }

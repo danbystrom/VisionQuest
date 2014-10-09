@@ -51,7 +51,7 @@ namespace factor10.VisionThing.Water
         public readonly List<ClipDrawable> ReflectedObjects = new List<ClipDrawable>();
         private readonly Camera _reflectionCamera;
 
-        public IEffect Effect;
+        public IVEffect Effect;
 
         public WaterSurface(
             GraphicsDevice graphicsDevice,
@@ -89,6 +89,8 @@ namespace factor10.VisionThing.Water
                 null,
                 Vector3.Zero,
                 Vector3.Up);
+
+            Update(10);
         }
 
         private PlanePrimitive<WaterVertex> generatePlane(GraphicsDevice graphicsDevice, int squareSize, float dx, float dz, float texScale)
@@ -102,7 +104,7 @@ namespace factor10.VisionThing.Water
                 6);
         }
 
-        public void Update(float dt, Camera camera)
+        public void Update(float dt)
         {
             // Update texture coordinate offsets.  These offsets are added to the
             // texture coordinates in the vertex shader to animate them.

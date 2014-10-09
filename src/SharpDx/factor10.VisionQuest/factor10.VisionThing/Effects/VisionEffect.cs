@@ -4,7 +4,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Effects
 {
-    public class VisionEffect : IEffect
+    public class VisionEffect : IVEffect
     {
         public GraphicsDevice GraphicsDevice { get; private set; }
         public Effect Effect { get; private set; }
@@ -20,6 +20,7 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectParameter _epClipPlane;
         protected readonly EffectParameter _epSunlightDirection;
         protected readonly EffectParameter _epTexture;
+        protected readonly EffectParameter _epDiffuseColor;
 
         protected readonly EffectParameter _epDoShadowMapping;
         protected readonly EffectParameter _epShadowMap;
@@ -48,6 +49,7 @@ namespace factor10.VisionThing.Effects
             _epClipPlane = effect.Parameters["ClipPlane"];
             _epSunlightDirection = effect.Parameters["SunlightDirection"];
             _epTexture = effect.Parameters["Texture"];
+            _epDiffuseColor = effect.Parameters["DiffuseColor"];
 
             _epDoShadowMapping = effect.Parameters["DoShadowMapping"];
             _epShadowMap = effect.Parameters["ShadowMap"];
@@ -102,6 +104,12 @@ namespace factor10.VisionThing.Effects
                 if (_epSunlightDirection != null)
                     _epSunlightDirection.SetValue(value);
             }
+        }
+
+        public Vector4 DiffuseColor
+        {
+            get { return _epDiffuseColor.GetValue<Vector4>(); }
+            set { _epDiffuseColor.SetValue(value); }
         }
 
         public Vector4? ClipPlane

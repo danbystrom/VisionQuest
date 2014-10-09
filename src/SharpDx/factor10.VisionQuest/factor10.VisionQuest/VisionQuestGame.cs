@@ -12,7 +12,6 @@ using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 using TestBed;
 using Color = SharpDX.Color;
-using IDrawable = factor10.VisionThing.IDrawable;
 using RasterizerState = SharpDX.Toolkit.Graphics.RasterizerState;
 using Rectangle = SharpDX.Rectangle;
 using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
@@ -37,7 +36,7 @@ namespace factor10.VisionQuest
         public Camera Camera;
         private WaterSurface _water;
         public SkySphere Sky;
-        private IDrawable _ball;
+        private IVDrawable _ball;
 
         private RasterizerState _rasterizerState;
         private MovingShip _movingShip;
@@ -77,7 +76,7 @@ namespace factor10.VisionQuest
             _basicEffect = new VBasicEffect(_graphicsDeviceManager.GraphicsDevice);
             _basicEffect.EnableDefaultLighting();
 
-            _ball = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 4);
+            _ball = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 1);
             var x = _vContent.LoadPlainEffect("effects/simpletextureeffect");
             x.Texture = _vContent.Load<Texture2D>("textures/sand");
             _ballInstance = new ClipDrawableInstance(x, _ball, Matrix.Translation(10, 2, 10));
@@ -141,7 +140,7 @@ namespace factor10.VisionQuest
             _movingShip.Update(Camera, gameTime);
             if(_archipelag!=null)
                 _archipelag.Update(Camera, gameTime);
-            _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds, Camera);
+            _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
 
             _frames++;
             _frameTime += gameTime.ElapsedGameTime.TotalMilliseconds;
@@ -164,6 +163,7 @@ namespace factor10.VisionQuest
 
             _graphicsDeviceManager.GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            _movingShip._shipModel.Draw(Camera);
             //_movingShip.Draw(Camera);
             //foreach (var x in _water.ReflectedObjects)
             //    x.Draw(Camera);
@@ -174,7 +174,11 @@ namespace factor10.VisionQuest
             Sky.Draw(Camera);
 
             if (_archipelag != null)
+            {
                 _archipelag.DrawSignsAndArchs(Camera, _data.Storage.DrawLines);
+                Camera.UpdateEffect(_basicEffect);
+                _archipelag.PlayAround(_basicEffect, _ball);
+            }
 
             //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
             //_spriteBatch.Draw(

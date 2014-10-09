@@ -23,7 +23,7 @@ namespace Serpent
             MouseManager mouseManager,
             KeyboardManager keyboardManager,
             PlayingField pf,
-            factor10.VisionThing.IDrawable sphere)
+            factor10.VisionThing.IVDrawable sphere)
             : base(
                 vContent,
                 pf,

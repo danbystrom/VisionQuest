@@ -3,7 +3,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Effects
 {
-    public interface IEffect
+    public interface IVEffect
     {
         GraphicsDevice GraphicsDevice { get; }
         Matrix World { get; set; }
@@ -11,6 +11,7 @@ namespace factor10.VisionThing.Effects
         Matrix Projection { get; set; }
         Vector3 CameraPosition { get; set; }
         Vector3 SunlightDirection { get; set; }
+        Vector4 DiffuseColor { get; set; }
         Vector4? ClipPlane { set; }
         Texture2DBase Texture { get; set; }
         Effect Effect { get; }
@@ -20,7 +21,7 @@ namespace factor10.VisionThing.Effects
         void SetTechnique(DrawingReason drawingReason);
     }
 
-    public class VBasicEffect : BasicEffect, IEffect
+    public class VBasicEffect : BasicEffect, IVEffect
     {
         public VBasicEffect(GraphicsDevice device)
             : base(device)

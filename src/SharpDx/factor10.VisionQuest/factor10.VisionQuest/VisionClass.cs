@@ -1,12 +1,20 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using factor10.VisionaryHeads;
 using SharpDX;
 
 namespace factor10.VisionQuest
 {
-    public class VisualClass
+    public class VisionClass
     {
+        public readonly CodeIsland CodeIsland;
         public readonly VClass VClass;
+
+        public StartAndCount OutgoingArcs;
+        public readonly List<VisionClass> CalledClasses = new List<VisionClass>();
+
+        public BoundingSphere SignClickBoundingSphere;
+        public int DistanceFromCameraOnHit;
 
         public int InstructionCount { get; set; }
         public int MaintainabilityIndex { get; set; }
@@ -19,8 +27,9 @@ namespace factor10.VisionQuest
         public readonly int R;
         public float Height;
 
-        public VisualClass(VClass vclass, int x, int y, int r)
+        public VisionClass(CodeIsland codeIsland, VClass vclass, int x, int y, int r)
         {
+            CodeIsland = codeIsland;
             VClass = vclass;
             X = x;
             Y = y;

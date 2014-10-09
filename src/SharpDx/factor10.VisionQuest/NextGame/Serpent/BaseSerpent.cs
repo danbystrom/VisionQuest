@@ -32,8 +32,8 @@ namespace Serpent
 
         protected double _fractionAngle;
 
-        protected readonly IEffect _effect;
-        protected readonly factor10.VisionThing.IDrawable _sphere;
+        protected readonly IVEffect _effect;
+        protected readonly factor10.VisionThing.IVDrawable _sphere;
         protected readonly Texture2D _skin;
         protected readonly EffectParameter _diffuseParameter;
 
@@ -53,7 +53,7 @@ namespace Serpent
         protected BaseSerpent(
             VisionContent vContent,
             PlayingField pf,
-            factor10.VisionThing.IDrawable sphere,
+            factor10.VisionThing.IVDrawable sphere,
             Whereabouts whereabouts,
             Texture2D serpentSkin)
         {
@@ -144,13 +144,13 @@ namespace Serpent
 
             var worlds = new List<Matrix>();
 
-            var slinger = p.X + p.Z;
+            var slinger = (p.X + p.Z);
 
             // p is the the loc of the last segement - which is the head on the first round
             var segment = _tail;
             while (true)
             {
-                slinger += 0.9f;
+                slinger += 0.5f;
                 var p2 = segment.GetPosition() + new Vector3((float)Math.Sin(slinger) * 0.15f, 0, (float)Math.Sin(slinger) * 0.15f);
                 worlds.Add(
                     Matrix.Scaling(SegmentSize) *

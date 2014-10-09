@@ -16,9 +16,9 @@ namespace factor10.VisionThing
     public abstract class ClipDrawable
     {
         public readonly List<ClipDrawable> Children = new List<ClipDrawable>();
-        public readonly IEffect Effect;
+        public readonly IVEffect Effect;
 
-        protected ClipDrawable(IEffect effect)
+        protected ClipDrawable(IVEffect effect)
         {
             Effect = effect;
         }

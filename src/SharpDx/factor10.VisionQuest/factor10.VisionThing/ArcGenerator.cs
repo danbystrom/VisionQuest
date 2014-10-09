@@ -10,7 +10,7 @@ namespace factor10.VisionThing
         private readonly int _iterations;
 
         public ArcGenerator(
-             int iterations)
+            int iterations)
         {
             _iterations = iterations;
             Points = new Vector3[(1 << iterations + 1) + 1];
@@ -29,7 +29,7 @@ namespace factor10.VisionThing
             bend.Normalize();
             bend *= bendLength;
 
-            var middle = (start + end) / 2 + bend;
+            var middle = (start + end)/2 + bend;
             if (iteration == 0)
             {
                 Points[i++] = start;
@@ -37,16 +37,16 @@ namespace factor10.VisionThing
                 return;
             }
 
-            var a = direction.Length() / 2;
-            var a2 = a * a;
-            var b2 = bendLength * bendLength;
-            var c2 = (a2 + b2) / 4;
-            var r = c2 * 2 / bendLength;
-            var d = r - (float)Math.Sqrt(r * r - c2);
+            var a = direction.Length()/2;
+            var a2 = a*a;
+            var b2 = bendLength*bendLength;
+            var c2 = (a2 + b2)/4;
+            var r = c2*2/bendLength;
+            var d = r - (float) Math.Sqrt(r*r - c2);
 
             iteration--;
-            createArc(ref i, iteration, start, middle, bend, d );
-            createArc(ref i, iteration, middle, end, bend, d );
+            createArc(ref i, iteration, start, middle, bend, d);
+            createArc(ref i, iteration, middle, end, bend, d);
         }
 
         public void CreateArc(
@@ -63,7 +63,7 @@ namespace factor10.VisionThing
             Points[i] = end;
         }
 
-        public void StoreArc<T>(List<T> result, Func<Vector3, float, int, T> func)
+        public void StoreVertices<T>(List<T> result, Func<Vector3, float, int, T> func)
         {
             var i = 0;
             var max = Points.Length - 1;
@@ -78,4 +78,5 @@ namespace factor10.VisionThing
         }
 
     }
+
 }

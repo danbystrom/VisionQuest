@@ -10,7 +10,7 @@ namespace factor10.VisionThing.Terrain
         private readonly PlaneMeshPrimitive<TerrainVertex> _hiPlane;
         private readonly PlanePrimitive<TerrainVertex> _loPlane;
 
-        public readonly IEffect Effect;
+        public readonly IVEffect Effect;
 
         public TerrainPlane(VisionContent vContent)
         {

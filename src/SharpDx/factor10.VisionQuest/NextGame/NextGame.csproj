@@ -112,7 +112,7 @@
     <ToolkitTexture Include="Content\Textures\sn.dds" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Models\GalleonModel.3ds" />
+    <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -124,6 +124,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ToolkitTexture Include="Content\Models\Galleon.dds" />
     <Content Include="Content\Textures\snakeskinmap.dds" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

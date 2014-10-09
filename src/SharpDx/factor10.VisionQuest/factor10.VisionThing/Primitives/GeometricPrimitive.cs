@@ -9,10 +9,10 @@ namespace factor10.VisionThing.Primitives
 {
     public interface IGeometricPrimitive
     {
-        void Draw(IEffect effect, int lod = 0);
+        void Draw(IVEffect effect, int lod = 0);
     }
 
-    public abstract class GeometricPrimitive<T> : IDisposable, IDrawable, IGeometricPrimitive where T : struct, IEquatable<T>
+    public abstract class GeometricPrimitive<T> : IDisposable, IVDrawable, IGeometricPrimitive where T : struct, IEquatable<T>
     {
         private List<T> _vertices = new List<T>();
         private List<List<uint>> _indicesOfLods = new List<List<uint>>();
@@ -115,7 +115,7 @@ namespace factor10.VisionThing.Primitives
             }
         }
 
-        public void Draw(IEffect effect, int lod = 0)
+        public void Draw(IVEffect effect, int lod = 0)
         {
             var graphicsDevice = effect.GraphicsDevice;
 

@@ -17,6 +17,9 @@ namespace factor10.VisionThing.Terrain
 
         public readonly VisionContent VContent;
 
+        private BoundingSphere _boundingSphere;
+        public BoundingSphere BoundingSphere { get { return _boundingSphere; } }
+
         public Matrix World;
         private Vector3 _position;
 
@@ -63,6 +66,10 @@ namespace factor10.VisionThing.Terrain
 
             _position = World.TranslationVector;
 
+            //Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/snow");
+            //Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/canyon");
+            //Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
+            //Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/sahara");
             Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/snow");
             Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/canyon");
             Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
@@ -86,12 +93,18 @@ namespace factor10.VisionThing.Terrain
             var i = 0;
             for (var y = 0; y < slicesW; y++)
                 for (var x = 0; x < slicesH; x++)
+                {
+                    var world = World*Matrix.Translation(Side*x - HalfSide, 0, Side*y - HalfSide);
                     _slices[i++] = new terrainSlice
                     {
                         TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
-                        World = World*Matrix.Translation(Side*x - HalfSide, 0, Side*y - HalfSide),
-                        BoundingSphere = new BoundingSphere(_position + new Vector3(Side*x - HalfSide, 0, Side*y - HalfSide), raduis)
+                        World = world,
+                        BoundingSphere = new BoundingSphere(world.TranslationVector, raduis)
                     };
+                }
+            _boundingSphere = new BoundingSphere(
+                _position + new Vector3(Side*slicesW/2 + HalfSide, 0, Side*slicesW/2 + HalfSide),
+                100);
 
             GroundExtentX = slicesW;
             GroundExtentZ = slicesH;
@@ -99,6 +112,8 @@ namespace factor10.VisionThing.Terrain
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
+            //if (camera.BoundingFrustum.Intersects(ref _boundingSphere))
+            //    return false;
             var anyPartIsVisible = _slices.Aggregate(false, (current, slice) => current | (slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint));
 
             if (!anyPartIsVisible)

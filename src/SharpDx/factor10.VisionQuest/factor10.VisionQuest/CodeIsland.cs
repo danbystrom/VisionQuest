@@ -13,26 +13,30 @@ namespace factor10.VisionQuest
 {
     public class CodeIsland : TerrainBase
     {
+        public readonly Archipelag Archipelag;
+
         public const int ClassSide = 32;
 
         public readonly VAssembly VAssembly;
-        public readonly Dictionary<string, VisualClass> Classes = new Dictionary<string, VisualClass>();
+        public readonly Dictionary<string, VisionClass> Classes = new Dictionary<string, VisionClass>();
 
         public CodeIsland(
             VisionContent vContent,
+            Archipelag archipelag,
             Matrix world,
             VAssembly vassembly)
             : base(vContent)
         {
-            World = world;
+            Archipelag = archipelag;
             VAssembly = vassembly;
+            World = world;
 
             if (VAssembly.Is3dParty)
             {
                 Box = new Box(vContent, World, new Vector3(50, 20, 50), 0.01f);
                 foreach (var vclass in vassembly.VClasses)
                 {
-                    var vc = new VisualClass(vclass, 75, 75, 5) {Height = 10};
+                    var vc = new VisionClass(this, vclass, 75, 75, 5) {Height = 10};
                     Classes.Add(vclass.FullName, vc);
                 }
                 return;
@@ -62,7 +66,7 @@ namespace factor10.VisionQuest
                 {
                     var r = 10;
                     var circle = circleContainer.Drop(r);
-                    var vc = new VisualClass(vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
+                    var vc = new VisionClass(this, vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
                     Classes.Add(vclass.FullName, vc);
                 }
 
@@ -70,7 +74,7 @@ namespace factor10.VisionQuest
                 {
                     var r = 4 + (int) Math.Sqrt(vclass.InstructionCount);
                     var circle = circleContainer.Drop(r);
-                    var vc = new VisualClass(vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
+                    var vc = new VisionClass(this, vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
                     Classes.Add(vclass.FullName, vc);
                 }
 
@@ -153,7 +157,7 @@ namespace factor10.VisionQuest
             ms.CreateBillboardVerticesFromList(grass);
             Children.Add(ms);
 
-            var weights = ground.CreateWeigthsMap(new[] {0, 0.5f, 0.95f, 1});
+            var weights = ground.CreateWeigthsMap(new[] {0, 0.7f, 0.95f, 1});
             weights.DrawLine(15, 15, surfaceSide-16, surfaceSide-16, 5,
                 (c, o) =>
                 {
@@ -178,16 +182,16 @@ namespace factor10.VisionQuest
                 : base.draw(camera, drawingReason, shadowMap);
         }
 
-        public static List<CodeIsland> Create(VisionContent vContent, List<VAssembly> assemblies)
+        public static List<CodeIsland> Create(VisionContent vContent, Archipelag archipelag, List<VAssembly> assemblies)
         {
             int x = 0, y = 0;
-            return assemblies.OrderBy(_ => _.Is3dParty).Select(assembly => createOne(vContent, assembly, ref x, ref y)).ToList();
+            return assemblies.OrderBy(_ => _.Is3dParty).Select(assembly => createOne(vContent, archipelag, assembly, ref x, ref y)).ToList();
         }
 
-        private static CodeIsland createOne(VisionContent vContent, VAssembly assembly, ref int x, ref int y)
+        private static CodeIsland createOne(VisionContent vContent, Archipelag archipelag, VAssembly assembly, ref int x, ref int y)
         {
             var t = Matrix.Translation(-y*300, -0.5f, -900 - x*300);
-            var codeIsland = new CodeIsland(vContent, t, assembly);
+            var codeIsland = new CodeIsland(vContent, archipelag, t, assembly);
             //                codeIsland.World = t;
 
             x++;

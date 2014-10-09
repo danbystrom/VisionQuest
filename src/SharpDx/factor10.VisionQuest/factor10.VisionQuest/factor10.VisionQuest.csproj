@@ -102,11 +102,11 @@
     <Compile Include="Decorations\Ship.cs" />
     <Compile Include="Decorations\ShipModel.cs" />
     <Compile Include="Signs.cs" />
-    <Compile Include="SignsBig.cs" />
+    <Compile Include="BannerSign.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="VisionQuestGame.cs" />
     <Compile Include="SharedData.cs" />
-    <Compile Include="VisualClass.cs" />
+    <Compile Include="VisionClass.cs" />
     <Compile Include="Decorations\Windmill.cs" />
     <EmbeddedResource Include="FManageProjects.resx">
       <DependentUpon>FManageProjects.cs</DependentUpon>
@@ -160,7 +160,10 @@
     <ToolkitTexture Include="Content\Models\ShipDiffuse.dds" />
   </ItemGroup>
   <ItemGroup>
-    <ToolkitModel Include="Content\Models\Galleon.dds" />
+    <ToolkitTexture Include="Content\Models\Galleon.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GroundControl\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.2\build\SharpDX.targets')" />

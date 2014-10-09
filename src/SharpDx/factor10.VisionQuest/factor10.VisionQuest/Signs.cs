@@ -13,15 +13,16 @@ namespace factor10.VisionQuest
         private readonly VisionEffect _signTextEffect;
         private readonly SpriteFont _spriteFont;
         private readonly SpriteBatch _spriteBatch;
-        private readonly List<VisualClass> _vclasses;
+        private readonly List<VisionClass> _vclasses;
 
-        public readonly float TextSize = 0.05f;
+        public const float TextSize = 0.05f;
+        public const int TextDistanceAboveGround = 5;
 
         public Signs(
             VisionContent vContent,
             Matrix world,
             Texture2D texture,
-            List<VisualClass> vclasses,
+            List<VisionClass> vclasses,
             float width,
             float height)
             : base(vContent, world, texture, vclasses.Select(vc => vc.Position).ToList(), width, height)
@@ -30,6 +31,12 @@ namespace factor10.VisionQuest
             _spriteBatch = new SpriteBatch(Effect.GraphicsDevice);
             _spriteFont = vContent.Load<SpriteFont>("fonts/BlackCastle");
             _vclasses = vclasses;
+
+            var w2 = world*Matrix.Translation(new Vector3(0, TextDistanceAboveGround, 0));
+            foreach (var vc in vclasses)
+                vc.SignClickBoundingSphere = new BoundingSphere(
+                    vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround-1, 0),
+                    2);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
@@ -40,20 +47,21 @@ namespace factor10.VisionQuest
                 return true;
 
             camera.UpdateEffect(_signTextEffect);
-            var world = World*Matrix.Translation(0, 5f, 0);
+            var world = World*Matrix.Translation(0, TextDistanceAboveGround, 0);
+            _signTextEffect.DiffuseColor = Color.WhiteSmoke.ToVector4();
 
             foreach (var vc in _vclasses)
             {
                 var pos = Vector3.TransformCoordinate(vc.Position, world);
                 var viewDirection = Vector3.Normalize(pos - camera.Position);
 
-                if (Vector3.DistanceSquared(pos, camera.Position) > 200000 || Vector3.Dot(viewDirection, camera.Front)<0)
+                if (Vector3.DistanceSquared(pos, camera.Position) > 200000 || Vector3.Dot(viewDirection, camera.Front) < 0)
                     continue;
 
                 var text = vc.VClass.Name;
                 _signTextEffect.World = createConstrainedBillboard(pos - viewDirection*0.2f, viewDirection, Vector3.Down);
                 _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, _signTextEffect.Effect);
-                _spriteBatch.DrawString(_spriteFont, text, Vector2.Zero, Color.White, 0, _spriteFont.MeasureString(text) / 2, TextSize, 0, 0);
+                _spriteBatch.DrawString(_spriteFont, text, Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString(text)/2, TextSize, 0, 0);
                 _spriteBatch.End();
             }
 
@@ -67,7 +75,7 @@ namespace factor10.VisionQuest
         {
             var vec1 = Vector3.Normalize(Vector3.Cross(rotateAxis, viewDirection));
             var vec2 = Vector3.Normalize(Vector3.Cross(vec1, rotateAxis));
-            
+
             Matrix matrix;
             matrix.M11 = vec1.X;
             matrix.M12 = vec1.Y;

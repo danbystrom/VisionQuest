@@ -15,7 +15,7 @@ namespace Serpent
         public EnemySerpent(
             VisionContent vContent,
             PlayingField pf,
-            factor10.VisionThing.IDrawable sphere,
+            factor10.VisionThing.IVDrawable sphere,
             SerpentCamera camera,
             Whereabouts whereabouts,
             int x)
