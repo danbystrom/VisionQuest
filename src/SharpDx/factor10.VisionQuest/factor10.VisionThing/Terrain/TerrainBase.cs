@@ -18,16 +18,19 @@ namespace factor10.VisionThing.Terrain
         public readonly VisionContent VContent;
 
         private BoundingSphere _boundingSphere;
-        public BoundingSphere BoundingSphere { get { return _boundingSphere; } }
+
+        public BoundingSphere BoundingSphere
+        {
+            get { return _boundingSphere; }
+        }
 
         public Matrix World;
         private Vector3 _position;
 
-        protected readonly Texture2D[] Textures = new Texture2D[8];
+        protected readonly Texture2D[] Textures = new Texture2D[9];
 
         protected Texture2D HeightsMap;
-        protected Texture2D WeightsMap1;
-        protected Texture2D WeightsMap2;
+        protected Texture2D WeightsMap;
         protected Texture2D NormalsMap;
 
         private terrainSlice[] _slices;
@@ -66,22 +69,18 @@ namespace factor10.VisionThing.Terrain
 
             _position = World.TranslationVector;
 
-            //Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/snow");
-            //Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/canyon");
-            //Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
-            //Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/sahara");
-            Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/snow");
-            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/canyon");
-            Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
-            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/sahara");
-            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/path");
-            Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/path");
-            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/path");
+            Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/dirtground");
+            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/grass");
+            Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/sahara");
+            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/snow");
+            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/sand");
+            Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/stones");
+            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/rock");
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
+            Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/begonias");
 
             HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
-            WeightsMap1 = weights.CreateTexture2D(Effect.GraphicsDevice, true);
-            WeightsMap2 = weights.CreateTexture2D(Effect.GraphicsDevice, false);
+            WeightsMap = weights.CreateTexture2D(Effect.GraphicsDevice);
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
             var slicesW = ground.Width/Side;
@@ -114,18 +113,18 @@ namespace factor10.VisionThing.Terrain
         {
             //if (camera.BoundingFrustum.Intersects(ref _boundingSphere))
             //    return false;
-            var anyPartIsVisible = _slices.Aggregate(false, (current, slice) => current | (slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint));
+            var anyPartIsVisible = _slices.Aggregate(false,
+                (current, slice) => current | (slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint));
 
             if (!anyPartIsVisible)
                 return false;
 
-            for (var i = 0; i < 8; i++ )
-                Effect.Parameters["Texture" + (char)(65+i)].SetResource(Textures[i]);
+            for (var i = 0; i < 9; i++)
+                Effect.Parameters["Texture" + (char) (48 + i)].SetResource(Textures[i]);
 
             Effect.Parameters["HeightsMap"].SetResource(HeightsMap);
             Effect.Parameters["NormalsMap"].SetResource(NormalsMap);
-            Effect.Parameters["WeightsMap1"].SetResource(WeightsMap1);
-            Effect.Parameters["WeightsMap2"].SetResource(WeightsMap2);
+            Effect.Parameters["WeightsMap"].SetResource(WeightsMap);
 
             camera.UpdateEffect(Effect);
 

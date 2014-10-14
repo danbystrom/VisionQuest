@@ -7,19 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using factor10.VisionQuest.GroundControl;
 
-namespace CircleMaster
+namespace CircleMasterApp
 {
     public partial class FMain : Form
     {
-        private readonly CircleMaster _circles;
-        private Circle _circle;
+        private readonly CircleMaster<int> _circles;
+        private Circle<int> _circle;
 
         public FMain()
         {
             InitializeComponent();
 
-            _circles = new CircleMaster(_ =>
+            _circles = new CircleMaster<int>(_ =>
             {
                 _circle = _;
                 Refresh();

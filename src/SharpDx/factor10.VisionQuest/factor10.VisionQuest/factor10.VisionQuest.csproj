@@ -93,6 +93,8 @@
       <DependentUpon>FProject.cs</DependentUpon>
     </Compile>
     <Compile Include="GeneratedTerrain.cs" />
+    <Compile Include="GroundControl\Circle.cs" />
+    <Compile Include="GroundControl\CircleMaster.cs" />
     <Compile Include="LargeTerrain.cs" />
     <Compile Include="Decorations\MovingShip.cs" />
     <Compile Include="Program.cs" />
@@ -162,9 +164,7 @@
   <ItemGroup>
     <ToolkitTexture Include="Content\Models\Galleon.dds" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GroundControl\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.2\build\SharpDX.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

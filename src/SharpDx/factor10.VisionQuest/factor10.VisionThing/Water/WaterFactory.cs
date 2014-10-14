@@ -51,12 +51,14 @@ namespace factor10.VisionThing.Water
             WaterSurface waterSurface,
             Camera camera,
             ShadowMap shadow,
-            int nisse)
+            int nisse,
+            int surfaceSize,
+            int surfaceScale)
         {
             const int waterW = 64;
             const int waterH = 64;
-            const int worldW = 0; //32;
-            const int worldH = 0; //32;
+            const int worldW = 32;
+            const int worldH = 32;
 
             var boundingFrustum = camera.BoundingFrustum;
 
@@ -67,43 +69,29 @@ namespace factor10.VisionThing.Water
 
             Array.Clear(RenderedWaterPlanes, 0, RenderedWaterPlanes.Length);
 
-            //var drawDetails = camera.Position.Y < 300;
-            //if (drawDetails)
-            //    for (var y = 0; y <= worldH; y++)
-            //        for (var x = 0; x <= worldW; x++)
-            //        {
-            //            var pos1 = new Vector3((gridStartX + x) * waterW, 0, (gridStartY + y) * waterH);
-            //            var pos2 = pos1 + new Vector3(waterW, 1, waterH);
-            //            var bb = new BoundingBox(pos1, pos2);
-            //            if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
-            //                continue;
+            var drawDetails = camera.Position.Y < -1; // fix the sea water some time
+            if (drawDetails)
+                for (var y = 0; y <= worldH; y++)
+                    for (var x = 0; x <= worldW; x++)
+                    {
+                        var pos1 = new Vector3((gridStartX + x) * waterW, 0, (gridStartY + y) * waterH);
+                        var pos2 = pos1 + new Vector3(waterW, 1, waterH);
+                        var bb = new BoundingBox(pos1, pos2);
+                        if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
+                            continue;
 
-            //            waterSurface.Draw(
-            //                camera,
-            //                pos1,
-            //                Vector3.Distance(camera.Position, pos1 - new Vector3(-32, 0, -32)),
-            //                x % 8,
-            //                y % 8);
-            //        }
+                        waterSurface.Draw(
+                            camera,
+                            pos1,
+                            Vector3.Distance(camera.Position, pos1 - new Vector3(-32, 0, -32)),
+                            x % 8,
+                            y % 8,
+                            1 << surfaceScale);
+                    }
 
-            //if (camera.Position.Y < 100)
-            //    return;
-
-            var size = 5; // (int)Math.Sqrt(camera.Position.Y);
-            for (var y = -size+1; y < size; y++)
-                for (var x = -size+1; x < size; x++)
-                {
-                    //if (x == 0 && y == 0 && drawDetails)
-                    //    continue;
-                    var pos1 = new Vector3(gridStartX * waterW + x * 1024 + 64, 0.5f, gridStartY * waterH + y * 1024 + 64);
-                    var pos2 = pos1 + new Vector3(1024, 1, 1024);
-                    var bb = new BoundingBox(pos1, pos2);
-                    if (boundingFrustum.Contains(bb) == ContainmentType.Disjoint)
-                        continue;
-                    waterSurface.Draw(camera, pos1, -1, 0, 0);
-                    RenderedWaterPlanes[5]++;
-                }
-
+            var q = (int)camera.ZFar & ~(waterW - 1);
+            var pos = new Vector3(gridStartX*waterW - q, 0.5f, gridStartY*waterH - q);
+            waterSurface.Draw(camera, pos, -1, 0, 0, 1 << surfaceScale);
         }
 
         public static int[] RenderedWaterPlanes = new int[6];

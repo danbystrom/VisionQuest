@@ -100,7 +100,7 @@ namespace factor10.VisionQuest
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
                 FillMode = FillMode.Solid,
-                CullMode = CullMode.None,
+                CullMode = CullMode.Back,
                 IsFrontCounterClockwise = false,
                 DepthBias = 0,
                 SlopeScaledDepthBias = 0.0f,
@@ -158,7 +158,8 @@ namespace factor10.VisionQuest
         {
             _graphicsDeviceManager.GraphicsDevice.SetRasterizerState(_rasterizerState);
 
-            _water.RenderReflection(Camera, _ballInstance);
+            if (!_data.HiddenWater)
+                _water.RenderReflection(Camera, _ballInstance);
             GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, GraphicsDevice.BackBuffer);
 
             _graphicsDeviceManager.GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -170,7 +171,8 @@ namespace factor10.VisionQuest
             if(_archipelag!=null)
                 _archipelag.Draw(Camera);
 
-            WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0);
+            if(!_data.HiddenWater)
+                WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0, _data.WaterSurfaceSize, _data.WaterSurfaceScale);
             Sky.Draw(Camera);
 
             if (_archipelag != null)

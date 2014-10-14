@@ -35,7 +35,14 @@
             this.optNoLines = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnProperties = new System.Windows.Forms.Button();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.numSurfaceScale = new System.Windows.Forms.NumericUpDown();
+            this.numSurfaceSize = new System.Windows.Forms.NumericUpDown();
+            this.chkHiddenWater = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numSurfaceScale)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSurfaceSize)).BeginInit();
             this.SuspendLayout();
             // 
             // pnRenderControlPanel
@@ -109,11 +116,51 @@
             this.btnProperties.UseVisualStyleBackColor = true;
             this.btnProperties.Click += new System.EventHandler(this.btnProperties_Click);
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.numSurfaceScale);
+            this.groupBox2.Controls.Add(this.numSurfaceSize);
+            this.groupBox2.Controls.Add(this.chkHiddenWater);
+            this.groupBox2.Location = new System.Drawing.Point(12, 566);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(200, 126);
+            this.groupBox2.TabIndex = 9;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Water";
+            // 
+            // numSurfaceScale
+            // 
+            this.numSurfaceScale.Location = new System.Drawing.Point(13, 87);
+            this.numSurfaceScale.Name = "numSurfaceScale";
+            this.numSurfaceScale.Size = new System.Drawing.Size(87, 26);
+            this.numSurfaceScale.TabIndex = 12;
+            this.numSurfaceScale.ValueChanged += new System.EventHandler(this.numSurcafeScale_ValueChanged);
+            // 
+            // numSurfaceSize
+            // 
+            this.numSurfaceSize.Location = new System.Drawing.Point(13, 55);
+            this.numSurfaceSize.Name = "numSurfaceSize";
+            this.numSurfaceSize.Size = new System.Drawing.Size(87, 26);
+            this.numSurfaceSize.TabIndex = 11;
+            this.numSurfaceSize.ValueChanged += new System.EventHandler(this.numSurfaceSize_ValueChanged);
+            // 
+            // chkHiddenWater
+            // 
+            this.chkHiddenWater.AutoSize = true;
+            this.chkHiddenWater.Location = new System.Drawing.Point(13, 25);
+            this.chkHiddenWater.Name = "chkHiddenWater";
+            this.chkHiddenWater.Size = new System.Drawing.Size(68, 24);
+            this.chkHiddenWater.TabIndex = 10;
+            this.chkHiddenWater.Text = "Hide";
+            this.chkHiddenWater.UseVisualStyleBackColor = true;
+            this.chkHiddenWater.CheckedChanged += new System.EventHandler(this.chkHiddenVater_CheckedChanged);
+            // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(1719, 1081);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnProperties);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.textBox1);
@@ -125,6 +172,10 @@
             this.Text = "FMain";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numSurfaceScale)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numSurfaceSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -139,6 +190,10 @@
         private System.Windows.Forms.RadioButton optNoLines;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnProperties;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.NumericUpDown numSurfaceScale;
+        private System.Windows.Forms.NumericUpDown numSurfaceSize;
+        private System.Windows.Forms.CheckBox chkHiddenWater;
     }
 }
 

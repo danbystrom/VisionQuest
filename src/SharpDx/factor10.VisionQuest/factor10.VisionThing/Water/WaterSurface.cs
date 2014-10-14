@@ -70,7 +70,7 @@ namespace factor10.VisionThing.Water
             _hiPolyPlane = generatePlane(graphicsDevice, initInfo.SquareSize, initInfo.dx, initInfo.dz,
                                          initInfo.texScale);
 
-            _lakePlane = generatePlane(graphicsDevice, 1, initInfo.SquareSize*8, initInfo.SquareSize*8, initInfo.texScale*8);
+            _lakePlane = generatePlane(graphicsDevice, 1, initInfo.SquareSize*512, initInfo.SquareSize*512, initInfo.texScale*512);
 
             buildFx(initInfo);
 
@@ -129,7 +129,7 @@ namespace factor10.VisionThing.Water
                 vec.Y -= 4*Math.Sign(vec.Y);
         }
 
-        public void Draw(Camera camera, Vector3 pos, float distance, int x, int y)
+        public void Draw(Camera camera, Vector3 pos, float distance, int x, int y, int lakeTextureTransformation)
         {
             var world = Matrix.Translation(pos);
             Effect.World = world;
@@ -146,7 +146,7 @@ namespace factor10.VisionThing.Water
             if ( distance < 0 )
             {
                 WaterFactory.RenderedWaterPlanes[5]++;
-                Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, 8, 8));
+                Effect.Parameters["LakeTextureTransformation"].SetValue(new Vector4(0, 0, lakeTextureTransformation, lakeTextureTransformation));
                 Effect.Effect.CurrentTechnique = Effect.Effect.Techniques[1];
                 _lakePlane.Draw(Effect);
                 return;

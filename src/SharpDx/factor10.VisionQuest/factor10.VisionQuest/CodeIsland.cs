@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using factor10.VisionaryHeads;
+using factor10.VisionQuest.GroundControl;
 using factor10.VisionThing;
 using factor10.VisionThing.Objects;
 using factor10.VisionThing.Terrain;
@@ -44,12 +46,6 @@ namespace factor10.VisionQuest
 
             var rnd = new Random();
 
-            var totalArea = vassembly.VClasses.Sum(_ => 4 + _.InstructionCount)*1.6;
-
-            var side = (int) Math.Sqrt(totalArea); // (ClassSide/2) * (int)Math.Ceiling(Math.Sqrt(vassembly.VClasses.Count+4));
-            var surfaceSide = 2*((side + ClassSide)/ClassSide);
-            surfaceSide *= ClassSide;
-
             var interfaceClasses = new List<VClass>();
             var implementationClasses = new List<VClass>();
             foreach (var vclass in vassembly.VClasses)
@@ -58,34 +54,29 @@ namespace factor10.VisionQuest
                 else
                     implementationClasses.Add(vclass);
 
-            while (true)
+            var circleMaster = new CircleMaster<VClass>();
+            var q = 0;
+            foreach (var vclass in interfaceClasses)
+                circleMaster.Drop(q += 10, 0, 10, vclass);
+
+            foreach (var vclass in implementationClasses)
+                circleMaster.Drop(q += 10, 0, 4 + (int) Math.Sqrt(vclass.InstructionCount), vclass);
+
+            int left, top, right, bottom;
+            circleMaster.GetBounds(out left, out top, out right, out bottom);
+            foreach (var c in circleMaster.Circles)
             {
-                var circleContainer = new CircleContainer(surfaceSide - ClassSide, ClassSide/2);
-
-                foreach (var vclass in interfaceClasses)
-                {
-                    var r = 10;
-                    var circle = circleContainer.Drop(r);
-                    var vc = new VisionClass(this, vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
-                    Classes.Add(vclass.FullName, vc);
-                }
-
-                foreach (var vclass in implementationClasses)
-                {
-                    var r = 4 + (int) Math.Sqrt(vclass.InstructionCount);
-                    var circle = circleContainer.Drop(r);
-                    var vc = new VisionClass(this, vclass, ClassSide/2 + (int) circle.X, ClassSide/2 + (int) circle.Y, r);
-                    Classes.Add(vclass.FullName, vc);
-                }
-
-                var q = (((int) circleContainer.MaxUsedY + 65)/64)*64;
-                if (q < surfaceSide)
-                    break;
-                Classes.Clear();
-                surfaceSide += 64;
+                var vc = new VisionClass(this, c.Tag, ClassSide/2 + c.X - left, ClassSide/2 + c.Y - top, c.R);
+                Classes.Add(c.Tag.FullName, vc);
             }
 
-            var ground = new Ground(surfaceSide, surfaceSide);
+            var surfaceWidth = 1 << (1 + (int) (Math.Log(right - left)/Math.Log(2)));
+            var surfaceHeight = 1 << (1 + (int) (Math.Log(bottom - top)/Math.Log(2)));
+
+            System.Diagnostics.Debug.Print("{0}: {1} {2}", vassembly.Name, surfaceWidth, surfaceHeight);
+
+            var qq = Math.Max(surfaceWidth, surfaceHeight);
+            var ground = new Ground(qq, qq);
 
             foreach (var vc in Classes.Values)
             {
@@ -97,7 +88,7 @@ namespace factor10.VisionQuest
                 ground.AlterValues(
                     middleX, middleY,
                     vc.R*2, vc.R*2,
-                    (px, py, h) =>
+                    (px, py,  h) =>
                     {
                         var dx = (vc.X - px);
                         var dy = (vc.Y - py);
@@ -118,12 +109,11 @@ namespace factor10.VisionQuest
             ground.Soften(2);
 
             //make ground slices seamless
-            for (var x = 64; x < surfaceSide; x += 64)
-                for (var y = 0; y < surfaceSide; y++)
+            for (var x = 64; x < surfaceWidth; x += 64)
+                for (var y = 0; y < surfaceHeight; y++)
                     ground[x, y] = ground[x - 1, y] = (ground[x, y] + ground[x - 1, y])/2;
-
-            for (var y = 64; y < surfaceSide; y += 64)
-                for (var x = 0; x < surfaceSide; x++)
+            for (var y = 64; y < surfaceHeight; y += 64)
+                for (var x = 0; x < surfaceWidth; x++)
                     ground[x, y] = ground[x, y - 1] = (ground[x, y] + ground[x, y - 1])/2;
 
 
@@ -157,20 +147,17 @@ namespace factor10.VisionQuest
             ms.CreateBillboardVerticesFromList(grass);
             Children.Add(ms);
 
-            var weights = ground.CreateWeigthsMap(new[] {0, 0.7f, 0.95f, 1});
-            weights.DrawLine(15, 15, surfaceSide-16, surfaceSide-16, 5,
-                (c, o) =>
-                {
-                    var factor = (1 + o)/4f;
-                    c.A *= factor;
-                    c.B *= factor;
-                    c.C *= factor;
-                    c.D *= factor;
-                    c.H = 1 - c.A - c.B - c.C - c.D;
-                    return c;
-                },
-                0,
-                new Random());
+            var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
+            weights.AlterValues(0, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 {A = 100});
+            weights.AlterValues(0, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { B = 100 });
+            weights.AlterValues(0, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { C = 100 });
+            weights.AlterValues(050, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { D = 100 });
+            weights.AlterValues(050, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { E = 100 });
+            weights.AlterValues(050, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { F = 100 });
+            weights.AlterValues(100, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { G = 100 });
+            weights.AlterValues(100, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { H = 100 });
+            weights.AlterValues(100, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { I = 100 });
+            weights.AlterValues(0, 0, qq-1, qq-1, (x, y, mt) => new Mt8Surface.Mt8 { B = 100 });
 
             initialize(ground, weights, normals);
         }

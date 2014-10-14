@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
-namespace CircleMaster
+namespace factor10.VisionQuest.GroundControl
 {
-    public class CircleMaster
+    public class CircleMaster<T>
     {
-        private readonly List<Circle> _circles = new List<Circle>();
-        private readonly Action<Circle> _callback;
+        private readonly List<Circle<T>> _circles = new List<Circle<T>>();
+        private readonly Action<Circle<T>> _callback;
 
-        public CircleMaster(Action<Circle> callback = null)
+        public CircleMaster(Action<Circle<T>> callback = null)
         {
             _callback = callback;
         }
 
-        public IEnumerable<Circle> Circles
+        public IEnumerable<Circle<T>> Circles
         {
             get { return _circles; }
         }
 
-        private void callback(Circle circle)
+        private void callback(Circle<T> circle)
         {
             if (_callback != null)
                 _callback(circle);
@@ -39,18 +38,18 @@ namespace CircleMaster
             }
         }
 
-        public Circle Drop(int x, int y, int r)
+        public Circle<T> Drop(int x, int y, int r, T tag = default(T))
         {
-            var circle = new Circle(x, y, r);
+            var circle = new Circle<T>(x, y, r, tag);
             if(_circles.Any())
                 drop(circle);
             _circles.Add(circle);
             return circle;
         }
 
-        private void drop(Circle circle)
+        private void drop(Circle<T> circle)
         {
-            var master = Intersections(new Circle(circle.X, circle.Y, 1)).FirstOrDefault();
+            var master = Intersections(new Circle<T>(circle.X, circle.Y, 1)).FirstOrDefault();
             if (master != null)
             {
                 //try to squeeze it in somewhere around the circle we hit
@@ -80,7 +79,7 @@ namespace CircleMaster
             }
 
             //move it closer until it just touches
-            List<Circle> touches;
+            List<Circle<T>> touches;
             while (true)
             {
                 touches = Intersections(circle);
@@ -101,7 +100,7 @@ namespace CircleMaster
             rotate(circle, master, () => Intersections(circle, master).Any());
         }
 
-        private bool rotate(Circle circle, Circle master, Func<bool> stopWhen)
+        private bool rotate(Circle<T> circle, Circle<T> master, Func<bool> stopWhen)
         {
             var x = circle.X - master.X;
             var y = circle.Y - master.Y;
@@ -124,7 +123,7 @@ namespace CircleMaster
             return false;
         }
 
-        public List<Circle> Intersections(Circle circle, Circle exclude = null)
+        public List<Circle<T>> Intersections(Circle<T> circle, Circle<T> exclude = null)
         {
             return _circles.Where(c => c.Distance2(circle) < 0 && c != exclude).ToList();
         }

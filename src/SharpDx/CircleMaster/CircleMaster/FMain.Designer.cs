@@ -1,4 +1,4 @@
-﻿namespace CircleMaster
+﻿namespace CircleMasterApp
 {
     partial class FMain
     {

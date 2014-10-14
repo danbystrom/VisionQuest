@@ -40,6 +40,9 @@ namespace factor10.VisionQuest
 
             optAllLines.CheckedChanged += (sender, args) => uiChanged();
             optNoLines.CheckedChanged += (sender, args) => uiChanged();
+
+            numSurfaceSize.Value = _data.WaterSurfaceSize;
+            numSurfaceScale.Value = _data.WaterSurfaceScale;
         }
 
         protected override void OnShown(EventArgs e)
@@ -95,6 +98,21 @@ namespace factor10.VisionQuest
         private void btnProperties_Click(object sender, EventArgs e)
         {
             _data.LoadProgram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
+        }
+
+        private void chkHiddenVater_CheckedChanged(object sender, EventArgs e)
+        {
+            _data.HiddenWater = chkHiddenWater.Checked;
+        }
+
+        private void numSurfaceSize_ValueChanged(object sender, EventArgs e)
+        {
+            _data.WaterSurfaceSize = (int)numSurfaceSize.Value;
+        }
+
+        private void numSurcafeScale_ValueChanged(object sender, EventArgs e)
+        {
+            _data.WaterSurfaceScale = (int) numSurfaceScale.Value;
         }
 
     }

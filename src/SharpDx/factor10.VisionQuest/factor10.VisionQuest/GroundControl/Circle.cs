@@ -1,26 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 
-namespace CircleMaster
+namespace factor10.VisionQuest.GroundControl
 {
-    public class Circle
+    public class Circle<T>
     {
         public int X;
         public int Y;
         public int R;
 
-        public Circle(int x, int y, int r)
+        public T Tag;
+
+        public Circle(int x, int y, int r, T tag = default(T))
         {
             X = x;
             Y = y;
             R = r;
+            Tag = tag;
         }
 
-        public int Distance2(Circle other)
+        public int Distance2(Circle<T> other)
         {
             var x = X - other.X;
             var y = Y - other.Y;
@@ -34,7 +32,7 @@ namespace CircleMaster
             get { return new Rectangle(X - R, Y - R, R*2, R*2); }
         }
 
-        public bool Intersects(Circle other)
+        public bool Intersects(Circle<T> other)
         {
             return Distance2(other) < 0;
         }

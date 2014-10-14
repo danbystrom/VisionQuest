@@ -156,8 +156,11 @@
     <ToolkitTexture Include="Content\TerrainTextures\path.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Canyon.dds" />
     <ToolkitFont Include="Content\Fonts\Arial16.xml" />
-    <Content Include="Content\TerrainTextures\rock.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\sand.dds" />
+    <ToolkitTexture Include="Content\TerrainTextures\stones.dds" />
+    <ToolkitTexture Include="Content\TerrainTextures\dirtground.dds" />
+    <ToolkitTexture Include="Content\TerrainTextures\rock.dds" />
+    <ToolkitTexture Include="Content\TerrainTextures\begonias.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\snow.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\tree.dds" />
     <Content Include="Content\ShadowEffects\LightingEffect.fx" />

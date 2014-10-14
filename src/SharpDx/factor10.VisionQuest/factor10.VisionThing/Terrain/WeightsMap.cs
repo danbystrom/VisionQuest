@@ -15,30 +15,40 @@ namespace factor10.VisionThing.Terrain
         public WeightsMap(Sculptable<float> ground, float[] levels = null)
             : base(ground.Width, ground.Height)
         {
-            var min = ground.Values.Min();
-            var max = ground.Values.Max();
-            var span = max - min;
             if (levels == null)
                 levels = new[] {0, 0.33f, 0.76f, 1};
-            for (var i = 0; i < 4; i++)
-                levels[i] = min + levels[i]*span;
-            span /= 4;
+
+            if(levels.Length!=4)
+                throw new Exception();
+
+            var maxHeight = ground.Values.Max();
+            levels = levels.Select(_ => _*maxHeight).ToArray();
+
+            var test = Enumerable.Range(0, (int) maxHeight + 1).Select(val =>
+            {
+                var t = levels.Select(_ => MathUtil.Clamp(1.0f - Math.Abs(val - _) / maxHeight, 0, 1)).ToArray();
+                var maxT = t.Max() + 0.0000001;
+                t = t.Select(_ => (float)Math.Pow(_ / maxT, 10)).ToArray();
+                var tot = 1 / (t.Sum() + 0.0000001f);
+                return t.Select(_ => _*tot).ToArray();
+            }).ToArray();
+
             for (var i = 0; i < ground.Values.Length; i++)
             {
                 var val = ground.Values[i];
-                var t0 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[0])/span, 0, 1);
-                var t1 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[1])/span, 0, 1);
-                var t2 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[2])/span, 0, 1);
-                var t3 = MathUtil.Clamp(1.0f - Math.Abs(val - levels[3])/span, 0, 1);
-                var tot = 1/(t0 + t1 + t2 + t3 + 0.00001f);
-                if (tot < 0.5f)
+                var t = levels.Select(_ => MathUtil.Clamp(1.0f - Math.Abs(val - _)/maxHeight, 0, 1)).ToArray();
+                var maxT = t.Max();
+                t = t.Select(_ => (float) Math.Pow(_/maxT, 5)).ToArray();
+                var tot = 1/(t.Sum() + 0.00001f);
+
+                if (t.Sum(_ => _*tot)<0.99 || t.Max()>1.01)
                 {
-                    
+
                 }
-                Values[i].A = t0*tot;
-                Values[i].B = t1*tot;
-                Values[i].C = t2*tot;
-                Values[i].D = t3*tot;
+                Values[i].A = t[0]*tot;
+                Values[i].B = t[1]*tot;
+                Values[i].C = t[2]*tot;
+                Values[i].D = t[3]*tot;
             }
         }
 

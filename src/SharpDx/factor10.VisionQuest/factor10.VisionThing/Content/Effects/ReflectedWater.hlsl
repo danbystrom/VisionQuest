@@ -306,7 +306,7 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 }
 
 
-technique Yahoo0
+technique CombinedWaterTech
 {
 	pass Pass0
 	{
