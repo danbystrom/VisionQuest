@@ -96,7 +96,7 @@
     <Compile Include="Effects\VisionEffect.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IVDrawable.cs" />
-    <Compile Include="Mt8Surface.cs" />
+    <Compile Include="Mt9Surface.cs" />
     <Compile Include="Objects\Box.cs" />
     <Compile Include="Objects\Bridge.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
@@ -150,8 +150,8 @@
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />
     <ToolkitFxc Include="Content\ShadowEffects\GaussianBlur.fx" />
     <ToolkitFxc Include="Content\Billboards\MSBillboard.fx" />
-    <ToolkitTexture Include="Content\Billboards\grassms.dds" />
-    <ToolkitTexture Include="Content\Billboards\treems.dds" />
+    <ToolkitTexture Include="Content\Billboards\grass.dds" />
+    <ToolkitTexture Include="Content\Billboards\trees.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\grass.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\path.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Canyon.dds" />
@@ -163,6 +163,8 @@
     <ToolkitTexture Include="Content\TerrainTextures\begonias.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\snow.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\tree.dds" />
+    <ToolkitFxc Include="Content\Billboards\CxBillboard.fx" />
+    <Content Include="Content\Billboards\wheat_billboard.dds" />
     <Content Include="Content\ShadowEffects\LightingEffect.fx" />
     <Content Include="Content\ShadowEffects\MultiLightingEffect.fx" />
     <Content Include="Content\ShadowEffects\PointLightEffect.fx" />

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
@@ -26,7 +25,7 @@ namespace factor10.VisionThing.Terrain
                 Values[i] = fillValue;
         }
 
-        public Sculptable(Texture2D heightMap, Func<int, T> fx)
+        public Sculptable(Texture heightMap, Func<int, T> fx)
             : this(heightMap.Description.Width, heightMap.Description.Height)
         {
             var oldData = new Color[Width*Height];
@@ -59,7 +58,7 @@ namespace factor10.VisionThing.Terrain
 
         public void AlterValues(int x, int y, int w, int h, Func<int, int, T, T> func)
         {
-            if (x < 0 || y < 0 || (x + w) >= Width || (y + h) >= Height)
+            if (x < 0 || y < 0 || (x + w) > Width || (y + h) > Height)
             {
                 //TODO throw new Exception();
                 return;
@@ -68,23 +67,17 @@ namespace factor10.VisionThing.Terrain
             {
                 var p = (y + j)*Width + x;
                 for (var i = 0; i < w; i++)
-                    Values[p + i] = func(x + i, y + j, Values[p + i]);
+                    Values[p + i] = func(i, j, Values[p + i]);
             }
         }
 
-        public Texture2D CreateTexture2D(GraphicsDevice graphicsDevice)
+        public virtual Texture2D CreateTexture2D(GraphicsDevice graphicsDevice)
         {
-            //TODO
-            //Texture2D result;
-            //if (typeof (T) == typeof (Color))
-            //    result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Color);
-            //else if (typeof (T) == typeof (float))
-            //    result = new Texture2D(graphicsDevice, Width, Height, false, SurfaceFormat.Single);
-            //else
-            //    throw new Exception();
-            //result.SetData(Values);
-            //return result;
-            return null;
+            if (typeof (T) == typeof (Color))
+                return Texture2D.New(graphicsDevice, Width, Height, PixelFormat.B8G8R8A8.UNorm, Values);
+            if (typeof (T) == typeof (float))
+                return Texture2D.New(graphicsDevice, Width, Height, PixelFormat.R32.Float, Values);
+            throw new Exception();
         }
 
         public void DrawLine(int x1, int y1, int x2, int y2, int width, Func<T, int, T> fx, int winding = 0, Random rnd = null)

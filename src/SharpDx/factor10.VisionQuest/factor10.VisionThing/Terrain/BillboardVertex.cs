@@ -8,9 +8,9 @@ namespace factor10.VisionThing.Terrain
     [StructLayout(LayoutKind.Sequential)]
     public struct BillboardVertex : IEquatable<BillboardVertex>
     {
-        public static readonly int Size = sizeof (float)*(3 + 2 + 2);
+        public static readonly int Size = sizeof (float)*(3 + 3 + 2 + 2);
 
-        [VertexElement("POSITION")]
+        [VertexElement("SV_Position")]
         public readonly Vector3 Position;
 
         [VertexElement("NORMAL")]

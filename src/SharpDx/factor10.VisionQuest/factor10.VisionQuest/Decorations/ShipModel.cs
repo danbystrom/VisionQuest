@@ -10,10 +10,10 @@ namespace factor10.VisionQuest
     {
         private readonly Model _model;
 
-        public Matrix World = Matrix.Scaling(5f)*Matrix.Translation(-7, 1f, 33);
+        public Matrix World = Matrix.Scaling(10000f)*Matrix.Translation(-7, 1f, 33);
 
-        private DoubleSin _bob1 = new DoubleSin(0.00f, 0.010f, 0.3f, 0.9f, 0, 1);
-        private DoubleSin _bob2 = new DoubleSin(0.04f, 0.008f, 0.5f, 0.8f, 2, 3);
+        private DoubleSin _bob1 = new DoubleSin(0.05f, 0.010f, 0.3f, 0.9f, 0, 1);
+        private DoubleSin _bob2 = new DoubleSin(0.02f, 0.003f, 0.5f, 0.8f, 2, 3);
 
         private static Texture2DBase _texture;
         private BoundingSphere _boundingSphere;
@@ -45,17 +45,7 @@ namespace factor10.VisionQuest
 
             var world = Matrix.RotationZ((float) _bob1.Value)*Matrix.RotationX((float) _bob2.Value)*World;
             _model.Draw(Effect.GraphicsDevice, world, camera.View, camera.Projection, Effect.Effect);
-            //Effect.Texture = _texture;
-            //foreach (var mesh in _model.Meshes)
-            //{
-            //    Effect.World =
-            //        Matrix.RotationZ((float) _bob1.Value)*
-            //        Matrix.RotationX((float) _bob2.Value)*
-            //        _bones[mesh.ParentBone.Index]*
-            //        World;
-            //    Effect.Apply();
-            //    mesh.Draw(Effect.GraphicsDevice);
-            //}
+
             return true;
         }
 

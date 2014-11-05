@@ -1,19 +1,19 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
-using factor10.VisionaryHeads;
+using factor10.VisionQuest.Commands;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
+using factor10.VisionThing.Terrain;
 using factor10.VisionThing.Water;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
-using TestBed;
 using Color = SharpDX.Color;
 using RasterizerState = SharpDX.Toolkit.Graphics.RasterizerState;
-using Rectangle = SharpDX.Rectangle;
 using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
 namespace factor10.VisionQuest
@@ -27,14 +27,14 @@ namespace factor10.VisionQuest
         private readonly GraphicsDeviceManager _graphicsDeviceManager;
         private VisionContent _vContent;
 
-        private readonly SharedData _data; // holds shader source, parameters and dirty state
+        private readonly SharedData _data;
 
-        private VBasicEffect _basicEffect; // the applied effect, rebuild by ShaderBuilder class
+        private VBasicEffect _basicEffect;
 
         private SpriteFont _arial16Font;
 
-        public Camera Camera;
         private WaterSurface _water;
+        private ShadowMap _shadow;
         public SkySphere Sky;
         private IVDrawable _ball;
 
@@ -42,11 +42,11 @@ namespace factor10.VisionQuest
         private MovingShip _movingShip;
         private SpriteBatch _spriteBatch;
         private ClipDrawableInstance _ballInstance;
-        private ShadowMap _shadow;
-        private Archipelag _archipelag;
         private int _frames;
         private double _frameTime;
         private int _fps;
+
+        private Camera _camera;
 
         public VisionQuestGame(SharedData data)
         {
@@ -85,11 +85,11 @@ namespace factor10.VisionQuest
             _movingShip = new MovingShip(new ShipModel(_vContent));
 
             _water = WaterFactory.Create(_vContent);
-            _water.ReflectedObjects.Add(_movingShip);
+            _water.ReflectedObjects.Add(_movingShip._shipModel);
             _water.ReflectedObjects.Add(_ballInstance);
             _water.ReflectedObjects.Add(Sky);
 
-            Camera = new Camera(
+            _camera = new Camera(
                 _vContent.ClientSize,
                 new KeyboardManager(this),
                 new MouseManager(this),
@@ -111,35 +111,47 @@ namespace factor10.VisionQuest
                 IsAntialiasedLineEnabled = false
             });
 
-            _shadow = new ShadowMap(_vContent, Camera, 1024, 1024);
+            _shadow = new ShadowMap(_vContent, _camera, 1024, 1024);
             //_shadow.ShadowCastingObjects.Add(_sailingShip);
             //_shadow.ShadowCastingObjects.Add(reimersTerrain);
             //_shadow.ShadowCastingObjects.Add(generatedTerrain);
             //_shadow.ShadowCastingObjects.Add(bridge);
 
             //_archipelag = new Archipelag(_vContent, _water, _shadow);
+
+            _data.VContent = _vContent;
+            _data.Camera = _camera;
+            _data.Water = _water;
+            _data.Shadow = _shadow;
+
+            _q = new MicrosoftBillboards(_vContent, Matrix.Identity);
+            _q.CreateBillboardVerticesFromList(new List<Tuple<Vector3, Vector3>> {new Tuple<Vector3, Vector3>(Vector3.Zero, Vector3.Up)});
+
+            _qq = new SimpleBillboards(
+                _vContent, Matrix.Identity, _vContent.Load<Texture2D>("textures/sand"), (Vector3.Left*10).AsList(), 10, 10);
         }
+
+        private MicrosoftBillboards _q;
+        private SimpleBillboards _qq;
 
         protected override void Update(GameTime gameTime)
         {
-            Camera.UpdateInputDevices();
-            Camera.UpdateFreeFlyingCamera(gameTime);
+            _camera.UpdateInputDevices();
+            _camera.UpdateFreeFlyingCamera(gameTime);
 
-            if (_data.LoadProgram != null)
-            {
-                if (_archipelag != null)
-                    _archipelag.Kill(_water, _shadow);
-                _archipelag = new Archipelag(
-                    _vContent,
-                    _data.LoadProgram,
-                    _water,
-                    _shadow);
-                _data.LoadProgram = null;
-            }
+            ICommand cmd;
+            if (_data.Commands.TryDequeue(out cmd))
+                cmd.Excecute(_data);
 
-            _movingShip.Update(Camera, gameTime);
-            if(_archipelag!=null)
-                _archipelag.Update(Camera, gameTime);
+            for (var i = 0; i < _data.Actions.Count;)
+                if (_data.Actions[i].Do(_data, gameTime))
+                    i++;
+                else
+                    _data.Actions.RemoveAt(i);
+
+            _movingShip.Update(_camera, gameTime);
+            if (_data.Archipelag != null)
+                _data.Archipelag.Update(_camera, gameTime);
             _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
 
             _frames++;
@@ -151,6 +163,8 @@ namespace factor10.VisionQuest
                 _frameTime = 0;
             }
 
+            _q.Update(_camera, gameTime);
+
             base.Update(gameTime);
         }
 
@@ -158,29 +172,28 @@ namespace factor10.VisionQuest
         {
             _graphicsDeviceManager.GraphicsDevice.SetRasterizerState(_rasterizerState);
 
-            if (!_data.HiddenWater)
-                _water.RenderReflection(Camera, _ballInstance);
+            _water.RenderReflection(_camera);
             GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, GraphicsDevice.BackBuffer);
 
             _graphicsDeviceManager.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _movingShip._shipModel.Draw(Camera);
-            //_movingShip.Draw(Camera);
-            //foreach (var x in _water.ReflectedObjects)
-            //    x.Draw(Camera);
-            if(_archipelag!=null)
-                _archipelag.Draw(Camera);
+            _movingShip.Draw(_camera);
+            if(_data.Archipelag!=null)
+                _data.Archipelag.Draw(_camera);
 
             if(!_data.HiddenWater)
-                WaterFactory.DrawWaterSurfaceGrid(_water, Camera, null, 0, _data.WaterSurfaceSize, _data.WaterSurfaceScale);
-            Sky.Draw(Camera);
+                WaterFactory.DrawWaterSurfaceGrid(_water, _camera, null, 0, _data.WaterSurfaceSize, _data.WaterSurfaceScale);
+            Sky.Draw(_camera);
 
-            if (_archipelag != null)
+            if (_data.Archipelag != null)
             {
-                _archipelag.DrawSignsAndArchs(Camera, _data.Storage.DrawLines);
-                Camera.UpdateEffect(_basicEffect);
-                _archipelag.PlayAround(_basicEffect, _ball);
+                _data.Archipelag.DrawSignsAndArchs(_camera, _data.Storage.DrawLines);
+                _camera.UpdateEffect(_basicEffect);
+                _data.Archipelag.PlayAround(_basicEffect, _ball);
             }
+
+            _q.Draw(_camera);
+            _qq.Draw(_camera);
 
             //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
             //_spriteBatch.Draw(
@@ -197,7 +210,7 @@ namespace factor10.VisionQuest
 
             var sb = new StringBuilder();
             sb.AppendFormat("FPS: {0}", _fps).AppendLine();
-            sb.AppendFormat("Pos: {0}   Look at: {1}", Camera.Position, Camera.Target);
+            sb.AppendFormat("Pos: {0}   Look at: {1}   Yaw: {2:0}  Pitch: {3:0}", _camera.Position, _camera.Target, MathUtil.RadiansToDegrees(_camera.Yaw), MathUtil.RadiansToDegrees(_camera.Pitch));
             _spriteBatch.Begin();
             _spriteBatch.DrawString(_arial16Font, sb.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();

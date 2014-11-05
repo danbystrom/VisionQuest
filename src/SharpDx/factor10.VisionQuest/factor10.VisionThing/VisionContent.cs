@@ -58,9 +58,9 @@ namespace factor10.VisionThing
             return Content.Load<T>(name);
         }
 
-        public VisionEffect LoadPlainEffect(string name)
+        public VisionEffect LoadPlainEffect(string name, SamplerState samplerState = null)
         {
-            return new VisionEffect(Content.Load<Effect>(name));
+            return new VisionEffect(Content.Load<Effect>(name), samplerState);
         }
 
     }

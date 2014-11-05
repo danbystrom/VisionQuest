@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using factor10.VisionThing;
 
-namespace factor10.VisionQuest.x
+namespace factor10.VisionQuest
 {
     public partial class FManageProjects : Form
     {
+        private Storage _storage;
+
         public FManageProjects()
         {
             InitializeComponent();
         }
 
-        public static void showDialog(Form parent, Storage storage)
+        public static Project showDialog(Form parent, Storage storage)
         {
             using (var dlg = new FManageProjects())
             {
-                dlg.loadProjects( Project.LoadAll(storage.SafeProjectFolder()));
-                dlg.Show(parent);
+                dlg._storage = storage;
+                dlg.loadProjects(Project.LoadAll(storage.SafeProjectFolder()));
+                if (dlg.ShowDialog(parent) == DialogResult.OK && dlg.lvProjects.SelectedItems.Count==1)
+                    return dlg.lvProjects.SelectedItems[0].Tag as Project;
+                return null;
             }
         }
 
@@ -33,7 +32,9 @@ namespace factor10.VisionQuest.x
             foreach (var proj in projects)
             {
                 var lvi = lvProjects.Items.Add(proj.Name);
-                lvi.SubItems[1].Text = proj.Created.ToIsoString();
+                lvi.Tag = proj;
+                lvi.SubItems.Add(proj.Created.ToIsoString());
+                lvi.SubItems.Add(proj.Accessed.ToIsoString());
             }
             lvProjects.EndUpdate();
         }
@@ -46,7 +47,7 @@ namespace factor10.VisionQuest.x
                 dlg.CheckFileExists = true;
                 dlg.Filter = "Assembly|*.exe;*.dll";
                 if (dlg.ShowDialog(this) == DialogResult.OK)
-                    FProject.showDialog(this, dlg.FileName);
+                    FProject.showDialog(this, _storage, dlg.FileName);
             }
         }
 

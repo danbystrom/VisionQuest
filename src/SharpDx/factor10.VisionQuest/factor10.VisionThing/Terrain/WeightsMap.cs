@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class WeightsMap : Mt8Surface
+    public class WeightsMap : Mt9Surface
     {
 
         public WeightsMap(int width, int height)
@@ -39,16 +39,10 @@ namespace factor10.VisionThing.Terrain
                 var t = levels.Select(_ => MathUtil.Clamp(1.0f - Math.Abs(val - _)/maxHeight, 0, 1)).ToArray();
                 var maxT = t.Max();
                 t = t.Select(_ => (float) Math.Pow(_/maxT, 5)).ToArray();
-                var tot = 1/(t.Sum() + 0.00001f);
-
-                if (t.Sum(_ => _*tot)<0.99 || t.Max()>1.01)
-                {
-
-                }
-                Values[i].A = t[0]*tot;
-                Values[i].B = t[1]*tot;
-                Values[i].C = t[2]*tot;
-                Values[i].D = t[3]*tot;
+                Values[i].B = t[0];
+                Values[i].C = t[1];
+                Values[i].D = t[2];
+                Values[i].E = t[3];
             }
         }
 

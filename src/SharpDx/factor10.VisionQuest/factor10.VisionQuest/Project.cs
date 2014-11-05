@@ -11,8 +11,13 @@ namespace factor10.VisionQuest
 {
     public class ProjectAssembly
     {
-        public string AssemblyName;
+        public string Name;
         public string FullFilename;
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     public class Project
@@ -31,7 +36,7 @@ namespace factor10.VisionQuest
         public List<ProjectAssembly> ThirdPartyAssemblies;
         public List<ProjectAssembly> IgnoredAssemblies;
 
-        private Project()
+        public Project()
         {
         }
 
@@ -53,7 +58,10 @@ namespace factor10.VisionQuest
         {
             try
             {
-                return File.ReadAllText(fullName(projectsFolder,name)).FromXml<Project>();
+                var filename = fullName(projectsFolder, name);
+                var project = File.ReadAllText(filename).FromXml<Project>();
+                project.Accessed = File.GetLastAccessTime(filename);
+                return project;
             }
             catch (Exception ex)
             {

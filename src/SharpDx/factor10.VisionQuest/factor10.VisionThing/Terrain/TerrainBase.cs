@@ -38,8 +38,6 @@ namespace factor10.VisionThing.Terrain
         public int GroundExtentX { get; private set; }
         public int GroundExtentZ { get; private set; }
 
-        protected Vector4 TexOffsetAndScale = new Vector4(0, 0, 1, 1);
-
         public TerrainBase(VisionContent vContent)
             : base(createTerrainPlaneSingleton(vContent).Effect)
         {
@@ -70,10 +68,10 @@ namespace factor10.VisionThing.Terrain
             _position = World.TranslationVector;
 
             Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/dirtground");
-            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/grass");
+            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/sand");
             Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/sahara");
             Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/snow");
-            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/sand");
+            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/grass");
             Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/stones");
             Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/rock");
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
@@ -84,7 +82,8 @@ namespace factor10.VisionThing.Terrain
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
             var slicesW = ground.Width/Side;
-            var slicesH = ground.Width/Side;
+            var slicesH = ground.Height/Side;
+            //TODO - this is wrong - I guess...
             var sliceFracX = 1f/slicesW;
             var sliceFracY = 1f/slicesH;
             _slices = new terrainSlice[slicesW*slicesH];

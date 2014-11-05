@@ -18,7 +18,7 @@ namespace factor10.VisionaryHeads
                 if (!VMethods.ContainsKey(vm.FullName))
                     VMethods.Add(vm.FullName, vm);
 
-            foreach (var vm in from va in VAssemblies where !va.Is3dParty from vc in va.VClasses from vm in vc.VMethods select vm)
+            foreach (var vm in from va in VAssemblies where !va.Is3DParty from vc in va.VClasses from vm in vc.VMethods select vm)
                 vm.BuildCallingRelations();
 
             // check for orphan assemblies - but don't check the first one (the program itself)

@@ -48,20 +48,39 @@ VertexToPixel VSStandard(
   float2 inRandom: TEXCOORD1
   )
 {
-	VertexToPixel output;
+	VertexToPixel output = (VertexToPixel)0;
 
-	inPosition.x += inTexCoord.x;
-	inPosition.y += inTexCoord.y;
+	float4 center = mul(inPosition, World);
+	float3 eyeVector = center - CameraPosition;
 
-	output.WorldPosition = inPosition;
-    output.Position = output.PositionCopy = mul(mul(inPosition, View), Projection);
+	float3 sideVector = cross(eyeVector, inNormal);
+	sideVector = normalize(sideVector);
 
-    output.TexCoord = inTexCoord;
-    
-    output.Color.rgb = float3(1,1,1);
-    output.Color.a = 1;
-    
-    return output;
+	float3 finalPosition = center;
+	finalPosition += (inTexCoord.x - 0.5f)*sideVector*BillboardWidth;
+	finalPosition += (1.5f - inTexCoord.y*1.5f)*inNormal*BillboardHeight;
+
+	// Work out how this vertex should be affected by the wind effect.
+	float waveOffset = dot(finalPosition, WindDirection) * WindWaveSize;
+
+	//waveOffset += input.Random * WindRandomness;
+	waveOffset += (frac(inPosition.x) + frac(inPosition.y)) * WindRandomness;
+
+	// Wind makes things wave back and forth in a sine wave pattern.
+	float wind = sin(WindTime * WindSpeed + waveOffset) * WindAmount;
+
+	// But it should only affect the top two vertices of the billboard!
+	wind *= (1 - inTexCoord.y);
+
+	output.WorldPosition = float4(finalPosition + WindDirection*wind, 1);
+
+	float4x4 preViewProjection = mul(View, Projection);
+	output.Position = output.PositionCopy = mul(output.WorldPosition, preViewProjection);
+
+	output.TexCoord = inTexCoord;
+	output.Color = float4(1, 1, 1, 1);
+
+	return output;
 }
 
 /*
@@ -134,8 +153,8 @@ VertexToPixel VSStandard(
 
 float4 PSStandard(VertexToPixel input) : SV_Target
 {
-	float4 color = float4(1, 1, 1, 1); // input.Color * Texture.Sample(TextureSampler, input.TexCoord);
-    //clip((color.a - AlphaTestThreshold) * AlphaTestDirection);
+	float4 color = input.Color * Texture.Sample(TextureSampler, input.TexCoord);
+    clip((color.a - AlphaTestThreshold) * AlphaTestDirection);
     return color;
 }
 

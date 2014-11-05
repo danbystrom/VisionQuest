@@ -50,6 +50,12 @@
     <Compile Include="..\..\factor10.VisionQuest\factor10.VisionQuest\GroundControl\CircleMaster.cs">
       <Link>CircleMaster.cs</Link>
     </Compile>
+    <Compile Include="FCardinalSplines.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FCardinalSplines.Designer.cs">
+      <DependentUpon>FCardinalSplines.cs</DependentUpon>
+    </Compile>
     <Compile Include="FMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -64,6 +70,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FCardinalSplines.resx">
+      <DependentUpon>FCardinalSplines.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FMain.resx">
       <DependentUpon>FMain.cs</DependentUpon>
     </EmbeddedResource>

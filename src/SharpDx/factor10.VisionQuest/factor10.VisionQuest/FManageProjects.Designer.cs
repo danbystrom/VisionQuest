@@ -1,4 +1,4 @@
-﻿namespace factor10.VisionQuest.x
+﻿namespace factor10.VisionQuest
 {
     partial class FManageProjects
     {
@@ -51,21 +51,23 @@
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Location = new System.Drawing.Point(774, 377);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(178, 46);
             this.btnCancel.TabIndex = 13;
-            this.btnCancel.Text = "Cancel";
+            this.btnCancel.Text = "Close";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOK.Location = new System.Drawing.Point(590, 377);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(178, 46);
             this.btnOK.TabIndex = 12;
-            this.btnOK.Text = "Open";
+            this.btnOK.Text = "Open project";
             this.btnOK.UseVisualStyleBackColor = true;
             // 
             // lvProjects
@@ -106,14 +108,16 @@
             this.btnNew.Name = "btnNew";
             this.btnNew.Size = new System.Drawing.Size(178, 46);
             this.btnNew.TabIndex = 15;
-            this.btnNew.Text = "Create new...";
+            this.btnNew.Text = "Create &new...";
             this.btnNew.UseVisualStyleBackColor = true;
             this.btnNew.Click += new System.EventHandler(this.btnNew_Click);
             // 
             // FManageProjects
             // 
+            this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(964, 435);
             this.Controls.Add(this.btnNew);
             this.Controls.Add(this.lvProjects);

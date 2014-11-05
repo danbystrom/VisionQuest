@@ -1,39 +1,26 @@
 ﻿using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
-using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Terrain
 {
     public class TerrainPlane
     {
-        private readonly PlaneMeshPrimitive<TerrainVertex> _hiPlane;
         private readonly PlanePrimitive<TerrainVertex> _loPlane;
 
+        public const int SquareSize = 64;
         public readonly IVEffect Effect;
 
         public TerrainPlane(VisionContent vContent)
         {
-            const int sqsz = 64;
             Effect = vContent.LoadPlainEffect("Effects/TerrainEffects");
-            _hiPlane = new PlaneMeshPrimitive<TerrainVertex>(
-                Effect.GraphicsDevice,
-                (x, y, t) => new TerrainVertex( new Vector3(x-sqsz/2f, 0, y-sqsz/2f), new Vector2(x/sqsz, y/sqsz),x / sqsz),
-                sqsz, sqsz, 5);
             _loPlane = new PlanePrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
                 (x, y, w, h) => new TerrainVertex(
-                new Vector3(x - sqsz / 2f, 0, y - sqsz / 2f),
-                new Vector2(x / sqsz, y / sqsz),
-                x / sqsz),
-                sqsz, sqsz, 5);
-        }
-
-        private VertexPositionTexture createVertex(float x, float y, int width, int height)
-        {
-            return new VertexPositionTexture(
-                new Vector3(x-width/2f, 0, y-height/2f),
-                new Vector2(x/width, y/height));
+                    new Vector3(x - SquareSize/2f, 0, y - SquareSize/2f),
+                    new Vector2(x/SquareSize, y/SquareSize),
+                    x/SquareSize),
+                SquareSize, SquareSize, 5);
         }
 
         public void Draw(Camera camera, Matrix world, DrawingReason drawingReason)

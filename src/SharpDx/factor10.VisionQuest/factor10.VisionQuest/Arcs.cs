@@ -51,7 +51,7 @@ namespace factor10.VisionQuest
             VProgram vp,
             Dictionary<string, CodeIsland> modules)
         {
-            if (island.VAssembly.Is3dParty)
+            if (island.VAssembly.Is3DParty)
                 return;
 
             var arc = new ArcGenerator(4);

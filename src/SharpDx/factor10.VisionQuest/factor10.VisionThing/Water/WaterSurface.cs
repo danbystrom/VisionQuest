@@ -74,8 +74,8 @@ namespace factor10.VisionThing.Water
 
             buildFx(initInfo);
 
-            var targetWidth = graphicsDevice.BackBuffer.Width;
-            var targetHeight = graphicsDevice.BackBuffer.Height;
+            var targetWidth = graphicsDevice.BackBuffer.Width/2;
+            var targetHeight = graphicsDevice.BackBuffer.Height/2;
             _reflectionTarget = RenderTarget2D.New(
                 graphicsDevice,
                 targetWidth,
@@ -231,7 +231,7 @@ namespace factor10.VisionThing.Water
             p["WaveHeight"].SetValue(0.3f * 2);
         }
 
-        public void RenderReflection(Camera camera, ClipDrawable z)
+        public void RenderReflection(Camera camera)
         {
             const float waterMeshPositionY = 0.75f; //experimenting with this
 
@@ -245,14 +245,12 @@ namespace factor10.VisionThing.Water
                 reflectedCameraPosition,
                 reflectedCameraTarget);
 
-            Effect.GraphicsDevice.SetRenderTargets(_reflectionTarget);
+            Effect.GraphicsDevice.SetRenderTargets(Effect.GraphicsDevice.DepthStencilBuffer, _reflectionTarget);
             Effect.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             var clipPlane = new Vector4(0, 1, 0, -waterMeshPositionY);
             foreach (var cd in ReflectedObjects)
                 cd.DrawReflection(clipPlane, _reflectionCamera);
-
-            z.Draw(_reflectionCamera, DrawingReason.ReflectionMap);
 
             Effect.GraphicsDevice.SetRenderTargets(Effect.GraphicsDevice.DepthStencilBuffer, Effect.GraphicsDevice.BackBuffer);
 

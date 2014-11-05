@@ -30,7 +30,7 @@
         {
             this.pnRenderControlPanel = new System.Windows.Forms.Panel();
             this.btnNewProject = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtSearchMethod = new System.Windows.Forms.TextBox();
             this.optAllLines = new System.Windows.Forms.RadioButton();
             this.optNoLines = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -39,6 +39,7 @@
             this.numSurfaceScale = new System.Windows.Forms.NumericUpDown();
             this.numSurfaceSize = new System.Windows.Forms.NumericUpDown();
             this.chkHiddenWater = new System.Windows.Forms.CheckBox();
+            this.lstMethods = new System.Windows.Forms.ListBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSurfaceScale)).BeginInit();
@@ -50,10 +51,10 @@
             this.pnRenderControlPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnRenderControlPanel.Location = new System.Drawing.Point(317, 13);
+            this.pnRenderControlPanel.Location = new System.Drawing.Point(317, 0);
             this.pnRenderControlPanel.Margin = new System.Windows.Forms.Padding(4);
             this.pnRenderControlPanel.Name = "pnRenderControlPanel";
-            this.pnRenderControlPanel.Size = new System.Drawing.Size(1389, 1055);
+            this.pnRenderControlPanel.Size = new System.Drawing.Size(1403, 1081);
             this.pnRenderControlPanel.TabIndex = 3;
             // 
             // btnNewProject
@@ -66,12 +67,15 @@
             this.btnNewProject.UseVisualStyleBackColor = true;
             this.btnNewProject.Click += new System.EventHandler(this.button1_Click);
             // 
-            // textBox1
+            // txtSearchMethod
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 137);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 26);
-            this.textBox1.TabIndex = 4;
+            this.txtSearchMethod.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtSearchMethod.Location = new System.Drawing.Point(12, 873);
+            this.txtSearchMethod.Name = "txtSearchMethod";
+            this.txtSearchMethod.Size = new System.Drawing.Size(298, 26);
+            this.txtSearchMethod.TabIndex = 4;
+            this.txtSearchMethod.TextChanged += new System.EventHandler(this.txtSearchMethod_TextChanged);
+            this.txtSearchMethod.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtSearchMethod_KeyDown);
             // 
             // optAllLines
             // 
@@ -99,6 +103,7 @@
             // 
             this.groupBox1.Controls.Add(this.optAllLines);
             this.groupBox1.Controls.Add(this.optNoLines);
+            this.groupBox1.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.groupBox1.Location = new System.Drawing.Point(12, 460);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(200, 100);
@@ -121,6 +126,7 @@
             this.groupBox2.Controls.Add(this.numSurfaceScale);
             this.groupBox2.Controls.Add(this.numSurfaceSize);
             this.groupBox2.Controls.Add(this.chkHiddenWater);
+            this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.groupBox2.Location = new System.Drawing.Point(12, 566);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(200, 126);
@@ -155,15 +161,29 @@
             this.chkHiddenWater.UseVisualStyleBackColor = true;
             this.chkHiddenWater.CheckedChanged += new System.EventHandler(this.chkHiddenVater_CheckedChanged);
             // 
+            // lstMethods
+            // 
+            this.lstMethods.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lstMethods.FormattingEnabled = true;
+            this.lstMethods.ItemHeight = 20;
+            this.lstMethods.Location = new System.Drawing.Point(12, 905);
+            this.lstMethods.Name = "lstMethods";
+            this.lstMethods.Size = new System.Drawing.Size(298, 164);
+            this.lstMethods.TabIndex = 10;
+            this.lstMethods.Format += new System.Windows.Forms.ListControlConvertEventHandler(this.lstMethods_Format);
+            this.lstMethods.DoubleClick += new System.EventHandler(this.lstMethods_DoubleClick);
+            // 
             // FMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.BackColor = System.Drawing.Color.DimGray;
             this.ClientSize = new System.Drawing.Size(1719, 1081);
+            this.Controls.Add(this.lstMethods);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.btnProperties);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.txtSearchMethod);
             this.Controls.Add(this.btnNewProject);
             this.Controls.Add(this.pnRenderControlPanel);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -185,7 +205,7 @@
 
         private System.Windows.Forms.Panel pnRenderControlPanel;
         private System.Windows.Forms.Button btnNewProject;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtSearchMethod;
         private System.Windows.Forms.RadioButton optAllLines;
         private System.Windows.Forms.RadioButton optNoLines;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -194,6 +214,7 @@
         private System.Windows.Forms.NumericUpDown numSurfaceScale;
         private System.Windows.Forms.NumericUpDown numSurfaceSize;
         private System.Windows.Forms.CheckBox chkHiddenWater;
+        private System.Windows.Forms.ListBox lstMethods;
     }
 }
 

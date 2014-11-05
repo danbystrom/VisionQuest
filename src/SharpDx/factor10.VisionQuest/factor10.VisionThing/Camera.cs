@@ -73,7 +73,7 @@ namespace factor10.VisionThing
             Vector3 target,
             float nearPlane = 1,
             float farPlane = 20000)
-            :this(clientSize,position,target,nearPlane,farPlane)
+            : this(clientSize, position, target, nearPlane, farPlane)
         {
             KeyboardManager = keyboardManager;
             MouseManager = mouseManager;

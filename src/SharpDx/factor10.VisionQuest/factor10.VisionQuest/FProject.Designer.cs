@@ -38,8 +38,8 @@
             this.btn3ToIgnored = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.lstIgnored = new System.Windows.Forms.ListBox();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnOK = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.txtProjectName = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
@@ -134,25 +134,27 @@
             this.lstIgnored.Size = new System.Drawing.Size(400, 184);
             this.lstIgnored.TabIndex = 6;
             // 
-            // button7
+            // btnCancel
             // 
-            this.button7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button7.Location = new System.Drawing.Point(701, 12);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(178, 46);
-            this.button7.TabIndex = 13;
-            this.button7.Text = "Cancel";
-            this.button7.UseVisualStyleBackColor = true;
+            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(701, 12);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(178, 46);
+            this.btnCancel.TabIndex = 13;
+            this.btnCancel.Text = "Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
             // 
-            // button8
+            // btnOK
             // 
-            this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button8.Location = new System.Drawing.Point(517, 12);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(178, 46);
-            this.button8.TabIndex = 12;
-            this.button8.Text = "OK";
-            this.button8.UseVisualStyleBackColor = true;
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnOK.Location = new System.Drawing.Point(517, 12);
+            this.btnOK.Name = "btnOK";
+            this.btnOK.Size = new System.Drawing.Size(178, 46);
+            this.btnOK.TabIndex = 12;
+            this.btnOK.Text = "OK";
+            this.btnOK.UseVisualStyleBackColor = true;
             // 
             // label4
             // 
@@ -177,8 +179,8 @@
             this.ClientSize = new System.Drawing.Size(891, 519);
             this.Controls.Add(this.txtProjectName);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button8);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnIgnoredTo3);
             this.Controls.Add(this.btn3ToIgnored);
             this.Controls.Add(this.label3);
@@ -211,8 +213,8 @@
         private System.Windows.Forms.Button btn3ToIgnored;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ListBox lstIgnored;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtProjectName;
     }

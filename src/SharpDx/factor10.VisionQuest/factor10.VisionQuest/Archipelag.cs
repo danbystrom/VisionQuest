@@ -50,6 +50,7 @@ namespace factor10.VisionQuest
             {
                 water.ReflectedObjects.Remove(island);
                 shadow.ShadowCastingObjects.Remove(island);
+                island.Dispose();
             }
             Children.Clear();
         }

@@ -13,7 +13,7 @@ namespace factor10.VisionThing
         ShadowDepthMap
     }
 
-    public abstract class ClipDrawable
+    public abstract class ClipDrawable : IDisposable
     {
         public readonly List<ClipDrawable> Children = new List<ClipDrawable>();
         public readonly IVEffect Effect;
@@ -62,6 +62,10 @@ namespace factor10.VisionThing
         public virtual void Update(Camera camera, GameTime gameTime)
         {
             Children.ForEach(cd => cd.Update(camera, gameTime));
+        }
+
+        public virtual void Dispose()
+        {
         }
 
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using factor10.VisionaryHeads;
 using factor10.VisionQuest.GroundControl;
 using factor10.VisionThing;
@@ -9,7 +8,6 @@ using factor10.VisionThing.Objects;
 using factor10.VisionThing.Terrain;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
-using TestBed;
 
 namespace factor10.VisionQuest
 {
@@ -33,7 +31,7 @@ namespace factor10.VisionQuest
             VAssembly = vassembly;
             World = world;
 
-            if (VAssembly.Is3dParty)
+            if (VAssembly.Is3DParty)
             {
                 Box = new Box(vContent, World, new Vector3(50, 20, 50), 0.01f);
                 foreach (var vclass in vassembly.VClasses)
@@ -60,7 +58,7 @@ namespace factor10.VisionQuest
                 circleMaster.Drop(q += 10, 0, 10, vclass);
 
             foreach (var vclass in implementationClasses)
-                circleMaster.Drop(q += 10, 0, 4 + (int) Math.Sqrt(vclass.InstructionCount), vclass);
+                circleMaster.Drop(q += 5, 0, 4 + (int) Math.Sqrt(vclass.InstructionCount), vclass);
 
             int left, top, right, bottom;
             circleMaster.GetBounds(out left, out top, out right, out bottom);
@@ -82,16 +80,17 @@ namespace factor10.VisionQuest
             {
                 var instructHeight = (vc.VClass.IsInterface ? 40 : 10) + (float) Math.Pow(vc.VClass.InstructionCount, 0.3);
                 var maintainabilityFactor = 3*(10 - vc.MaintainabilityIndex/10);
-                var middleX = vc.X - vc.R;
-                var middleY = vc.Y - vc.R;
-                var bellShapeFactor = 2f/(vc.R*1.7f);
+                var radius = vc.R;
+                var middleX = vc.X - radius;
+                var middleY = vc.Y - radius;
+                var bellShapeFactor = 2f/(radius*1.7f);
                 ground.AlterValues(
                     middleX, middleY,
-                    vc.R*2, vc.R*2,
+                    radius*2, radius*2,
                     (px, py,  h) =>
                     {
-                        var dx = (vc.X - px);
-                        var dy = (vc.Y - py);
+                        var dx = px - radius;
+                        var dy = py - radius;
                         var d = (dx*dx + dy*dy)*bellShapeFactor*bellShapeFactor;
                         var sharpness = (px & 1) != (py & 1) ? maintainabilityFactor : 0;
                         return h + instructHeight*(float) Math.Exp(-d*d) + sharpness*(float) rnd.NextDouble();
@@ -148,23 +147,26 @@ namespace factor10.VisionQuest
             Children.Add(ms);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
-            weights.AlterValues(0, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 {A = 100});
-            weights.AlterValues(0, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { B = 100 });
-            weights.AlterValues(0, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { C = 100 });
-            weights.AlterValues(050, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { D = 100 });
-            weights.AlterValues(050, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { E = 100 });
-            weights.AlterValues(050, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { F = 100 });
-            weights.AlterValues(100, 000, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { G = 100 });
-            weights.AlterValues(100, 050, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { H = 100 });
-            weights.AlterValues(100, 100, 50, 50, (x, y, mt) => new Mt8Surface.Mt8 { I = 100 });
-            weights.AlterValues(0, 0, qq-1, qq-1, (x, y, mt) => new Mt8Surface.Mt8 { B = 100 });
+            weights.DrawLine(0, 0, 20, 20, 1, (_, mt) => new Mt9Surface.Mt8 { I = 100 });
+            weights.AlterValues(20, 20, 20, 20, (x, y, mt) =>
+            {
+                mt.B = 1;
+                return mt;
+            });
+            weights.AlterValues(40, 40, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { C = 100 });
+            weights.AlterValues(60, 60, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { D = 10 });
+            weights.AlterValues(80, 80, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { E = 10 });
+            weights.AlterValues(100, 100, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { F = 10 });
+            weights.AlterValues(120, 120, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { G = 10 });
+            weights.AlterValues(140, 140, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { H = 10 });
+            weights.AlterValues(160, 160, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { I = 100, A = (float)Math.Sqrt(x * x + y * y) });
 
             initialize(ground, weights, normals);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            return VAssembly.Is3dParty
+            return VAssembly.Is3DParty
                 ? Box.Draw(camera, drawingReason, shadowMap)
                 : base.draw(camera, drawingReason, shadowMap);
         }
@@ -172,14 +174,13 @@ namespace factor10.VisionQuest
         public static List<CodeIsland> Create(VisionContent vContent, Archipelag archipelag, List<VAssembly> assemblies)
         {
             int x = 0, y = 0;
-            return assemblies.OrderBy(_ => _.Is3dParty).Select(assembly => createOne(vContent, archipelag, assembly, ref x, ref y)).ToList();
+            return assemblies.OrderBy(_ => _.Is3DParty).Select(assembly => createOne(vContent, archipelag, assembly, ref x, ref y)).ToList();
         }
 
         private static CodeIsland createOne(VisionContent vContent, Archipelag archipelag, VAssembly assembly, ref int x, ref int y)
         {
-            var t = Matrix.Translation(-y*300, -0.5f, -900 - x*300);
+            var t = Matrix.Translation(-y*600, -0.5f, -900 - x*600);
             var codeIsland = new CodeIsland(vContent, archipelag, t, assembly);
-            //                codeIsland.World = t;
 
             x++;
             if (x > 4)

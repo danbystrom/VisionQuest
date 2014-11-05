@@ -70,10 +70,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\MoveCameraToPositionAction.cs" />
+    <Compile Include="Actions\IAction.cs" />
     <Compile Include="Archipelag.cs" />
     <Compile Include="Arcs.cs" />
     <Compile Include="CircleContainer.cs" />
     <Compile Include="CodeIsland.cs" />
+    <Compile Include="Commands\GotoClassCommand.cs" />
+    <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\LoadProgramCommand.cs" />
     <Compile Include="FManageProjects.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,7 +137,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <ToolkitModel Include="Content\Models\Ship.fbx" />
-    <ToolkitModel Include="Content\Models\pirateship.fbx" />
     <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

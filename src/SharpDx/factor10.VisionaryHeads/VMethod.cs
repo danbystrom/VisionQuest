@@ -23,6 +23,7 @@ namespace factor10.VisionaryHeads
         public int LinesOfCode { get; set; }
 
         public string AssemblyName { get { return MethodDefinition.Module.Assembly.Name.Name; } }
+        public string Name { get { return MethodDefinition.Name; } }
 
         public VMethod(VClass vclass, MethodDefinition methodDefinition)
         {

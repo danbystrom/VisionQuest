@@ -84,11 +84,11 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 	float4 Outpu;
 
 	float3 normal = NormalsMap.SampleLevel(TextureSampler, input.TextureCoords, 0).xyz - float3(0.5, 0.5, 0.5);
-	float lightingFactor = saturate(Ambient + dot(normal, -SunlightDirection));
+	float lightingFactor = saturate(Ambient + dot(normal, SunlightDirection));
 
 	float blendDistance = 0.99f;
 	float blendWidth = 0.005f;
-	float blendFactor = 1; // clamp((input.Depth - blendDistance) / blendWidth, 0, 1);
+	float blendFactor = saturate((input.Depth - blendDistance) / blendWidth);
 
 	float4 textureWeights = WeightsMap.Sample(TextureSampler, input.TextureCoords);
 	float weight1 = saturate(textureWeights.x - 0.5) * 2;

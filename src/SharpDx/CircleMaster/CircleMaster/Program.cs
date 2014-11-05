@@ -16,7 +16,7 @@ namespace CircleMasterApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FMultitextureTest());
+            Application.Run(new FCardinalSplines());
         }
     }
 }

@@ -32,7 +32,6 @@ namespace factor10.VisionQuest
             _spriteFont = vContent.Load<SpriteFont>("fonts/BlackCastle");
             _vclasses = vclasses;
 
-            var w2 = world*Matrix.Translation(new Vector3(0, TextDistanceAboveGround, 0));
             foreach (var vc in vclasses)
                 vc.SignClickBoundingSphere = new BoundingSphere(
                     vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround-1, 0),

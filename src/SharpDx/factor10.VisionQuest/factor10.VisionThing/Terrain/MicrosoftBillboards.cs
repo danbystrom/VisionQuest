@@ -4,14 +4,15 @@ using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
+using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace factor10.VisionThing.Terrain
 {
     public class MicrosoftBillboards : ClipDrawable
     {
         private readonly Matrix _world;
-        private ModelData.VertexBuffer _vertexBuffer;
-        private ModelData.IndexBuffer _indexBuffer;
+        private Buffer<BillboardVertex> _vertexBuffer;
+        private VertexInputLayout _vertexInputLayout;
 
         private readonly Texture2D _grassTexture;
         private readonly Texture2D _treeTexture;
@@ -19,15 +20,13 @@ namespace factor10.VisionThing.Terrain
         public MicrosoftBillboards(
             VisionContent vContent,
             Matrix world)
-            : base(vContent.LoadPlainEffect("Billboards/MSBillboard"))
+            : base(vContent.LoadPlainEffect("Billboards/CxBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
+            //: base(vContent.LoadPlainEffect("Billboards/MSBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
         {
             _world = world;
 
-
-            _grassTexture = vContent.Load<Texture2D>("billboards/grassms");
-            _treeTexture = vContent.Load<Texture2D>("billboards/treems");
-
-            Effect.Texture = _grassTexture;
+            _grassTexture = vContent.Load<Texture2D>("billboards/grass");
+            _treeTexture = vContent.Load<Texture2D>("billboards/trees");
         }
 
         public void GenerateTreePositions(Ground ground, ColorSurface normals)
@@ -41,57 +40,36 @@ namespace factor10.VisionThing.Terrain
             if (!treeList.Any())
                 return;
 
-            var billboardVertices = new BillboardVertex[treeList.Count * 4];
-            var billboardIndicies = new short[treeList.Count*6];
+            var billboardVertices = new BillboardVertex[treeList.Count * 6];
             int v = 0, i = 0;
             var random = new Random();
             foreach (var t in treeList)
                 createOne(
-                    ref v,
                     ref i,
                     billboardVertices,
-                    billboardIndicies,
                     t.Item1 + _world.TranslationVector,
                     t.Item2,
                     (float) random.NextDouble());
 
-            //_vertexBuffer = new ModelData.VertexBuffer(
-            //    Effect.GraphicsDevice,
-            //    typeof(BillboardVertex),
-            //    billboardVertices.Length,
-            //    BufferUsage.WriteOnly);
-            //_vertexBuffer.SetData(billboardVertices);
-
-            //_indexBuffer = new ModelData.IndexBuffer(
-            //    Effect.GraphicsDevice,
-            //    typeof (ushort),
-            //    billboardIndicies.Length,
-            //    BufferUsage.WriteOnly);
-            //_indexBuffer.SetData(billboardIndicies);
+            _vertexBuffer = Buffer.Vertex.New(Effect.GraphicsDevice, billboardVertices.ToArray());
+            _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
         }
 
         private void createOne(
-            ref int v,
             ref int i,
             BillboardVertex[] bv,
-            short[] bi,
             Vector3 p,
             Vector3 n,
             float rnd)
         {
-            bi[i++] = (short)(v);
-            bi[i++] = (short)(v+1);
-            bi[i++] = (short)(v+2);
-
-            bi[i++] = (short)(v);
-            bi[i++] = (short)(v+2);
-            bi[i++] = (short)(v+3);
-
             n.Normalize();
-            bv[v++] = new BillboardVertex(p, n, new Vector2(0, 0), rnd);
-            bv[v++] = new BillboardVertex(p, n, new Vector2(1, 0), rnd);
-            bv[v++] = new BillboardVertex(p, n, new Vector2(1, 1), rnd);
-            bv[v++] = new BillboardVertex(p, n, new Vector2(0, 1), rnd);
+            bv[i++] = new BillboardVertex(p, n, new Vector2(0, 0), rnd);
+            bv[i++] = new BillboardVertex(p, n, new Vector2(1, 0), rnd);
+            bv[i++] = new BillboardVertex(p, n, new Vector2(1, 1), rnd);
+
+            bv[i++] = new BillboardVertex(p, n, new Vector2(0, 0), rnd);
+            bv[i++] = new BillboardVertex(p, n, new Vector2(1, 1), rnd);
+            bv[i++] = new BillboardVertex(p, n, new Vector2(0, 1), rnd);
         }
 
         private List<Tuple<Vector3, Vector3>> generateTreePositions(Ground ground, ColorSurface normals)
@@ -127,43 +105,43 @@ namespace factor10.VisionThing.Terrain
             _time += (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             if (_vertexBuffer == null)
                 return false;
 
             camera.UpdateEffect(Effect);
-            Effect.World = _world;
+            //Effect.World = _world;
             Effect.Texture = _grassTexture;
 
-            //Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
-            //Effect.GraphicsDevice.Indices = _indexBuffer;
+            Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+            Effect.GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
 
-            //Effect.Parameters["WindTime"].SetValue(_time);
-            //Effect.Parameters["BillboardWidth"].SetValue(1);
-            //Effect.Parameters["BillboardHeight"].SetValue(1);
+            Effect.Parameters["WindTime"].SetValue(_time);
+            //Effect.Parameters["BillboardWidth"].SetValue(100);
+            //Effect.Parameters["BillboardHeight"].SetValue(100);
 
-            ////pass one
+            //pass one
             //Effect.GraphicsDevice.SetRasterizerState(RasterizerState.CullNone);
-            //Effect.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
-            //Effect.Parameters["AlphaTestDirection"].SetValue(1f);
-            //Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            //Effect.GraphicsDevice.DrawIndexedPrimitives(
-            //    PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount / 3);
+            Effect.Parameters["AlphaTestDirection"].SetValue(1f);
+            Effect.Effect.CurrentTechnique.Passes[0].Apply();
+            Effect.GraphicsDevice.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
 
-            //if (drawingReason != DrawingReason.ShadowDepthMap)
-            //{
-            //    //pass two
-            //    Effect.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
-            //    Effect.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            //    Effect.Parameters["AlphaTestDirection"].SetValue(-1f);
-            //    Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            //    Effect.GraphicsDevice.DrawIndexedPrimitives(
-            //        PrimitiveType.TriangleList, 0, 0, _vertexBuffer.VertexCount, 0, _indexBuffer.IndexCount/3);
-            //}
+            if (drawingReason == DrawingReason.Normal)
+            {
+                //pass two
+                //Effect.GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+                //Effect.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+                Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.DepthRead);
+                Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.NonPremultiplied);
+                Effect.Parameters["AlphaTestDirection"].SetValue(-1f);
+                Effect.Effect.CurrentTechnique.Passes[0].Apply();
+                Effect.GraphicsDevice.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
+                Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);
+                Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.Default);
+            }
 
-            ////restore
+            //restore
             //Effect.GraphicsDevice.BlendState = BlendState.Opaque;
             //Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             //Effect.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
