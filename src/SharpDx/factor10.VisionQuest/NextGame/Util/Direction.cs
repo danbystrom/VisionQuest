@@ -47,6 +47,16 @@ namespace Serpent
             _dir = dir;
         }
 
+        public static implicit operator Direction(DirectionValue dir)
+        {
+            return new Direction(dir);
+        }
+
+        public static implicit operator DirectionValue(Direction direction)
+        {
+            return direction._dir;
+        }
+
         public Direction Turn(RelativeDirection rd)
         {
             if (_dir == 0)
@@ -68,6 +78,16 @@ namespace Serpent
         public Direction Backward
         {
             get { return Turn(RelativeDirection.Backward); }
+        }
+
+        public bool IsNorthSouth
+        {
+            get { return _dir == DirectionValue.North || _dir == DirectionValue.South; }    
+        }
+
+        public bool IsEastWest
+        {
+            get { return _dir == DirectionValue.East || _dir == DirectionValue.West; }
         }
 
         public Point DirectionAsPoint()
@@ -116,7 +136,7 @@ namespace Serpent
 
         public override string ToString()
         {
-            return new[] {"South", "West", "North", "East"}[(int) _dir];
+            return new[] {"None", "South", "West", "North", "East"}[(int) _dir];
         }
 
         public static Direction FromPoints(Point currentLocation, Point newLocation)

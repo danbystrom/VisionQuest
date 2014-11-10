@@ -115,7 +115,7 @@
     <Compile Include="SkySphere.cs" />
     <Compile Include="Terrain\BillboardVertex.cs" />
     <Compile Include="Terrain\Ground.cs" />
-    <Compile Include="Terrain\MicrosoftBillboards.cs" />
+    <Compile Include="Terrain\CxBillboard.cs" />
     <Compile Include="Terrain\ReimersBillboards.cs" />
     <Compile Include="Terrain\Sculptable.cs" />
     <Compile Include="Terrain\SimpleBillboards.cs" />
@@ -146,6 +146,7 @@
     <ToolkitTexture Include="Content\Water\wave1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ToolkitTexture Include="Content\TerrainTextures\wheatfield.dds" />
     <ToolkitTexture Include="Content\Textures\woodensign.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />
     <ToolkitFxc Include="Content\ShadowEffects\GaussianBlur.fx" />
@@ -164,7 +165,7 @@
     <ToolkitTexture Include="Content\TerrainTextures\snow.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\tree.dds" />
     <ToolkitFxc Include="Content\Billboards\CxBillboard.fx" />
-    <Content Include="Content\Billboards\wheat_billboard.dds" />
+    <ToolkitTexture Include="Content\Billboards\wheat_billboard.dds" />
     <Content Include="Content\ShadowEffects\LightingEffect.fx" />
     <Content Include="Content\ShadowEffects\MultiLightingEffect.fx" />
     <Content Include="Content\ShadowEffects\PointLightEffect.fx" />

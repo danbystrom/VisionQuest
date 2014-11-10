@@ -74,8 +74,8 @@ namespace factor10.VisionThing.Water
 
             buildFx(initInfo);
 
-            var targetWidth = graphicsDevice.BackBuffer.Width/2;
-            var targetHeight = graphicsDevice.BackBuffer.Height/2;
+            var targetWidth = graphicsDevice.BackBuffer.Width;
+            var targetHeight = graphicsDevice.BackBuffer.Height;
             _reflectionTarget = RenderTarget2D.New(
                 graphicsDevice,
                 targetWidth,
@@ -210,7 +210,7 @@ namespace factor10.VisionThing.Water
         {
             var p = Effect.Effect.Parameters;
 
-            p["MirrorSampler"].SetResource(Effect.GraphicsDevice.SamplerStates.LinearMirror);
+            p["MirrorSampler"].SetResource(Effect.GraphicsDevice.SamplerStates.PointMirror);
 
             _mhWorldInv = p["WorldInv"];
             _mhCameraPosition = p["CameraPosition"];

@@ -22,7 +22,7 @@ uniform extern Texture2D  WaveDispMap1;
 // User-defined scaling factors to scale the heights
 // sampled from the displacement map into a more convenient
 // range.
-uniform extern float2   ScaleHeights;
+uniform extern float2 ScaleHeights;
 
 // Space between grids in x,z directions in local space
 // used for finite differencing.
@@ -75,80 +75,6 @@ float2 sampleShadowMap(float2 UV)
 }
 
 
-float4 WaterPS(OceanWaterVertexOutput input) : SV_Target
-{
-	float4 bumpColor = BumpMap0.Sample(TextureSampler, input.BumpSamplingPos0);
-	float2 perturbation = WaveHeight*(bumpColor.rg - 0.5f)*0.8f; //dan: is too much *2.0f;
-
-	float bumpMapDistribution = lerp(0.5, 1, saturate(sqrt(abs(CameraPosition.y - 3)) / 4));
-	bumpColor = bumpColor * bumpMapDistribution + BumpMap1.Sample(TextureSampler, input.BumpSamplingPos1)   * (1 - bumpMapDistribution);
-
-	float2 ProjectedTexCoords;
-	ProjectedTexCoords.x = input.ReflectionMapPos.x / input.ReflectionMapPos.w / 2.0f + 0.5f;
-	ProjectedTexCoords.y = -input.ReflectionMapPos.y / input.ReflectionMapPos.w / 2.0f + 0.5f;
-	float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
-	float4 reflectiveColor = ReflectedMap.Sample(TextureSampler, perturbatedTexCoords);
-
-	float4 dullColor = float4(0.1f, 0.1f, 0.3f, 1.0f);
-	float4 refractiveColor = float4(0.1, 0.1, 0.3, 1); // tex2D(RefractionSampler, perturbatedRefrTexCoords);
-
-	float3 eyeVector = normalize(CameraPosition - input.Position3D);
-	float3 normalVector = (bumpColor.rbg - 0.5f)*2.0f;
-
-	float2 cameraPosXZ = float2(CameraPosition.x, CameraPosition.z);
-	float2 worldPosXZ = float2(input.Position3D.x, input.Position3D.z);
-	float fog = saturate((distance(cameraPosXZ, worldPosXZ) - FogStart) / FogRange);
-
-	float fresnelTerm = dot(eyeVector, normalVector);
-	float4 combinedColor = lerp(reflectiveColor, refractiveColor, sqrt(fresnelTerm) * (1 - fog));
-	float4 color = lerp(combinedColor, dullColor, 0.4);
-
-	float3 reflectionVector = -reflect(SunlightDirection, normalVector);
-	float specular = dot(normalize(reflectionVector), eyeVector);
-	specular = pow(abs(specular), 256);
-
-	if (DoShadowMapping)
-	{
-		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
-		if (realDepth < 1)
-		{
-			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
-
-				// Variance shadow mapping code below from the variance shadow
-				// mapping demo code @ http://www.punkuser.net/vsm/
-
-				// Sample from depth texture
-				float2 moments = sampleShadowMap(shadowTexCoord + perturbation);
-
-				// Check if we're in shadow
-				float lit_factor = (realDepth <= moments.x);
-
-			// Variance shadow mapping
-			float E_x2 = moments.y;
-			float Ex_2 = moments.x * moments.x;
-			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
-			float m_d = (moments.x - realDepth);
-			float p = variance / (variance + m_d * m_d);
-
-			float shadowFactor = clamp(max(lit_factor, p), ShadowMult, 1.0f);
-			specular *= pow(shadowFactor, 32);  //no specular when in shadow
-			color.rgb *= shadowFactor;
-		}
-	}
-
-	color.rgb += specular;
-
-	//    float2 cameraPosXZ = float2(CameraPosition.x,CameraPosition.z);
-	//    float2 worldPosXZ = float2(input.Position3D.x,input.Position3D.z);
-	//	float fog = saturate((distance(cameraPosXZ,worldPosXZ) - FogStart) / FogRange);
-
-	//	color.r = fog;
-	//	color.g = fog;
-	//	color.b = fog;
-
-	return color;
-}
 
 float DoDispMapping(float2 texC0, float2 texC1)
 {
@@ -278,7 +204,7 @@ float4 ZPS(OceanWaterVertexOutput input) : SV_Target
 	float2 ProjectedTexCoords;
 	ProjectedTexCoords.x = input.ReflectionMapPos.x / input.ReflectionMapPos.w / 2.0f + 0.5f;
 	ProjectedTexCoords.y = -input.ReflectionMapPos.y / input.ReflectionMapPos.w / 2.0f + 0.5f;
-	float2 perturbatedTexCoords = ProjectedTexCoords + perturbation;
+	float2 perturbatedTexCoords = ProjectedTexCoords +perturbation;
 	float4 reflectiveColor = ReflectedMap.Sample(TextureSampler, perturbatedTexCoords);
 
 	float4 dullColor = float4(0.1f, 0.1f, 0.3f, 1.0f);

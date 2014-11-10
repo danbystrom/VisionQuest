@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Serpent
+﻿namespace Serpent
 {
     public enum PlayingFieldSquareType
     {
@@ -32,13 +27,13 @@ namespace Serpent
             Restricted = restrictedDirection;
         }
 
-        public static PlayingFieldSquare CreateFlat( int elevation )
+        public static PlayingFieldSquare CreateFlat(int elevation, DirectionValue restrict = DirectionValue.None)
         {
             return new PlayingFieldSquare(
                 PlayingFieldSquareType.Flat,
                 elevation,
                 Direction.None,
-                Direction.None);    
+                restrict);
         }
 
         public int[] Corners
@@ -51,14 +46,14 @@ namespace Serpent
                         return new[] {Elevation, Elevation, Elevation, Elevation};
                     case PlayingFieldSquareType.Slope:
                     case PlayingFieldSquareType.Portal:
-                        if ( SlopeDirection == Direction.East )
-                            return new[] { Elevation, Elevation, Elevation+1, Elevation+1 };
+                        if (SlopeDirection == Direction.East)
+                            return new[] {Elevation, Elevation, Elevation + 1, Elevation + 1};
                         if (SlopeDirection == Direction.West)
-                            return new[] { Elevation+1, Elevation+1, Elevation, Elevation };
+                            return new[] {Elevation + 1, Elevation + 1, Elevation, Elevation};
                         if (SlopeDirection == Direction.North)
-                            return new[] { Elevation + 1, Elevation, Elevation+1, Elevation };
+                            return new[] {Elevation + 1, Elevation, Elevation + 1, Elevation};
                         if (SlopeDirection == Direction.South)
-                            return new[] { Elevation, Elevation + 1, Elevation, Elevation+1 };
+                            return new[] {Elevation, Elevation + 1, Elevation, Elevation + 1};
                         return null;
                     default:
                         return null;

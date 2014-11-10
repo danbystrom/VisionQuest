@@ -53,7 +53,7 @@ namespace NextGame
 
         public Data Data;
 
-        public IGeometricPrimitive _cube;
+        public IGeometricPrimitive _sphere;
         public VisionEffect _myEffect;
 
         private bool _paused;
@@ -104,9 +104,8 @@ namespace NextGame
             ballsTexture = Content.Load<Texture2D>("Balls");
             _snakeSkin = Content.Load<Texture2D>(@"Textures\sn");
 
-            _cube = new CubePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 2);
+            _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
-            _myEffect.Texture = _snakeSkin;
 
             Data = new Data(this, keyboard, mouse);
 
@@ -200,16 +199,7 @@ namespace NextGame
                 return;
             }
 
-            Data.PlayerSerpent.Update(gameTime);
-            foreach (var enemy in Data.Enemies)
-            {
-                enemy.Update(gameTime);
-                if (enemy.EatAt(Data.PlayerSerpent))
-                    /*startGame()*/;
-                else if (enemy.SerpentStatus == SerpentStatus.Alive && Data.PlayerSerpent.EatAt(enemy))
-                    enemy.SerpentStatus = SerpentStatus.Ghost;
-            }
-            Data.Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
+            Data.Update(gameTime);
             //if (Data.Enemies.Count == 0)
             //    startGame();
         }
@@ -240,31 +230,25 @@ namespace NextGame
             basicEffect.TextureEnabled = true;
             primitive.Draw(basicEffect);
 
-            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
-                                Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
-                                Matrix.RotationY(time * 2.0f) *
-                                Matrix.RotationZ(0) *
-                                Matrix.Translation(-5, -1.0f, 0);
-            _myEffect.View = Data.PlayerSerpent.Camera.Camera.View;
-            _myEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
-            _myEffect.Texture = _snakeSkin;
-            _cube.Draw(_myEffect);
-            //basicEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
-            //                    Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
-            //                    Matrix.RotationY(time * 2.0f) *
-            //                    Matrix.RotationZ(0) *
-            //                    Matrix.Translation(-5, -1.0f, 0);
-            //basicEffect.View = Data.PlayerSerpent.Camera.Camera.View;
-            //basicEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
-            //basicEffect.Texture = _snakeSkin;
-            //_cube.Draw(basicEffect);
+            basicEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
+                    Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
+                    Matrix.RotationY(time * 2.0f) *
+                    Matrix.RotationZ(0) *
+                    Matrix.Translation(-1, -1.0f, -15);
+            basicEffect.View = Data.PlayerSerpent.Camera.Camera.View;
+            basicEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
+            basicEffect.Texture = _snakeSkin;
+            _sphere.Draw(basicEffect);
 
             Data.PlayingField.Draw(Data.PlayerSerpent.Camera.Camera);
+
+            Data.Sky.Draw(Data.PlayerSerpent.Camera.Camera);
+
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
             Data.PlayerSerpent.Draw(gameTime);
             foreach (var enemy in Data.Enemies)
                 enemy.Draw(gameTime);
-
-            Data.Sky.Draw(Data.PlayerSerpent.Camera.Camera);
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
 
              // ------------------------------------------------------------------------
             // Draw the some 2d text
@@ -329,6 +313,19 @@ namespace NextGame
                     0f);
             }
             spriteBatch.End();
+
+            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
+                    Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
+                    Matrix.RotationY(time * 2.0f) *
+                    Matrix.RotationZ(0) *
+                    Matrix.Translation(-1, -1.0f, -10);
+            _myEffect.View = Data.PlayerSerpent.Camera.Camera.View;
+            _myEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
+            _myEffect.Texture = _snakeSkin;
+            _myEffect.Parameters["DiffuseColor"].SetValue(new Vector4(1, 1, 1, 0.9f));
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
+            _sphere.Draw(_myEffect);
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
 
             base.Draw(gameTime);
         }

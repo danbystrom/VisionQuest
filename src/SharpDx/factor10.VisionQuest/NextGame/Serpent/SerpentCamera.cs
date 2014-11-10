@@ -17,8 +17,6 @@ namespace Serpent.Serpent
     public class SerpentCamera
     {
         public readonly Camera Camera;
-        public readonly MouseManager MouseManager;
-        public readonly KeyboardManager KeyboardManager;
 
         private CameraBehavior _cameraBehavior;
         private float _acc;
@@ -32,10 +30,8 @@ namespace Serpent.Serpent
             Vector3 target,
             CameraBehavior cameraBehavior)
         {
-            MouseManager = mouseManager;
-            KeyboardManager = keyboardManager;
             _cameraBehavior = cameraBehavior;
-            Camera = new Camera(clientBounds, position, target);
+            Camera = new Camera(clientBounds, keyboardManager, mouseManager, null, position, target);
         }
 
         public CameraBehavior CameraBehavior
@@ -54,11 +50,7 @@ namespace Serpent.Serpent
                         _desiredUpVector = Vector3.ForwardLH;
                         break;
                     case CameraBehavior.FreeFlying:
-                        //var t = Camera.Target;
-                        //var p = Camera.Position;
-                        //Camera.Yaw = (float)Math.Atan2(p.X - t.X, p.Z - t.Z);
-                        //Camera.Pitch = -(float)Math.Asin((p.Y - t.Y) / Vector3.Distance(p, t));
-                        MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
+                        Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
                         break;
                 }
             }

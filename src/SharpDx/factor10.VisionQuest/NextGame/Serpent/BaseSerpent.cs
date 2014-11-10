@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
-using factor10.VisionThing.Primitives;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
+using System;
+using System.Collections.Generic;
 
 namespace Serpent
 {
@@ -33,11 +33,12 @@ namespace Serpent
         protected double _fractionAngle;
 
         protected readonly IVEffect _effect;
-        protected readonly factor10.VisionThing.IVDrawable _sphere;
-        protected readonly Texture2D _skin;
+        protected readonly IVDrawable _sphere;
+        protected readonly Texture2D _serpentSkin;
+        protected readonly Texture2D _eggSkin;
         protected readonly EffectParameter _diffuseParameter;
 
-        protected readonly SerpentTailSegment _tail;
+        protected SerpentTailSegment _tail;
         protected int _serpentLength;
 
         protected readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
@@ -49,25 +50,26 @@ namespace Serpent
 
         private float _layingEgg;
         private const float TimeForLayingEggProcess = 5;
+        private Matrix _eggWorld;
+
+        private float _ascendToHeaven;
 
         protected BaseSerpent(
             VisionContent vContent,
             PlayingField pf,
-            factor10.VisionThing.IVDrawable sphere,
+            IVDrawable sphere,
             Whereabouts whereabouts,
-            Texture2D serpentSkin)
+            Texture2D serpentSerpentSkin,
+            Texture2D eggSkin)
         {
             _pf = pf;
+            Restart(whereabouts);
             _sphere = sphere;
-            _skin = serpentSkin;
+            _serpentSkin = serpentSerpentSkin;
+            _eggSkin = eggSkin;
             _effect = new VisionEffect(vContent.Load<Effect>(@"Effects\SimpleTextureEffect"));
+
             _diffuseParameter = _effect.Parameters["DiffuseColor"];
-
-            //_effect = new BasicEffect(game.GraphicsDevice);
-            //_effect.EnableDefaultLighting();
-
-            _whereabouts = whereabouts;
-            _headDirection = _whereabouts.Direction;
 
             _headRotation.Add(Direction.West,
                               Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(MathUtil.Pi));
@@ -77,11 +79,15 @@ namespace Serpent
                               Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(MathUtil.PiOverTwo));
             _headRotation.Add(Direction.North,
                               Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(-MathUtil.PiOverTwo));
+        }
 
+        protected void Restart(Whereabouts whereabouts)
+        {
+            _whereabouts = whereabouts;
+            _headDirection = _whereabouts.Direction;
             _tail = new SerpentTailSegment(_pf, _whereabouts);
             _serpentLength = 1;
-
-            _layingEgg = (float)(-5 - new Random().NextDouble()*30);
+            _layingEgg = (float)(-5 - new Random().NextDouble() * 30);
         }
 
         protected virtual float modifySpeed()
@@ -113,8 +119,12 @@ namespace Serpent
 
             if (_whereabouts.Direction != Direction.None)
                 _headDirection = _whereabouts.Direction;
-        }
 
+            if (SerpentStatus != SerpentStatus.Alive)
+                _ascendToHeaven += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            _layingEgg -= (float) gameTime.ElapsedGameTime.TotalSeconds;
+        }
 
         protected bool tryMove(Direction dir)
         {
@@ -128,30 +138,36 @@ namespace Serpent
             return true;
         }
 
+        private static Vector3 wormTwist(ref float slinger)
+        {
+            slinger += 1.5f;
+            return new Vector3((float)Math.Sin(slinger) * 0.2f, 0, (float)Math.Sin(slinger) * 0.2f);
+        }
+
         public virtual void Draw(GameTime gameTime)
         {
             var p = GetPosition();
+            var tint = tintColor();
 
-            _diffuseParameter.SetValue(Vector4.Lerp(new Vector4(0.7f, 0.7f, 0.7f, 1), tintColor(), 0.5f));
-//            _effect.Alpha = SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f;
+            var slinger = p.X + p.Z;
+            p += wormTwist(ref slinger);
+
+            _diffuseParameter.SetValue(tint);
             _effect.View = _camera.Camera.View;
             _effect.Projection = _camera.Camera.Projection;
-            _effect.World = _headRotation[_headDirection]*
-                            Matrix.Scaling(HeadSize)*
-                            Matrix.Translation(p.X, HeadSize + p.Y, p.Z);
-            _effect.Texture = _skin;
-            _sphere.Draw(_effect);
+            _effect.Texture = _serpentSkin;
+            drawSphere(_headRotation[_headDirection] *
+                            Matrix.Scaling(HeadSize) *
+                            Matrix.Translation(p.X, HeadSize + p.Y, p.Z));
 
             var worlds = new List<Matrix>();
-
-            var slinger = (p.X + p.Z);
 
             // p is the the loc of the last segement - which is the head on the first round
             var segment = _tail;
             while (true)
             {
-                slinger += 0.5f;
-                var p2 = segment.GetPosition() + new Vector3((float)Math.Sin(slinger) * 0.15f, 0, (float)Math.Sin(slinger) * 0.15f);
+                var p2 = segment.GetPosition() + wormTwist(ref slinger);
+                p2.Y += _ascendToHeaven;
                 worlds.Add(
                     Matrix.Scaling(SegmentSize) *
                     Matrix.Translation(
@@ -173,41 +189,36 @@ namespace Serpent
             if (_pendingEatenSegments <= SegmentEatTreshold/2)
                 worlds.RemoveAt(worlds.Count - 1);
 
-            //TODO
-            //if (_layingEgg > -500)
-            //{
-            //    var d = segment.Whereabouts.Direction;
-            //    var t = d == Direction.North || d == Direction.South
-            //        ? Matrix.Scaling(0.6f, 0.6f, 0.8f)
-            //        : Matrix.Scaling(0.8f, 0.6f, 0.6f);
-            //    var off = d.DirectionAsVector2()*(-0.3f);
-            //    t *= Matrix.Translation(off.X, -0.3f, off.Y);
-            //    _modelSegment.Draw(
-            //        _camera.Camera,
-            //        t*worlds[worlds.Count - 1],
-            //        Vector4.One,
-            //        1,
-            //        1);
-            //    _modelSegment.Draw(
-            //        _camera.Camera,
-            //        worlds[worlds.Count - 1],
-            //        tintColor(),
-            //        0.5f,
-            //        0.9f);
-            //    worlds.RemoveAt(worlds.Count - 1);
-            //}
-
-            foreach (var world in worlds)
+            if (_layingEgg < 0)
             {
-                _effect.World = world;
+                _effect.Texture = _eggSkin;
+                _diffuseParameter.SetValue(Vector4.One);
+                _eggWorld = worlds[worlds.Count - 1];
+                Egg.Draw(_effect, _sphere, _eggWorld, segment.Whereabouts.Direction);
+
+                _effect.Texture = _serpentSkin;
+                _effect.World = worlds[worlds.Count - 1];
+                _diffuseParameter.SetValue(tint + new Vector4(0, 0, 0, -0.5f));
                 _sphere.Draw(_effect);
+
+                var world = worlds.Last()*Matrix.Translation(segment.Whereabouts.Direction.DirectionAsVector3()*0);
+                worlds.RemoveAt(worlds.Count - 1);
+                worlds.Add(world);
+
+                _diffuseParameter.SetValue(tint);
             }
 
-            //_camera.Camera,
-                    //world,
-                    //tintColor(),
-                    //0.5f,
-                    //SerpentStatus == SerpentStatus.Alive ? 1 : 0.5f);
+            _effect.Texture = _serpentSkin;
+            foreach (var world in worlds)
+                drawSphere(world);
+
+            _diffuseParameter.SetValue(Vector4.One);
+        }
+
+        private void drawSphere(Matrix world)
+        {
+            _effect.World = world;
+            _sphere.Draw(_effect);
         }
 
         protected virtual Vector4 tintColor()
@@ -217,7 +228,10 @@ namespace Serpent
 
         public Vector3 GetPosition()
         {
-            return _whereabouts.GetPosition(_pf);
+            var p = _whereabouts.GetPosition(_pf);
+            if (SerpentStatus != SerpentStatus.Alive)
+                p.Y += _ascendToHeaven;
+            return p;
         }
 
         private void grow(int length)
@@ -281,6 +295,18 @@ namespace Serpent
                 tail = tail.Next;
             tail.Next = new SerpentTailSegment(_pf, tail.Whereabouts);
             _serpentLength++;
+        }
+
+        public Egg TimeToLayEgg()
+        {
+            if (_layingEgg > -15)
+                return null;
+
+            var segment = _tail;
+            while (segment.Next != null)
+                segment = segment.Next;
+            removeTail(segment);
+            return new Egg(_effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts);
         }
 
     }

@@ -158,10 +158,9 @@ namespace factor10.VisionThing.Effects
             if (shadow != null)
             {
                 _epDoShadowMapping.SetValue(true);
-                //TODO
-                //_epShadowMap.SetValue(shadow.ShadowDepthTarget);
-                //_epShadowViewProjection.SetValue(shadow.Camera.View * shadow.Camera.Projection);
-                //_epShadowMult.SetValue(shadow.ShadowMult);
+                _epShadowMap.SetResource(shadow.ShadowDepthTarget);
+                _epShadowViewProjection.SetValue(shadow.Camera.View * shadow.Camera.Projection);
+                _epShadowMult.SetValue(shadow.ShadowMult);
             }
             else
                 _epDoShadowMapping.SetValue(false);

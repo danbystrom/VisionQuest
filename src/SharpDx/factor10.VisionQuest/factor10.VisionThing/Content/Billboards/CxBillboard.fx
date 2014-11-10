@@ -11,22 +11,20 @@ SamplerState TextureSampler;
 
 // Lighting parameters.
 float3 LightColor = 0.8;
-float3 AmbientColor = 0.4;
+float3 AmbientColor = 0.5;
 
 // Parameters controlling the wind effect.
 float3 WindDirection = float3(1, 0, 0);
 float WindWaveSize = 0.001;
 float WindRandomness = 1;
 float WindSpeed = 2;
-float WindAmount = 0.05;
+float WindAmount = 0.5;
 float WindTime;
-
 
 // 1 means we should only accept opaque pixels.
 // -1 means only accept transparent pixels.
 float AlphaTestDirection = 1;
 float AlphaTestThreshold = 0.95;
-
 
 // Parameters describing the billboard itself.
 float BillboardWidth = 10;
@@ -48,6 +46,17 @@ VertexToPixel VSStandard(
   float2 inRandom: TEXCOORD1
   )
 {
+	// Apply a scaling factor to make some of the billboards
+    // shorter and fatter while others are taller and thinner.
+    float squishFactor = 0.75 + inRandom.x / 2;
+
+    float width = BillboardWidth * squishFactor;
+    float height = BillboardHeight / squishFactor;
+
+    // Flip half of the billboards from left to right. This gives visual variety
+    // even though we are actually just repeating the same texture over and over.
+	width *= sign(inRandom.x);
+
 	VertexToPixel output = (VertexToPixel)0;
 
 	float4 center = mul(inPosition, World);
@@ -57,14 +66,14 @@ VertexToPixel VSStandard(
 	sideVector = normalize(sideVector);
 
 	float3 finalPosition = center;
-	finalPosition += (inTexCoord.x - 0.5f)*sideVector*BillboardWidth;
-	finalPosition += (1.5f - inTexCoord.y*1.5f)*inNormal*BillboardHeight;
+	finalPosition += (inTexCoord.x - 0.5f)*sideVector*width;
+	finalPosition += (1.5f - inTexCoord.y*1.5f)*inNormal*height;
 
 	// Work out how this vertex should be affected by the wind effect.
-	float waveOffset = dot(finalPosition, WindDirection) * WindWaveSize;
+	float3 windDirection = sideVector + float3(inRandom.x, frac(inPosition.x), frac(inPosition.y));
+	float waveOffset = dot(finalPosition, windDirection) * WindWaveSize;
 
-	//waveOffset += input.Random * WindRandomness;
-	waveOffset += (frac(inPosition.x) + frac(inPosition.y)) * WindRandomness;
+	waveOffset += inRandom.x * WindRandomness;
 
 	// Wind makes things wave back and forth in a sine wave pattern.
 	float wind = sin(WindTime * WindSpeed + waveOffset) * WindAmount;
@@ -78,7 +87,12 @@ VertexToPixel VSStandard(
 	output.Position = output.PositionCopy = mul(output.WorldPosition, preViewProjection);
 
 	output.TexCoord = inTexCoord;
-	output.Color = float4(1, 1, 1, 1);
+
+    // Compute lighting.
+    float diffuseLight = max(-dot(inNormal, LightDirection), 0);
+    
+    output.Color.rgb = diffuseLight * LightColor + AmbientColor;
+    output.Color.a = 1;
 
 	return output;
 }

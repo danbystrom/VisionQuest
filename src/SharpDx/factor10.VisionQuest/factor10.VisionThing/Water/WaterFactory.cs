@@ -89,8 +89,9 @@ namespace factor10.VisionThing.Water
                             1 << surfaceScale);
                     }
 
+            var raise = 0.5f + camera.Position.Y/500;
             var q = (int)camera.ZFar & ~(waterW - 1);
-            var pos = new Vector3(gridStartX*waterW - q, 0.5f, gridStartY*waterH - q);
+            var pos = new Vector3(gridStartX * waterW - q, raise, gridStartY * waterH - q);
             waterSurface.Draw(camera, pos, -1, 0, 0, 1 << surfaceScale);
         }
 

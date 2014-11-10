@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using factor10.VisionThing;
-using factor10.VisionThing.Primitives;
+﻿using factor10.VisionThing;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -16,20 +11,21 @@ namespace Serpent
     {
         private bool _turnAround;
 
-        public float Speed = 1.3f;
+        public float Speed = 1.4f;
 
         public PlayerSerpent(
             VisionContent vContent,
             MouseManager mouseManager,
             KeyboardManager keyboardManager,
             PlayingField pf,
-            factor10.VisionThing.IVDrawable sphere)
+            IVDrawable sphere)
             : base(
                 vContent,
                 pf,
                 sphere,
-                new Whereabouts(0, new Point(0, 0), Direction.East),
-                vContent.Load<Texture2D>(@"Textures\sn"))
+                pf.PlayerWhereaboutsStart,
+                vContent.Load<Texture2D>(@"Textures\sn"),
+                vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
             _camera = new SerpentCamera(
                 mouseManager,
@@ -38,6 +34,13 @@ namespace Serpent
                 new Vector3(0, 20, 2),
                 Vector3.Zero,
                 CameraBehavior.FollowTarget);
+            addTail();
+        }
+
+        public void Restart()
+        {
+            Restart(_pf.PlayerWhereaboutsStart);
+            addTail();
         }
 
         public SerpentCamera Camera
@@ -95,7 +98,7 @@ namespace Serpent
 
         protected override Vector4 tintColor()
         {
-            return new Vector4(0.4f, 0.4f, 0.6f, 1);
+            return new Vector4(1, 1, 1, 1);
         }
 
     }

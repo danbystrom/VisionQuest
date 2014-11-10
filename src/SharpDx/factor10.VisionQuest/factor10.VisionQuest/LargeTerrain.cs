@@ -19,7 +19,7 @@ namespace factor10.VisionThing
             ground.ApplyNormalBellShape();
             var normals = ground.CreateNormalsMap();
 
-            var ms = new MicrosoftBillboards(vContent, world*Matrix.Translation(-64, 0.05f, -64));
+            var ms = new CxBillboard(vContent, world*Matrix.Translation(-64, 0.05f, -64), vContent.Load<Texture2D>("textures/grass"), 1, 1);
             ms.GenerateTreePositions(ground, normals);
             Children.Add(ms);
 

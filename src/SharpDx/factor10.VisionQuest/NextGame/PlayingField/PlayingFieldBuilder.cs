@@ -8,12 +8,16 @@ namespace Serpent
         private readonly PlayingFieldSquare[,,] _field;
         private int _floor;
 
-        public PlayingFieldBuilder( PlayingFieldSquare[,,] field)
+        public PlayingFieldBuilder(PlayingFieldSquare[,,] field)
         {
             _field = field;
         }
 
-        public void ConstructOneFloor(int floor, string[] field)
+        public void ConstructOneFloor(
+            int floor,
+            string[] field,
+            ref Whereabouts playerWhereaboutsStart,
+            ref Whereabouts enemyWhereaboutsStart)
         {
             _floor = floor;
 
@@ -31,14 +35,32 @@ namespace Serpent
                 for (var y = 0; y < height; y++)
                     for (var x = 0; x < width; x++)
                     {
-                        if (!_field[floor, y, x].IsNone )
+                        if (!_field[floor, y, x].IsNone)
                             continue;
                         switch (field[y][x])
                         {
                             case ' ':
                                 _field[floor, y, x] = new PlayingFieldSquare();
                                 break;
+
+                            case 'A':
+                                playerWhereaboutsStart = calcWhereabouts(field, 'a', floor, x, y);
+                                goto case 'X';
+
+                            case 'B':
+                                enemyWhereaboutsStart = calcWhereabouts(field, 'b', floor, x, y);
+                                goto case 'X';
+
+                            case 'N':
+                                _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0, DirectionValue.North);
+                                break;
+                            case 'S':
+                                _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0, DirectionValue.South);
+                                break;
+
                             case 'X':
+                            case 'a':
+                            case 'b':
                                 _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0);
                                 break;
                             case 'D':
@@ -56,17 +78,31 @@ namespace Serpent
             }
         }
 
+        private Whereabouts calcWhereabouts(string[] field, char token, int floor, int x, int y)
+        {
+            var direction = Direction.None;
+            if (x > 0 && field[y][x - 1] == token)
+                direction = Direction.West;
+            else if (x < (field[0].Length - 1) && field[y][x + 1] == token)
+                direction = Direction.East;
+            else if (y > 0 && field[y - 1][x] == token)
+                direction = Direction.South;
+            else if (y < (field.Length - 1) && field[y + 1][x] == token)
+                direction = Direction.North;
+            return new Whereabouts(floor, new Point(x, y), direction);
+        }
+
         private PlayingFieldSquare createSlopeSquare(int x, int y, bool doPortal)
         {
             foreach (var direction in Direction.AllDirections)
             {
-                var square = getSquare(direction.DirectionAsPoint().Add(x,y));
-                if ( square.IsNone )
+                var square = getSquare(direction.DirectionAsPoint().Add(x, y));
+                if (square.IsNone)
                     continue;
-                if ( doPortal )
+                if (doPortal)
                     return new PlayingFieldSquare(
                         PlayingFieldSquareType.Portal,
-                        square.Elevation-1,
+                        square.Elevation - 1,
                         direction,
                         Direction.None);
                 return new PlayingFieldSquare(
@@ -88,4 +124,6 @@ namespace Serpent
         }
 
     }
+
 }
+

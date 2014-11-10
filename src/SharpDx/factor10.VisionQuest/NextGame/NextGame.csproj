@@ -86,6 +86,7 @@
     <Compile Include="PlayingField\PlayingFieldSquare.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serpent\Egg.cs" />
     <Compile Include="Serpent\BaseSerpent.cs" />
     <Compile Include="Serpent\EnemySerpent.cs" />
     <Compile Include="Serpent\PlayerSerpent.cs" />
@@ -125,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <ToolkitTexture Include="Content\Models\Galleon.dds" />
+    <ToolkitTexture Include="Content\Textures\eggshell.dds" />
     <Content Include="Content\Textures\snakeskinmap.dds" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

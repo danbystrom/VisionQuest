@@ -75,7 +75,7 @@ namespace factor10.VisionThing.Terrain
             Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/stones");
             Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/rock");
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
-            Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/begonias");
+            Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/wheatfield");
 
             HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
             WeightsMap = weights.CreateTexture2D(Effect.GraphicsDevice);

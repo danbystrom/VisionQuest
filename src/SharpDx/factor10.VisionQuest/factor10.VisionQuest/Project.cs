@@ -54,18 +54,17 @@ namespace factor10.VisionQuest
             IgnoredAssemblies = new List<ProjectAssembly>();
         }
 
-        public static Project Load(string projectsFolder, string name)
+        public static Project Load(string filename)
         {
             try
             {
-                var filename = fullName(projectsFolder, name);
                 var project = File.ReadAllText(filename).FromXml<Project>();
                 project.Accessed = File.GetLastAccessTime(filename);
                 return project;
             }
             catch (Exception ex)
             {
-                return new Project(name);
+                return new Project(Path.GetFileNameWithoutExtension(filename));
             }
         }
 
@@ -76,7 +75,7 @@ namespace factor10.VisionQuest
 
         public static IList<Project> LoadAll(string projectsFolder)
         {
-            return Directory.GetFiles(projectsFolder, "*.vqp").Select(_ => Load(projectsFolder, _)).ToList();
+            return Directory.GetFiles(projectsFolder, "*.vqp").Select(Load).ToList();
         }
 
     }

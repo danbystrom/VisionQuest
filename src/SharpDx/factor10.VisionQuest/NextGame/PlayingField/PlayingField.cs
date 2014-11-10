@@ -17,6 +17,9 @@ namespace Serpent
         private readonly BasicEffect _effect;
         private readonly Texture2D _texture;
 
+        public readonly Whereabouts PlayerWhereaboutsStart;
+        public readonly Whereabouts EnemyWhereaboutsStart;
+
         public PlayingField(GraphicsDevice graphicsDevice, Texture2D texture)
         {
             _effect = new BasicEffect(graphicsDevice);
@@ -33,22 +36,22 @@ namespace Serpent
             for (var i = 0; i < field.Count; i++)
                 builder.ConstructOneFloor(
                     i,
-                    field[i]);
+                    field[i],
+                    ref PlayerWhereaboutsStart,
+                    ref EnemyWhereaboutsStart);
 
             var verts = new List<VertexPositionNormalTexture>();
             var vertsShadow = new List<VertexPositionColor>();
             for (var z = 0; z < Floors; z++)
                 for (var y = 0; y < Height; y++ )
                      for (var x = 0; x < Width; x++)
-                        if (!TheField[z, y, x].IsNone )
-                        {
-                            var start = x;
-                            //for (x++; x < width && TheField[z, y, x - 1].PlayingFieldSquareType == TheField[z, y, x].PlayingFieldSquareType; x++)
-                            //    ;
-                            x++;
-                            foobar(verts, vertsShadow, z, start, y, x - start, 1, TheField[z, y, x - 1].Corners);
-                            x--;
-                        }
+                         if (!TheField[z, y, x].IsNone)
+                         {
+                             var start = x;
+                             x++;
+                             foobar(verts, vertsShadow, z, start, y, x - start, 1, TheField[z, y, x - 1].Corners);
+                             x--;
+                         }
 
 
             VertexBuffer = Buffer.Vertex.New(graphicsDevice, verts.ToArray());
@@ -206,10 +209,11 @@ namespace Serpent
 
         public void Dispose()
         {
-            //_effect.Dispose();
-            //VertexBuffer.Dispose();
-            //VertexBufferShadow.Dispose();
+            _effect.Dispose();
+            VertexBuffer.Dispose();
+            VertexBufferShadow.Dispose();
         }
+
     }
 
 }

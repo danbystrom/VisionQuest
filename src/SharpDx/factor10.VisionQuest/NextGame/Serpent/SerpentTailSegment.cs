@@ -31,7 +31,7 @@ namespace Serpent
                 var distance = Vector3.DistanceSquared(pos, prevPos);
                 var w = PathToWalk[0];
                 w.Fraction += speed; // *distance;
-                if ( w.Fraction >= 1 )
+                if ( w.Fraction >= 0.99 )
                     PathToWalk.RemoveAt(0);
                 else
                     PathToWalk[0] = w;
@@ -55,5 +55,7 @@ namespace Serpent
             if (Next != null)
                 Next.AddPathToWalk(PathToWalk[0]);
         }
+
     }
+
 }

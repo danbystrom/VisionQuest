@@ -1,10 +1,8 @@
-﻿using System;
-using factor10.VisionThing;
-using factor10.VisionThing.Primitives;
+﻿using factor10.VisionThing;
 using Serpent.Serpent;
 using SharpDX;
-using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
+using System;
 
 namespace Serpent
 {
@@ -15,13 +13,12 @@ namespace Serpent
         public EnemySerpent(
             VisionContent vContent,
             PlayingField pf,
-            factor10.VisionThing.IVDrawable sphere,
-            SerpentCamera camera,
             Whereabouts whereabouts,
+            IVDrawable sphere,
+            SerpentCamera camera,
             int x)
-            : base(vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"))
+            : base(vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
-            _whereabouts = whereabouts;
              _rnd.NextBytes(new byte[x]);
             _camera = camera;
 
@@ -31,6 +28,9 @@ namespace Serpent
 
         protected override void takeDirection()
         {
+            if (SerpentStatus != SerpentStatus.Alive)
+                return;
+
             if (_rnd.NextDouble() < 0.33 && tryMove(_whereabouts.Direction.Left))
                 return;
             if (_rnd.NextDouble() < 0.66 && tryMove(_whereabouts.Direction.Right))
@@ -49,9 +49,11 @@ namespace Serpent
 
         protected override Vector4 tintColor()
         {
+            if (SerpentStatus != SerpentStatus.Alive)
+                return new Vector4(1, 1, 1, 0.5f);
             return _isLonger
-                ? new Vector4(0.8f, 0.2f, 0.2f, 1)
-                : new Vector4(0.2f, 0.8f, 0.2f, 1);
+                ? new Vector4(1f, 0.5f, 0.5f, 1)
+                : new Vector4(0.5f, 1f, 0.5f, 1);
         }
 
     }

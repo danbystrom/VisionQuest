@@ -13,7 +13,7 @@ namespace Serpent
             list.Add(
                 new[]
                     {
-                        "XUUU                ",
+                        "AaUUU               ",
                         "                    ",
                         "                    ",
                         "                    ",
@@ -32,13 +32,13 @@ namespace Serpent
                         "                    ",
                         "                    ",
                         "                    ",
-                        "                UUUX"
+                        "               UUUbB"
                     });
 
             list.Add(
                 new[]
                     {
-                        "    DXXXXXXXXXXXXXXX",
+                        "     DXXXXXXXXXXXXXX",
                         "       X           X",
                         "XXXXXXXXXXXXXXXXXXXX",
                         "X X X  X           X",
@@ -52,12 +52,12 @@ namespace Serpent
                         "X               X  X",
                         "X               X  X",
                         "X               X  X",
-                        "XXXXXXXXXXXXXX  X  X",
-                        "X            XXXXXXX",
-                        "X    U       X X    ",
-                        "X    U       XXX    ",
-                        "X    U        X     ",
-                        "XXXXXXXXXXXXXXXD    "
+                        "XXXXXXXXXXXXX  X   X",
+                        "X           XXXXXXXX",
+                        "X    U      X X     ",
+                        "X    U      XXX     ",
+                        "X    U       X      ",
+                        "XXXXXXXXXXXXXXD     "
                     });
             list.Add(
                 new[]
@@ -132,13 +132,12 @@ namespace Serpent
 "X X X X X XXXXXXXXXXXXX X",
 "X X X X X X     X       X",
 "XXX XXXXX XXXXX XXXXX XXX",
-"N X   X   X   X X   X X N",
+"S X   X   X   X X   X X S",
 "X XXX X XXX XXX X XXX X X",
 "X   X X X X X   X X   X X",
 "X XXX XXX X XXXXX XXXXX X",
-"X X       X   X   X     X",
-"X XXXXXXXXXXXXXXXXX XXXXX",
-                           
+"b X       X   X   X     a",
+"B XXXXXXXXXXXXXXXXX     A",
                     });
             return list;
         }

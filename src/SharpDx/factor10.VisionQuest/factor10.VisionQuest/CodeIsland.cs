@@ -130,7 +130,7 @@ namespace factor10.VisionQuest
                 4);
             Children.Add(signs);
 
-            var ms = new MicrosoftBillboards(vContent, world*Matrix.Translation(-64, 0.05f, -64));
+            var qqq = world*Matrix.Translation(-64, 0.05f, -64);
             var grass = new List<Tuple<Vector3, Vector3>>();
             foreach (var vc in Classes.Values)
             {
@@ -139,10 +139,11 @@ namespace factor10.VisionQuest
                     var gx = vc.X + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 3);
                     var gy = vc.Y + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 3);
                     grass.Add(new Tuple<Vector3, Vector3>(
-                        new Vector3(gx, ground.GetExactHeight(gx, gy), gy),
+                        Vector3.TransformCoordinate(new Vector3(gx, ground.GetExactHeight(gx, gy), gy),qqq),
                         normals.AsVector3(vc.X, vc.Y)));
                 }
             }
+            var ms = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/grass"), 1, 1);
             ms.CreateBillboardVerticesFromList(grass);
             Children.Add(ms);
 
