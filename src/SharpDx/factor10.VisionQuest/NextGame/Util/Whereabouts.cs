@@ -31,6 +31,19 @@ namespace Serpent
                 Location.Y + d.Y * Fraction);
         }
 
+        public int LocationDistanceSquared(Whereabouts w)
+        {
+            var x = Location.X - w.Location.X;
+            var y = Location.Y - w.Location.Y;
+            return x*x + y*y;
+        }
+
+
+        public override string ToString()
+        {
+            return string.Format("{0},{1},{2:0.0000},{3}", Location.X, Location.Y, Fraction, Direction);
+        }
+
     }
 
 }

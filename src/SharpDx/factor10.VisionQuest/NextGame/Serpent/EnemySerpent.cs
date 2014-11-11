@@ -47,13 +47,13 @@ namespace Serpent
             tryMove(_whereabouts.Direction.Backward);
         }
 
-        protected override Vector4 tintColor()
+        protected override Vector4 TintColor()
         {
             if (SerpentStatus != SerpentStatus.Alive)
-                return new Vector4(1, 1, 1, 0.5f);
+                return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
             return _isLonger
-                ? new Vector4(1f, 0.5f, 0.5f, 1)
-                : new Vector4(0.5f, 1f, 0.5f, 1);
+                ? new Vector4(1.5f, 0.5f, 0.5f, 1)
+                : new Vector4(0.5f, 1.5f, 0.5f, 1);
         }
 
     }

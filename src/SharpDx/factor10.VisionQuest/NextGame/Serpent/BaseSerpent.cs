@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Windows.Forms.VisualStyles;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using Serpent.Serpent;
@@ -48,8 +49,8 @@ namespace Serpent
         private int _pendingEatenSegments = 6;
         private const int SegmentEatTreshold = 7;
 
-        private float _layingEgg;
-        private const float TimeForLayingEggProcess = 5;
+        private float _layingEgg = -1;
+        private const float TimeForLayingEggProcess = 10;
         private Matrix _eggWorld;
 
         private float _ascendToHeaven;
@@ -87,7 +88,6 @@ namespace Serpent
             _headDirection = _whereabouts.Direction;
             _tail = new SerpentTailSegment(_pf, _whereabouts);
             _serpentLength = 1;
-            _layingEgg = (float)(-5 - new Random().NextDouble() * 30);
         }
 
         protected virtual float modifySpeed()
@@ -97,7 +97,7 @@ namespace Serpent
 
         public virtual void Update(GameTime gameTime)
         {
-            var lengthSpeed = (11 - _serpentLength)/10f;
+            var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
             var speed = (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.0045f*lengthSpeed*modifySpeed();
 
             if (_whereabouts.Direction != Direction.None)
@@ -115,15 +115,20 @@ namespace Serpent
                 takeDirection();
 
             if (_tail != null)
-                _tail.Update(gameTime, GetPosition(), speed);
+                _tail.Update(speed, _whereabouts);
 
             if (_whereabouts.Direction != Direction.None)
                 _headDirection = _whereabouts.Direction;
 
             if (SerpentStatus != SerpentStatus.Alive)
-                _ascendToHeaven += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            {
+                _ascendToHeaven += (float) gameTime.ElapsedGameTime.TotalSeconds;
+                if (_ascendToHeaven > 10)
+                    SerpentStatus = SerpentStatus.Finished;
+            }
 
-            _layingEgg -= (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if(_layingEgg>=0)
+                _layingEgg += (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         protected bool tryMove(Direction dir)
@@ -147,7 +152,7 @@ namespace Serpent
         public virtual void Draw(GameTime gameTime)
         {
             var p = GetPosition();
-            var tint = tintColor();
+            var tint = TintColor();
 
             var slinger = p.X + p.Z;
             p += wormTwist(ref slinger);
@@ -189,21 +194,19 @@ namespace Serpent
             if (_pendingEatenSegments <= SegmentEatTreshold/2)
                 worlds.RemoveAt(worlds.Count - 1);
 
-            if (_layingEgg < 0)
+            if (_layingEgg > 0)
             {
                 _effect.Texture = _eggSkin;
                 _diffuseParameter.SetValue(Vector4.One);
                 _eggWorld = worlds[worlds.Count - 1];
-                Egg.Draw(_effect, _sphere, _eggWorld, segment.Whereabouts.Direction);
+                Egg.Draw(_effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
 
-                _effect.Texture = _serpentSkin;
-                _effect.World = worlds[worlds.Count - 1];
-                _diffuseParameter.SetValue(tint + new Vector4(0, 0, 0, -0.5f));
-                _sphere.Draw(_effect);
-
-                var world = worlds.Last()*Matrix.Translation(segment.Whereabouts.Direction.DirectionAsVector3()*0);
+                var factor = _layingEgg  / TimeForLayingEggProcess;
+                var world1 = worlds.Last();
                 worlds.RemoveAt(worlds.Count - 1);
-                worlds.Add(world);
+                var world2 = worlds.Last();
+                world1.TranslationVector = Vector3.Lerp(world1.TranslationVector, world2.TranslationVector, factor);
+                worlds.Add(world1);
 
                 _diffuseParameter.SetValue(tint);
             }
@@ -221,9 +224,16 @@ namespace Serpent
             _sphere.Draw(_effect);
         }
 
-        protected virtual Vector4 tintColor()
+        protected virtual Vector4 TintColor()
         {
             return Vector4.Zero;
+        }
+
+        protected float AlphaValue()
+        {
+            return SerpentStatus == SerpentStatus.Alive
+                ? 1
+                : MathUtil.Clamp(1 - _ascendToHeaven/10, 0, 1);
         }
 
         public Vector3 GetPosition()
@@ -285,7 +295,7 @@ namespace Serpent
                         return removedSegments;
                     }
             }
-            throw new Exception();
+            throw new Exception("No tail to remove");
         }
 
         protected void addTail()
@@ -299,14 +309,48 @@ namespace Serpent
 
         public Egg TimeToLayEgg()
         {
-            if (_layingEgg > -15)
+            if (_layingEgg < TimeForLayingEggProcess)
                 return null;
+            _layingEgg = -1;
 
             var segment = _tail;
             while (segment.Next != null)
                 segment = segment.Next;
-            removeTail(segment);
-            return new Egg(_effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts);
+            if (segment != _tail)
+                removeTail(segment);
+            else
+                SerpentStatus = SerpentStatus.Ghost;
+            return new Egg(_effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts, this is PlayerSerpent ? float.MaxValue : 20);
+        }
+
+        public void Fertilize()
+        {
+            if (_layingEgg < 0)
+                _layingEgg = 0;
+        }
+
+        public bool IsPregnant
+        {
+            get { return _layingEgg >= 0; }    
+        }
+
+        public int Length
+        {
+            get
+            {
+                var length = 0;
+                for (var segment = _tail; segment.Next != null; segment = segment.Next)
+                    length++;
+                return length;
+            }            
+        }
+
+        public bool EatEgg(Egg egg)
+        {
+            if (egg==null || Vector3.DistanceSquared(GetPosition(), egg.Position) > 0.2f)
+                return false;
+            addTail();
+            return true;
         }
 
     }

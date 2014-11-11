@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
+using NextGame.Serpent;
+using Serpent.Serpent;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
@@ -15,32 +17,23 @@ namespace Serpent
         public static Data Instance;
 
         public static PlayingField PlayingField;
-        public readonly PlayerSerpent PlayerSerpent;
-        public readonly List<EnemySerpent> Enemies = new List<EnemySerpent>();
-
-        public readonly List<Egg> Eggs = new List<Egg>();
-
-        public readonly KeyboardManager KeyboardManager;
-        public readonly MouseManager MouseManager;
-
-        public KeyboardState KeyboardState;
-        public KeyboardState PrevKeyboardState;
 
         public static SkySphere Sky;
 
         public readonly IVDrawable Sphere;
 
+        public Serpents Serpents;
+
+        private bool _paused;
+
         public Data(
-            NextGame.NextGame game1,
+            Game game1,
             KeyboardManager keyboardManager,
             MouseManager mouseManager)
         {
             if (Instance != null)
                 Instance.Dispose();
             Instance = this;
-
-            KeyboardManager = keyboardManager;
-            MouseManager = mouseManager;
 
             VContent = new VisionContent(game1.GraphicsDevice, game1.Content);
             var texture = game1.Content.Load<Texture2D>(@"Textures\woodfloor");
@@ -50,82 +43,67 @@ namespace Serpent
                     game1.GraphicsDevice,
                     texture);
 
+            Sphere = new SpherePrimitive<VertexPositionNormalTexture>(VContent.GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t * 2), 2);
+
             //TODO
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Sphere = new SpherePrimitive<VertexPositionNormalTexture>(game1.GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t*2), 2);
-
-            PlayerSerpent = new PlayerSerpent(
-                VContent,
-                MouseManager,
-                KeyboardManager,
-                PlayingField,
-                Sphere);
-
-            for (var i = 0; i < 5; i++)
-            {
-                var enemy = new EnemySerpent(
-                    VContent,
-                    PlayingField,
-                    PlayingField.EnemyWhereaboutsStart,
-                    Sphere,
-                    PlayerSerpent.Camera,
-                    i);
-                Enemies.Add(enemy);
-            }
+            Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, PlayingField);
         }
 
-        public void Update(GameTime gameTime)
-        {
-            PlayerSerpent.Update(gameTime);
-
-            foreach (var enemy in Enemies)
-            {
-                enemy.Update(gameTime);
-                if (enemy.EatAt(PlayerSerpent))
-                {
-                    PlayerSerpent.Restart();
-                }
-                else if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
-                    enemy.SerpentStatus = SerpentStatus.Ghost;
-            }
-            Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
-
-            for (var i = Eggs.Count - 1; i >= 0; )
-            {
-                Eggs[i].Update(gameTime);
-                if (Eggs[i].TimeToHatch())
-                {
-                    Enemies.Add(new EnemySerpent(
-                        VContent,
-                        PlayingField,
-                        Eggs[i].Whereabouts,
-                        Sphere,
-                        PlayerSerpent.Camera,
-                        0));
-                    Eggs.RemoveAt(i);
-                }
-                else
-                    i--;
-            }
-            
-        }
-
-        public void UpdateKeyboard()
-        {
-            PrevKeyboardState = KeyboardState;
-            KeyboardState = KeyboardManager.GetState();
-        }
 
         public bool HasKeyToggled( Keys key )
         {
-            return KeyboardState.IsKeyPressed(key);
+            return Serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyPressed(key);
         }
 
         public void Dispose()
         {
             PlayingField.Dispose();
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            var camera = Serpents.PlayerSerpent.Camera;
+            camera.Camera.UpdateInputDevices();
+
+            //if (Data.HasKeyToggled(Keys.Enter) && Data.KeyboardState.IsKeyDown(Keys.LeftAlt))
+            //{
+            //    _graphics.IsFullScreen ^= true;
+            //    _graphics.ApplyChanges();
+            //}
+
+            if (HasKeyToggled(Keys.C))
+                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
+                    ? CameraBehavior.Static
+                    : CameraBehavior.FollowTarget;
+            if (HasKeyToggled(Keys.F))
+                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
+                    ? CameraBehavior.FreeFlying
+                    : CameraBehavior.FollowTarget;
+            if (HasKeyToggled(Keys.H))
+                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
+                    ? CameraBehavior.Head
+                    : CameraBehavior.FollowTarget;
+            if (HasKeyToggled(Keys.P))
+                _paused ^= true;
+
+            if (HasKeyToggled(Keys.D1))
+                Serpents.PlayerSerpent.Speed *= 2;
+            if (HasKeyToggled(Keys.D2))
+                Serpents.PlayerSerpent.Speed /= 2;
+
+            if (_paused)
+            {
+                Serpents.PlayerSerpent.UpdateCameraOnly(gameTime);
+                return;
+            }
+
+            Serpents.Update(gameTime);
+            //if (Data.Enemies.Count == 0)
+            //    startGame();
+    
         }
 
     }

@@ -14,7 +14,7 @@ float ShadowBias = 0.001f;
 texture2D ShadowMap;
 
 float4 DiffuseColor = float4(1, 1, 1, 1);
-float3 AmbientColor = float3(0.4, 0.4, 0.4);
+float3 AmbientColor = float3(0.5, 0.5, 0.5);
 float3 LightColor = float3(0.7, 0.7, 0.7);
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);

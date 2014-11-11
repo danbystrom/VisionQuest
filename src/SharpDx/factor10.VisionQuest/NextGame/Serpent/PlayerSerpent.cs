@@ -87,18 +87,20 @@ namespace Serpent
         {
             var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
             _turnAround = false;
-            if ( Data.Instance.KeyboardState.IsKeyDown(Keys.Left))
+            if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left))
                 nextDirection = RelativeDirection.Left;
-            else if (Data.Instance.KeyboardState.IsKeyDown(Keys.Right))
+            else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right))
                 nextDirection = RelativeDirection.Right;
             if (!tryMove(_headDirection.Turn(nextDirection)))
                 if (!tryMove(_whereabouts.Direction))
                     _whereabouts.Direction = Direction.None;
         }
 
-        protected override Vector4 tintColor()
+        protected override Vector4 TintColor()
         {
-            return new Vector4(1, 1, 1, 1);
+            if (SerpentStatus != SerpentStatus.Alive)
+                return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
+            return Vector4.One;
         }
 
     }

@@ -25,13 +25,20 @@ namespace Serpent
             IVDrawable sphere,
             Texture2D eggSkin,
             Matrix world,
-            Whereabouts whereabouts)
+            Whereabouts whereabouts,
+            float timeToHatch)
         {
             _effect = effect;
             _sphere = sphere;
             _eggSkin = eggSkin;
             _world = world;
             Whereabouts = whereabouts;
+            _timeToHatch = timeToHatch;
+        }
+
+        public Vector3 Position
+        {
+            get { return _world.TranslationVector; }    
         }
 
         public virtual void Update(GameTime gameTime)
@@ -41,6 +48,7 @@ namespace Serpent
 
         public static void Draw(
             IVEffect effect,
+            Texture2D skin,
             IVDrawable sphere,
             Matrix translation,
             Direction direction)
@@ -52,12 +60,13 @@ namespace Serpent
             t *= Matrix.Translation(off);
 
             effect.World = t*translation;
+            effect.Texture = skin;
             sphere.Draw(effect);
         }
 
         public void Draw(GameTime gameTime)
         {
-            Draw(_effect, _sphere, _world, Whereabouts.Direction);
+            Draw(_effect, _eggSkin, _sphere, _world, Whereabouts.Direction);
         }
 
         public bool TimeToHatch()

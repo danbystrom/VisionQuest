@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using Serpent;
-using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
-using SharpDX.Toolkit.Content;
-
 
 namespace NextGame
 {
@@ -28,9 +24,6 @@ namespace NextGame
         private Texture2D ballsTexture;
         private SpriteFont arial16Font;
 
-        private Matrix view;
-        private Matrix projection;
-
         private Model _model;
         private Texture2D _snakeSkin;
 
@@ -42,12 +35,6 @@ namespace NextGame
         private VBasicEffect basicEffect;
         private GeometricPrimitive primitive;
 
-        private KeyboardManager keyboard;
-        private KeyboardState keyboardState;
-
-        private MouseManager mouse;
-        private MouseState mouseState;
-
         private PointerManager pointer;
         private PointerState pointerState;
 
@@ -56,7 +43,6 @@ namespace NextGame
         public IGeometricPrimitive _sphere;
         public VisionEffect _myEffect;
 
-        private bool _paused;
         private RasterizerState _rasterizerState;
         private RasterizerState _rasterizerStateCullBack;
 
@@ -76,12 +62,6 @@ namespace NextGame
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
             Content.RootDirectory = "Content";
-
-            // Initialize input keyboard system
-            keyboard = new KeyboardManager(this);
-
-            // Initialize input mouse system
-            mouse = new MouseManager(this);
 
             // Initialize input pointer system
             pointer = new PointerManager(this);
@@ -107,7 +87,7 @@ namespace NextGame
             _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
 
-            Data = new Data(this, keyboard, mouse);
+            Data = new Data(this, new KeyboardManager(this), new MouseManager(this));
 
             arial16Font = Content.Load<SpriteFont>("Arial16");
 
@@ -143,65 +123,10 @@ namespace NextGame
         {
             base.Update(gameTime);
 
-            // Calculates the world and the view based on the model size
-            view = Matrix.LookAtLH(new Vector3(0.0f, 0.0f, -7.0f), new Vector3(0, 0.0f, 0), Vector3.UnitY);
-            projection = Matrix.PerspectiveFovLH(0.9f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f);
-
-            // Update basic effect for rendering the Primitive
-            basicEffect.View = view;
-            basicEffect.Projection = projection;
-
-            // Get the current state of the keyboard
-            keyboardState = keyboard.GetState();
-
-            // Get the current state of the mouse
-            mouseState = mouse.GetState();
-
-            // Get the current state of the pointer
-            pointerState = pointer.GetState();
-
-            Data.UpdateKeyboard();
-
-            var camera = Data.PlayerSerpent.Camera;
-
-            if (Data.KeyboardState.IsKeyDown(Keys.Escape))
-                Exit();
-
-            //if (Data.HasKeyToggled(Keys.Enter) && Data.KeyboardState.IsKeyDown(Keys.LeftAlt))
-            //{
-            //    _graphics.IsFullScreen ^= true;
-            //    _graphics.ApplyChanges();
-            //}
-
-            if (Data.HasKeyToggled(Keys.C))
-                Data.PlayerSerpent.Camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.Static
-                    : CameraBehavior.FollowTarget;
-            if (Data.HasKeyToggled(Keys.F))
-                Data.PlayerSerpent.Camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.FreeFlying
-                    : CameraBehavior.FollowTarget;
-            if (Data.HasKeyToggled(Keys.H))
-                Data.PlayerSerpent.Camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.Head
-                    : CameraBehavior.FollowTarget;
-            if (Data.HasKeyToggled(Keys.P))
-                _paused ^= true;
-
-            if (Data.HasKeyToggled(Keys.D1))
-                Data.PlayerSerpent.Speed *= 2;
-            if (Data.HasKeyToggled(Keys.D2))
-                Data.PlayerSerpent.Speed /= 2;
-
-            if (_paused)
-            {
-                Data.PlayerSerpent.UpdateCameraOnly(gameTime);
-                return;
-            }
-
             Data.Update(gameTime);
-            //if (Data.Enemies.Count == 0)
-            //    startGame();
+
+            if (Data.Serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
+                Exit();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -216,7 +141,7 @@ namespace NextGame
             // Constant used to translate 3d models
             float translateX = 0.0f;
 
-            _model.Draw(GraphicsDevice, Matrix.Translation(15,0,5) * Matrix.RotationZ(MathUtil.Pi)* Matrix.Scaling(0.2f), Data.PlayerSerpent.Camera.Camera.View, Data.PlayerSerpent.Camera.Camera.Projection);
+            _model.Draw(GraphicsDevice, Matrix.Translation(15,0,5) * Matrix.RotationZ(MathUtil.Pi)* Matrix.Scaling(0.2f), Data.Serpents.PlayerSerpent.Camera.Camera.View, Data.Serpents.PlayerSerpent.Camera.Camera.Projection);
 
             // ------------------------------------------------------------------------
             // Draw the 3d primitive using BasicEffect
@@ -235,20 +160,12 @@ namespace NextGame
                     Matrix.RotationY(time * 2.0f) *
                     Matrix.RotationZ(0) *
                     Matrix.Translation(-1, -1.0f, -15);
-            basicEffect.View = Data.PlayerSerpent.Camera.Camera.View;
-            basicEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
+            basicEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
+            basicEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
             basicEffect.Texture = _snakeSkin;
             _sphere.Draw(basicEffect);
 
-            Data.PlayingField.Draw(Data.PlayerSerpent.Camera.Camera);
-
-            Data.Sky.Draw(Data.PlayerSerpent.Camera.Camera);
-
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
-            Data.PlayerSerpent.Draw(gameTime);
-            foreach (var enemy in Data.Enemies)
-                enemy.Draw(gameTime);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+            Data.Serpents.Draw(gameTime);
 
              // ------------------------------------------------------------------------
             // Draw the some 2d text
@@ -257,13 +174,13 @@ namespace NextGame
             var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
 
             {
-                var c = Data.PlayerSerpent.Camera.Camera;
+                var c = Data.Serpents.PlayerSerpent.Camera.Camera;
                 text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2:0.000},{3:0.000},{4:0.000}",
                     c.Yaw, c.Pitch, c.Forward.X, c.Forward.Y, c.Forward.Z).AppendLine();
             }
 
             {
-                var w = Data.PlayerSerpent._whereabouts;
+                var w = Data.Serpents.PlayerSerpent._whereabouts;
                 var cl = w.Location;
                 var nl = w.NextLocation;
                 text.AppendFormat("Whereabouts: ({0},{1}) ({2}/{3}) {4:0.00}",
@@ -272,7 +189,7 @@ namespace NextGame
 
             // Display pressed keys
             var pressedKeys = new List<Keys>();
-            keyboardState.GetDownKeys(pressedKeys);
+            Data.Serpents.PlayerSerpent.Camera.Camera.KeyboardState.GetDownKeys(pressedKeys);
             text.Append("Key Pressed: [");
             foreach (var key in pressedKeys)
             {
@@ -281,12 +198,13 @@ namespace NextGame
             }
             text.Append("]").AppendLine();
 
+            var mouseState = Data.Serpents.PlayerSerpent.Camera.Camera.MouseState;
             // Display mouse coordinates and mouse button status
             text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", mouseState.X, mouseState.Y, mouseState.LeftButton, mouseState.RightButton).AppendLine();
 
-            var points = pointerState.Points;
-            foreach (var point in points)
-                text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X, point.Position.Y).AppendLine();
+            //var points = pointerState.Points;
+            //foreach (var point in points)
+            //    text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X, point.Position.Y).AppendLine();
 
             spriteBatch.DrawString(arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             spriteBatch.End();
@@ -319,8 +237,8 @@ namespace NextGame
                     Matrix.RotationY(time * 2.0f) *
                     Matrix.RotationZ(0) *
                     Matrix.Translation(-1, -1.0f, -10);
-            _myEffect.View = Data.PlayerSerpent.Camera.Camera.View;
-            _myEffect.Projection = Data.PlayerSerpent.Camera.Camera.Projection;
+            _myEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
+            _myEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
             _myEffect.Texture = _snakeSkin;
             _myEffect.Parameters["DiffuseColor"].SetValue(new Vector4(1, 1, 1, 0.9f));
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
