@@ -25,7 +25,7 @@ namespace Serpent
             _effect = new BasicEffect(graphicsDevice);
             _texture = texture;
 
-            var field = PlayingFields.GetQ();
+            var field = PlayingFields.GetZ();
 
             Floors = field.Count;
             Height = field[0].Length;
@@ -153,12 +153,14 @@ namespace Serpent
             return TheField[floor, p.Y, p.X];
         }
 
-        public bool CanMoveHere( ref int floor, Point currentLocation, Point newLocation )
+        public bool CanMoveHere(ref int floor, Point currentLocation, Point newLocation, bool ignoreRestriction = false)
         {
             if (!fieldValue(floor, newLocation).IsNone)
             {
+                if (ignoreRestriction)
+                    return true;
                 var restricted = fieldValue(floor, newLocation).Restricted;
-                return restricted == Direction.None || restricted == Direction.FromPoints( currentLocation, newLocation );
+                return restricted == Direction.None || restricted == Direction.FromPoints(currentLocation, newLocation);
             }
             if (fieldValue(floor, currentLocation).IsSlope && fieldValue(floor + 1, newLocation).IsPortal)
             {

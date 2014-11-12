@@ -42,9 +42,6 @@ namespace factor10.VisionQuest
         private MovingShip _movingShip;
         private SpriteBatch _spriteBatch;
         private ClipDrawableInstance _ballInstance;
-        private int _frames;
-        private double _frameTime;
-        private int _fps;
 
         private Camera _camera;
 
@@ -161,15 +158,6 @@ namespace factor10.VisionQuest
                 _data.Archipelag.Update(_camera, gameTime);
             _water.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
 
-            _frames++;
-            _frameTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_frameTime >= 1000)
-            {
-                _fps = _frames;
-                _frames = 0;
-                _frameTime = 0;
-            }
-
             _q.Update(_camera, gameTime);
 
             base.Update(gameTime);
@@ -216,7 +204,6 @@ namespace factor10.VisionQuest
             //_spriteBatch.End();
 
             var sb = new StringBuilder();
-            sb.AppendFormat("FPS: {0}", _fps).AppendLine();
             sb.AppendFormat("Pos: {0}   Look at: {1}   Yaw: {2:0}  Pitch: {3:0}", _camera.Position, _camera.Target, MathUtil.RadiansToDegrees(_camera.Yaw), MathUtil.RadiansToDegrees(_camera.Pitch));
             _spriteBatch.Begin();
             _spriteBatch.DrawString(_arial16Font, sb.ToString(), new Vector2(16, 16), Color.White);

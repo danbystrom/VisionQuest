@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
-using factor10.VisionThing.Primitives;
 using Serpent;
+using Serpent.Serpent;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
 namespace NextGame.Serpent
@@ -31,6 +30,7 @@ namespace NextGame.Serpent
             IVDrawable sphere,
             MouseManager mouseManager,
             KeyboardManager keyboardManager,
+            PointerManager pointerManager,
             PlayingField playingField)
         {
             VContent = vContent;
@@ -41,6 +41,7 @@ namespace NextGame.Serpent
                 vContent,
                 mouseManager,
                 keyboardManager,
+                pointerManager,
                 playingField,
                 Sphere);
 
@@ -68,7 +69,7 @@ namespace NextGame.Serpent
                 if (PlayerEgg == null && Rnd.NextDouble() < 0.03)
                     PlayerSerpent.Fertilize();
 
-                if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant))
+                if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
                     Enemies[Rnd.Next(Enemies.Count)].Fertilize();
             }
 
@@ -81,7 +82,7 @@ namespace NextGame.Serpent
                 enemy.Update(gameTime);
                 if (enemy.EatAt(PlayerSerpent))
                 {
-                    PlayerSerpent.Restart();
+                    PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
                 }
                 else if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
                     enemy.SerpentStatus = SerpentStatus.Ghost;
@@ -94,6 +95,26 @@ namespace NextGame.Serpent
                     EnemyEggs.Add(egg);
             }
             Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
+            if (Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive))
+            {
+                if (PlayerSerpent.SerpentStatus == SerpentStatus.IsHome)
+                {
+                    if (PlayerEgg != null)
+                    {
+                        PlayerSerpent.Restart(PlayerEgg.Whereabouts, 0);
+                        PlayerEgg = null;
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+                if (PlayerSerpent.PathFinder == null)
+                {
+                    PlayerSerpent.PathFinder = new PathFinder(PlayingField, PlayingField.PlayerWhereaboutsStart);
+                    PlayerSerpent.Camera.CameraBehavior = CameraBehavior.Static;
+                }
+            }
 
             for (var i = EnemyEggs.Count - 1; i >= 0; i--)
             {

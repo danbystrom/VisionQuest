@@ -33,9 +33,15 @@ namespace factor10.VisionQuest
             _vclasses = vclasses;
 
             foreach (var vc in vclasses)
+            {
+
+                vc.GroundBoundingSphere = new BoundingSphere(
+                    vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround/2, 0),
+                    vc.R);
                 vc.SignClickBoundingSphere = new BoundingSphere(
-                    vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround-1, 0),
+                    vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround - 1, 0),
                     2);
+            }
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

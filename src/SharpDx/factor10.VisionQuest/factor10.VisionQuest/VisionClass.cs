@@ -15,6 +15,7 @@ namespace factor10.VisionQuest
 
         public BoundingSphere SignClickBoundingSphere;
         public int DistanceFromCameraOnHit;
+        public BoundingSphere GroundBoundingSphere;
 
         public int InstructionCount { get; set; }
         public int MaintainabilityIndex { get; set; }

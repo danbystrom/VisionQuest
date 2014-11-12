@@ -80,6 +80,7 @@
     <Compile Include="Data.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="NextGame.cs" />
+    <Compile Include="PlayingField\PathFinder.cs" />
     <Compile Include="PlayingField\PlayingField.cs" />
     <Compile Include="PlayingField\PlayingFieldBuilder.cs" />
     <Compile Include="PlayingField\PlayingFields.cs" />

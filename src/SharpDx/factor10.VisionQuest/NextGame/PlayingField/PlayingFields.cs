@@ -111,7 +111,7 @@ namespace Serpent
             return list;
         }
 
-        public static List<string[]> GetQ()
+        public static List<string[]> GetQ1()
         {
             var list = new List<string[]>();
             list.Add(
@@ -138,6 +138,37 @@ namespace Serpent
 "X XXX XXX X XXXXX XXXXX X",
 "b X       X   X   X     a",
 "B XXXXXXXXXXXXXXXXX     A",
+                    });
+            return list;
+        }
+
+        public static List<string[]> GetQ2()
+        {
+            var list = new List<string[]>();
+            list.Add(
+                new[]
+                    {
+"XXXXX XXXXXXXXXXXXX XXXXX",
+"X   X X     X     X X   X",
+"XXX X XXXXX X XXXXX X XXX",
+"  X X X X X X X X X X X  ",
+"XXXXXXX X XXXXX X XXXXXXX",
+"X   X   X       X   X   X",
+"XXXXXXXXXXXXXXXXXXXXXXXXX",
+"  X X     X X X     X X  ",
+"XXX X XXXXX X XXXXX X XXX",
+"X   X X     X     X X   X",
+"XXXXX X XXXXXXXXX X XXXXX",
+"    X X X X   X X X X    ",
+"XXXXXXXXX XXXXX XXXXXXXXX",
+"X   X   X   X   X   X   X",
+"XXX XXX XXXXXXXXX XXX XXX",
+"S X   X X       X X   X S",
+"X XXXXXXXXXXXXXXXXXXXXX X",
+"X X   X X X X X X     X X",
+"X X XXX X X X X X XXXXX X",
+"b X X   X X X X X X     a",
+"B XXXXXXX XXXXX XXX XXXXA",
                     });
             return list;
         }

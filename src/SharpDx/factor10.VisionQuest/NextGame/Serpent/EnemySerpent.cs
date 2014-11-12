@@ -22,29 +22,32 @@ namespace Serpent
              _rnd.NextBytes(new byte[x]);
             _camera = camera;
 
-            addTail();
-            addTail();
+            AddTail();
+            AddTail();
         }
 
         protected override void takeDirection()
         {
             if (SerpentStatus != SerpentStatus.Alive)
+            {
+                TryMove(_whereabouts.Direction);
+                return;
+            }
+
+            if (_rnd.NextDouble() < 0.33 && TryMove(_whereabouts.Direction.Left))
+                return;
+            if (_rnd.NextDouble() < 0.66 && TryMove(_whereabouts.Direction.Right))
+                return;
+            if (TryMove(_whereabouts.Direction))
                 return;
 
-            if (_rnd.NextDouble() < 0.33 && tryMove(_whereabouts.Direction.Left))
+            if (_rnd.NextDouble() < 0.5 && TryMove(_whereabouts.Direction.Left))
                 return;
-            if (_rnd.NextDouble() < 0.66 && tryMove(_whereabouts.Direction.Right))
+            if (TryMove(_whereabouts.Direction.Right))
                 return;
-            if (tryMove(_whereabouts.Direction))
+            if (TryMove(_whereabouts.Direction.Left))
                 return;
-
-            if (_rnd.NextDouble() < 0.5 && tryMove(_whereabouts.Direction.Left))
-                return;
-            if (tryMove(_whereabouts.Direction.Right))
-                return;
-            if (tryMove(_whereabouts.Direction.Left))
-                return;
-            tryMove(_whereabouts.Direction.Backward);
+            TryMove(_whereabouts.Direction.Backward);
         }
 
         protected override Vector4 TintColor()

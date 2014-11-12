@@ -29,7 +29,8 @@ namespace Serpent
         public Data(
             Game game1,
             KeyboardManager keyboardManager,
-            MouseManager mouseManager)
+            MouseManager mouseManager,
+            PointerManager pointerManager)
         {
             if (Instance != null)
                 Instance.Dispose();
@@ -49,7 +50,7 @@ namespace Serpent
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, PlayingField);
+            Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, pointerManager, PlayingField);
         }
 
 

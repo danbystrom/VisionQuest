@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using System.Windows.Forms.VisualStyles;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
+using NextGame;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -15,7 +15,8 @@ namespace Serpent
     {
         Alive,
         Ghost,
-        Finished
+        Finished,
+        IsHome
     }
 
     public abstract class BaseSerpent
@@ -97,6 +98,14 @@ namespace Serpent
 
         public virtual void Update(GameTime gameTime)
         {
+            if (SerpentStatus == SerpentStatus.Ghost)
+            {
+                _ascendToHeaven += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (_ascendToHeaven > 5)
+                    SerpentStatus = SerpentStatus.Finished;
+                return;
+            }
+
             var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
             var speed = (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.0045f*lengthSpeed*modifySpeed();
 
@@ -120,23 +129,16 @@ namespace Serpent
             if (_whereabouts.Direction != Direction.None)
                 _headDirection = _whereabouts.Direction;
 
-            if (SerpentStatus != SerpentStatus.Alive)
-            {
-                _ascendToHeaven += (float) gameTime.ElapsedGameTime.TotalSeconds;
-                if (_ascendToHeaven > 10)
-                    SerpentStatus = SerpentStatus.Finished;
-            }
-
-            if(_layingEgg>=0)
+            if (_layingEgg >= 0)
                 _layingEgg += (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        protected bool tryMove(Direction dir)
+        protected bool TryMove(Direction dir, bool ignoreRestriction = false)
         {
             if (dir == Direction.None)
                 return false;
             var possibleLocationTo = _whereabouts.Location.Add(dir);
-            if (!_pf.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo))
+            if (!_pf.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo, ignoreRestriction))
                 return false;
             _whereabouts.Direction = dir;
             _tail.AddPathToWalk(_whereabouts);
@@ -161,29 +163,32 @@ namespace Serpent
             _effect.View = _camera.Camera.View;
             _effect.Projection = _camera.Camera.Projection;
             _effect.Texture = _serpentSkin;
-            drawSphere(_headRotation[_headDirection] *
-                            Matrix.Scaling(HeadSize) *
-                            Matrix.Translation(p.X, HeadSize + p.Y, p.Z));
+
+            //drawSphere(_headRotation[_headDirection] *
+            //                Matrix.Scaling(HeadSize) *
+            //                Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z));
 
             var worlds = new List<Matrix>();
+            worlds.Add(_headRotation[_headDirection] *
+                            Matrix.Scaling(HeadSize) *
+                            Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z));
 
             // p is the the loc of the last segement - which is the head on the first round
             var segment = _tail;
             while (true)
             {
                 var p2 = segment.GetPosition() + wormTwist(ref slinger);
-                p2.Y += _ascendToHeaven;
                 worlds.Add(
                     Matrix.Scaling(SegmentSize) *
                     Matrix.Translation(
                         (p.X + p2.X)/2,
-                        SegmentSize + (p.Y + p2.Y) / 2,
+                        SegmentSize + (p.Y + p2.Y) / 2 + _ascendToHeaven,
                         (p.Z + p2.Z)/2));
                 worlds.Add(
                     Matrix.Scaling(SegmentSize)*
                     Matrix.Translation(
                         p2.X,
-                        SegmentSize + p2.Y,
+                        SegmentSize + p2.Y + _ascendToHeaven,
                         p2.Z));
                 p = p2;
                 if (segment.Next == null)
@@ -201,6 +206,7 @@ namespace Serpent
                 _eggWorld = worlds[worlds.Count - 1];
                 Egg.Draw(_effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
 
+                //move the last segement so that it slowly dissolves
                 var factor = _layingEgg  / TimeForLayingEggProcess;
                 var world1 = worlds.Last();
                 worlds.RemoveAt(worlds.Count - 1);
@@ -231,24 +237,21 @@ namespace Serpent
 
         protected float AlphaValue()
         {
-            return SerpentStatus == SerpentStatus.Alive
-                ? 1
-                : MathUtil.Clamp(1 - _ascendToHeaven/10, 0, 1);
+            return SerpentStatus == SerpentStatus.Ghost
+                ? MathUtil.Clamp(0.8f - _ascendToHeaven/4, 0, 1)
+                : 1;
         }
 
         public Vector3 GetPosition()
         {
-            var p = _whereabouts.GetPosition(_pf);
-            if (SerpentStatus != SerpentStatus.Alive)
-                p.Y += _ascendToHeaven;
-            return p;
+            return _whereabouts.GetPosition(_pf);
         }
 
         private void grow(int length)
         {
             _pendingEatenSegments += length;
             for (var count = _pendingEatenSegments / SegmentEatTreshold; count > 0; count--)
-                addTail();
+                AddTail();
             _pendingEatenSegments %= SegmentEatTreshold;
         }
 
@@ -298,7 +301,7 @@ namespace Serpent
             throw new Exception("No tail to remove");
         }
 
-        protected void addTail()
+        public void AddTail()
         {
             var tail = _tail;
             while (tail.Next != null)
@@ -347,9 +350,27 @@ namespace Serpent
 
         public bool EatEgg(Egg egg)
         {
-            if (egg==null || Vector3.DistanceSquared(GetPosition(), egg.Position) > 0.2f)
+            if (egg==null || Vector3.DistanceSquared(GetPosition(), egg.Position) > 0.3f)
                 return false;
-            addTail();
+            AddTail();
+            return true;
+        }
+        
+        public PathFinder PathFinder;
+
+        public bool HomingDevice()
+        {
+            if (PathFinder == null)
+                return false;
+
+            var direction = PathFinder.WayHome(_whereabouts);
+            if (direction == Direction.None)
+            {
+                PathFinder = null;
+                SerpentStatus = SerpentStatus.IsHome;
+            }
+            else
+                TryMove(direction, true);
             return true;
         }
 

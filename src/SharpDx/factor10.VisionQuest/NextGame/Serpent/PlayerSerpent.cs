@@ -1,4 +1,6 @@
-﻿using factor10.VisionThing;
+﻿using System.Linq;
+using factor10.VisionThing;
+using NextGame;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -17,6 +19,7 @@ namespace Serpent
             VisionContent vContent,
             MouseManager mouseManager,
             KeyboardManager keyboardManager,
+            PointerManager pointerManager,
             PlayingField pf,
             IVDrawable sphere)
             : base(
@@ -30,17 +33,20 @@ namespace Serpent
             _camera = new SerpentCamera(
                 mouseManager,
                 keyboardManager,
+                pointerManager,
                 vContent.ClientSize,
                 new Vector3(0, 20, 2),
                 Vector3.Zero,
                 CameraBehavior.FollowTarget);
-            addTail();
+            AddTail();
         }
 
-        public void Restart()
+        public void Restart(Whereabouts whereabouts, int length)
         {
-            Restart(_pf.PlayerWhereaboutsStart);
-            addTail();
+            SerpentStatus = SerpentStatus.Alive;
+            Restart(whereabouts);
+            while(length-->0)
+                AddTail();
         }
 
         public SerpentCamera Camera
@@ -62,7 +68,7 @@ namespace Serpent
 
         public override void Draw(GameTime gameTime)
         {
-            if(Camera.CameraBehavior!=CameraBehavior.Head)
+            if (Camera.CameraBehavior != CameraBehavior.Head)
                 base.Draw(gameTime);
         }
 
@@ -83,22 +89,42 @@ namespace Serpent
             }
         }
 
+        private bool _isHoldingBothPointers;
+
         protected override void takeDirection()
         {
+            if (HomingDevice())
+                return;
+
+            if (_camera.Camera.KeyboardState.IsKeyPressed(Keys.O))
+                PathFinder = new PathFinder(_pf, _pf.PlayerWhereaboutsStart);
+
+            var pointerLeft = _camera.Camera.PointerState.Points.Any(_ => _.Position.X < 0.1f);
+            var pointerRight = _camera.Camera.PointerState.Points.Any(_ => _.Position.X > 0.5f);
+            if (pointerLeft && pointerRight)
+            {
+                pointerLeft = false;
+                pointerRight = false;
+                _turnAround = !_isHoldingBothPointers;
+                _isHoldingBothPointers = true;
+            }
+            else
+                _isHoldingBothPointers = false;
+
             var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
             _turnAround = false;
-            if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left))
+            if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
                 nextDirection = RelativeDirection.Left;
-            else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right))
+            else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
                 nextDirection = RelativeDirection.Right;
-            if (!tryMove(_headDirection.Turn(nextDirection)))
-                if (!tryMove(_whereabouts.Direction))
+            if (!TryMove(_headDirection.Turn(nextDirection)))
+                if (!TryMove(_whereabouts.Direction))
                     _whereabouts.Direction = Direction.None;
         }
 
         protected override Vector4 TintColor()
         {
-            if (SerpentStatus != SerpentStatus.Alive)
+            if (SerpentStatus == SerpentStatus.Ghost)
                 return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
             return Vector4.One;
         }

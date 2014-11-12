@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using Serpent;
@@ -35,16 +37,11 @@ namespace NextGame
         private VBasicEffect basicEffect;
         private GeometricPrimitive primitive;
 
-        private PointerManager pointer;
-        private PointerState pointerState;
-
         public Data Data;
 
         public IGeometricPrimitive _sphere;
         public VisionEffect _myEffect;
-
         private RasterizerState _rasterizerState;
-        private RasterizerState _rasterizerStateCullBack;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NextGame" /> class.
@@ -55,17 +52,16 @@ namespace NextGame
             graphicsDeviceManager = new GraphicsDeviceManager(this);
             graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
 
-            //graphicsDeviceManager.IsFullScreen = true;
-            graphicsDeviceManager.PreferredBackBufferWidth = 1920;
-            graphicsDeviceManager.PreferredBackBufferHeight= 1080;
+            var screen = Screen.AllScreens.First(_ => _.Primary);
+            graphicsDeviceManager.IsFullScreen = true;
+            graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
+            graphicsDeviceManager.PreferredBackBufferHeight = screen.Bounds.Height;
+            //graphicsDeviceManager.PreferredBackBufferWidth = 1920;
+            //graphicsDeviceManager.PreferredBackBufferHeight = 1080;
 
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
             Content.RootDirectory = "Content";
-
-            // Initialize input pointer system
-            pointer = new PointerManager(this);
-
         }
 
         protected override void Initialize()
@@ -87,7 +83,7 @@ namespace NextGame
             _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
 
-            Data = new Data(this, new KeyboardManager(this), new MouseManager(this));
+            Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
 
             arial16Font = Content.Load<SpriteFont>("Arial16");
 
@@ -131,8 +127,6 @@ namespace NextGame
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.SetRasterizerState(_rasterizerState);
-
             // Use time in seconds directly
             var time = (float)gameTime.TotalGameTime.TotalSeconds;
 
@@ -141,11 +135,14 @@ namespace NextGame
             // Constant used to translate 3d models
             float translateX = 0.0f;
 
-            _model.Draw(GraphicsDevice, Matrix.Translation(15,0,5) * Matrix.RotationZ(MathUtil.Pi)* Matrix.Scaling(0.2f), Data.Serpents.PlayerSerpent.Camera.Camera.View, Data.Serpents.PlayerSerpent.Camera.Camera.Projection);
+            _model.Draw(GraphicsDevice, Matrix.Translation(15, 0, 5) * Matrix.RotationZ(MathUtil.Pi) * Matrix.Scaling(0.2f), Data.Serpents.PlayerSerpent.Camera.Camera.View, Data.Serpents.PlayerSerpent.Camera.Camera.Projection);
 
             // ------------------------------------------------------------------------
             // Draw the 3d primitive using BasicEffect
             // ------------------------------------------------------------------------
+            basicEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
+            basicEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
+
             basicEffect.World = Matrix.Scaling(3.0f, 3.0f, 3.0f) *
                                 Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
                                 Matrix.RotationY(time * 2.0f) *
@@ -160,14 +157,26 @@ namespace NextGame
                     Matrix.RotationY(time * 2.0f) *
                     Matrix.RotationZ(0) *
                     Matrix.Translation(-1, -1.0f, -15);
-            basicEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
-            basicEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
             basicEffect.Texture = _snakeSkin;
             _sphere.Draw(basicEffect);
 
             Data.Serpents.Draw(gameTime);
 
-             // ------------------------------------------------------------------------
+            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
+        Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
+        Matrix.RotationY(time * 2.0f) *
+        Matrix.RotationZ(0) *
+        Matrix.Translation(-1, -1.0f, -10);
+            _myEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
+            _myEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
+            _myEffect.Texture = _snakeSkin;
+            _myEffect.Parameters["DiffuseColor"].SetValue(new Vector4(1, 1, 1, 0.9f));
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
+            _sphere.Draw(_myEffect);
+            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+
+            
+            // ------------------------------------------------------------------------
             // Draw the some 2d text
             // ------------------------------------------------------------------------
             spriteBatch.Begin();
@@ -202,9 +211,10 @@ namespace NextGame
             // Display mouse coordinates and mouse button status
             text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", mouseState.X, mouseState.Y, mouseState.LeftButton, mouseState.RightButton).AppendLine();
 
-            //var points = pointerState.Points;
-            //foreach (var point in points)
-            //    text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X, point.Position.Y).AppendLine();
+            var pointerState = Data.Serpents.PlayerSerpent.Camera.Camera.PointerManager.GetState();
+            var points = pointerState.Points;
+            foreach (var point in points)
+                text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X, point.Position.Y).AppendLine();
 
             spriteBatch.DrawString(arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             spriteBatch.End();
@@ -218,7 +228,7 @@ namespace NextGame
             {
                 var posX = (float)Math.Cos(time * 4.5f + i * 0.1f) * 60.0f + 136.0f;
                 var posY = GraphicsDevice.BackBuffer.Height * 2.0f / 3.0f + 100.0f * (float)Math.Sin(time * 10.0f + i * 0.4f);
- 
+
                 spriteBatch.Draw(
                     ballsTexture,
                     new Vector2(posX, posY),
@@ -232,20 +242,9 @@ namespace NextGame
             }
             spriteBatch.End();
 
-            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
-                    Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
-                    Matrix.RotationY(time * 2.0f) *
-                    Matrix.RotationZ(0) *
-                    Matrix.Translation(-1, -1.0f, -10);
-            _myEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
-            _myEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
-            _myEffect.Texture = _snakeSkin;
-            _myEffect.Parameters["DiffuseColor"].SetValue(new Vector4(1, 1, 1, 0.9f));
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
-            _sphere.Draw(_myEffect);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
-
             base.Draw(gameTime);
         }
+
     }
+
 }

@@ -22,16 +22,24 @@ namespace Serpent.Serpent
         private float _acc;
         private Vector3 _desiredUpVector = Vector3.Up;
 
+        private const float TotalStaticMovementTime = 10;
+        private float _staticTimeMovement;
+        private Vector3 _staticDestinationPosition = new Vector3(10, 30, 30);
+        private Vector3 _staticDestinationTarget = new Vector3(10, 0, 10);
+        private Vector3 _staticFromPosition;
+        private Vector3 _staticFromTarget;
+
         public SerpentCamera(
             MouseManager mouseManager,
             KeyboardManager keyboardManager,
+            PointerManager pointerManager,
             Vector2 clientBounds,
             Vector3 position,
             Vector3 target,
             CameraBehavior cameraBehavior)
         {
             _cameraBehavior = cameraBehavior;
-            Camera = new Camera(clientBounds, keyboardManager, mouseManager, null, position, target);
+            Camera = new Camera(clientBounds, keyboardManager, mouseManager, pointerManager, position, target);
         }
 
         public CameraBehavior CameraBehavior
@@ -47,7 +55,9 @@ namespace Serpent.Serpent
                         _desiredUpVector = Vector3.Up;
                         break;
                     case CameraBehavior.Static:
-                        _desiredUpVector = Vector3.ForwardLH;
+                        _staticTimeMovement = 0;
+                        _staticFromPosition = Camera.Position;
+                        _staticFromTarget = Camera.Target;
                         break;
                     case CameraBehavior.FreeFlying:
                         Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
@@ -88,9 +98,13 @@ namespace Serpent.Serpent
                     break;
 
                 case CameraBehavior.Static:
+                    if (_staticTimeMovement >= TotalStaticMovementTime)
+                        return;
+                    _staticTimeMovement = Math.Min(_staticTimeMovement + (float) gameTime.ElapsedGameTime.TotalSeconds, TotalStaticMovementTime);
+                    var f = MathUtil.SmootherStep(_staticTimeMovement/TotalStaticMovementTime);
                     Camera.Update(
-                        Vector3.Lerp(Camera.Position, new Vector3(10, 30, 10), 0.02f),
-                        Vector3.Lerp(Camera.Target, new Vector3(10, 0, 10), 0.02f));
+                        Vector3.Lerp(_staticFromPosition, _staticDestinationPosition, f),
+                        Vector3.Lerp(_staticFromTarget, _staticDestinationTarget, f));
                     break;
 
                 case CameraBehavior.FreeFlying:

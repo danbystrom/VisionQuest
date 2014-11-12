@@ -114,6 +114,17 @@ namespace Serpent
             return new Vector3(p.X, 0, p.Y);
         }
 
+        public RelativeDirection GetRelativeDirection(Direction goingTo)
+        {
+            if (this == goingTo)
+                return RelativeDirection.Forward;
+            if (Turn(RelativeDirection.Left) == goingTo)
+                return RelativeDirection.Left;
+            if (Turn(RelativeDirection.Right) == goingTo)
+                return RelativeDirection.Right;
+            return RelativeDirection.Backward;
+        }
+
         public static bool operator ==(Direction d1, Direction d2)
         {
             return d1._dir == d2._dir;

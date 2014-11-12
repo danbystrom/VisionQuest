@@ -8,7 +8,7 @@ namespace factor10.VisionThing.Terrain
     {
 
         public Ground(int width, int height)
-            : base(width,height)
+            : base(width, height)
         {
         }
 
@@ -19,7 +19,7 @@ namespace factor10.VisionThing.Terrain
                 Values[i] = fillValue;
         }
 
-        public Ground(Texture heightMap, Func<int,float> fx )
+        public Ground(Texture heightMap, Func<int, float> fx)
             : this(heightMap.Description.Width, heightMap.Description.Height)
         {
             var oldData = new Color[Width*Height];
@@ -38,34 +38,34 @@ namespace factor10.VisionThing.Terrain
 
             for (var y = 0; y < sz.Height; y++)
                 for (var x = 0; x < sz.Width; x++)
-                    ground.Values[y * ground.Width + x]
-                        = ground.Values[y * ground.Width + x + 1]
-                          = ground.Values[(y + 1) * ground.Width + x]
-                            = ground.Values[y * ground.Width + x + 1]
-                              = oldData[y*sz.Width + x].R/10f;
+                    ground.Values[y*ground.Width + x]
+                        = ground.Values[y*ground.Width + x + 1]
+                            = ground.Values[(y + 1)*ground.Width + x]
+                                = ground.Values[y*ground.Width + x + 1]
+                                    = oldData[y*sz.Width + x].R/10f;
             return ground;
         }
 
         public static Ground CreateDoubleSizeMirrored(Texture2D heightMap)
         {
             var sz = new Size2(heightMap.Description.Width, heightMap.Description.Height);
-            var ground = new Ground(sz.Width * 2, sz.Height * 2);
+            var ground = new Ground(sz.Width*2, sz.Height*2);
             var oldData = new Color[sz.Width*sz.Height];
             heightMap.GetData(oldData);
 
             for (var y = 0; y < sz.Height; y++)
                 for (var x = 0; x < sz.Width; x++)
                 {
-                    ground.Values[y * ground.Width + x]
-                        = ground.Values[(y + 1) * ground.Width - x - 1]
-                          = ground.Values[(ground.Height - y - 1) * ground.Width + x]
-                            = ground.Values[(ground.Height - y - 1) * ground.Width - x - 1]
-                              = oldData[y*sz.Width + x].R/10f;
+                    ground.Values[y*ground.Width + x]
+                        = ground.Values[(y + 1)*ground.Width - x - 1]
+                            = ground.Values[(ground.Height - y - 1)*ground.Width + x]
+                                = ground.Values[(ground.Height - y - 1)*ground.Width - x - 1]
+                                    = oldData[y*sz.Width + x].R/10f;
                 }
             return ground;
         }
 
-        public void Merge( int x, int y, Texture2D heightMap)
+        public void Merge(int x, int y, Texture2D heightMap)
         {
             var oldData = new Color[Width*Height];
             heightMap.GetData(oldData);
@@ -92,7 +92,7 @@ namespace factor10.VisionThing.Terrain
             return MathUtil.Lerp(topHeight, bottomHeight, fracy);
         }
 
-        public float GetExactHeight( float x, float y)
+        public float GetExactHeight(float x, float y)
         {
             var ix = (int) x;
             var iy = (int) y;
@@ -110,7 +110,7 @@ namespace factor10.VisionThing.Terrain
                 var dy = (hh - y)/hh;
                 var d = dx*dx + dy*dy;
                 d *= d;
-                Values[i] *= (float)Math.Exp(-d * d * 8);
+                Values[i] *= (float) Math.Exp(-d*d*8);
                 if (++x >= Width)
                 {
                     x = 0;
@@ -144,7 +144,7 @@ namespace factor10.VisionThing.Terrain
                     var oldIndex = y1*Width + x1;
                     x1 += dx;
                     y1 += dy;
-                    Values[y1 * Width + x1] = Values[y1 * Width + x1] * 0.7f + Values[oldIndex] * 0.3f;
+                    Values[y1*Width + x1] = Values[y1*Width + x1]*0.7f + Values[oldIndex]*0.3f;
                 }
                 x += dy;
                 y += dx;
@@ -181,9 +181,9 @@ namespace factor10.VisionThing.Terrain
             return new ColorSurface(Width, Height, normals);
         }
 
-        public WeightsMap CreateWeigthsMap( float[] levels = null)
+        public WeightsMap CreateWeigthsMap(float[] levels = null)
         {
-            return new WeightsMap(this, levels);    
+            return new WeightsMap(this, levels);
         }
 
         public void Soften(int rounds = 1)
@@ -203,24 +203,35 @@ namespace factor10.VisionThing.Terrain
         public void LowerEdges()
         {
             for (var x = 0; x < Width; x++)
-                Values[x] = Values[(Height - 1) * Width + x] = 0;
+                Values[x] = Values[(Height - 1)*Width + x] = 0;
             for (var y = 0; y < Height; y++)
-                Values[y * Width] = Values[y * Width + (Width - 1)] = 0;
+                Values[y*Width] = Values[y*Width + (Width - 1)] = 0;
 
             for (var j = 5; j > 0; j--)
                 for (var i = 1; i < j; i++)
                 {
-                    for (var x = 1; x < Width-1; x++)
+                    for (var x = 1; x < Width - 1; x++)
                     {
                         this[i, x] = (this[i, x] + this[i - 1, x])/2;
-                        this[Height - 1 - i, x] = (this[Height - 1 - i, x] + this[Height - i, x]) / 2;
+                        this[Height - 1 - i, x] = (this[Height - 1 - i, x] + this[Height - i, x])/2;
                     }
-                    for (var y = 1; y < Height-1; y++)
+                    for (var y = 1; y < Height - 1; y++)
                     {
-                        this[y, i] = (this[y, i] + this[y, i - 1]) / 2;
-                        this[y, Width - 1 - i] = (this[y, Width - 1 - i] + this[y, Width - i]) / 2;
+                        this[y, i] = (this[y, i] + this[y, i - 1])/2;
+                        this[y, Width - 1 - i] = (this[y, Width - 1 - i] + this[y, Width - i])/2;
                     }
                 }
+        }
+
+        public void HitTest(Vector3 groundTranslation, float heightScale, Ray ray)
+        {
+            for (var pos = ray.Position + groundTranslation;; pos += ray.Direction)
+            {
+                if (this[(int) pos.X, (int) pos.Z] > pos.Y)
+                {
+
+                }
+            }
         }
 
     }

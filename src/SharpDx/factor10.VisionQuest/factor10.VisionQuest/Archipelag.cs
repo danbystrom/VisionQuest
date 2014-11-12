@@ -60,11 +60,20 @@ namespace factor10.VisionQuest
             return false;
         }
 
-        private VisionClass hitTest(Ray ray)
+        private VisionClass hitTestSign(Ray ray)
         {
             var hits = (from codeIsland in Children.Cast<CodeIsland>() from vc in codeIsland.Classes.Values where ray.Intersects(vc.SignClickBoundingSphere) select vc).ToList();
             foreach (var hit in hits)
-                hit.DistanceFromCameraOnHit = (int) Vector3.DistanceSquared(ray.Position, hit.SignClickBoundingSphere.Center);
+                hit.DistanceFromCameraOnHit = (int)Vector3.DistanceSquared(ray.Position, hit.SignClickBoundingSphere.Center);
+            hits.Sort((x, y) => x.DistanceFromCameraOnHit - y.DistanceFromCameraOnHit);
+            return hits.FirstOrDefault();
+        }
+
+        private VisionClass hitTestGround(Ray ray)
+        {
+            var hits = (from codeIsland in Children.Cast<CodeIsland>() from vc in codeIsland.Classes.Values where ray.Intersects(vc.GroundBoundingSphere) select vc).ToList();
+            foreach (var hit in hits)
+                hit.DistanceFromCameraOnHit = (int) Vector3.DistanceSquared(ray.Position, hit.GroundBoundingSphere.Center);
             hits.Sort((x, y) =>  x.DistanceFromCameraOnHit - y.DistanceFromCameraOnHit);
             return hits.FirstOrDefault();
         }
@@ -73,9 +82,12 @@ namespace factor10.VisionQuest
         {
             if (camera.MouseState.LeftButton.Pressed)
             {
-                var hit = hitTest(camera.GetPickingRay());
+                var hit = hitTestSign(camera.GetPickingRay());
                 if (hit != null)
                     hit.CodeIsland.Archipelag.SelectedClass = hit;
+                //var q = hitTestGround(camera.GetPickingRay());
+                //if(q!=null)
+                //    q.CodeIsland
             }
 
             _bannerSign.Update(camera, gameTime);
