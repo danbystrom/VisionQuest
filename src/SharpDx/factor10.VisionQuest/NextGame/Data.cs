@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
+using NextGame;
 using NextGame.Serpent;
 using Serpent.Serpent;
 using SharpDX.Toolkit;
@@ -19,6 +19,7 @@ namespace Serpent
         public static PlayingField PlayingField;
 
         public static SkySphere Sky;
+        public static Gq Ground;
 
         public readonly IVDrawable Sphere;
 
@@ -49,6 +50,8 @@ namespace Serpent
             //TODO
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
+
+            Ground = new Gq(VContent);
 
             Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, pointerManager, PlayingField);
         }

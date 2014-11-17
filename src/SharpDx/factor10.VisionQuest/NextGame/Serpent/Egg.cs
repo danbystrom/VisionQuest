@@ -61,6 +61,7 @@ namespace Serpent
 
             effect.World = t*translation;
             effect.Texture = skin;
+            effect.DiffuseColor = Vector4.One;
             sphere.Draw(effect);
         }
 

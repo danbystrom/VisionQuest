@@ -148,6 +148,7 @@ namespace NextGame.Serpent
             foreach (var egg in EnemyEggs)
                 egg.Draw(gameTime);
 
+            Data.Ground.Draw(PlayerSerpent.Camera.Camera);
             Data.Sky.Draw(PlayerSerpent.Camera.Camera);
 
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);

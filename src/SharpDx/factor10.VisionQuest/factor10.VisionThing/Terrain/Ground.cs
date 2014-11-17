@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using factor10.VisionThing.Util;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
@@ -223,15 +226,54 @@ namespace factor10.VisionThing.Terrain
                 }
         }
 
-        public void HitTest(Vector3 groundTranslation, float heightScale, Ray ray)
+        public Point? HitTest(Vector3 groundTranslation, Ray ray)
         {
-            for (var pos = ray.Position + groundTranslation;; pos += ray.Direction)
-            {
-                if (this[(int) pos.X, (int) pos.Z] > pos.Y)
-                {
+            var pos = new Vector3(ray.Position.X - groundTranslation.X, ray.Position.Y, ray.Position.Z - groundTranslation.Z);
+            var p = new Vector2(pos.X, pos.Z); // 2D version of pos
 
-                }
+            if (p.X < 0 || p.Y < 0 || p.X > Width || p.Y > Height)
+            {
+                //the ray does NOT start above the ground - so find where it starts to come above the ground
+                var pos2 = pos + ray.Direction*10000; // a point far away along the ray
+                var p2 = p + new Vector2(pos2.X, pos2.Z); // the 2D version of pos2
+                var c0 = new Vector2(0, 0);
+                var c1 = new Vector2(0, Height - 1);
+                var c2 = new Vector2(Width - 1, 0);
+                var c3 = new Vector2(Width - 1, Height - 1);
+                var list = new List<Vector2?>
+                {
+                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c0, c1),
+                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c0, c2),
+                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c3, c1),
+                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c3, c2)
+                }.Where(_ => _ != null).Select(_ => _.Value).ToList();
+                if (list.Count < 2)
+                    return null; // if the ray starts outside the ground then it should intersect two sides in 2D space - if it touches
+                list.Sort((x, y) => Math.Sign(Vector2.DistanceSquared(x, p) - Vector2.DistanceSquared(y, p)));
+                var near = list.First(); // the ray intersects with the ground here
+
+                // also need to calculate the height in 3D space
+                var d1 = Vector2.Distance(p, near);
+                var d2 = Vector2.Distance(p, p2);
+                pos = Vector3.Lerp(pos, pos2, d1/d2);
             }
+
+            var ray2DLength = (float) Math.Sqrt(ray.Direction.X*ray.Direction.X + ray.Direction.Z*ray.Direction.Z);
+            var direction = ray.Direction/ray2DLength;
+
+            for (; ; pos += direction)
+            {
+                var x = (int) pos.X;
+                var y = (int) pos.Z;
+                if (x < 0 || y < 0 || x >= Width || y >= Height)
+                    break;
+                var height = this[(int) pos.X, (int) pos.Z];
+                System.Diagnostics.Debug.Print("({0},{1}): {2}", (int) pos.X, (int) pos.Z, height);
+                if (height > pos.Y)
+                    return new Point((int) pos.X, (int) pos.Z);
+            }
+
+            return null;
         }
 
     }

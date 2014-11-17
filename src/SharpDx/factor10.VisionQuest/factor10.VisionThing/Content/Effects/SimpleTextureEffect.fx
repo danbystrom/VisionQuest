@@ -66,7 +66,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
 	// Start with diffuse color
 	float3 txColor = Texture.Sample(TextureSampler, input.UV);
-	float4 color = DiffuseColor * float4(txColor, 1);
+	float3 color = DiffuseColor * txColor;
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
@@ -109,7 +109,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	//}
 
 	// Calculate final color
-	return float4(saturate(lighting),1) * color;
+	return float4(saturate(lighting) * color * DiffuseColor.a, DiffuseColor.a);
 }
 
 

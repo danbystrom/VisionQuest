@@ -88,15 +88,15 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
-    <Compile Include="ColorSurface.cs" />
+    <Compile Include="Terrain\ColorSurface.cs" />
     <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
-    <Compile Include="DoubleSin.cs" />
+    <Compile Include="Util\DoubleSin.cs" />
     <Compile Include="Effects\EffectHelpers.cs" />
     <Compile Include="Effects\IVEffect.cs" />
     <Compile Include="Effects\VisionEffect.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IVDrawable.cs" />
-    <Compile Include="Mt9Surface.cs" />
+    <Compile Include="Terrain\Mt9Surface.cs" />
     <Compile Include="Objects\Box.cs" />
     <Compile Include="Objects\Bridge.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
@@ -123,6 +123,7 @@
     <Compile Include="Terrain\TerrainPlane.cs" />
     <Compile Include="Terrain\TerrainVertex.cs" />
     <Compile Include="Terrain\WeightsMap.cs" />
+    <Compile Include="Util\CollisionHelpers.cs" />
     <Compile Include="VisionContent.cs" />
     <Compile Include="Water\WaterFactory.cs" />
     <Compile Include="Water\WaterSurface.cs" />

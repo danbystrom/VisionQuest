@@ -18,6 +18,8 @@ namespace factor10.VisionThing
         public readonly List<ClipDrawable> Children = new List<ClipDrawable>();
         public readonly IVEffect Effect;
 
+        public BoundingSphere BoundingSphere { get; protected set; }
+
         protected ClipDrawable(IVEffect effect)
         {
             Effect = effect;

@@ -9,20 +9,13 @@ namespace factor10.VisionThing.Terrain
 {
     public class TerrainBase : ClipDrawable
     {
-        public const int Side = 64;
+        public const int Side = TerrainPlane.SquareSize;
         public const int HalfSide = Side/2;
 
         public static TerrainPlane TerrainPlane { get; private set; }
         public static Box Box { get; protected set; }
 
         public readonly VisionContent VContent;
-
-        private BoundingSphere _boundingSphere;
-
-        public BoundingSphere BoundingSphere
-        {
-            get { return _boundingSphere; }
-        }
 
         public Matrix World;
         private Vector3 _position;
@@ -68,12 +61,12 @@ namespace factor10.VisionThing.Terrain
             _position = World.TranslationVector;
 
             Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/dirtground");
-            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/sand");
-            Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/sahara");
-            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/snow");
-            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/grass");
+            Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/sahara");
+            Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
+            Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/rock");
+            Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/snow");
             Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/stones");
-            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/rock");
+            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/sand");
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
             Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/wheatfield");
 
@@ -92,17 +85,17 @@ namespace factor10.VisionThing.Terrain
             for (var y = 0; y < slicesW; y++)
                 for (var x = 0; x < slicesH; x++)
                 {
-                    var world = World*Matrix.Translation(Side*x - HalfSide, 0, Side*y - HalfSide);
+                    var world = World*Matrix.Translation(Side*x, 0, Side*y);
                     _slices[i++] = new terrainSlice
                     {
                         TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
                         World = world,
-                        BoundingSphere = new BoundingSphere(world.TranslationVector, raduis)
+                        BoundingSphere = new BoundingSphere(world.TranslationVector + new Vector3(HalfSide, 0, HalfSide), raduis)
                     };
                 }
-            _boundingSphere = new BoundingSphere(
-                _position + new Vector3(Side*slicesW/2 + HalfSide, 0, Side*slicesW/2 + HalfSide),
-                100);
+            BoundingSphere = new BoundingSphere(
+                _position + new Vector3(ground.Width, 0, ground.Height)/2,
+                (float) Math.Sqrt(ground.Width*ground.Width + ground.Height*ground.Height)/2);
 
             GroundExtentX = slicesW;
             GroundExtentZ = slicesH;
@@ -144,6 +137,11 @@ namespace factor10.VisionThing.Terrain
             public Matrix World;
             public BoundingSphere BoundingSphere;
             public bool Visible;
+        }
+
+        public Point? HitTest(Ray ray)
+        {
+            return new Ground(HeightsMap, _ => _).HitTest(World.TranslationVector, ray);
         }
 
     }

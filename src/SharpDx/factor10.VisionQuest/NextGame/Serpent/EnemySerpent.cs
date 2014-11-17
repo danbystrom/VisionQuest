@@ -53,7 +53,7 @@ namespace Serpent
         protected override Vector4 TintColor()
         {
             if (SerpentStatus != SerpentStatus.Alive)
-                return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
+                return new Vector4(1.1f, 1.1f, 0.4f, AlphaValue());
             return _isLonger
                 ? new Vector4(1.5f, 0.5f, 0.5f, 1)
                 : new Vector4(0.5f, 1.5f, 0.5f, 1);

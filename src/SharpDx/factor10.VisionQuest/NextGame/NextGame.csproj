@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="Data.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="GQ.cs" />
     <Compile Include="NextGame.cs" />
     <Compile Include="PlayingField\PathFinder.cs" />
     <Compile Include="PlayingField\PlayingField.cs" />

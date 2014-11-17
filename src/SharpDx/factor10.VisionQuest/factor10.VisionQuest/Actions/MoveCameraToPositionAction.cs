@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
@@ -12,7 +11,6 @@ namespace factor10.VisionQuest.Actions
     {
         private readonly Vector3 _toPosition;
         private readonly Vector3 _toLookAt;
-        private readonly float _pitch;
 
         private readonly float _toYaw;
         private readonly float _fromYaw;

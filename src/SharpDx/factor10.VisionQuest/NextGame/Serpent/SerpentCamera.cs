@@ -24,8 +24,8 @@ namespace Serpent.Serpent
 
         private const float TotalStaticMovementTime = 10;
         private float _staticTimeMovement;
-        private Vector3 _staticDestinationPosition = new Vector3(10, 30, 30);
-        private Vector3 _staticDestinationTarget = new Vector3(10, 0, 10);
+        private Vector3 _staticDestinationPosition = new Vector3(12, 20, 25);
+        private Vector3 _staticDestinationTarget = new Vector3(12, 0, 12);
         private Vector3 _staticFromPosition;
         private Vector3 _staticFromTarget;
 

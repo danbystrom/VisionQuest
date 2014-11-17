@@ -13,48 +13,74 @@ namespace CircleMasterApp
 {
     public partial class FCardinalSplines : Form
     {
-        private Point _pt1;
-        private Point _pt2;
+        private PointF _c0 = new PointF(100, 100);
+        private PointF _c1 = new PointF(300, 100);
+        private PointF _c2 = new PointF(100, 200);
+        private PointF _c3 = new PointF(300, 200);
 
+        private PointF _ptL;
+        private PointF _ptR;
+
+        private List<PointF> _list = new List<PointF>();
+ 
         public FCardinalSplines()
         {
             InitializeComponent();
         }
 
-        protected override void OnPaint(PaintEventArgs pea)
+        private void setPoint(Graphics g, PointF p)
         {
-            var r = Math.Min(ClientSize.Width, ClientSize.Height)/2 - 10;
-            if (r < 10)
-                return;
-            var middle = new Point(r + 10, r + 10);
-            pea.Graphics.DrawEllipse(Pens.Black, 10, 10, r*2, r*2);
-            pea.Graphics.DrawLine(Pens.Black, middle, _pt1);
-            pea.Graphics.DrawLine(Pens.Black, middle, _pt2);
-
-            var a = x(pea.Graphics, middle, _pt1, "A");
-            var b = x(pea.Graphics, middle, _pt2, "B");
-            var angle = a - b;
-            if (angle > 180)
-                angle = angle - 360;
-            if (angle < -180)
-                angle = angle + 360;
-            pea.Graphics.DrawString(string.Format("A-B = {0:0}", angle), Font, Brushes.Black, Point.Empty);
+            g.FillEllipse(Brushes.Black, p.X - 2, p.Y - 2, 5, 5);
         }
 
-        private double x(Graphics g, Point m, Point p, string name)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            var angle = 180 * Math.Atan2(m.Y - p.Y, -m.X + p.X) / Math.PI;
-            g.DrawString(string.Format("{0}: {1:0}",name, angle), Font, Brushes.Black, p);
-            return angle;
+            e.Graphics.DrawRectangle(Pens.Black, _c0.X, _c0.Y, _c3.X - _c0.X, _c3.Y - _c0.Y);
+
+            setPoint(e.Graphics, _ptL);
+            setPoint(e.Graphics, _ptR);
+
+            foreach (var p in _list)
+                setPoint(e.Graphics, p);
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
-                _pt1 = e.Location;
+                _ptL = e.Location;
             if (e.Button == MouseButtons.Right)
-                _pt2 = e.Location;
+                _ptR = e.Location;
+
+            _list = new List<PointF?>
+            {
+                LineIntersect(_ptL, _ptR, _c0, _c1),
+                LineIntersect(_ptL, _ptR, _c0, _c2),
+                LineIntersect(_ptL, _ptR, _c3, _c1),
+                LineIntersect(_ptL, _ptR, _c3, _c2)
+            }.Where(_ => _ != null).Select(_ => _.Value).ToList();
+
             Invalidate();
         }
+
+        public static PointF? LineIntersect(PointF x1, PointF x2, PointF y1, PointF y2)
+        {
+            var dx = x2.X - x1.X;
+            var dy = x2.Y - x1.Y;
+            var da = y2.X - y1.X;
+            var db = y2.Y - y1.Y;
+
+            if (Math.Abs(da * dy - db * dx)<0.0001f)
+                return null; // The segments are parallel.
+
+            var s = (dx * (y1.Y - x1.Y) + dy * (x1.X - y1.X)) / (da * dy - db * dx);
+            var t = (da * (x1.Y - y1.Y) + db * (y1.X - x1.X)) / (db * dx - da * dy);
+
+            if (s < 0 || s > 1 || t < 0 || t > 1)
+                return null;
+
+            return new PointF(x1.X + t * dx, x1.Y + t * dy);
+        }
+
     }
+
 }

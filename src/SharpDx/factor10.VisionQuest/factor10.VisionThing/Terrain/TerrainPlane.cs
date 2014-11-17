@@ -17,7 +17,7 @@ namespace factor10.VisionThing.Terrain
             _loPlane = new PlanePrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
                 (x, y, w, h) => new TerrainVertex(
-                    new Vector3(x - SquareSize/2f, 0, y - SquareSize/2f),
+                    new Vector3(x, 0, y),
                     new Vector2(x/SquareSize, y/SquareSize),
                     x/SquareSize),
                 SquareSize, SquareSize, 5);

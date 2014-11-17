@@ -76,6 +76,12 @@ namespace factor10.VisionQuest
             var qq = Math.Max(surfaceWidth, surfaceHeight);
             var ground = new Ground(qq, qq);
 
+            BoundingSphere = new BoundingSphere(new Vector3(
+                world.TranslationVector.X + ground.Width / 2f,
+                world.TranslationVector.Y,
+                world.TranslationVector.Z + ground.Height / 2f),
+                (float)Math.Sqrt(ground.Width * ground.Width + ground.Height * ground.Height) / 2);
+
             foreach (var vc in Classes.Values)
             {
                 var instructHeight = (vc.VClass.IsInterface ? 40 : 10) + (float) Math.Pow(vc.VClass.InstructionCount, 0.3);
@@ -108,13 +114,12 @@ namespace factor10.VisionQuest
             ground.Soften(2);
 
             //make ground slices seamless
-            for (var x = 64; x < surfaceWidth; x += 64)
+            for (var x = 64; x < surfaceWidth; x += TerrainPlane.SquareSize)
                 for (var y = 0; y < surfaceHeight; y++)
                     ground[x, y] = ground[x - 1, y] = (ground[x, y] + ground[x - 1, y])/2;
-            for (var y = 64; y < surfaceHeight; y += 64)
+            for (var y = 64; y < surfaceHeight; y += TerrainPlane.SquareSize)
                 for (var x = 0; x < surfaceWidth; x++)
                     ground[x, y] = ground[x, y - 1] = (ground[x, y] + ground[x, y - 1])/2;
-
 
             foreach (var vc in Classes.Values)
                 vc.Height = ground[vc.X, vc.Y];
@@ -123,14 +128,14 @@ namespace factor10.VisionQuest
 
             var signs = new Signs(
                 vContent,
-                world*Matrix.Translation(-64, -0.1f, -64),
+                world*Matrix.Translation(0, -0.1f, 0),
                 vContent.Load<Texture2D>("textures/woodensign"),
                 Classes.Values.ToList(),
                 16,
                 4);
             Children.Add(signs);
 
-            var qqq = world*Matrix.Translation(-64, 0.05f, -64);
+            var qqq = world; //*Matrix.Translation(0, 0.05f, 0);
             var grass = new List<Tuple<Vector3, Vector3>>();
             foreach (var vc in Classes.Values)
             {

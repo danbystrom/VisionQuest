@@ -105,7 +105,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Decorations\WindmillIsland.cs" />
     <Compile Include="Decorations\Ship.cs" />
     <Compile Include="Decorations\ShipModel.cs" />
     <Compile Include="Signs.cs" />

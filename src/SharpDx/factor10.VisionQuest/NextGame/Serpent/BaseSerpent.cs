@@ -154,24 +154,20 @@ namespace Serpent
         public virtual void Draw(GameTime gameTime)
         {
             var p = GetPosition();
-            var tint = TintColor();
 
             var slinger = p.X + p.Z;
             p += wormTwist(ref slinger);
 
-            _diffuseParameter.SetValue(tint);
             _effect.View = _camera.Camera.View;
             _effect.Projection = _camera.Camera.Projection;
             _effect.Texture = _serpentSkin;
 
-            //drawSphere(_headRotation[_headDirection] *
-            //                Matrix.Scaling(HeadSize) *
-            //                Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z));
-
-            var worlds = new List<Matrix>();
-            worlds.Add(_headRotation[_headDirection] *
-                            Matrix.Scaling(HeadSize) *
-                            Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z));
+            var worlds = new List<Matrix>
+            {
+                _headRotation[_headDirection]*
+                Matrix.Scaling(HeadSize)*
+                Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z)
+            };
 
             // p is the the loc of the last segement - which is the head on the first round
             var segment = _tail;
@@ -202,22 +198,24 @@ namespace Serpent
             if (_layingEgg > 0)
             {
                 _effect.Texture = _eggSkin;
-                _diffuseParameter.SetValue(Vector4.One);
                 _eggWorld = worlds[worlds.Count - 1];
                 Egg.Draw(_effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
 
-                //move the last segement so that it slowly dissolves
-                var factor = _layingEgg  / TimeForLayingEggProcess;
+                //move the last two  so that they slowly dissolves
+                var factor = MathUtil.Clamp(_layingEgg/TimeForLayingEggProcess - 0.5f, 0, 1);
                 var world1 = worlds.Last();
                 worlds.RemoveAt(worlds.Count - 1);
                 var world2 = worlds.Last();
+                worlds.RemoveAt(worlds.Count - 1);
+                var world3 = worlds.Last();
+                world2.TranslationVector = Vector3.Lerp(world2.TranslationVector, world3.TranslationVector, factor);
                 world1.TranslationVector = Vector3.Lerp(world1.TranslationVector, world2.TranslationVector, factor);
+                worlds.Add(world2);
                 worlds.Add(world1);
-
-                _diffuseParameter.SetValue(tint);
             }
 
             _effect.Texture = _serpentSkin;
+            _diffuseParameter.SetValue(TintColor());
             foreach (var world in worlds)
                 drawSphere(world);
 
@@ -238,7 +236,7 @@ namespace Serpent
         protected float AlphaValue()
         {
             return SerpentStatus == SerpentStatus.Ghost
-                ? MathUtil.Clamp(0.8f - _ascendToHeaven/4, 0, 1)
+                ? MathUtil.Clamp(0.8f - _ascendToHeaven, 0, 1)
                 : 1;
         }
 
