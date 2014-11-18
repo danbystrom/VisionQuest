@@ -98,7 +98,6 @@ namespace factor10.VisionQuest
                     }
 
                 vclass.OutgoingArcs = new StartAndCount {Start = arcStart, Count = lines.Count - arcStart};
-
             }
         }
 

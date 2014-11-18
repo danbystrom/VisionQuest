@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
+using NextGame.GameStates;
 using Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -43,6 +45,8 @@ namespace NextGame
         public VisionEffect _myEffect;
         private RasterizerState _rasterizerState;
 
+        private IGameState _gameState;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NextGame" /> class.
         /// </summary>
@@ -51,7 +55,7 @@ namespace NextGame
             // Creates a graphics manager. This is mandatory.
             graphicsDeviceManager = new GraphicsDeviceManager(this);
             graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
-
+            
             //var screen = Screen.AllScreens.First(_ => _.Primary);
             //graphicsDeviceManager.IsFullScreen = true;
             //graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
@@ -68,7 +72,7 @@ namespace NextGame
         {
             // Modify the title of the window
             Window.Title = "NextGame";
-
+            IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -96,7 +100,7 @@ namespace NextGame
             basicEffect.Texture = _snakeSkin;
 
             // Creates torus primitive
-            primitive = ToDisposeContent(GeometricPrimitive.Torus.New(GraphicsDevice, 1, 0.3f, 32, true));
+            primitive = ToDisposeContent(GeometricPrimitive.Torus.New(GraphicsDevice, 1, 0.3f, 32, false));
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
@@ -112,6 +116,8 @@ namespace NextGame
                 IsAntialiasedLineEnabled = false
             });
 
+            _gameState = new PlayingState(Data.Serpents);
+
             base.LoadContent();
         }
 
@@ -120,6 +126,7 @@ namespace NextGame
             base.Update(gameTime);
 
             Data.Update(gameTime);
+            _gameState.Update(gameTime, ref _gameState);
 
             if (Data.Serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
@@ -161,7 +168,8 @@ namespace NextGame
             basicEffect.Texture = _snakeSkin;
             _sphere.Draw(basicEffect);
 
-            Data.Serpents.Draw(gameTime);
+            //Data.Serpents.Draw(gameTime);
+            _gameState.Draw(gameTime);
 
             _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                               Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
@@ -171,10 +179,13 @@ namespace NextGame
             _myEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
             _myEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
             _myEffect.Texture = _snakeSkin;
-            _myEffect.Parameters["DiffuseColor"].SetValue(new Vector4(1, 1, 1, 0.2f));
+            _myEffect.DiffuseColor = new Vector4(1, 1, 1, 0.2f);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
             _sphere.Draw(_myEffect);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+
+            _myEffect.World = Matrix.Scaling(2) * Data.WorldPicked;
+            _sphere.Draw(_myEffect);
 
 
             // ------------------------------------------------------------------------

@@ -7,10 +7,10 @@ using SharpDX.Toolkit.Graphics;
 namespace factor10.VisionThing.Terrain
 {
 
-    public unsafe class Mt9Surface : Sculptable<Mt9Surface.Mt8>
+    public unsafe class Mt9Surface : Sculptable<Mt9Surface.Mt9>
     {
         [StructLayout(LayoutKind.Explicit)]
-        public struct Mt8
+        public struct Mt9
         {
             [FieldOffset(0)] public float A;
             [FieldOffset(4)] public float B;
@@ -124,7 +124,7 @@ namespace factor10.VisionThing.Terrain
         {
         }
 
-        public Mt9Surface(int width, int height, Mt8[] surface)
+        public Mt9Surface(int width, int height, Mt9[] surface)
             : base(width, height, surface)
         {
         }

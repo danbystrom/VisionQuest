@@ -17,6 +17,8 @@ namespace factor10.VisionThing.Terrain
 
         public readonly VisionContent VContent;
 
+        public Ground Ground;
+
         public Matrix World;
         private Vector3 _position;
 
@@ -54,9 +56,10 @@ namespace factor10.VisionThing.Terrain
         }
 
         protected void initialize(Ground ground, WeightsMap weights, ColorSurface normals)
-
         {
-            Debug.Assert((ground.Width%64) == 0 && (ground.Height%64) == 0);
+            Ground = ground;
+
+            Debug.Assert((ground.Width%TerrainPlane.SquareSize) == 0 && (ground.Height%TerrainPlane.SquareSize) == 0);
 
             _position = World.TranslationVector;
 
@@ -82,8 +85,8 @@ namespace factor10.VisionThing.Terrain
             _slices = new terrainSlice[slicesW*slicesH];
             var raduis = HalfSide*(float) Math.Sqrt(2);
             var i = 0;
-            for (var y = 0; y < slicesW; y++)
-                for (var x = 0; x < slicesH; x++)
+            for (var y = 0; y < slicesH; y++)
+                for (var x = 0; x < slicesW; x++)
                 {
                     var world = World*Matrix.Translation(Side*x, 0, Side*y);
                     _slices[i++] = new terrainSlice
@@ -139,9 +142,15 @@ namespace factor10.VisionThing.Terrain
             public bool Visible;
         }
 
-        public Point? HitTest(Ray ray)
+        public Vector3? HitTest(Ray ray)
         {
-            return new Ground(HeightsMap, _ => _).HitTest(World.TranslationVector, ray);
+            //var ground = new Ground(HeightsMap, _ => _);
+            var world = World;
+            world.Invert();
+            var p = Ground.HitTest(world, ray);
+            if (!p.HasValue)
+                return null;
+            return Vector3.TransformCoordinate(p.Value, World);
         }
 
     }

@@ -73,8 +73,8 @@ namespace factor10.VisionQuest
 
             System.Diagnostics.Debug.Print("{0}: {1} {2}", vassembly.Name, surfaceWidth, surfaceHeight);
 
-            var qq = Math.Max(surfaceWidth, surfaceHeight);
-            var ground = new Ground(qq, qq);
+            //var qq = Math.Max(surfaceWidth, surfaceHeight);
+            var ground = new Ground(surfaceWidth, surfaceHeight);
 
             BoundingSphere = new BoundingSphere(new Vector3(
                 world.TranslationVector.X + ground.Width / 2f,
@@ -153,19 +153,24 @@ namespace factor10.VisionQuest
             Children.Add(ms);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
-            weights.DrawLine(0, 0, 20, 20, 1, (_, mt) => new Mt9Surface.Mt8 { I = 100 });
-            weights.AlterValues(20, 20, 20, 20, (x, y, mt) =>
-            {
-                mt.B = 1;
-                return mt;
-            });
-            weights.AlterValues(40, 40, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { C = 100 });
-            weights.AlterValues(60, 60, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { D = 10 });
-            weights.AlterValues(80, 80, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { E = 10 });
-            weights.AlterValues(100, 100, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { F = 10 });
-            weights.AlterValues(120, 120, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { G = 10 });
-            weights.AlterValues(140, 140, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { H = 10 });
-            weights.AlterValues(160, 160, 20, 20, (x, y, mt) => new Mt9Surface.Mt8 { I = 100, A = (float)Math.Sqrt(x * x + y * y) });
+            //weights.DrawLine(0, 0, 20, 20, 1, (_, mt) => new Mt9Surface.Mt9 { I = 100 });
+            //weights.AlterValues(20, 20, 20, 20, (x, y, mt) =>
+            //{
+            //    mt.B = 1;
+            //    return mt;
+            //});
+            //weights.AlterValues(40, 40, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { C = 100 });
+            //weights.AlterValues(60, 60, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { D = 10 });
+            //weights.AlterValues(80, 80, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { E = 10 });
+            //weights.AlterValues(100, 100, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { F = 10 });
+            //weights.AlterValues(120, 120, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { G = 10 });
+            //weights.AlterValues(140, 140, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { H = 10 });
+            //weights.AlterValues(160, 160, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 { I = 100, A = (float)Math.Sqrt(x * x + y * y) });
+
+            //foreach (var vc in Classes.Values.Where(_ => !_.CalledClasses.Any()))
+            //{
+            //    weights.AlterValues(vc.X - vc.R, vc.Y - vc.R, vc.R*2, vc.R*2, (x, y, mt) => new Mt9Surface.Mt9 {I = 100});
+            //}
 
             initialize(ground, weights, normals);
         }

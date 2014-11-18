@@ -11,9 +11,16 @@ namespace Serpent
 {
     public class PlayerSerpent : BaseSerpent
     {
-        private bool _turnAround;
+        public interface ITakeDirection
+        {
+            RelativeDirection TakeDirection(Direction headDirection);
+        }
+
+        //private bool _turnAround;
 
         public float Speed = 1.4f;
+
+        public ITakeDirection DirectionTaker;
 
         public PlayerSerpent(
             VisionContent vContent,
@@ -62,7 +69,7 @@ namespace Serpent
         public override void Update(GameTime gameTime)
         {
             UpdateCameraOnly(gameTime);
-            _turnAround ^= Data.Instance.HasKeyToggled(Keys.Down);
+            //_turnAround ^= Data.Instance.HasKeyToggled(Keys.Down);
             base.Update(gameTime);
         }
 
@@ -93,30 +100,28 @@ namespace Serpent
 
         protected override void takeDirection()
         {
-            if (HomingDevice())
-                return;
+            //if (HomingDevice())
+            //    return;
 
-            if (_camera.Camera.KeyboardState.IsKeyPressed(Keys.O))
-                PathFinder = new PathFinder(_pf, _pf.PlayerWhereaboutsStart);
+            //var pointerLeft = _camera.Camera.PointerState.Points.Any(_ => _.Position.X < 0.1f);
+            //var pointerRight = _camera.Camera.PointerState.Points.Any(_ => _.Position.X > 0.5f);
+            //if (pointerLeft && pointerRight)
+            //{
+            //    pointerLeft = false;
+            //    pointerRight = false;
+            //    _turnAround = !_isHoldingBothPointers;
+            //    _isHoldingBothPointers = true;
+            //}
+            //else
+            //    _isHoldingBothPointers = false;
 
-            var pointerLeft = _camera.Camera.PointerState.Points.Any(_ => _.Position.X < 0.1f);
-            var pointerRight = _camera.Camera.PointerState.Points.Any(_ => _.Position.X > 0.5f);
-            if (pointerLeft && pointerRight)
-            {
-                pointerLeft = false;
-                pointerRight = false;
-                _turnAround = !_isHoldingBothPointers;
-                _isHoldingBothPointers = true;
-            }
-            else
-                _isHoldingBothPointers = false;
-
-            var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
-            _turnAround = false;
-            if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
-                nextDirection = RelativeDirection.Left;
-            else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
-                nextDirection = RelativeDirection.Right;
+            //var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
+            //_turnAround = false;
+            //if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
+            //    nextDirection = RelativeDirection.Left;
+            //else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
+            //    nextDirection = RelativeDirection.Right;
+            var nextDirection = DirectionTaker != null ? DirectionTaker.TakeDirection(_headDirection) : RelativeDirection.Forward;
             if (!TryMove(_headDirection.Turn(nextDirection)))
                 if (!TryMove(_whereabouts.Direction))
                     _whereabouts.Direction = Direction.None;

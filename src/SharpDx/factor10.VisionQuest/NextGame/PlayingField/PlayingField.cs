@@ -142,6 +142,11 @@ namespace Serpent
 
         }
 
+        public PlayingFieldSquare FieldValue(Whereabouts whereabouts)
+        {
+            return fieldValue(whereabouts.Floor, whereabouts.Location);
+        }
+
         private PlayingFieldSquare fieldValue( int floor, Point p)
         {
             if (floor < 0 || floor >= Floors)

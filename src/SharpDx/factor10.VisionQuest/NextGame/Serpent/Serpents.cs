@@ -11,6 +11,13 @@ namespace NextGame.Serpent
 {
     public class Serpents
     {
+        public enum Result
+        {
+            GameOn,
+            PlayerDied,
+            LevelComplete
+        }
+
         public readonly VisionContent VContent;
 
         public readonly PlayingField PlayingField;
@@ -58,7 +65,7 @@ namespace NextGame.Serpent
             }
         }
 
-        public void Update(GameTime gameTime)
+        public Result Update(GameTime gameTime)
         {
             _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -96,25 +103,7 @@ namespace NextGame.Serpent
             }
             Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
             if (Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive))
-            {
-                if (PlayerSerpent.SerpentStatus == SerpentStatus.IsHome)
-                {
-                    if (PlayerEgg != null)
-                    {
-                        PlayerSerpent.Restart(PlayerEgg.Whereabouts, 0);
-                        PlayerEgg = null;
-                    }
-                    else
-                    {
-                        
-                    }
-                }
-                if (PlayerSerpent.PathFinder == null)
-                {
-                    PlayerSerpent.PathFinder = new PathFinder(PlayingField, PlayingField.PlayerWhereaboutsStart);
-                    PlayerSerpent.Camera.CameraBehavior = CameraBehavior.Static;
-                }
-            }
+                return Result.LevelComplete;
 
             for (var i = EnemyEggs.Count - 1; i >= 0; i--)
             {
@@ -137,6 +126,7 @@ namespace NextGame.Serpent
                 EnemyEggs.RemoveAt(i);
             }
 
+            return Result.GameOn;
         }
 
         public void Draw(GameTime gameTime)

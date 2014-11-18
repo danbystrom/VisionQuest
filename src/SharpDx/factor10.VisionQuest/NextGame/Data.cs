@@ -4,6 +4,7 @@ using factor10.VisionThing.Primitives;
 using NextGame;
 using NextGame.Serpent;
 using Serpent.Serpent;
+using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
@@ -26,6 +27,8 @@ namespace Serpent
         public Serpents Serpents;
 
         private bool _paused;
+
+        public Matrix WorldPicked;
 
         public Data(
             Game game1,
@@ -98,13 +101,22 @@ namespace Serpent
             if (HasKeyToggled(Keys.D2))
                 Serpents.PlayerSerpent.Speed /= 2;
 
+            if (HasKeyToggled(Keys.B))
+            {
+                var ray = Serpents.PlayerSerpent.Camera.Camera.GetPickingRay();
+                var hit = Ground.HitTest(ray);
+                if (hit != null)
+                    WorldPicked = Matrix.Translation(hit.Value);
+            }
+
             if (_paused)
             {
                 Serpents.PlayerSerpent.UpdateCameraOnly(gameTime);
                 return;
             }
 
-            Serpents.Update(gameTime);
+
+            //Serpents.Update(gameTime);
             //if (Data.Enemies.Count == 0)
             //    startGame();
     

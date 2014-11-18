@@ -89,6 +89,9 @@ namespace Serpent
             _headDirection = _whereabouts.Direction;
             _tail = new SerpentTailSegment(_pf, _whereabouts);
             _serpentLength = 1;
+            _ascendToHeaven = 0;
+            _layingEgg = 0;
+            _pendingEatenSegments = 6;
         }
 
         protected virtual float modifySpeed()
@@ -98,16 +101,19 @@ namespace Serpent
 
         public virtual void Update(GameTime gameTime)
         {
-            if (SerpentStatus == SerpentStatus.Ghost)
+            switch (SerpentStatus)
             {
-                _ascendToHeaven += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (_ascendToHeaven > 5)
-                    SerpentStatus = SerpentStatus.Finished;
-                return;
+                case SerpentStatus.Ghost:
+                    _ascendToHeaven += (float) gameTime.ElapsedGameTime.TotalSeconds;
+                    if (_ascendToHeaven > 5)
+                        SerpentStatus = SerpentStatus.Finished;
+                    return;
+                case SerpentStatus.Finished:
+                    return;
             }
 
             var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
-            var speed = (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.0045f*lengthSpeed*modifySpeed();
+            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*4.5f*lengthSpeed*modifySpeed();
 
             if (_whereabouts.Direction != Direction.None)
             {
@@ -236,13 +242,18 @@ namespace Serpent
         protected float AlphaValue()
         {
             return SerpentStatus == SerpentStatus.Ghost
-                ? MathUtil.Clamp(0.8f - _ascendToHeaven, 0, 1)
+                ? MathUtil.Clamp(0.8f - _ascendToHeaven/2, 0, 1)
                 : 1;
         }
 
         public Vector3 GetPosition()
         {
             return _whereabouts.GetPosition(_pf);
+        }
+
+        public Whereabouts Whereabouts
+        {
+            get { return _whereabouts; }    
         }
 
         private void grow(int length)
@@ -354,24 +365,6 @@ namespace Serpent
             return true;
         }
         
-        public PathFinder PathFinder;
-
-        public bool HomingDevice()
-        {
-            if (PathFinder == null)
-                return false;
-
-            var direction = PathFinder.WayHome(_whereabouts);
-            if (direction == Direction.None)
-            {
-                PathFinder = null;
-                SerpentStatus = SerpentStatus.IsHome;
-            }
-            else
-                TryMove(direction, true);
-            return true;
-        }
-
     }
 
 }

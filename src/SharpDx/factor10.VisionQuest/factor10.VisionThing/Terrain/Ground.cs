@@ -158,6 +158,9 @@ namespace factor10.VisionThing.Terrain
         {
             var result = Texture2D.New(graphicsDevice, Width, Height, false, PixelFormat.R32.Float);
             result.SetData(Values);
+            var q = result.GetData<float>();
+            for (var i = Width*Height - 1; i >= 0; i--)
+                System.Diagnostics.Debug.Assert(Math.Abs(Values[i] - q[i]) < 0.001);
             return result;
         }
 
@@ -226,9 +229,11 @@ namespace factor10.VisionThing.Terrain
                 }
         }
 
-        public Point? HitTest(Vector3 groundTranslation, Ray ray)
+        public Vector3? HitTest(Matrix worldInverse, Ray ray)
         {
-            var pos = new Vector3(ray.Position.X - groundTranslation.X, ray.Position.Y, ray.Position.Z - groundTranslation.Z);
+            var pos = Vector3.TransformCoordinate(ray.Position, worldInverse);
+            //var pos = new Vector3(ray.Position.X - groundTranslation.X, ray.Position.Y, ray.Position.Z - groundTranslation.Z);
+
             var p = new Vector2(pos.X, pos.Z); // 2D version of pos
 
             if (p.X < 0 || p.Y < 0 || p.X > Width || p.Y > Height)
@@ -268,9 +273,9 @@ namespace factor10.VisionThing.Terrain
                 if (x < 0 || y < 0 || x >= Width || y >= Height)
                     break;
                 var height = this[(int) pos.X, (int) pos.Z];
-                System.Diagnostics.Debug.Print("({0},{1}): {2}", (int) pos.X, (int) pos.Z, height);
+                //System.Diagnostics.Debug.Print("({0},{1}): {2}", (int) pos.X, (int) pos.Z, height);
                 if (height > pos.Y)
-                    return new Point((int) pos.X, (int) pos.Z);
+                    return new Vector3(pos.X, height, pos.Z);
             }
 
             return null;
