@@ -1,6 +1,6 @@
 ﻿using SharpDX.Toolkit;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     public interface IGameState
     {

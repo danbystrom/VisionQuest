@@ -7,6 +7,7 @@ float4 ClipPlane;
 float3 SunlightDirection = float3(-10, 20, 5);
 SamplerState TextureSampler;
 Texture2D Texture;
+Texture2D BumpMap;
 
 bool DoShadowMapping = false;
 float4x4 ShadowViewProjection;
@@ -47,16 +48,37 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	float4 worldPosition = mul(input.Position, World);
 	float4x4 viewProjection = mul(View, Projection);
 
-	output.WorldPosition = worldPosition;
+	output.WorldPosition = (float3)worldPosition;
 	output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
-	output.Normal = mul(input.Normal, (float3x3)WorldInverseTranspose);
-	output.Normal = mul(input.Tangent, World);
-	output.ViewDirection = worldPosition - CameraPosition;
+	output.Normal = mul(input.Normal, WorldInverseTranspose);
+	output.Tangent = mul(input.Tangent, (float3x3)World);
+	output.ViewDirection = output.WorldPosition - CameraPosition;
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
 	return output;
+}
+
+//---------------------------------------------------------------------------------------
+// Transforms a normal map sample to world space.
+//---------------------------------------------------------------------------------------
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+	// Uncompress each component from [0,1] to [-1,1].
+	float3 normalT = 2.0f*normalMapSample - 1.0f;
+
+	// Build orthonormal basis.
+	float3 N = unitNormalW;
+	float3 T = normalize(tangentW - dot(tangentW, N)*N);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	// Transform from tangent space to world space.
+	float3 bumpedNormalW = mul(normalT, TBN);
+
+	return bumpedNormalW;
 }
 
 float2 sampleShadowMap(float2 UV)
@@ -75,16 +97,19 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
 
-	float3 normal = normalize(input.Normal);
+	float3 normal = NormalSampleToWorldSpace(
+		BumpMap.Sample(TextureSampler, input.UV),
+		normalize(input.Normal),
+		input.Tangent);
 
 	// Add lambertian lighting
 	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
 
 	float3 refl = reflect(SunlightDirection, normal);
-		float3 view = normalize(input.ViewDirection);
+	float3 view = normalize(input.ViewDirection);
 
-		// Add specular highlights
-		lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
+	// Add specular highlights
+	lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
 
 	//if (DoShadowMapping)
 	//{

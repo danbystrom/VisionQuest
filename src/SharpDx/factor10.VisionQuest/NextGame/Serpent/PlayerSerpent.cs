@@ -1,11 +1,11 @@
 ﻿using factor10.VisionThing;
+using Serpent;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
-using SharpDX.Toolkit.Input;
 
-namespace Serpent
+namespace Larv.Serpent
 {
     public class PlayerSerpent : BaseSerpent
     {
@@ -21,9 +21,6 @@ namespace Serpent
 
         public PlayerSerpent(
             VisionContent vContent,
-            MouseManager mouseManager,
-            KeyboardManager keyboardManager,
-            PointerManager pointerManager,
             PlayingField pf,
             IVDrawable sphere)
             : base(
@@ -32,16 +29,9 @@ namespace Serpent
                 sphere,
                 pf.PlayerWhereaboutsStart,
                 vContent.Load<Texture2D>(@"Textures\sn"),
+                vContent.Load<Texture2D>(@"Textures\snakeskinmap"), 
                 vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
-            _camera = new SerpentCamera(
-                mouseManager,
-                keyboardManager,
-                pointerManager,
-                vContent.ClientSize,
-                new Vector3(0, 20, 2),
-                Vector3.Zero,
-                CameraBehavior.FollowTarget);
             //AddTail();
         }
 
@@ -53,32 +43,27 @@ namespace Serpent
                 AddTail();
         }
 
-        public SerpentCamera Camera
-        {
-            get { return _camera; }
-        }
-
         protected override float modifySpeed()
         {
             return base.modifySpeed()*Speed;
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(SerpentCamera serpentCamera, GameTime gameTime)
         {
-            UpdateCameraOnly(gameTime);
+            UpdateCameraOnly(serpentCamera, gameTime);
             //_turnAround ^= Data.Instance.HasKeyToggled(Keys.Down);
-            base.Update(gameTime);
+            base.Update(serpentCamera.Camera, gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            if (Camera.CameraBehavior != CameraBehavior.Head)
-                base.Draw(gameTime);
+            //if (serpentCamera.CameraBehavior != CameraBehavior.Head)
+            return base.draw(camera, drawingReason, shadowMap);
         }
 
-        public void UpdateCameraOnly(GameTime gameTime)
+        public void UpdateCameraOnly(SerpentCamera serpentCamera, GameTime gameTime)
         {
-            _camera.Update(gameTime, LookAtPosition, _headDirection);
+            serpentCamera.Update(gameTime, LookAtPosition, _headDirection);
         }
 
         public Vector3 LookAtPosition

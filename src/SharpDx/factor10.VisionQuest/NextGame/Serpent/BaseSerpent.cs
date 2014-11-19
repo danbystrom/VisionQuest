@@ -1,25 +1,24 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
-using NextGame;
+using Serpent;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
-using System;
-using System.Collections.Generic;
 
-namespace Serpent
+namespace Larv.Serpent
 {
     public enum SerpentStatus
     {
         Alive,
         Ghost,
-        Finished,
-        IsHome
+        Finished
     }
 
-    public abstract class BaseSerpent
+    public abstract class BaseSerpent : ClipDrawable
     {
         public const float HeadSize = 0.5f;
         public const float SegmentSize = 0.4f;
@@ -30,15 +29,14 @@ namespace Serpent
 
         public Whereabouts _whereabouts = new Whereabouts();
         protected Direction _headDirection;
-        protected SerpentCamera _camera;
 
         protected double _fractionAngle;
 
-        protected readonly IVEffect _effect;
         protected readonly IVDrawable _sphere;
         protected readonly Texture2D _serpentSkin;
+        protected readonly Texture2D _serpentBump;
         protected readonly Texture2D _eggSkin;
-        protected readonly EffectParameter _diffuseParameter;
+        //protected readonly EffectParameter _diffuseParameter;
 
         protected SerpentTailSegment _tail;
         protected int _serpentLength;
@@ -62,16 +60,15 @@ namespace Serpent
             IVDrawable sphere,
             Whereabouts whereabouts,
             Texture2D serpentSerpentSkin,
-            Texture2D eggSkin)
+            Texture2D serpentBump,
+            Texture2D eggSkin) : base(new VisionEffect(vContent.Load<Effect>(@"Effects\SimpleBumpEffect")))
         {
             _pf = pf;
             Restart(whereabouts);
             _sphere = sphere;
             _serpentSkin = serpentSerpentSkin;
+            _serpentBump = serpentBump;
             _eggSkin = eggSkin;
-            _effect = new VisionEffect(vContent.Load<Effect>(@"Effects\SimpleTextureEffect"));
-
-            _diffuseParameter = _effect.Parameters["DiffuseColor"];
 
             _headRotation.Add(Direction.West,
                               Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(MathUtil.Pi));
@@ -99,7 +96,7 @@ namespace Serpent
             return 1f;
         }
 
-        public virtual void Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             switch (SerpentStatus)
             {
@@ -157,16 +154,14 @@ namespace Serpent
             return new Vector3((float)Math.Sin(slinger) * 0.2f, 0, (float)Math.Sin(slinger) * 0.2f);
         }
 
-        public virtual void Draw(GameTime gameTime)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             var p = GetPosition();
 
             var slinger = p.X + p.Z;
             p += wormTwist(ref slinger);
 
-            _effect.View = _camera.Camera.View;
-            _effect.Projection = _camera.Camera.Projection;
-            _effect.Texture = _serpentSkin;
+            camera.UpdateEffect(Effect);
 
             var worlds = new List<Matrix>
             {
@@ -203,9 +198,9 @@ namespace Serpent
 
             if (_layingEgg > 0)
             {
-                _effect.Texture = _eggSkin;
+                Effect.Texture = _eggSkin;
                 _eggWorld = worlds[worlds.Count - 1];
-                Egg.Draw(_effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
+                Egg.Draw(Effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
 
                 //move the last two  so that they slowly dissolves
                 var factor = MathUtil.Clamp(_layingEgg/TimeForLayingEggProcess - 0.5f, 0, 1);
@@ -220,18 +215,20 @@ namespace Serpent
                 worlds.Add(world1);
             }
 
-            _effect.Texture = _serpentSkin;
-            _diffuseParameter.SetValue(TintColor());
+            Effect.Texture = _serpentSkin;
+            Effect.Parameters["BumpMap"].SetResource(_serpentBump);
+            Effect.DiffuseColor = TintColor();
             foreach (var world in worlds)
                 drawSphere(world);
 
-            _diffuseParameter.SetValue(Vector4.One);
+            Effect.DiffuseColor = Vector4.One;
+            return true;
         }
 
         private void drawSphere(Matrix world)
         {
-            _effect.World = world;
-            _sphere.Draw(_effect);
+            Effect.World = world;
+            _sphere.Draw(Effect);
         }
 
         protected virtual Vector4 TintColor()
@@ -332,7 +329,7 @@ namespace Serpent
                 removeTail(segment);
             else
                 SerpentStatus = SerpentStatus.Ghost;
-            return new Egg(_effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts, this is PlayerSerpent ? float.MaxValue : 20);
+            return new Egg(Effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts, this is PlayerSerpent ? float.MaxValue : 20);
         }
 
         public void Fertilize()

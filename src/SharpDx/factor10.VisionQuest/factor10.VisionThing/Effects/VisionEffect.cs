@@ -14,6 +14,7 @@ namespace factor10.VisionThing.Effects
         protected readonly EffectParameter _epTextureSampler;
 
         protected readonly EffectParameter _epWorld;
+        protected readonly EffectParameter _epWorldInverseTranspose;
         protected readonly EffectParameter _epView;
         protected readonly EffectParameter _epProjection;
         protected readonly EffectParameter _epCameraPosition;
@@ -43,6 +44,7 @@ namespace factor10.VisionThing.Effects
                 Sampler = samplerState ?? GraphicsDevice.SamplerStates.LinearWrap;
 
             _epWorld = effect.Parameters["World"];
+            _epWorldInverseTranspose = effect.Parameters["WorldInverseTranspose"];
             _epView = effect.Parameters["View"];
             _epProjection = effect.Parameters["Projection"];
             _epCameraPosition = effect.Parameters["CameraPosition"];
@@ -71,7 +73,16 @@ namespace factor10.VisionThing.Effects
         public Matrix World
         {
             get { return _epWorld.GetMatrix(); }
-            set { _epWorld.SetValue(value); }
+            set
+            {
+                _epWorld.SetValue(value);
+                if (_epWorldInverseTranspose != null)
+                {
+                    value.Invert();
+                    value.Transpose();
+                    _epWorldInverseTranspose.SetValue(value);
+                }
+            }
         }
 
         public Matrix View

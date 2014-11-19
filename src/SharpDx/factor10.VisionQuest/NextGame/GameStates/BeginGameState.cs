@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NextGame.Serpent;
+﻿using Larv.Serpent;
 using Serpent;
 using SharpDX.Toolkit;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     class BeginGameState : IGameState
     {
@@ -21,7 +16,7 @@ namespace NextGame.GameStates
 
         public void Update(GameTime gameTime, ref IGameState gameState)
         {
-            _serpents.PlayerSerpent.Update(gameTime);
+            _serpents.PlayerSerpent.Update(_serpents.SerpentCamera, gameTime);
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
                 gameState = new PlayingState(_serpents);
         }

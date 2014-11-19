@@ -48,35 +48,35 @@ namespace NextGame
             var pfW = playingField.Width;
             var pfH = playingField.Height;
 
-            var gqW = 128 + 64;
-            var gqH = 128 + 64;
+            var gqW = 128; // + 64;
+            var gqH = 128; // + 64;
 
             var rnd = new Random();
 
-            World = Matrix.Scaling(1 / 3f) * Matrix.Translation(_qx, -0.5f, _qy);
+            World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(_qx, -0.5f, _qy);
 
-            var ground = new Ground(gqW, gqH, 2);
+            var ground = new Ground(gqW, gqH, 15);
 
             //ground.AlterValues(100, 200, 10, 10, (x, y, h) => 20);
             //ground.AlterValues(100, 210, 10, 10, (x, y, h) => 30);
             //ground.AlterValues(100, 220, 10, 10, (x, y, h) => 40);
 
             for (var i = 0; i < 1000; i++)
-                ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 3;
+                ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 30;
 
-            ground.DrawLine(2, 2, gqW - 3, 2, 2, (a, b) => rnd.Next(10, 50));
-            ground.DrawLine(2, 2, 2, gqH - 3, 2, (a, b) => rnd.Next(10, 50));
-            ground.DrawLine(gqW - 3, gqH - 3, gqW - 3, 2, 2, (a, b) => rnd.Next(10, 50));
-            ground.DrawLine(gqW - 3, gqH - 3, 2, gqH - 3, 2, (a, b) => rnd.Next(10, 50));
+            ground.DrawLine(2, 2, gqW - 3, 2, 2, (a, b) => rnd.Next(50, 300));
+            ground.DrawLine(2, 2, 2, gqH - 3, 2, (a, b) => rnd.Next(50, 300));
+            ground.DrawLine(gqW - 3, gqH - 3, gqW - 3, 2, 2, (a, b) => rnd.Next(50, 300));
+            ground.DrawLine(gqW - 3, gqH - 3, 2, gqH - 3, 2, (a, b) => rnd.Next(50, 300));
 
-            ground.DrawLine(5, 5, gqW - 6, 5, 2, (a, b) => rnd.Next(10, 40));
-            ground.DrawLine(5, 5, 5, gqH - 6, 2, (a, b) => rnd.Next(10, 40));
-            ground.DrawLine(gqW - 6, gqH - 6, gqW - 6, 2, 2, (a, b) => rnd.Next(10, 30));
-            ground.DrawLine(gqW - 6, gqH - 6, 2, gqH - 6, 2, (a, b) => rnd.Next(10, 30));
+            ground.DrawLine(5, 5, gqW - 6, 5, 2, (a, b) => rnd.Next(40, 200));
+            ground.DrawLine(5, 5, 5, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
+            ground.DrawLine(gqW - 6, gqH - 6, gqW - 6, 2, 2, (a, b) => rnd.Next(40, 200));
+            ground.DrawLine(gqW - 6, gqH - 6, 2, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
 
             ground.DrawLine(10, 10, 50, 50, 2, (a, b) => 5);
             ground.Soften();
-            //ground.Soften();
+            ground.Soften();
             //ground.Soften();
 
             carvePlayingField(ground, playingField, (gqW - pfW*3) / 2, (gqH - pfH*3) / 2);

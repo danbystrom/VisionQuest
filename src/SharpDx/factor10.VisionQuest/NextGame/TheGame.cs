@@ -1,36 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
+using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
-using NextGame.GameStates;
+using Larv.GameStates;
+using NextGame;
 using Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
+using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
+using SharpDX.Toolkit.Input;
+using Keys = SharpDX.Toolkit.Input.Keys;
+using RasterizerState = SharpDX.Toolkit.Graphics.RasterizerState;
+using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
-namespace NextGame
+namespace Larv
 {
     // Use these namespaces here to override SharpDX.Direct3D11
-    using SharpDX.Toolkit;
-    using SharpDX.Toolkit.Graphics;
-    using SharpDX.Toolkit.Input;
-
+    
     /// <summary>
-    /// Simple NextGame game using SharpDX.Toolkit.
+    /// Simple TheGame game using SharpDX.Toolkit.
     /// </summary>
-    public class NextGame : Game
+    public class TheGame : Game
     {
-        private GraphicsDeviceManager graphicsDeviceManager;
-        private SpriteBatch spriteBatch;
-        private Texture2D ballsTexture;
-        private SpriteFont arial16Font;
+        private GraphicsDeviceManager _graphicsDeviceManager;
+        private SpriteBatch _spriteBatch;
+        private Texture2D _ballsTexture;
+        private SpriteFont _arial16Font;
 
-        private Windmill _model;
-        private Texture2D _windmillDiffuse;
+        private Windmill _windmill;
         private Texture2D _snakeSkin;
 
         //private Effect bloomEffect;
@@ -50,20 +50,20 @@ namespace NextGame
         private IGameState _gameState;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NextGame" /> class.
+        /// Initializes a new instance of the <see cref="TheGame" /> class.
         /// </summary>
-        public NextGame()
+        public TheGame()
         {
             // Creates a graphics manager. This is mandatory.
-            graphicsDeviceManager = new GraphicsDeviceManager(this);
-            graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
+            _graphicsDeviceManager = new GraphicsDeviceManager(this);
+            _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
             
             //var screen = Screen.AllScreens.First(_ => _.Primary);
             //graphicsDeviceManager.IsFullScreen = true;
             //graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
             //graphicsDeviceManager.PreferredBackBufferHeight = screen.Bounds.Height;
-            graphicsDeviceManager.PreferredBackBufferWidth = 1920;
-            graphicsDeviceManager.PreferredBackBufferHeight = 1080;
+            _graphicsDeviceManager.PreferredBackBufferWidth = 1920;
+            _graphicsDeviceManager.PreferredBackBufferHeight = 1080;
 
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
@@ -74,7 +74,7 @@ namespace NextGame
         protected override void Initialize()
         {
             // Modify the title of the window
-            Window.Title = "NextGame";
+            Window.Title = "Larv by Dan Byström - factor10 Solutions";
             IsMouseVisible = true;
             base.Initialize();
         }
@@ -82,21 +82,20 @@ namespace NextGame
         protected override void LoadContent()
         {
             // Instantiate a SpriteBatch
-            spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
+            _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
-            ballsTexture = Content.Load<Texture2D>("Balls");
+            _ballsTexture = Content.Load<Texture2D>("Balls");
             _snakeSkin = Content.Load<Texture2D>(@"Textures\sn");
-            _windmillDiffuse = Content.Load<Texture2D>(@"Models\windmill_diffuse");
 
             _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
 
             Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
 
-            arial16Font = Content.Load<SpriteFont>("Arial16");
+            _arial16Font = Content.Load<SpriteFont>("Arial16");
 
-            _model = new Windmill(Data.VContent, Vector3.Zero);
-            //BasicEffect.EnableDefaultLighting(_model, true);
+            _windmill = new Windmill(Data.VContent, Vector3.Zero);
+            //BasicEffect.EnableDefaultLighting(_windmill, true);
 
             basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
             basicEffect.PreferPerPixelLighting = true;
@@ -129,16 +128,29 @@ namespace NextGame
         {
             base.Update(gameTime);
 
-            _model.Update(Data.Serpents.PlayerSerpent.Camera.Camera, gameTime);
+            _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
             Data.Update(gameTime);
             _gameState.Update(gameTime, ref _gameState);
 
-            if (Data.Serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
+            if (Data.Serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            {
+                var camera = Data.Serpents.SerpentCamera.Camera;
+                var lookingDirection = camera.Target - camera.Position;
+                lookingDirection.Normalize();
+                var lookAtFocus = camera.Position + 20 * lookingDirection;
+                lookAtFocus.Y = 2;
+
+                Data.ShadowMap.Camera.Update(
+                    lookAtFocus - VisionContent.SunlightDirection * 20,
+                    lookAtFocus);
+                //Data.ShadowMap.Draw();
+            }
+
             // Use time in seconds directly
             var time = (float) gameTime.TotalGameTime.TotalSeconds;
 
@@ -147,15 +159,13 @@ namespace NextGame
             // Constant used to translate 3d models
             float translateX = 0.0f;
 
-            _myEffect.Texture = _windmillDiffuse;
-            _myEffect.DiffuseColor = Vector4.One;
-            _model.Draw(Data.Serpents.PlayerSerpent.Camera.Camera);
+            _windmill.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             // ------------------------------------------------------------------------
             // Draw the 3d primitive using BasicEffect
             // ------------------------------------------------------------------------
-            basicEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
-            basicEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
+            basicEffect.View = Data.Serpents.SerpentCamera.Camera.View;
+            basicEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
 
             basicEffect.World = Matrix.Scaling(3.0f, 3.0f, 3.0f)*
                                 Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
@@ -182,8 +192,8 @@ namespace NextGame
                               Matrix.RotationY(time*2.0f)*
                               Matrix.RotationZ(0)*
                               Matrix.Translation(-1, -1.0f, -10);
-            _myEffect.View = Data.Serpents.PlayerSerpent.Camera.Camera.View;
-            _myEffect.Projection = Data.Serpents.PlayerSerpent.Camera.Camera.Projection;
+            _myEffect.View = Data.Serpents.SerpentCamera.Camera.View;
+            _myEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
             _myEffect.Texture = _snakeSkin;
             _myEffect.DiffuseColor = new Vector4(1, 1, 1, 0.2f);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
@@ -197,14 +207,14 @@ namespace NextGame
             // ------------------------------------------------------------------------
             // Draw the some 2d text
             // ------------------------------------------------------------------------
-            spriteBatch.Begin();
+            _spriteBatch.Begin();
 
             var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
 
             text.AppendFormat("Slow: {0}", gameTime.IsRunningSlowly).AppendLine();
 
             {
-                var c = Data.Serpents.PlayerSerpent.Camera.Camera;
+                var c = Data.Serpents.SerpentCamera.Camera;
                 text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2:0.000},{3:0.000},{4:0.000}",
                     c.Yaw, c.Pitch, c.Forward.X, c.Forward.Y, c.Forward.Z).AppendLine();
             }
@@ -219,7 +229,7 @@ namespace NextGame
 
             // Display pressed keys
             var pressedKeys = new List<Keys>();
-            Data.Serpents.PlayerSerpent.Camera.Camera.KeyboardState.GetDownKeys(pressedKeys);
+            Data.Serpents.SerpentCamera.Camera.KeyboardState.GetDownKeys(pressedKeys);
             text.Append("Key Pressed: [");
             foreach (var key in pressedKeys)
             {
@@ -228,31 +238,31 @@ namespace NextGame
             }
             text.Append("]").AppendLine();
 
-            var mouseState = Data.Serpents.PlayerSerpent.Camera.Camera.MouseState;
+            var mouseState = Data.Serpents.SerpentCamera.Camera.MouseState;
             // Display mouse coordinates and mouse button status
             text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", mouseState.X, mouseState.Y, mouseState.LeftButton, mouseState.RightButton).AppendLine();
 
-            var pointerState = Data.Serpents.PlayerSerpent.Camera.Camera.PointerManager.GetState();
+            var pointerState = Data.Serpents.SerpentCamera.Camera.PointerManager.GetState();
             var points = pointerState.Points;
             foreach (var point in points)
                 text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X,
                     point.Position.Y).AppendLine();
 
-            spriteBatch.DrawString(arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
-            spriteBatch.End();
+            _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
+            _spriteBatch.End();
 
             // ------------------------------------------------------------------------
             // Use SpriteBatch to draw some balls on the screen using NonPremultiplied mode
             // as the sprite texture used is not premultiplied
             // ------------------------------------------------------------------------
-            spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
+            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
             for (int i = 0; i < 40; i++)
             {
                 var posX = (float) Math.Cos(time*4.5f + i*0.1f)*60.0f + 136.0f;
                 var posY = GraphicsDevice.BackBuffer.Height*2.0f/3.0f + 100.0f*(float) Math.Sin(time*10.0f + i*0.4f);
 
-                spriteBatch.Draw(
-                    ballsTexture,
+                _spriteBatch.Draw(
+                    _ballsTexture,
                     new Vector2(posX, posY),
                     new Rectangle(0, 0, 32, 32),
                     Color.White,
@@ -262,7 +272,7 @@ namespace NextGame
                     SpriteEffects.None,
                     0f);
             }
-            spriteBatch.End();
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }

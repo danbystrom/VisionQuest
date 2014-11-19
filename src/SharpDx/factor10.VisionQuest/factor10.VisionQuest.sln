@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{41644B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionThing", "factor10.VisionThing\factor10.VisionThing.csproj", "{9158F6C8-73CF-49B4-B7EB-B06F26FCB2AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextGame", "NextGame\NextGame.csproj", "{AA27018E-86F2-4E27-B107-070715556827}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Larv", "NextGame\Larv.csproj", "{AA27018E-86F2-4E27-B107-070715556827}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionaryHeads", "..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj", "{DEDA88C6-08E4-4326-912D-3E1E1F537A72}"
 EndProject

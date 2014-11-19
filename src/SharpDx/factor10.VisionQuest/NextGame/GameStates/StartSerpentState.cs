@@ -1,7 +1,7 @@
-﻿using NextGame.Serpent;
+﻿using Larv.Serpent;
 using SharpDX.Toolkit;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     class StartSerpentState : IGameState
     {

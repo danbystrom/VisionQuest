@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NextGame.Serpent;
+using Larv.Serpent;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Input;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     class AttractState : IGameState
     {
@@ -19,7 +19,7 @@ namespace NextGame.GameStates
         {
             _serpents.Update(gameTime);
             var list = new List<Keys>();
-            _serpents.PlayerSerpent.Camera.Camera.KeyboardState.GetDownKeys(list);
+            _serpents.SerpentCamera.Camera.KeyboardState.GetDownKeys(list);
             if(list.Any())
                 gameState = new BeginGameState(_serpents); 
         }

@@ -1,8 +1,8 @@
 ﻿using System;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
+using Larv.Serpent;
 using NextGame;
-using NextGame.Serpent;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -30,6 +30,9 @@ namespace Serpent
 
         public Matrix WorldPicked;
 
+        public Camera Camera;
+        public ShadowMap ShadowMap;
+
         public Data(
             Game game1,
             KeyboardManager keyboardManager,
@@ -48,7 +51,7 @@ namespace Serpent
                     game1.GraphicsDevice,
                     texture);
 
-            Sphere = new SpherePrimitive<VertexPositionNormalTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx * 2), 2);
+            Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx * 2), 2);
 
             //TODO
             if (Sky == null)
@@ -56,13 +59,15 @@ namespace Serpent
 
             Ground = new Gq(VContent, PlayingField);
 
-            Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, pointerManager, PlayingField);
+            Camera = new Camera(VContent.ClientSize, keyboardManager, mouseManager, pointerManager, new Vector3(10, 5, 10), Vector3.Zero);
+            ShadowMap = new ShadowMap(VContent, Camera, 1920, 1080);
+            Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
         }
 
 
         public bool HasKeyToggled( Keys key )
         {
-            return Serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyPressed(key);
+            return Serpents.SerpentCamera.Camera.KeyboardState.IsKeyPressed(key);
         }
 
         public void Dispose()
@@ -72,7 +77,7 @@ namespace Serpent
 
         public void Update(GameTime gameTime)
         {
-            var camera = Serpents.PlayerSerpent.Camera;
+            var camera = Serpents.SerpentCamera;
             camera.Camera.UpdateInputDevices();
 
             //if (Data.HasKeyToggled(Keys.Enter) && Data.KeyboardState.IsKeyDown(Keys.LeftAlt))
@@ -105,7 +110,7 @@ namespace Serpent
 
             if (HasKeyToggled(Keys.B))
             {
-                var ray = Serpents.PlayerSerpent.Camera.Camera.GetPickingRay();
+                var ray = Serpents.SerpentCamera.Camera.GetPickingRay();
                 var hit = Ground.HitTest(ray);
                 if (hit != null)
                     WorldPicked = Matrix.Translation(hit.Value);
@@ -113,7 +118,7 @@ namespace Serpent
 
             if (_paused)
             {
-                Serpents.PlayerSerpent.UpdateCameraOnly(gameTime);
+                Serpents.PlayerSerpent.UpdateCameraOnly(Serpents.SerpentCamera, gameTime);
                 return;
             }
 

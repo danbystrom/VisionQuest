@@ -1,10 +1,10 @@
-﻿using factor10.VisionThing;
-using Serpent.Serpent;
+﻿using System;
+using factor10.VisionThing;
+using Serpent;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
-using System;
 
-namespace Serpent
+namespace Larv.Serpent
 {
     public class EnemySerpent : BaseSerpent
     {
@@ -15,13 +15,11 @@ namespace Serpent
             PlayingField pf,
             Whereabouts whereabouts,
             IVDrawable sphere,
-            SerpentCamera camera,
             int x)
-            : base(vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\eggshell"))
+            : base(vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\snakeskinmap"), vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
              _rnd.NextBytes(new byte[x]);
-            _camera = camera;
-
+ 
             AddTail();
             AddTail();
         }

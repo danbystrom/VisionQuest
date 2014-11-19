@@ -88,6 +88,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="Primitives\VertexPositionNormalTangentTexture.cs" />
     <Compile Include="Terrain\ColorSurface.cs" />
     <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
     <Compile Include="Util\DoubleSin.cs" />

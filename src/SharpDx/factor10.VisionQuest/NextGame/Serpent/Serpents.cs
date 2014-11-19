@@ -4,10 +4,11 @@ using System.Linq;
 using factor10.VisionThing;
 using Serpent;
 using Serpent.Serpent;
+using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Input;
 
-namespace NextGame.Serpent
+namespace Larv.Serpent
 {
     public class Serpents
     {
@@ -32,25 +33,28 @@ namespace NextGame.Serpent
         public readonly Random Rnd = new Random();
         private double _onceASecond;
 
+        public readonly SerpentCamera SerpentCamera;
+
         public Serpents(
             VisionContent vContent,
+            Camera camera,
             IVDrawable sphere,
-            MouseManager mouseManager,
-            KeyboardManager keyboardManager,
-            PointerManager pointerManager,
-            PlayingField playingField)
+            PlayingField playingField,
+            ShadowMap shadowMap)
         {
             VContent = vContent;
             Sphere = sphere;
             PlayingField = playingField;
 
+            SerpentCamera = new SerpentCamera(
+                camera,
+                CameraBehavior.FollowTarget);
+
             PlayerSerpent = new PlayerSerpent(
                 vContent,
-                mouseManager,
-                keyboardManager,
-                pointerManager,
                 playingField,
                 Sphere);
+            shadowMap.ShadowCastingObjects.Add(PlayerSerpent);
 
             for (var i = 0; i < 5; i++)
             {
@@ -59,7 +63,6 @@ namespace NextGame.Serpent
                     playingField,
                     playingField.EnemyWhereaboutsStart,
                     Sphere,
-                    PlayerSerpent.Camera,
                     i);
                 Enemies.Add(enemy);
             }
@@ -80,13 +83,13 @@ namespace NextGame.Serpent
                     Enemies[Rnd.Next(Enemies.Count)].Fertilize();
             }
 
-            PlayerSerpent.Update(gameTime);
+            PlayerSerpent.Update(SerpentCamera, gameTime);
             if (PlayerEgg == null)
                 PlayerEgg = PlayerSerpent.TimeToLayEgg();
 
             foreach (var enemy in Enemies)
             {
-                enemy.Update(gameTime);
+                enemy.Update(SerpentCamera.Camera, gameTime);
                 if (enemy.EatAt(PlayerSerpent))
                 {
                     PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
@@ -121,7 +124,6 @@ namespace NextGame.Serpent
                     PlayingField,
                     EnemyEggs[i].Whereabouts,
                     Sphere,
-                    PlayerSerpent.Camera,
                     0));
                 EnemyEggs.RemoveAt(i);
             }
@@ -131,20 +133,20 @@ namespace NextGame.Serpent
 
         public void Draw(GameTime gameTime)
         {
-            Data.PlayingField.Draw(PlayerSerpent.Camera.Camera);
+            Data.PlayingField.Draw(SerpentCamera.Camera);
 
             if (PlayerEgg != null)
                 PlayerEgg.Draw(gameTime);
             foreach (var egg in EnemyEggs)
                 egg.Draw(gameTime);
 
-            Data.Ground.Draw(PlayerSerpent.Camera.Camera);
-            Data.Sky.Draw(PlayerSerpent.Camera.Camera);
+            Data.Ground.Draw(SerpentCamera.Camera);
+            Data.Sky.Draw(SerpentCamera.Camera);
 
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
-            PlayerSerpent.Draw(gameTime);
+            PlayerSerpent.Draw(SerpentCamera.Camera);
             foreach (var enemy in Enemies)
-                enemy.Draw(gameTime);
+                enemy.Draw(SerpentCamera.Camera);
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
 
         }

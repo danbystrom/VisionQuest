@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NextGame.Serpent;
+﻿using Larv.Serpent;
+using NextGame;
 using Serpent;
 using Serpent.Serpent;
 using SharpDX.Toolkit;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     class LevelCompleteState : IGameState, PlayerSerpent.ITakeDirection
     {
@@ -21,7 +17,7 @@ namespace NextGame.GameStates
             _serpents = serpents;
             _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
             _serpents.PlayerSerpent.DirectionTaker = this;
-            _serpents.PlayerSerpent.Camera.CameraBehavior = CameraBehavior.Static;
+            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.Static;
         }
 
 

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NextGame.Serpent;
+﻿using System.Linq;
+using Larv.Serpent;
 using Serpent;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Input;
 
-namespace NextGame.GameStates
+namespace Larv.GameStates
 {
     class PlayingState : IGameState, PlayerSerpent.ITakeDirection
     {
@@ -23,7 +19,7 @@ namespace NextGame.GameStates
 
         public void Update(GameTime gameTime, ref IGameState gameState)
         {
-            _turnAround ^= _serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyPressed(Keys.Down);
+            _turnAround ^= _serpents.SerpentCamera.Camera.KeyboardState.IsKeyPressed(Keys.Down);
             switch (_serpents.Update(gameTime))
             {
                 case Serpents.Result.LevelComplete:
@@ -46,7 +42,7 @@ namespace NextGame.GameStates
 
         RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
         {
-            var pointerPoints = _serpents.PlayerSerpent.Camera.Camera.PointerState.Points.Where(
+            var pointerPoints = _serpents.SerpentCamera.Camera.PointerState.Points.Where(
                     _ => _.EventType == PointerEventType.Moved || _.EventType == PointerEventType.Pressed).ToArray();
             var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
             var pointerRight = pointerPoints.Any(_ => _.Position.X > 0.5f);
@@ -62,9 +58,9 @@ namespace NextGame.GameStates
 
             var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
             _turnAround = false;
-            if (_serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
+            if (_serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
                 nextDirection = RelativeDirection.Left;
-            else if (_serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
+            else if (_serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
                 nextDirection = RelativeDirection.Right;
             return nextDirection;
         }

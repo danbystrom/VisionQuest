@@ -30,16 +30,11 @@ namespace Serpent.Serpent
         private Vector3 _staticFromTarget;
 
         public SerpentCamera(
-            MouseManager mouseManager,
-            KeyboardManager keyboardManager,
-            PointerManager pointerManager,
-            Vector2 clientBounds,
-            Vector3 position,
-            Vector3 target,
+            Camera camera,
             CameraBehavior cameraBehavior)
         {
             _cameraBehavior = cameraBehavior;
-            Camera = new Camera(clientBounds, keyboardManager, mouseManager, pointerManager, position, target);
+            Camera = camera;
         }
 
         public CameraBehavior CameraBehavior

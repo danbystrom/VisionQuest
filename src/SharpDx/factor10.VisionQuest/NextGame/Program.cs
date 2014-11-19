@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace NextGame
+namespace Larv
 {
     /// <summary>
-    /// Simple NextGame application using SharpDX.Toolkit.
+    /// Simple TheGame application using SharpDX.Toolkit.
     /// </summary>
     class Program
     {
@@ -18,7 +17,7 @@ namespace NextGame
 #endif
         static void Main()
         {
-            using (var program = new NextGame())
+            using (var program = new TheGame())
                 program.Run();
 
         }
