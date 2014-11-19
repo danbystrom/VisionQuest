@@ -97,7 +97,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IVDrawable.cs" />
     <Compile Include="Terrain\Mt9Surface.cs" />
-    <Compile Include="Objects\Box.cs" />
+    <Compile Include="Objects\DrawableBox.cs" />
     <Compile Include="Objects\Bridge.cs" />
     <Compile Include="Primitives\BezierPrimitive.cs" />
     <Compile Include="Primitives\CubePrimitive.cs" />

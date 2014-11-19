@@ -1,7 +1,6 @@
 ﻿using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
-using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing
@@ -15,7 +14,7 @@ namespace factor10.VisionThing
             TextureCube texture)
             : base(new VisionEffect(vtContent.Load<Effect>("effects/skysphere")))
         {
-            _sphere = new SpherePrimitive<VertexPosition>(vtContent.GraphicsDevice, (p, n, t) => new VertexPosition(p), 20000, 10, false);
+            _sphere = new SpherePrimitive<VertexPosition>(vtContent.GraphicsDevice, (p, n, t, tx) => new VertexPosition(p), 20000, 10, false);
             Effect.Parameters["Texture"].SetResource(texture);
         }
 

@@ -135,7 +135,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <ToolkitModel Include="Content\Models\Ship.fbx" />
     <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -160,9 +159,6 @@
       <Project>{9158f6c8-73cf-49b4-b7eb-b06f26fcb2ac}</Project>
       <Name>factor10.VisionThing</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ToolkitTexture Include="Content\Models\ShipDiffuse.dds" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitTexture Include="Content\Models\Galleon.dds" />

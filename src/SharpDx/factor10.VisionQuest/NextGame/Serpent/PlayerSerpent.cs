@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using factor10.VisionThing;
-using NextGame;
+﻿using factor10.VisionThing;
 using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -14,9 +12,8 @@ namespace Serpent
         public interface ITakeDirection
         {
             RelativeDirection TakeDirection(Direction headDirection);
+            bool CanOverrideRestrictedDirections();
         }
-
-        //private bool _turnAround;
 
         public float Speed = 1.4f;
 
@@ -45,7 +42,7 @@ namespace Serpent
                 new Vector3(0, 20, 2),
                 Vector3.Zero,
                 CameraBehavior.FollowTarget);
-            AddTail();
+            //AddTail();
         }
 
         public void Restart(Whereabouts whereabouts, int length)
@@ -96,33 +93,13 @@ namespace Serpent
             }
         }
 
-        private bool _isHoldingBothPointers;
-
         protected override void takeDirection()
         {
-            //if (HomingDevice())
-            //    return;
+            if (DirectionTaker != null)
+                if (TryMove(_headDirection.Turn(DirectionTaker.TakeDirection(_headDirection)), DirectionTaker.CanOverrideRestrictedDirections()))
+                    return;
 
-            //var pointerLeft = _camera.Camera.PointerState.Points.Any(_ => _.Position.X < 0.1f);
-            //var pointerRight = _camera.Camera.PointerState.Points.Any(_ => _.Position.X > 0.5f);
-            //if (pointerLeft && pointerRight)
-            //{
-            //    pointerLeft = false;
-            //    pointerRight = false;
-            //    _turnAround = !_isHoldingBothPointers;
-            //    _isHoldingBothPointers = true;
-            //}
-            //else
-            //    _isHoldingBothPointers = false;
-
-            //var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
-            //_turnAround = false;
-            //if (_camera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
-            //    nextDirection = RelativeDirection.Left;
-            //else if (Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
-            //    nextDirection = RelativeDirection.Right;
-            var nextDirection = DirectionTaker != null ? DirectionTaker.TakeDirection(_headDirection) : RelativeDirection.Forward;
-            if (!TryMove(_headDirection.Turn(nextDirection)))
+            if (!TryMove(_headDirection))
                 if (!TryMove(_whereabouts.Direction))
                     _whereabouts.Direction = Direction.None;
         }

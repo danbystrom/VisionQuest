@@ -4,7 +4,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Objects
 {
-    public class Box : ClipDrawable
+    public class DrawableBox : ClipDrawable
     {
         public Matrix World;
 
@@ -12,7 +12,7 @@ namespace factor10.VisionThing.Objects
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Box(VisionContent vContent, Matrix world, Vector3 size, float texScale = 1)
+        public DrawableBox(VisionContent vContent, Matrix world, Vector3 size, float texScale = 1)
             : base(vContent.LoadPlainEffect("effects/SimpleBumpEffect"))
         {
             _texture = vContent.Load<Texture2D>("textures/brick_texture_map");

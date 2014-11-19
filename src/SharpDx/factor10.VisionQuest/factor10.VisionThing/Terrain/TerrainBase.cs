@@ -13,7 +13,7 @@ namespace factor10.VisionThing.Terrain
         public const int HalfSide = Side/2;
 
         public static TerrainPlane TerrainPlane { get; private set; }
-        public static Box Box { get; protected set; }
+        public static DrawableBox DrawableBox { get; protected set; }
 
         public readonly VisionContent VContent;
 
@@ -28,7 +28,7 @@ namespace factor10.VisionThing.Terrain
         protected Texture2D WeightsMap;
         protected Texture2D NormalsMap;
 
-        private terrainSlice[] _slices;
+        protected terrainSlice[] _slices;
 
         public int GroundExtentX { get; private set; }
         public int GroundExtentZ { get; private set; }
@@ -45,7 +45,7 @@ namespace factor10.VisionThing.Terrain
             if (TerrainPlane == null)
             {
                 TerrainPlane = new TerrainPlane(vContent);
-                Box = new Box(vContent, Matrix.Identity, new Vector3(1, 50, 1));
+                DrawableBox = new DrawableBox(vContent, Matrix.Identity, new Vector3(1, 50, 1));
             }
             return TerrainPlane;
         }
@@ -88,7 +88,7 @@ namespace factor10.VisionThing.Terrain
             for (var y = 0; y < slicesH; y++)
                 for (var x = 0; x < slicesW; x++)
                 {
-                    var world = World*Matrix.Translation(Side*x, 0, Side*y);
+                    var world = Matrix.Translation(Side*x, 0, Side*y)*World;
                     _slices[i++] = new terrainSlice
                     {
                         TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
@@ -127,14 +127,14 @@ namespace factor10.VisionThing.Terrain
             {
                 Effect.Parameters["TexOffsetAndScale"].SetValue(slice.TexOffsetAndScale);
                 TerrainPlane.Draw(camera, slice.World, drawingReason);
-                //Box.World = slice.World * Matrix.Translation(0,10,0);
-                //Box.Draw(camera, drawingReason, shadowMap);
+                //DrawableBox.World = slice.World * Matrix.Translation(0,10,0);
+                //DrawableBox.Draw(camera, drawingReason, shadowMap);
             }
 
             return true;
         }
 
-        private class terrainSlice
+        protected class terrainSlice
         {
             public Vector4 TexOffsetAndScale;
             public Matrix World;

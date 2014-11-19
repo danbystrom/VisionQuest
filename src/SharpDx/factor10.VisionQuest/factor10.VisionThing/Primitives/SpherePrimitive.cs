@@ -9,7 +9,7 @@ namespace factor10.VisionThing.Primitives
     /// </summary>
     public class SpherePrimitive<T> : GeometricPrimitive<T> where T : struct, IEquatable<T>
     {
-        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate);
+        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 textureCoordinate);
 
         /// <summary>
         /// Constructs a new sphere primitive,
@@ -33,7 +33,7 @@ namespace factor10.VisionThing.Primitives
             var radius = diameter/2;
 
             // Start with a single vertex at the bottom of the sphere.
-            addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector2.Zero));
+            addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector3.BackwardLH, new Vector2(0.5f, 0.5f)));
 
             // Create rings of vertices at progressively higher latitudes.
             for (var i = 0; i < verticalSegments - 1; i++)
@@ -51,12 +51,33 @@ namespace factor10.VisionThing.Primitives
                     var dz = (float) Math.Sin(longitude)*dxz;
                     var normal = new Vector3(dx, dy, dz);
                     var textureCoordinate = new Vector2((float) (Math.Asin(dx)/Math.PI + 0.5), (float) (Math.Asin(dy)/Math.PI + 0.5));
-                    addVertex(createVertex(normal * radius, normal, textureCoordinate));
+                    var tangent = Vector3.Cross(Vector3.Up, normal);
+                    tangent.Normalize();
+
+                    //alternative
+                    var theta = Math.Acos(normal.Z);
+                    var phi = Math.Atan(normal.Y/normal.X);
+                    theta += Math.PI/2;
+                    var tangent2 = new Vector3(
+                        (float) (radius*Math.Sin(theta)*Math.Cos(phi)),
+                        (float) (radius*Math.Sin(theta)*Math.Sin(phi)),
+                        (float) (radius*Math.Cos(theta)));
+                    //alternative
+
+
+                    //alternative 2
+                    var tangent3 = new Vector3(
+                        -radius*(float) Math.Sin(longitude)*dxz,
+                        0,
+                        radius*(float) Math.Cos(longitude)*dxz);
+                    //alternative 2
+
+                    addVertex(createVertex(normal*radius, normal, tangent3, textureCoordinate));
                 }
             }
 
             // Finish with a single vertex at the top of the sphere.
-            addVertex(createVertex(Vector3.Up * radius, Vector3.Up, Vector2.Zero));
+            addVertex(createVertex(Vector3.Up * radius, Vector3.Up, Vector3.ForwardLH, new Vector2(0.5f, 1)));
 
             // Create a fan connecting the bottom vertex to the bottom latitude ring.
             for (var i = 0; i < horizontalSegments; i++)

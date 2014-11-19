@@ -42,24 +42,20 @@ struct MTVertexToPixel
     float4 ShadowScreenPosition : TEXCOORD4;
 };
 
-float DispMap(float2 tex)
-{
-	return HeightsMap.SampleLevel(TextureSampler, tex, 0).r;
-}
 
 MTVertexToPixel MultiTexturedVS(float4 inPos : SV_Position, float2 inTexCoords: TEXCOORD0)
 {
     MTVertexToPixel output;
 
-    float4 worldPosition = mul(inPos, World);
+	output.TextureCoords = float2(
+		TexOffsetAndScale.x + inTexCoords.x * TexOffsetAndScale.z,
+		TexOffsetAndScale.y + inTexCoords.y * TexOffsetAndScale.w);
+
+	inPos.y += HeightsMap.SampleLevel(TextureSampler, output.TextureCoords, 0).r;
+	
+	float4 worldPosition = mul(inPos, World);
     float4x4 viewProjection = mul(View, Projection);
-
-    output.TextureCoords = float2(
-	  TexOffsetAndScale.x + inTexCoords.x * TexOffsetAndScale.z,
-	  TexOffsetAndScale.y + inTexCoords.y * TexOffsetAndScale.w );
     
-	worldPosition.y += HeightsMap.SampleLevel(TextureSampler, output.TextureCoords, 0).r; DispMap(output.TextureCoords);
-
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
     output.WorldPosition = worldPosition;
     

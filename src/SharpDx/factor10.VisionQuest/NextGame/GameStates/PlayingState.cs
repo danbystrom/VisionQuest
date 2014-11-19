@@ -44,10 +44,12 @@ namespace NextGame.GameStates
         private bool _isHoldingBothPointers;
         private bool _turnAround;
 
-        public RelativeDirection TakeDirection(Direction headDirection)
+        RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
         {
-            var pointerLeft = _serpents.PlayerSerpent.Camera.Camera.PointerState.Points.Any(_ => _.Position.X < 0.15f && _.EventType==PointerEventType.Moved);
-            var pointerRight = _serpents.PlayerSerpent.Camera.Camera.PointerState.Points.Any(_ => _.Position.X > 0.5f && _.EventType == PointerEventType.Moved);
+            var pointerPoints = _serpents.PlayerSerpent.Camera.Camera.PointerState.Points.Where(
+                    _ => _.EventType == PointerEventType.Moved || _.EventType == PointerEventType.Pressed).ToArray();
+            var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
+            var pointerRight = pointerPoints.Any(_ => _.Position.X > 0.5f);
             if (pointerLeft && pointerRight)
             {
                 pointerLeft = false;
@@ -65,6 +67,11 @@ namespace NextGame.GameStates
             else if (_serpents.PlayerSerpent.Camera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
                 nextDirection = RelativeDirection.Right;
             return nextDirection;
+        }
+
+        bool PlayerSerpent.ITakeDirection.CanOverrideRestrictedDirections()
+        {
+            return false;
         }
 
         public void Draw(GameTime gameTime)

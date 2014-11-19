@@ -113,7 +113,7 @@ namespace Serpent
             }
 
             var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
-            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*4.5f*lengthSpeed*modifySpeed();
+            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*5.5f*lengthSpeed*modifySpeed();
 
             if (_whereabouts.Direction != Direction.None)
             {

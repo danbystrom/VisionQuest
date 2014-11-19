@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,7 +29,8 @@ namespace NextGame
         private Texture2D ballsTexture;
         private SpriteFont arial16Font;
 
-        private Model _model;
+        private Windmill _model;
+        private Texture2D _windmillDiffuse;
         private Texture2D _snakeSkin;
 
         //private Effect bloomEffect;
@@ -66,6 +68,7 @@ namespace NextGame
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
             Content.RootDirectory = "Content";
+
         }
 
         protected override void Initialize()
@@ -83,16 +86,17 @@ namespace NextGame
 
             ballsTexture = Content.Load<Texture2D>("Balls");
             _snakeSkin = Content.Load<Texture2D>(@"Textures\sn");
+            _windmillDiffuse = Content.Load<Texture2D>(@"Models\windmill_diffuse");
 
-            _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t), 2);
+            _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
 
             Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
 
             arial16Font = Content.Load<SpriteFont>("Arial16");
 
-            _model = Content.Load<Model>("Models/GalleonModel");
-            BasicEffect.EnableDefaultLighting(_model, true);
+            _model = new Windmill(Data.VContent, Vector3.Zero);
+            //BasicEffect.EnableDefaultLighting(_model, true);
 
             basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
             basicEffect.PreferPerPixelLighting = true;
@@ -125,6 +129,7 @@ namespace NextGame
         {
             base.Update(gameTime);
 
+            _model.Update(Data.Serpents.PlayerSerpent.Camera.Camera, gameTime);
             Data.Update(gameTime);
             _gameState.Update(gameTime, ref _gameState);
 
@@ -142,8 +147,9 @@ namespace NextGame
             // Constant used to translate 3d models
             float translateX = 0.0f;
 
-            _model.Draw(GraphicsDevice, Matrix.Translation(15, 0, 5)*Matrix.RotationZ(MathUtil.Pi)*Matrix.Scaling(0.2f),
-                Data.Serpents.PlayerSerpent.Camera.Camera.View, Data.Serpents.PlayerSerpent.Camera.Camera.Projection);
+            _myEffect.Texture = _windmillDiffuse;
+            _myEffect.DiffuseColor = Vector4.One;
+            _model.Draw(Data.Serpents.PlayerSerpent.Camera.Camera);
 
             // ------------------------------------------------------------------------
             // Draw the 3d primitive using BasicEffect
@@ -184,7 +190,7 @@ namespace NextGame
             _sphere.Draw(_myEffect);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
 
-            _myEffect.World = Matrix.Scaling(2) * Data.WorldPicked;
+            _myEffect.World = Matrix.Scaling(0.5f) * Data.WorldPicked;
             _sphere.Draw(_myEffect);
 
 
@@ -192,7 +198,10 @@ namespace NextGame
             // Draw the some 2d text
             // ------------------------------------------------------------------------
             spriteBatch.Begin();
+
             var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
+
+            text.AppendFormat("Slow: {0}", gameTime.IsRunningSlowly).AppendLine();
 
             {
                 var c = Data.Serpents.PlayerSerpent.Camera.Camera;

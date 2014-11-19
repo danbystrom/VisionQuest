@@ -33,7 +33,7 @@ namespace factor10.VisionQuest
 
             if (VAssembly.Is3DParty)
             {
-                Box = new Box(vContent, World, new Vector3(50, 20, 50), 0.01f);
+                DrawableBox = new DrawableBox(vContent, World, new Vector3(50, 20, 50), 0.01f);
                 foreach (var vclass in vassembly.VClasses)
                 {
                     var vc = new VisionClass(this, vclass, 75, 75, 5) {Height = 10};
@@ -178,7 +178,7 @@ namespace factor10.VisionQuest
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             return VAssembly.Is3DParty
-                ? Box.Draw(camera, drawingReason, shadowMap)
+                ? DrawableBox.Draw(camera, drawingReason, shadowMap)
                 : base.draw(camera, drawingReason, shadowMap);
         }
 

@@ -25,7 +25,7 @@ namespace NextGame.GameStates
         }
 
 
-        public RelativeDirection TakeDirection(Direction headDirection)
+        RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
         {
             var direction = _pathFinder.WayHome(_serpents.PlayerSerpent.Whereabouts);
             if (direction == Direction.None)
@@ -34,6 +34,11 @@ namespace NextGame.GameStates
                 return RelativeDirection.None;
             }
             return headDirection.GetRelativeDirection(direction);
+        }
+
+        bool PlayerSerpent.ITakeDirection.CanOverrideRestrictedDirections()
+        {
+            return true;
         }
 
 

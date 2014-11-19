@@ -105,6 +105,7 @@
     <Compile Include="Util\Direction.cs" />
     <Compile Include="Util\SinBump.cs" />
     <Compile Include="Util\Whereabouts.cs" />
+    <Compile Include="Windmill.cs" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitFont Include="Content\Arial16.xml" />
@@ -124,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
+    <ToolkitModel Include="Content\Models\windmillf.fbx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -137,6 +139,7 @@
   <ItemGroup>
     <ToolkitTexture Include="Content\Models\Galleon.dds" />
     <ToolkitTexture Include="Content\Textures\eggshell.dds" />
+    <ToolkitTexture Include="Content\Models\windmill_diffuse.dds" />
     <Content Include="Content\Textures\snakeskinmap.dds" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

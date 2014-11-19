@@ -144,10 +144,10 @@ namespace Serpent
 
         public PlayingFieldSquare FieldValue(Whereabouts whereabouts)
         {
-            return fieldValue(whereabouts.Floor, whereabouts.Location);
+            return FieldValue(whereabouts.Floor, whereabouts.Location);
         }
 
-        private PlayingFieldSquare fieldValue( int floor, Point p)
+        public PlayingFieldSquare FieldValue( int floor, Point p)
         {
             if (floor < 0 || floor >= Floors)
                 return new PlayingFieldSquare();
@@ -160,19 +160,19 @@ namespace Serpent
 
         public bool CanMoveHere(ref int floor, Point currentLocation, Point newLocation, bool ignoreRestriction = false)
         {
-            if (!fieldValue(floor, newLocation).IsNone)
+            if (!FieldValue(floor, newLocation).IsNone)
             {
                 if (ignoreRestriction)
                     return true;
-                var restricted = fieldValue(floor, newLocation).Restricted;
+                var restricted = FieldValue(floor, newLocation).Restricted;
                 return restricted == Direction.None || restricted == Direction.FromPoints(currentLocation, newLocation);
             }
-            if (fieldValue(floor, currentLocation).IsSlope && fieldValue(floor + 1, newLocation).IsPortal)
+            if (FieldValue(floor, currentLocation).IsSlope && FieldValue(floor + 1, newLocation).IsPortal)
             {
                 floor++;
                 return true;
             }
-            if (fieldValue(floor, currentLocation).IsPortal && !fieldValue(floor - 1, newLocation).IsNone)
+            if (FieldValue(floor, currentLocation).IsPortal && !FieldValue(floor - 1, newLocation).IsNone)
             {
                 floor--;
                 return true;
@@ -184,7 +184,7 @@ namespace Serpent
             Whereabouts whereabouts)
         {
             var p = whereabouts.NextLocation;
-            var square = fieldValue(whereabouts.Floor, p);
+            var square = FieldValue(whereabouts.Floor, p);
             if (square.IsNone)
                 return 0;
             switch (square.PlayingFieldSquareType)
@@ -204,7 +204,7 @@ namespace Serpent
             }
 
             //var p = whereabouts.Location;
-            //var square = fieldValue(whereabouts.Floor, p);
+            //var square = FieldValue(whereabouts.Floor, p);
             //if (square.IsNone)
             //    return 0;
             //var dp = whereabouts.Direction.DirectionAsPoint();

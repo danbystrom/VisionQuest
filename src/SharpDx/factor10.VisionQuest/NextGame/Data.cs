@@ -48,13 +48,13 @@ namespace Serpent
                     game1.GraphicsDevice,
                     texture);
 
-            Sphere = new SpherePrimitive<VertexPositionNormalTexture>(VContent.GraphicsDevice, (p, n, t) => new VertexPositionNormalTexture(p, n, t * 2), 2);
+            Sphere = new SpherePrimitive<VertexPositionNormalTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx * 2), 2);
 
             //TODO
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Ground = new Gq(VContent);
+            Ground = new Gq(VContent, PlayingField);
 
             Serpents = new Serpents(VContent, Sphere, mouseManager, keyboardManager, pointerManager, PlayingField);
         }
@@ -80,6 +80,8 @@ namespace Serpent
             //    _graphics.IsFullScreen ^= true;
             //    _graphics.ApplyChanges();
             //}
+
+            //Ground.Move(camera.Camera.KeyboardState);
 
             if (HasKeyToggled(Keys.C))
                 camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget

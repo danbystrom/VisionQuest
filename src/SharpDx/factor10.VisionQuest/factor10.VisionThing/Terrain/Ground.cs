@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using factor10.VisionThing.Objects;
 using factor10.VisionThing.Util;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
@@ -229,17 +230,19 @@ namespace factor10.VisionThing.Terrain
                 }
         }
 
-        public Vector3? HitTest(Matrix worldInverse, Ray ray)
+        public Vector3? HitTest(Matrix worldInverse, Ray rayWorld)
         {
-            var pos = Vector3.TransformCoordinate(ray.Position, worldInverse);
-            //var pos = new Vector3(ray.Position.X - groundTranslation.X, ray.Position.Y, ray.Position.Z - groundTranslation.Z);
+            var ray = new Ray(
+                Vector3.TransformCoordinate(rayWorld.Position, worldInverse),
+                Vector3.TransformNormal(rayWorld.Direction, worldInverse));
+            var pos = ray.Position;
 
             var p = new Vector2(pos.X, pos.Z); // 2D version of pos
 
             if (p.X < 0 || p.Y < 0 || p.X > Width || p.Y > Height)
             {
                 //the ray does NOT start above the ground - so find where it starts to come above the ground
-                var pos2 = pos + ray.Direction*10000; // a point far away along the ray
+                var pos2 = pos + ray.Direction*100000; // a point far away along the ray
                 var p2 = p + new Vector2(pos2.X, pos2.Z); // the 2D version of pos2
                 var c0 = new Vector2(0, 0);
                 var c1 = new Vector2(0, Height - 1);
@@ -255,14 +258,23 @@ namespace factor10.VisionThing.Terrain
                 if (list.Count < 2)
                     return null; // if the ray starts outside the ground then it should intersect two sides in 2D space - if it touches
                 list.Sort((x, y) => Math.Sign(Vector2.DistanceSquared(x, p) - Vector2.DistanceSquared(y, p)));
-                var near = list.First(); // the ray intersects with the ground here
+                var near = list.First(); // the 2D-ray intersects with the ground edge here
 
-                // also need to calculate the height in 3D space
+                // now calculate the 3d point where the ray enters the ground area
                 var d1 = Vector2.Distance(p, near);
                 var d2 = Vector2.Distance(p, p2);
                 pos = Vector3.Lerp(pos, pos2, d1/d2);
+
+                var box = new BoundingBox(Vector3.Zero, new Vector3(Width-1, Width*Height, Height-1));
+                Vector3 q;
+                box.Intersects(ref ray, out pos);
             }
 
+            if (pos.Y < 0)
+                return null;
+
+            // change the length of the ray so that it is normalized in 2D space, disregarding the Y component
+            // reason: take apropriate large steps forward in 2d space
             var ray2DLength = (float) Math.Sqrt(ray.Direction.X*ray.Direction.X + ray.Direction.Z*ray.Direction.Z);
             var direction = ray.Direction/ray2DLength;
 
@@ -272,10 +284,27 @@ namespace factor10.VisionThing.Terrain
                 var y = (int) pos.Z;
                 if (x < 0 || y < 0 || x >= Width || y >= Height)
                     break;
-                var height = this[(int) pos.X, (int) pos.Z];
+                var height = this[x, y];
                 //System.Diagnostics.Debug.Print("({0},{1}): {2}", (int) pos.X, (int) pos.Z, height);
-                if (height > pos.Y)
-                    return new Vector3(pos.X, height, pos.Z);
+                if (pos.Y > height)
+                    continue;  // ray is still too high above the ground
+
+                // now we have found the first point on the ground that is higher than the ray
+                // so create a plane using that point and two neightbouring points and find
+                // the exact intersection between the ray and that plane
+                //var oldPrimitiveResult = new Vector3(pos.X, height, pos.Z);
+                var xd = x - Math.Sign(direction.X);
+                var yd = y - Math.Sign(direction.Z);
+                if (xd < 0 || yd < 0 || xd >= Width || yd >= Height)
+                    continue;  // oops, too near an edge
+
+                var p1 = new Vector3(x, height, y);
+                var p2 = new Vector3(xd, this[xd, y], y);
+                var p3 = new Vector3(x, this[x, yd], yd);
+                var plane = new Plane(p1, p2, p3);
+                Vector3 result;
+                if (plane.Intersects(ref ray, out result))
+                    return result;
             }
 
             return null;

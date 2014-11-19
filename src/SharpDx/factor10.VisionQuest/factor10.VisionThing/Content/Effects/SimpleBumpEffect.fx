@@ -1,4 +1,5 @@
 float4x4 World;
+float3x3 WorldInverseTranspose;
 float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
@@ -12,16 +13,10 @@ float4x4 ShadowViewProjection;
 float ShadowMult = 0.3f;
 float ShadowBias = 0.001f;
 texture2D ShadowMap;
-sampler2D shadowSampler = sampler_state {
-	texture = <ShadowMap>;
-	minfilter = point;
-	magfilter = point;
-	mipfilter = point;
-};
 
-float3 DiffuseColor = float3(1, 1, 1);
-float3 AmbientColor = float3(0.9, 0.9, 0.9);
-float3 LightColor = float3(0.8, 0.8, 0.8);
+float4 DiffuseColor = float4(1, 1, 1, 1);
+float3 AmbientColor = float3(0.6, 0.6, 0.6);
+float3 LightColor = float3(0.7, 0.7, 0.7);
 float SpecularPower = 32;
 float3 SpecularColor = float3(1, 1, 1);
 
@@ -30,13 +25,15 @@ struct VertexShaderInput
 	float4 Position : SV_Position;
 	float2 UV : TEXCOORD0;
 	float3 Normal : NORMAL0;
+	float3 Tangent : TANGENT0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_Position;
+	float3 Normal : NORMAL;
+	float3 Tangent : TANGENT;
 	float2 UV : TEXCOORD0;
-	float3 Normal : TEXCOORD1;
 	float3 ViewDirection : TEXCOORD2;
 	float3 WorldPosition : TEXCOORD3;
 	float4 ShadowScreenPosition : TEXCOORD4;
@@ -48,13 +45,14 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
 	float4 worldPosition = mul(input.Position, World);
-		float4x4 viewProjection = mul(View, Projection);
+	float4x4 viewProjection = mul(View, Projection);
 
-		output.WorldPosition = worldPosition;
+	output.WorldPosition = worldPosition;
 	output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
-	output.Normal = mul(input.Normal, World);
+	output.Normal = mul(input.Normal, (float3x3)WorldInverseTranspose);
+	output.Normal = mul(input.Tangent, World);
 	output.ViewDirection = worldPosition - CameraPosition;
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
@@ -71,8 +69,8 @@ float2 sampleShadowMap(float2 UV)
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
 	// Start with diffuse color
-	float3 color = DiffuseColor * Texture.Sample(TextureSampler, float2(frac(input.UV.x), frac(input.UV.y)));
-	//float3 color = DiffuseColor * Texture.Sample(TextureSampler, input.UV);
+	float3 txColor = Texture.Sample(TextureSampler, input.UV);
+	float3 color = DiffuseColor * txColor;
 
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
@@ -80,13 +78,13 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
+	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
 
-	float3 refl = reflect(-SunlightDirection, normal);
+	float3 refl = reflect(SunlightDirection, normal);
 		float3 view = normalize(input.ViewDirection);
 
 		// Add specular highlights
-		lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
+		lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
 
 	//if (DoShadowMapping)
 	//{
@@ -115,9 +113,7 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	//}
 
 	// Calculate final color
-	float3 output = saturate(lighting) * color;
-
-		return float4(output, 1);
+	return float4(saturate(lighting) * color * DiffuseColor.a, DiffuseColor.a);
 }
 
 
