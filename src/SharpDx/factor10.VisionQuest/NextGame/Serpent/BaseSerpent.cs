@@ -35,7 +35,6 @@ namespace Larv.Serpent
         protected readonly Texture2D _serpentSkin;
         protected readonly Texture2D _serpentBump;
         protected readonly Texture2D _eggSkin;
-        //protected readonly EffectParameter _diffuseParameter;
 
         protected SerpentTailSegment _tail;
         protected int _serpentLength;
@@ -60,7 +59,7 @@ namespace Larv.Serpent
             Whereabouts whereabouts,
             Texture2D serpentSerpentSkin,
             Texture2D serpentBump,
-            Texture2D eggSkin) : base(new VisionEffect(vContent.Load<Effect>(@"Effects\SimpleBumpEffect")))
+            Texture2D eggSkin) : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
         {
             _pf = pf;
             Restart(whereabouts);

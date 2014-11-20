@@ -50,29 +50,15 @@ namespace factor10.VisionThing.Primitives
                     var dx = (float) Math.Cos(longitude)*dxz;
                     var dz = (float) Math.Sin(longitude)*dxz;
                     var normal = new Vector3(dx, dy, dz);
-                    var textureCoordinate = new Vector2((float) (Math.Asin(dx)/Math.PI + 0.5), (float) (Math.Asin(dy)/Math.PI + 0.5));
-                    var tangent = Vector3.Cross(Vector3.Up, normal);
-                    tangent.Normalize();
-
-                    //alternative
-                    var theta = Math.Acos(normal.Z);
-                    var phi = Math.Atan(normal.Y/normal.X);
-                    theta += Math.PI/2;
-                    var tangent2 = new Vector3(
-                        (float) (radius*Math.Sin(theta)*Math.Cos(phi)),
-                        (float) (radius*Math.Sin(theta)*Math.Sin(phi)),
-                        (float) (radius*Math.Cos(theta)));
-                    //alternative
-
-
-                    //alternative 2
-                    var tangent3 = new Vector3(
+                    var textureCoordinate = new Vector2(
+                        0.5f + (float) Math.Atan2(dz, dx)/MathUtil.Pi,
+                        0.5f - (float) Math.Asin(dy)/MathUtil.Pi);
+                    var tangent = new Vector3(
                         -radius*(float) Math.Sin(longitude)*dxz,
                         0,
                         radius*(float) Math.Cos(longitude)*dxz);
-                    //alternative 2
 
-                    addVertex(createVertex(normal*radius, normal, tangent3, textureCoordinate));
+                    addVertex(createVertex(normal*radius, normal, tangent, textureCoordinate));
                 }
             }
 

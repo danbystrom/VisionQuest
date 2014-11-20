@@ -43,7 +43,7 @@ namespace factor10.VisionThing
                 Vector3.Up,
                 1,
                 ShadowFarPlane);
-            Camera.Projection = Matrix.OrthoLH(
+            Camera.Projection = Matrix.OrthoRH(
                 50,
                 50,
                 1,
@@ -52,13 +52,14 @@ namespace factor10.VisionThing
 
         public void Draw()
         {
-            _graphicsDevice.SetRenderTargets(ShadowDepthTarget);
+            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White);  // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
+            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
 
-            blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
-            blurShadow(ShadowDepthTarget, _shadowBlurTarg, 1);
+            //blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
+            //blurShadow(ShadowDepthTarget, _shadowBlurTarg, 1);
         }
 
         private void blurShadow(RenderTarget2D to, RenderTarget2D from, int dir)

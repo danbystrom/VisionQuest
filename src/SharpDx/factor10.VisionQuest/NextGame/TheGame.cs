@@ -30,14 +30,7 @@ namespace Larv
         private SpriteFont _arial16Font;
 
         private Windmill _windmill;
-        private Texture2D _snakeSkin;
 
-        //private Effect bloomEffect;
-        //private RenderTarget2D renderTargetOffScreen;
-        //private RenderTarget2D[] renderTargetDownScales;
-        //private RenderTarget2D renderTargetBlurTemp;
-
-        private GeometricPrimitive primitive;
 
         public Data Data;
 
@@ -70,7 +63,7 @@ namespace Larv
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
             Content.RootDirectory = "Content";
-
+            var x = new GeometricPrimitive.Sphere();
         }
 
         protected override void Initialize()
@@ -87,12 +80,11 @@ namespace Larv
             _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
             _ballsTexture = Content.Load<Texture2D>("Balls");
-            _snakeSkin = Content.Load<Texture2D>(@"Textures\sn");
 
             _sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
             _myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
-            _image1 = Content.Load<Texture2D>("textures/image1");
+            _image1 = Content.Load<Texture2D>("textures/rocknormal");
             _snakeBump = Content.Load<Texture2D>("textures/snakeskinmap");
 
             Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
@@ -100,10 +92,6 @@ namespace Larv
             _arial16Font = Content.Load<SpriteFont>("Arial16");
 
             _windmill = new Windmill(Data.VContent, Vector3.Zero);
-            //BasicEffect.EnableDefaultLighting(_windmill, true);
-
-            // Creates torus primitive
-            primitive = ToDisposeContent(GeometricPrimitive.Torus.New(GraphicsDevice, 1, 0.3f, 32, false));
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
@@ -121,6 +109,8 @@ namespace Larv
 
             _gameState = new AttractState(Data.Serpents);
 
+            Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
+
             base.LoadContent();
         }
 
@@ -131,7 +121,9 @@ namespace Larv
             _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
             Data.Update(gameTime);
             _gameState.Update(gameTime, ref _gameState);
-           
+
+            Data.ShadowMap.Camera.Update(Data.Serpents.SerpentCamera.Camera.Position, Data.Serpents.SerpentCamera.Camera.Target);
+
             if (Data.Serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
@@ -145,10 +137,10 @@ namespace Larv
                 var lookAtFocus = camera.Position + 20 * lookingDirection;
                 lookAtFocus.Y = 2;
 
-                Data.ShadowMap.Camera.Update(
-                    lookAtFocus - VisionContent.SunlightDirection * 20,
-                    lookAtFocus);
-                //Data.ShadowMap.Draw();
+                //Data.ShadowMap.Camera.Update(
+                //    lookAtFocus - VisionContent.SunlightDirection * 20,
+                //    lookAtFocus);
+                Data.ShadowMap.Draw();
             }
 
             // Use time in seconds directly
@@ -233,6 +225,7 @@ namespace Larv
             // Use SpriteBatch to draw some balls on the screen using NonPremultiplied mode
             // as the sprite texture used is not premultiplied
             // ------------------------------------------------------------------------
+            GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, Data.ShadowMap.ShadowDepthTarget);
             _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
             for (int i = 0; i < 40; i++)
             {
@@ -250,6 +243,22 @@ namespace Larv
                     SpriteEffects.None,
                     0f);
             }
+            _spriteBatch.End();
+           GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, GraphicsDevice.BackBuffer);
+
+            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
+            var shx = GraphicsDevice.BackBuffer.Width*3/4 - 4;
+            var shy = 4;
+            _spriteBatch.Draw(
+                Data.ShadowMap.ShadowDepthTarget,
+                new Vector2(shx, shy),
+                new Rectangle(0, 0, Data.ShadowMap.ShadowDepthTarget.Width, Data.ShadowMap.ShadowDepthTarget.Height),
+                Color.White,
+                0.0f,
+                new Vector2(0, 0),
+                new Vector2(0.25f, 0.25f),
+                SpriteEffects.None,
+                0f);
             _spriteBatch.End();
 
             base.Draw(gameTime);
