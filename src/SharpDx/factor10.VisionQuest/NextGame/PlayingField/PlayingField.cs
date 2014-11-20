@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using factor10.VisionThing;
+using Serpent;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
-namespace Serpent
+namespace Larv
 {
     public class PlayingField : IDisposable
     {

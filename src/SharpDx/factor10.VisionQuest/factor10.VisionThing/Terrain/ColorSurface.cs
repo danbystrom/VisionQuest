@@ -22,6 +22,28 @@ namespace factor10.VisionThing
             return new Vector3(c.R/255f, c.G/255f, c.B/255f);
         }
 
+        public Color GetExact(int x, int y, float fracx, float fracy)
+        {
+            var topHeight = Color.Lerp(
+                this[x, y],
+                this[x + 1, y],
+                fracx);
+
+            var bottomHeight = Color.Lerp(
+                this[x, y + 1],
+                this[x + 1, y + 1],
+                fracx);
+
+            return Color.Lerp(topHeight, bottomHeight, fracy);
+        }
+
+        public Color GetExact(float x, float y)
+        {
+            var ix = (int)x;
+            var iy = (int)y;
+            return GetExact(ix, iy, x - ix, y - iy);
+        }
+
     }
 
 }

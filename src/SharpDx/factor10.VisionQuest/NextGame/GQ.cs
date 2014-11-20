@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using factor10.VisionThing;
 using factor10.VisionThing.Terrain;
-using Serpent;
 using SharpDX;
+using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
-namespace NextGame
+namespace Larv
 {
     public class Gq : TerrainBase
     {
         private float _qx = -9f;
         private float _qy = -11f;
+
+        private readonly CxBillboard _cxBillboardGrass;
+        private readonly CxBillboard _cxBillboardTrees;
 
         public void Move(KeyboardState keyboardState)
         {
@@ -61,8 +65,8 @@ namespace NextGame
             //ground.AlterValues(100, 210, 10, 10, (x, y, h) => 30);
             //ground.AlterValues(100, 220, 10, 10, (x, y, h) => 40);
 
-            for (var i = 0; i < 1000; i++)
-                ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 30;
+            for (var i = 0; i < 5000; i++)
+                ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 20;
 
             ground.DrawLine(2, 2, gqW - 3, 2, 2, (a, b) => rnd.Next(50, 300));
             ground.DrawLine(2, 2, 2, gqH - 3, 2, (a, b) => rnd.Next(50, 300));
@@ -79,7 +83,7 @@ namespace NextGame
             ground.Soften();
             //ground.Soften();
 
-            carvePlayingField(ground, playingField, (gqW - pfW*3) / 2, (gqH - pfH*3) / 2);
+            carvePlayingField(ground, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
 
@@ -101,9 +105,34 @@ namespace NextGame
             }
 
             //weights.DrawLine(10, 10, 100, 100, 4, (a, b) => new Mt9Surface.Mt9 {F = 1});
-            carvePlayingField2(weights, playingField, (gqW - pfW*3) / 2, (gqH - pfH*3) / 2);
+            carvePlayingField2(weights, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2);
 
-            initialize(ground, weights, ground.CreateNormalsMap());
+            var normals = ground.CreateNormalsMap();
+            initialize(ground, weights, normals);
+
+            var grass = new List<Tuple<Vector3, Vector3>>();
+            var trees = new List<Tuple<Vector3, Vector3>>();
+            for (var i = 0; i < 100000; i++)
+            {
+                var gx = rnd.Next(10, gqW - 20) + (float) rnd.NextDouble();
+                var gy = rnd.Next(10, gqH - 20) + (float) rnd.NextDouble();
+                var position = Vector3.TransformCoordinate(new Vector3(gx, ground.GetExactHeight(gx, gy), gy), World);
+                if (position.Y < 0.7f)
+                    continue;
+                position.Y -= 0.05f;
+                var normal = normals.GetExact(gx, gy).ToVector3();
+                if (normal.Y < 0.5f)
+                    continue;
+                if (rnd.NextDouble() < 0.999)
+                    grass.Add(new Tuple<Vector3, Vector3>(position, normal));
+                else
+                    trees.Add(new Tuple<Vector3, Vector3>(position, Vector3.Up));
+            }
+
+            _cxBillboardGrass = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f);
+            _cxBillboardGrass.CreateBillboardVerticesFromList(grass);
+            _cxBillboardTrees = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f);
+            _cxBillboardTrees.CreateBillboardVerticesFromList(trees);
         }
 
         private static void carvePlayingField(Sculptable<float> ground, PlayingField playingField, int offx, int offy)
@@ -134,6 +163,19 @@ namespace NextGame
                     }
         }
 
+        public override void Update(Camera camera, GameTime gameTime)
+        {
+            _cxBillboardGrass.Update(camera, gameTime);
+            _cxBillboardTrees.Update(camera, gameTime);
+            base.Update(camera, gameTime);
+        }
+
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
+        {
+            _cxBillboardGrass.Draw(camera, drawingReason, shadowMap);
+            _cxBillboardTrees.Draw(camera, drawingReason, shadowMap);
+            return base.draw(camera, drawingReason, shadowMap);
+        }
     }
 
 }

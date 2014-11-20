@@ -88,6 +88,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="MoveCamera.cs" />
     <Compile Include="Primitives\VertexPositionNormalTangentTexture.cs" />
     <Compile Include="Terrain\ColorSurface.cs" />
     <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
@@ -154,7 +155,7 @@
     <ToolkitFxc Include="Content\ShadowEffects\GaussianBlur.fx" />
     <ToolkitFxc Include="Content\Billboards\MSBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\grass.dds" />
-    <ToolkitTexture Include="Content\Billboards\trees.dds" />
+    <ToolkitTexture Include="Content\Billboards\tree.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\grass.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\path.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Canyon.dds" />

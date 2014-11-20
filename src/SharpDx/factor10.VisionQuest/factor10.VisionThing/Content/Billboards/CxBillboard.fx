@@ -14,11 +14,11 @@ float3 LightColor = 0.8;
 float3 AmbientColor = 0.5;
 
 // Parameters controlling the wind effect.
-float3 WindDirection = float3(1, 0, 0);
-float WindWaveSize = 0.001;
+//float3 WindDirection = float3(1, 0, 0);
+float WindWaveSize = 0.00001;
 float WindRandomness = 1;
 float WindSpeed = 2;
-float WindAmount = 0.5;
+float WindAmount = 0.05;
 float WindTime;
 
 // 1 means we should only accept opaque pixels.
@@ -81,7 +81,7 @@ VertexToPixel VSStandard(
 	// But it should only affect the top two vertices of the billboard!
 	wind *= (1 - inTexCoord.y);
 
-	output.WorldPosition = float4(finalPosition + WindDirection*wind, 1);
+	output.WorldPosition = float4(finalPosition + windDirection*wind, 1);
 
 	float4x4 preViewProjection = mul(View, Projection);
 	output.Position = output.PositionCopy = mul(output.WorldPosition, preViewProjection);

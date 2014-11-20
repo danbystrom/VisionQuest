@@ -5,7 +5,6 @@ using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using Larv.GameStates;
-using NextGame;
 using Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -38,14 +37,17 @@ namespace Larv
         //private RenderTarget2D[] renderTargetDownScales;
         //private RenderTarget2D renderTargetBlurTemp;
 
-        private VBasicEffect basicEffect;
         private GeometricPrimitive primitive;
 
         public Data Data;
 
         public IGeometricPrimitive _sphere;
         public VisionEffect _myEffect;
+        public VisionEffect _myBumpEffect;
         private RasterizerState _rasterizerState;
+
+        private Texture2D _snakeBump;
+        private Texture2D _image1;
 
         private IGameState _gameState;
 
@@ -87,8 +89,11 @@ namespace Larv
             _ballsTexture = Content.Load<Texture2D>("Balls");
             _snakeSkin = Content.Load<Texture2D>(@"Textures\sn");
 
-            _sphere = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx), 2);
+            _sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
+            _myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
+            _image1 = Content.Load<Texture2D>("textures/image1");
+            _snakeBump = Content.Load<Texture2D>("textures/snakeskinmap");
 
             Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
 
@@ -96,11 +101,6 @@ namespace Larv
 
             _windmill = new Windmill(Data.VContent, Vector3.Zero);
             //BasicEffect.EnableDefaultLighting(_windmill, true);
-
-            basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
-            basicEffect.PreferPerPixelLighting = true;
-            basicEffect.EnableDefaultLighting();
-            basicEffect.Texture = _snakeSkin;
 
             // Creates torus primitive
             primitive = ToDisposeContent(GeometricPrimitive.Torus.New(GraphicsDevice, 1, 0.3f, 32, false));
@@ -119,7 +119,7 @@ namespace Larv
                 IsAntialiasedLineEnabled = false
             });
 
-            _gameState = new PlayingState(Data.Serpents);
+            _gameState = new AttractState(Data.Serpents);
 
             base.LoadContent();
         }
@@ -131,7 +131,7 @@ namespace Larv
             _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
             Data.Update(gameTime);
             _gameState.Update(gameTime, ref _gameState);
-
+           
             if (Data.Serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
@@ -161,43 +161,21 @@ namespace Larv
 
             _windmill.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
-            // ------------------------------------------------------------------------
-            // Draw the 3d primitive using BasicEffect
-            // ------------------------------------------------------------------------
-            basicEffect.View = Data.Serpents.SerpentCamera.Camera.View;
-            basicEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
-
-            basicEffect.World = Matrix.Scaling(3.0f, 3.0f, 3.0f)*
-                                Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
-                                Matrix.RotationY(time*2.0f)*
-                                Matrix.RotationZ(0)*
-                                Matrix.Translation(translateX, -1.0f, 0);
-            basicEffect.Texture = _snakeSkin;
-            basicEffect.TextureEnabled = true;
-            primitive.Draw(basicEffect);
-
-            basicEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
-                                Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
-                                Matrix.RotationY(time*2.0f)*
-                                Matrix.RotationZ(0)*
-                                Matrix.Translation(-1, -1.0f, -15);
-            basicEffect.Texture = _snakeSkin;
-            _sphere.Draw(basicEffect);
-
             //Data.Serpents.Draw(gameTime);
             _gameState.Draw(gameTime);
 
-            _myEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
+            _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                               Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
                               Matrix.RotationY(time*2.0f)*
                               Matrix.RotationZ(0)*
-                              Matrix.Translation(-1, -1.0f, -10);
-            _myEffect.View = Data.Serpents.SerpentCamera.Camera.View;
-            _myEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
-            _myEffect.Texture = _snakeSkin;
-            _myEffect.DiffuseColor = new Vector4(1, 1, 1, 0.2f);
+                              Matrix.Translation(-1, -3.0f, -10);
+            _myBumpEffect.View = Data.Serpents.SerpentCamera.Camera.View;
+            _myBumpEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
+            _myBumpEffect.Texture = _image1;
+            _myBumpEffect.Parameters["BumpMap"].SetResource(_snakeBump);
+            _myBumpEffect.DiffuseColor = new Vector4(1, 1, 1, 0.9f);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
-            _sphere.Draw(_myEffect);
+            _sphere.Draw(_myBumpEffect);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
 
             _myEffect.World = Matrix.Scaling(0.5f) * Data.WorldPicked;
@@ -215,8 +193,8 @@ namespace Larv
 
             {
                 var c = Data.Serpents.SerpentCamera.Camera;
-                text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2:0.000},{3:0.000},{4:0.000}",
-                    c.Yaw, c.Pitch, c.Forward.X, c.Forward.Y, c.Forward.Z).AppendLine();
+                text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2}  Position/Target: {3}/{4}",
+                    c.Yaw, c.Pitch, c.Forward, c.Position, c.Target).AppendLine();
             }
 
             {

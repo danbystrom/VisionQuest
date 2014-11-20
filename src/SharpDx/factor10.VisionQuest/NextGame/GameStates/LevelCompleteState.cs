@@ -1,7 +1,5 @@
 ﻿using Larv.Serpent;
-using NextGame;
 using Serpent;
-using Serpent.Serpent;
 using SharpDX.Toolkit;
 
 namespace Larv.GameStates

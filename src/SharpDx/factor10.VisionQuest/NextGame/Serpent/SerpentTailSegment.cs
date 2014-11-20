@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Serpent;
 using SharpDX;
-using SharpDX.Toolkit;
 
-namespace Serpent
+namespace Larv.Serpent
 {
     public class SerpentTailSegment
     {

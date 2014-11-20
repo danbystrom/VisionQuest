@@ -1,4 +1,6 @@
-﻿namespace Serpent
+﻿using Serpent;
+
+namespace Larv
 {
     public enum PlayingFieldSquareType
     {

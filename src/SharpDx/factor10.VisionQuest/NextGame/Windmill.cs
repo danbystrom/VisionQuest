@@ -3,7 +3,7 @@ using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
-namespace NextGame
+namespace Larv
 {
     class Windmill : ClipDrawable
     {

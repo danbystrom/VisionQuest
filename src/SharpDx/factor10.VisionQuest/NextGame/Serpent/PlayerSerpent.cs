@@ -1,6 +1,5 @@
 ﻿using factor10.VisionThing;
 using Serpent;
-using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;

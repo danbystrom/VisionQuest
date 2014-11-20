@@ -4,7 +4,6 @@ using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using Serpent;
-using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -87,7 +86,7 @@ namespace Larv.Serpent
             _tail = new SerpentTailSegment(_pf, _whereabouts);
             _serpentLength = 1;
             _ascendToHeaven = 0;
-            _layingEgg = 0;
+            _layingEgg = -1;
             _pendingEatenSegments = 6;
         }
 

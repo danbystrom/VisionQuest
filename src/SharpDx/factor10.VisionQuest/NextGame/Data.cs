@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
+using Larv;
 using Larv.Serpent;
-using NextGame;
-using Serpent.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -48,7 +48,7 @@ namespace Serpent
 
             if (PlayingField == null)
                 PlayingField = new PlayingField(
-                    game1.GraphicsDevice,
+                    VContent.GraphicsDevice,
                     texture);
 
             Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx * 2), 2);
@@ -80,6 +80,8 @@ namespace Serpent
             var camera = Serpents.SerpentCamera;
             camera.Camera.UpdateInputDevices();
 
+            Ground.Update(camera.Camera, gameTime);
+
             //if (Data.HasKeyToggled(Keys.Enter) && Data.KeyboardState.IsKeyDown(Keys.LeftAlt))
             //{
             //    _graphics.IsFullScreen ^= true;
@@ -89,17 +91,11 @@ namespace Serpent
             //Ground.Move(camera.Camera.KeyboardState);
 
             if (HasKeyToggled(Keys.C))
-                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.Static
-                    : CameraBehavior.FollowTarget;
-            if (HasKeyToggled(Keys.F))
-                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.FreeFlying
-                    : CameraBehavior.FollowTarget;
-            if (HasKeyToggled(Keys.H))
-                camera.CameraBehavior = camera.CameraBehavior == CameraBehavior.FollowTarget
-                    ? CameraBehavior.Head
-                    : CameraBehavior.FollowTarget;
+            {
+                var cameraStates = new[] {CameraBehavior.FollowTarget, CameraBehavior.FollowTarget, CameraBehavior.Static, CameraBehavior.Head}.ToList();
+                var idx = cameraStates.IndexOf(camera.CameraBehavior);
+                camera.CameraBehavior = cameraStates[(idx + 1) % cameraStates.Count];
+            }
             if (HasKeyToggled(Keys.P))
                 _paused ^= true;
 

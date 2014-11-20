@@ -15,6 +15,7 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
+            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.FollowTarget;
         }
 
         public void Update(GameTime gameTime, ref IGameState gameState)

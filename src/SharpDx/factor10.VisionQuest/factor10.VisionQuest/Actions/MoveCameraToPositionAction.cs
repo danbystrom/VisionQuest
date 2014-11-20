@@ -63,7 +63,7 @@ namespace factor10.VisionQuest.Actions
             var posFactor = MathUtil.SmootherStep(_time/5);
             var pos = getPointOnPath(posFactor);
 
-            var newYaw = MathUtil.Lerp(_fromYaw, _toYaw, MathUtil.SmootherStep(_time / 3));
+            var newYaw = MathUtil.Lerp(_fromYaw, _toYaw, Math.Min(1, MathUtil.SmootherStep(_time/3)));
             var desiredPitch = -(float)Math.Asin((_toPosition.Y - _toLookAt.Y) / Vector3.Distance(_toPosition, _toLookAt));
 
             var newPitch = MathUtil.Lerp(data.Camera.Pitch, desiredPitch, dt);
@@ -73,6 +73,7 @@ namespace factor10.VisionQuest.Actions
                 pos + Vector3.TransformCoordinate(Vector3.ForwardRH * 10, rotation));
             return posFactor < 1;
         }
+
     }
 
 }

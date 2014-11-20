@@ -1,7 +1,7 @@
 ﻿using Serpent;
 using SharpDX;
 
-namespace NextGame
+namespace Larv
 {
     public class PathFinder
     {

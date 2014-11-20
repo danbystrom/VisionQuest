@@ -1,10 +1,10 @@
 ﻿using System;
 using factor10.VisionThing;
+using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Input;
 
-namespace Serpent.Serpent
+namespace Larv.Serpent
 {
     public enum CameraBehavior
     {
@@ -16,6 +16,9 @@ namespace Serpent.Serpent
 
     public class SerpentCamera
     {
+        public const float CameraDistanceToHeadXz = 9;
+        public const float CameraDistanceToHeadY = 5;
+
         public readonly Camera Camera;
 
         private CameraBehavior _cameraBehavior;
@@ -55,7 +58,7 @@ namespace Serpent.Serpent
                         _staticFromTarget = Camera.Target;
                         break;
                     case CameraBehavior.FreeFlying:
-                        Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
+                        //Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
                         break;
                 }
             }
@@ -75,16 +78,16 @@ namespace Serpent.Serpent
                     var position2D = moveTo(
                         new Vector2(Camera.Position.X, Camera.Position.Z),
                         target2D,
-                        target2D - direction.DirectionAsVector2() * 9,
+                        target2D - direction.DirectionAsVector2()*CameraDistanceToHeadXz,
                         gameTime.ElapsedGameTime.TotalMilliseconds);
 
                     var newPosition = new Vector3(
                         position2D.X,
-                        target.Y + 5,
+                        target.Y + CameraDistanceToHeadY,
                         position2D.Y);
 
-                    _acc += (float)Math.Sqrt(Vector3.Distance(newPosition, Camera.Position)) *
-                            (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.001f;
+                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, Camera.Position))*
+                            (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.001f;
                     _acc *= 0.4f;
                     var v = MathUtil.Clamp(_acc, 0.1f, 0.3f);
                     Camera.Update(
@@ -108,12 +111,12 @@ namespace Serpent.Serpent
                     break;
 
                 case CameraBehavior.Head:
-                    var d3 = direction.DirectionAsVector3() * 0.5f;
+                    var d3 = direction.DirectionAsVector3()*0.5f;
                     var newPosition2 = target + d3 + Vector3.Up;
                     target = newPosition2 + d3 + Vector3.Down*0.1f;
 
-                    _acc += (float)Math.Sqrt(Vector3.Distance(newPosition2, Camera.Position)) *
-                            (float)gameTime.ElapsedGameTime.TotalMilliseconds * 0.001f;
+                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition2, Camera.Position))*
+                            (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.001f;
                     _acc *= 0.4f;
                     var v2 = MathUtil.Clamp(_acc, 0.1f, 0.3f);
                     Camera.Update(
@@ -139,29 +142,29 @@ namespace Serpent.Serpent
                 return desired;
 
             var d1 = d2TargetDesired + d2TargetCamera - d2CameraDesired;
-            var d2 = Math.Sqrt(4 * d2TargetDesired * d2TargetCamera);
-            var div = d1 / d2;
+            var d2 = Math.Sqrt(4*d2TargetDesired*d2TargetCamera);
+            var div = d1/d2;
             if (div < -1f)
                 div += 2;
             else if (div > 1)
                 div -= 2;
-            var angle = (float)Math.Acos(div);
+            var angle = (float) Math.Acos(div);
 
             var v1 = camera - target;
             var v2 = desired - target;
 
-            if (v1.X * v2.Y - v2.X * v1.Y > 0)
+            if (v1.X*v2.Y - v2.X*v1.Y > 0)
                 angle = -angle;
 
-            var angleFraction = angle * elapsedTime / 100;
+            var angleFraction = angle*elapsedTime/100;
 
-            var cosA = (float)Math.Cos(angleFraction);
-            var sinA = (float)Math.Sin(angleFraction);
+            var cosA = (float) Math.Cos(angleFraction);
+            var sinA = (float) Math.Sin(angleFraction);
             var direction = new Vector2(
-                v1.X * cosA + v1.Y * sinA,
-                -v1.X * sinA + v1.Y * cosA);
+                v1.X*cosA + v1.Y*sinA,
+                -v1.X*sinA + v1.Y*cosA);
             direction.Normalize();
-            return target + direction * v2.Length();
+            return target + direction*v2.Length();
         }
 
     }

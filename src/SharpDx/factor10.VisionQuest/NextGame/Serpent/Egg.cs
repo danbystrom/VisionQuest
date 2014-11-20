@@ -1,13 +1,11 @@
 ﻿using factor10.VisionThing;
 using factor10.VisionThing.Effects;
-using Serpent.Serpent;
+using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
-using System;
-using System.Collections.Generic;
 
-namespace Serpent
+namespace Larv.Serpent
 {
     public class Egg
     {

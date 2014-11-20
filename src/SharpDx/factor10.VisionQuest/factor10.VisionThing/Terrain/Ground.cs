@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using factor10.VisionThing.Objects;
 using factor10.VisionThing.Util;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
