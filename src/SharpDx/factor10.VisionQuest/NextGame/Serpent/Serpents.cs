@@ -4,6 +4,7 @@ using System.Linq;
 using factor10.VisionThing;
 using Serpent;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
@@ -73,7 +74,7 @@ namespace Larv.Serpent
             {
                 _onceASecond = 0;
 
-                if (PlayerEgg == null && Rnd.NextDouble() < 0.03)
+                if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || SerpentCamera.Camera.KeyboardState.IsKeyPressed(Keys.D3) ))
                     PlayerSerpent.Fertilize();
 
                 if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
@@ -130,14 +131,14 @@ namespace Larv.Serpent
 
         public void Draw(GameTime gameTime)
         {
-            Data.PlayingField.Draw(SerpentCamera.Camera);
+            Data.PlayingField.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             if (PlayerEgg != null)
-                PlayerEgg.Draw(gameTime);
+                PlayerEgg.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
             foreach (var egg in EnemyEggs)
-                egg.Draw(gameTime);
+                egg.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
-            Data.Ground.Draw(SerpentCamera.Camera);
+            Data.Ground.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
             Data.Sky.Draw(SerpentCamera.Camera);
 
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using factor10.VisionThing;
+using factor10.VisionThing.Effects;
+using factor10.VisionThing.Primitives;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
@@ -8,25 +10,32 @@ using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace Larv
 {
-    public class PlayingField : IDisposable
+    public class PlayingField : ClipDrawable
     {
         public readonly int Floors, Width, Height;
         public readonly Buffer<VertexPositionNormalTexture> VertexBuffer;
         public readonly Buffer<VertexPositionColor> VertexBufferShadow;
+        public readonly VertexInputLayout VertexInputLayout;
+
+        public readonly IVDrawable _plane;
+
         public readonly PlayingFieldSquare[, ,] TheField;
 
-        private readonly BasicEffect _effect;
         private readonly Texture2D _texture;
 
         public readonly Whereabouts PlayerWhereaboutsStart;
         public readonly Whereabouts EnemyWhereaboutsStart;
 
-        public PlayingField(GraphicsDevice graphicsDevice, Texture2D texture)
+        public PlayingField(VisionContent vContent, Texture2D texture)
+            : base(vContent.LoadPlainEffect("effects/simpletextureeffect"))
         {
-            _effect = new BasicEffect(graphicsDevice);
             _texture = texture;
 
             var field = PlayingFields.GetQ1();
+
+            _plane = new PlanePrimitive<VertexPositionNormalTexture>(vContent.GraphicsDevice, (x, y, w, h) => new VertexPositionNormalTexture(
+                new Vector3(x, 0, y), Vector3.Up, new Vector2(x/w, y/h)),
+                10, 10);
 
             Floors = field.Count;
             Height = field[0].Length;
@@ -55,8 +64,9 @@ namespace Larv
                          }
 
 
-            VertexBuffer = Buffer.Vertex.New(graphicsDevice, verts.ToArray());
-            VertexBufferShadow = Buffer.Vertex.New(graphicsDevice, vertsShadow.ToArray());
+            VertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, verts.ToArray());
+            VertexBufferShadow = Buffer.Vertex.New(vContent.GraphicsDevice, vertsShadow.ToArray());
+            VertexInputLayout = VertexInputLayout.FromBuffer(0, VertexBuffer);
         }
 
         private void foobar(
@@ -109,38 +119,28 @@ namespace Larv
                 Color.DarkSlateBlue  ));
         }
 
-        public void Draw( Camera camera )
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            //Set object and camera info
-            _effect.View = camera.View;
-            _effect.Projection = camera.Projection;
+            camera.UpdateEffect(Effect);
 
-            _effect.World = Matrix.Translation(-0.5f, 0, -0.5f);
-            _effect.Texture = _texture;
-            _effect.TextureEnabled = true;
-            _effect.VertexColorEnabled = false;
+            Effect.World = Matrix.Translation(-0.5f, 0, -0.5f);
+            Effect.Texture = _texture;
 
-            foreach (var pass in _effect.CurrentTechnique.Passes)
+            foreach (var effectPass in Effect.Effect.CurrentTechnique.Passes)
             {
-                pass.Apply();
-                _effect.GraphicsDevice.SetVertexBuffer(VertexBuffer);
-                _effect.GraphicsDevice.Draw(
+                effectPass.Apply();
+
+                Effect.GraphicsDevice.SetVertexInputLayout(VertexInputLayout);
+                Effect.GraphicsDevice.SetVertexBuffer(VertexBuffer);
+
+                Effect.GraphicsDevice.Draw(
                     PrimitiveType.TriangleList,
                     VertexBuffer.ElementCount);
             }
 
-            //TODO
-            //_effect.TextureEnabled = false;
-            //_effect.VertexColorEnabled = true;
-            //foreach (var pass in _effect.CurrentTechnique.Passes)
-            //{
-            //    pass.Apply();
-            //    _effect.GraphicsDevice.SetVertexBuffer(VertexBufferShadow);
-            //    _effect.GraphicsDevice.Draw(
-            //        PrimitiveType.TriangleList,
-            //        VertexBufferShadow.ElementCount/3);
-            //}
+            //_plane.Draw(_effect);
 
+            return true;
         }
 
         public PlayingFieldSquare FieldValue(Whereabouts whereabouts)
@@ -215,12 +215,6 @@ namespace Larv
             //return whereabouts.Floor * 1.3333f + (diffX + diffY);
         }
 
-        public void Dispose()
-        {
-            _effect.Dispose();
-            VertexBuffer.Dispose();
-            VertexBufferShadow.Dispose();
-        }
 
     }
 

@@ -111,31 +111,31 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
 
-	//if (DoShadowMapping)
-	//{
-	//	float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
+	if (DoShadowMapping)
+	{
+		float realDepth = input.ShadowScreenPosition.z / input.ShadowScreenPosition.w - ShadowBias;
 
-	//	if (realDepth < 1)
-	//	{
-	//		// Sample from depth texture
-	//		float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-	//		float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+		if (realDepth < 1)
+		{
+			// Sample from depth texture
+			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
+			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
 
-	//		float2 moments = sampleShadowMap(shadowTexCoord);
+			float2 moments = sampleShadowMap(shadowTexCoord);
 
-	//		// Check if we're in shadow
-	//		float lit_factor = (realDepth <= moments.x);
-	//   
-	//		// Variance shadow mapping
-	//		float E_x2 = moments.y;
-	//		float Ex_2 = moments.x * moments.x;
-	//		float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
-	//		float m_d = (moments.x - realDepth);
-	//		float p = variance / (variance + m_d * m_d);
+			// Check if we're in shadow
+			float lit_factor = (realDepth <= moments.x);
+	   
+			// Variance shadow mapping
+			float E_x2 = moments.y;
+			float Ex_2 = moments.x * moments.x;
+			float variance = min(max(E_x2 - Ex_2, 0.0) + 1.0f / 10000.0f, 1.0);
+			float m_d = (moments.x - realDepth);
+			float p = variance / (variance + m_d * m_d);
 
-	//		lighting *= clamp(max(lit_factor, p), ShadowMult, 1.0f);
-	//	}
-	//}
+			lighting *= clamp(max(lit_factor, p), ShadowMult, 1.0f);
+		}
+	}
 
 	// Calculate final color
 	return float4(saturate(lighting) * color * DiffuseColor.a, DiffuseColor.a);

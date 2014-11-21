@@ -4,6 +4,7 @@ using System.Text;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
+using factor10.VisionThing.Util;
 using Larv.GameStates;
 using Serpent;
 using SharpDX;
@@ -44,6 +45,8 @@ namespace Larv
 
         private IGameState _gameState;
 
+        private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TheGame" /> class.
         /// </summary>
@@ -63,7 +66,6 @@ namespace Larv
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
             Content.RootDirectory = "Content";
-            var x = new GeometricPrimitive.Sphere();
         }
 
         protected override void Initialize()
@@ -110,6 +112,7 @@ namespace Larv
             _gameState = new AttractState(Data.Serpents);
 
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
+            Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
 
             base.LoadContent();
         }
@@ -118,11 +121,15 @@ namespace Larv
         {
             base.Update(gameTime);
 
+            _fps.Update(gameTime);
             _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
             Data.Update(gameTime);
             _gameState.Update(gameTime, ref _gameState);
 
-            Data.ShadowMap.Camera.Update(Data.Serpents.SerpentCamera.Camera.Position, Data.Serpents.SerpentCamera.Camera.Target);
+            var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
+            Data.ShadowMap.Camera.Update(
+                shadowCameraPos,
+                shadowCameraPos + VisionContent.SunlightDirection);
 
             if (Data.Serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
@@ -130,26 +137,12 @@ namespace Larv
 
         protected override void Draw(GameTime gameTime)
         {
-            {
-                var camera = Data.Serpents.SerpentCamera.Camera;
-                var lookingDirection = camera.Target - camera.Position;
-                lookingDirection.Normalize();
-                var lookAtFocus = camera.Position + 20 * lookingDirection;
-                lookAtFocus.Y = 2;
-
-                //Data.ShadowMap.Camera.Update(
-                //    lookAtFocus - VisionContent.SunlightDirection * 20,
-                //    lookAtFocus);
-                Data.ShadowMap.Draw();
-            }
+            Data.ShadowMap.Draw();
 
             // Use time in seconds directly
             var time = (float) gameTime.TotalGameTime.TotalSeconds;
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // Constant used to translate 3d models
-            float translateX = 0.0f;
 
             _windmill.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
@@ -157,10 +150,10 @@ namespace Larv
             _gameState.Draw(gameTime);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
-                              Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
-                              Matrix.RotationY(time*2.0f)*
-                              Matrix.RotationZ(0)*
-                              Matrix.Translation(-1, -3.0f, -10);
+                                  Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
+                                  Matrix.RotationY(time*2.0f)*
+                                  Matrix.RotationZ(0)*
+                                  Matrix.Translation(Data.ShadowMap.Camera.Position);
             _myBumpEffect.View = Data.Serpents.SerpentCamera.Camera.View;
             _myBumpEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
             _myBumpEffect.Texture = _image1;
@@ -169,6 +162,10 @@ namespace Larv
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
             _sphere.Draw(_myBumpEffect);
             GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
+
+            _myBumpEffect.World = Matrix.Scaling(0.5f, 0.5f, 0.5f) *
+                      Matrix.Translation(Data.ShadowMap.Camera.Position + VisionContent.SunlightDirection * 3);
+            _sphere.Draw(_myBumpEffect);
 
             _myEffect.World = Matrix.Scaling(0.5f) * Data.WorldPicked;
             _sphere.Draw(_myEffect);
@@ -181,7 +178,7 @@ namespace Larv
 
             var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
 
-            text.AppendFormat("Slow: {0}", gameTime.IsRunningSlowly).AppendLine();
+            text.AppendFormat("FPS: {0}", _fps.FrameRate).AppendLine();
 
             {
                 var c = Data.Serpents.SerpentCamera.Camera;

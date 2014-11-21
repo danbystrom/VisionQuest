@@ -42,7 +42,7 @@ namespace factor10.VisionThing.Primitives
 
                 var dy = (float) Math.Sin(latitude);
                 var dxz = (float) Math.Cos(latitude);
-
+                var txy = 0.5f - (float) Math.Asin(dy)/MathUtil.Pi;
                 // Create a single ring of vertices at this latitude.
                 for (var j = 0; j < horizontalSegments; j++)
                 {
@@ -52,7 +52,7 @@ namespace factor10.VisionThing.Primitives
                     var normal = new Vector3(dx, dy, dz);
                     var textureCoordinate = new Vector2(
                         0.5f + (float) Math.Atan2(dz, dx)/MathUtil.Pi,
-                        0.5f - (float) Math.Asin(dy)/MathUtil.Pi);
+                        txy);
                     var tangent = new Vector3(
                         -radius*(float) Math.Sin(longitude)*dxz,
                         0,

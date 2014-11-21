@@ -15,7 +15,8 @@ namespace factor10.VisionThing
         public readonly RenderTarget2D ShadowDepthTarget;
 
         // Depth texture parameters
-        public int ShadowFarPlane = 200;
+        public int ShadowNearPlane;
+        public int ShadowFarPlane;
         public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
@@ -26,7 +27,9 @@ namespace factor10.VisionThing
             VisionContent vContent,
             Camera camera,
             int width,
-            int height)
+            int height,
+            int nearPlane = 1,
+            int farPlane = 200)
         {
             _graphicsDevice = vContent.GraphicsDevice;
             RealCamera = camera;
@@ -37,17 +40,24 @@ namespace factor10.VisionThing
             _shadowBlurEffect = vContent.Load<Effect>("ShadowEffects/GaussianBlur");
             _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
+            ShadowNearPlane = nearPlane;
+            ShadowFarPlane = farPlane;
             Camera = new Camera(
                 new Vector2(width, height),
                 Vector3.Zero,
                 Vector3.Up,
-                1,
+                ShadowNearPlane,
                 ShadowFarPlane);
+            UpdateProjection(50, 50);
+        }
+
+        public void UpdateProjection(int width, int height, int near = 0, int far = 0)
+        {
             Camera.Projection = Matrix.OrthoRH(
-                50,
-                50,
-                1,
-                ShadowFarPlane);
+                width,
+                height,
+                near > 0 ? near : ShadowNearPlane,
+                far > 0 ? far : ShadowFarPlane);
         }
 
         public void Draw()

@@ -70,7 +70,7 @@ MTVertexToPixel MultiTexturedVS(float4 inPos : SV_Position, float2 inTexCoords: 
 float2 sampleShadowMap(float2 UV)
 {
 	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
-		return float2(1, 1);
+		return float2(0, 0);
 	return ShadowMap.Sample(TextureSampler, UV).rg;
 }
 
@@ -129,16 +129,16 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 		if (realDepth < 1)
 		{
 			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-				float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
 
-				// Variance shadow mapping code below from the variance shadow
-				// mapping demo code @ http://www.punkuser.net/vsm/
+			// Variance shadow mapping code below from the variance shadow
+			// mapping demo code @ http://www.punkuser.net/vsm/
 
-				// Sample from depth texture
-				float2 moments = sampleShadowMap(shadowTexCoord);
+			// Sample from depth texture
+			float2 moments = sampleShadowMap(shadowTexCoord);
 
-				// Check if we're in shadow
-				float lit_factor = (realDepth <= moments.x);
+			// Check if we're in shadow
+			float lit_factor = (realDepth <= moments.x);
 
 			// Variance shadow mapping
 			float E_x2 = moments.y;

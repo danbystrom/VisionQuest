@@ -31,7 +31,7 @@ namespace Serpent
         public Matrix WorldPicked;
 
         public Camera Camera;
-        public ShadowMap ShadowMap;
+        public static ShadowMap ShadowMap;
 
         public Data(
             Game game1,
@@ -48,7 +48,7 @@ namespace Serpent
 
             if (PlayingField == null)
                 PlayingField = new PlayingField(
-                    VContent.GraphicsDevice,
+                    VContent,
                     texture);
 
             Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx * 2), 2);
@@ -60,7 +60,8 @@ namespace Serpent
             Ground = new Gq(VContent, PlayingField);
 
             Camera = new Camera(VContent.ClientSize, keyboardManager, mouseManager, pointerManager, new Vector3(10, 5, 10), Vector3.Zero);
-            ShadowMap = new ShadowMap(VContent, Camera, 1920, 1080);
+            ShadowMap = new ShadowMap(VContent, Camera, 1000, 1000, 1, 50);
+            ShadowMap.UpdateProjection(50, 30);
             Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
         }
 

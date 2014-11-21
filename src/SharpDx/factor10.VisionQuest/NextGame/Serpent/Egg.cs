@@ -7,9 +7,8 @@ using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
 {
-    public class Egg
+    public class Egg : ClipDrawable
     {
-        private readonly IVEffect _effect;
         private readonly IVDrawable _sphere;
         private readonly Texture2D _eggSkin;
         private readonly Matrix _world;
@@ -25,8 +24,8 @@ namespace Larv.Serpent
             Matrix world,
             Whereabouts whereabouts,
             float timeToHatch)
+            : base(effect)
         {
-            _effect = effect;
             _sphere = sphere;
             _eggSkin = eggSkin;
             _world = world;
@@ -63,9 +62,11 @@ namespace Larv.Serpent
             sphere.Draw(effect);
         }
 
-        public void Draw(GameTime gameTime)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            Draw(_effect, _eggSkin, _sphere, _world, Whereabouts.Direction);
+            camera.UpdateEffect(Effect);
+            Draw(Effect, _eggSkin, _sphere, _world, Whereabouts.Direction);
+            return true;
         }
 
         public bool TimeToHatch()
