@@ -37,7 +37,7 @@ namespace factor10.VisionThing
             ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             _spriteBatch = new SpriteBatch(_graphicsDevice);
-            _shadowBlurEffect = vContent.Load<Effect>("ShadowEffects/GaussianBlur");
+            _shadowBlurEffect = vContent.Load<Effect>("ShadowEffects/Blur");
             _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             ShadowNearPlane = nearPlane;
@@ -63,33 +63,27 @@ namespace factor10.VisionThing
         public void Draw()
         {
             _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, ShadowDepthTarget);
-            _graphicsDevice.Clear(Color.White);  // Clear the render target to 1 (infinite depth)
+            _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
-            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
 
-            //blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
-            //blurShadow(ShadowDepthTarget, _shadowBlurTarg, 1);
+            blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
+            blurShadow(ShadowDepthTarget, _shadowBlurTarg, 0);
+
+            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
+            _graphicsDevice.SetDepthStencilState(_graphicsDevice.DepthStencilStates.Default);
+            _graphicsDevice.SetBlendState(_graphicsDevice.BlendStates.Opaque);
         }
 
         private void blurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
         {
             _graphicsDevice.SetRenderTargets(to);
-            _graphicsDevice.Clear(Color.Black);
 
-            _spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, _shadowBlurEffect);
             _shadowBlurEffect.CurrentTechnique.Passes[dir].Apply();
-            _spriteBatch.Draw(from, new Rectangle(0, 0, from.Width, from.Height), Color.White);
+            _spriteBatch.Begin(SpriteSortMode.Immediate,  _shadowBlurEffect);
+            _spriteBatch.Draw(from, Vector2.Zero, Color.White);
             _spriteBatch.End();
 
-            // Clean up after the sprite batch
-            //TODO
-            //_graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-            //_graphicsDevice.SetDepthStencilState(DepthStencilState.Default);
-            //_graphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            //_graphicsDevice.BlendState = BlendState.Opaque;
-
-            //_graphicsDevice.SetRenderTargets(null);
         }
 
     }

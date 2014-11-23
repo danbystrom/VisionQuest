@@ -1,4 +1,5 @@
-﻿using Larv.Serpent;
+﻿using factor10.VisionThing;
+using Larv.Serpent;
 using SharpDX.Toolkit;
 
 namespace Larv.GameStates
@@ -14,7 +15,7 @@ namespace Larv.GameStates
 
         }
 
-        public void Update(GameTime gameTime, ref IGameState gameState)
+        public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
             _delay += (float) gameTime.ElapsedGameTime.TotalSeconds;
             _serpents.Update(gameTime);
@@ -22,9 +23,9 @@ namespace Larv.GameStates
                 gameState = new StartSerpentState(_serpents);
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            _serpents.Draw(gameTime);
+            _serpents.Draw(camera, drawingReason, shadowMap);
         }
 
     }

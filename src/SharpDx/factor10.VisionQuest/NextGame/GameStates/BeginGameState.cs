@@ -26,7 +26,7 @@ namespace Larv.GameStates
                 cameraPos);
         }
 
-        public void Update(GameTime gameTime, ref IGameState gameState)
+        public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
             if (_moveCamera!=null)
             {
@@ -41,9 +41,9 @@ namespace Larv.GameStates
                 gameState = new PlayingState(_serpents);
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            _serpents.Draw(gameTime);
+            _serpents.Draw(camera, drawingReason, shadowMap);
         }
 
     }

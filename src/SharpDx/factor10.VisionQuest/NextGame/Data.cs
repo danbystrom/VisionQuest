@@ -60,7 +60,7 @@ namespace Serpent
             Ground = new Gq(VContent, PlayingField);
 
             Camera = new Camera(VContent.ClientSize, keyboardManager, mouseManager, pointerManager, new Vector3(10, 5, 10), Vector3.Zero);
-            ShadowMap = new ShadowMap(VContent, Camera, 1000, 1000, 1, 50);
+            ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
         }

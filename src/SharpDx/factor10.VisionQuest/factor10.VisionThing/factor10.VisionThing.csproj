@@ -170,6 +170,7 @@
     <ToolkitTexture Include="Content\TerrainTextures\tree.dds" />
     <ToolkitFxc Include="Content\Billboards\CxBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\wheat_billboard.dds" />
+    <ToolkitFxc Include="Content\ShadowEffects\Blur.fx" />
     <Content Include="Content\ShadowEffects\LightingEffect.fx" />
     <Content Include="Content\ShadowEffects\MultiLightingEffect.fx" />
     <Content Include="Content\ShadowEffects\PointLightEffect.fx" />

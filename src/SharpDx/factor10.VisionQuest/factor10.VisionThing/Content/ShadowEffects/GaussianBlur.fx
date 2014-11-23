@@ -1,7 +1,18 @@
-// The texture to blur
+Texture2D<float4> Texturex : register(t0);
 
-Texture2D Texture;
-SamplerState TextureSampler;
+// SpriteBatch expects that default texture sampler parameter will have name 'TextureSampler'
+sampler TextureSamplerx : register(s0);
+
+// SpriteBatch expects that default vertex transform parameter will have name 'MatrixTransform'
+row_major float4x4 MatrixTransformx;
+
+void VSMain(
+	inout float4 color    : COLOR0,
+	inout float2 texCoord : TEXCOORD0,
+	inout float4 position : SV_Position)
+{
+	position = mul(position, MatrixTransformx);
+}
 
 // Precalculated weights and offsets
 float weights[15] = { 0.1061154, 0.1028506, 0.1028506, 0.09364651, 0.09364651, 
@@ -12,49 +23,37 @@ float offsets[15] = { 0, 0.00125, -0.00125, 0.002916667, -0.002916667,
 	0.004583334, -0.004583334, 0.00625, -0.00625, 0.007916667, -0.007916667, 
 	0.009583334, -0.009583334, 0.01125, -0.01125 };
 
+
 // Blurs the input image horizontally
-float4 BlurHorizontal(float4 Position : POSITION0, 
+float4 PSBlurHorizontal(
+	float4 color: COLOR,
 	float2 UV : TEXCOORD0) : SV_Target
 {
-    float4 output = float4(0, 0, 0, 1);
-    
-	// Sample from the surrounding pixels using the precalculated
-	// pixel offsets and color weights
-    for (int i = 0; i < 15; i++)
-		output += Texture.Sample(TextureSampler, UV + float2(offsets[i], 0)) * weights[i];
-		
-	return output;
+	return color;
 }
 
 // Blurs the input image vertically
-float4 BlurVertical(float4 Position : POSITION0, 
+float4 PSBlurVertical(
+	float4 color: COLOR,
 	float2 UV : TEXCOORD0) : SV_Target
 {
-    float4 output = float4(0, 0, 0, 1);
-    
-    for (int i = 0; i < 15; i++)
-		output += Texture.Sample(TextureSampler, UV + float2(0, offsets[i])) * weights[i];
-
-	return output;
+	return color;
 }
 
 
-technique Horizontal
+technique Tech
 {
-	pass Pass1
+	pass Horizontal
 	{
 		SetGeometryShader(0);
-		SetVertexShader(0);
-		SetPixelShader(CompileShader(ps_4_0, BlurHorizontal()));
+		SetVertexShader(CompileShader(vs_4_0, VSMain()));
+		SetPixelShader(CompileShader(ps_4_0, PSBlurHorizontal()));
 	}
-}
 
-technique Verical
-{
-	pass Pass1
+	pass Verical
 	{
 		SetGeometryShader(0);
-		SetVertexShader(0);
-		SetPixelShader(CompileShader(ps_4_0, BlurVertical()));
+		SetVertexShader(CompileShader(vs_4_0, VSMain()));
+		SetPixelShader(CompileShader(ps_4_0, PSBlurVertical()));
 	}
 }

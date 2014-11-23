@@ -123,7 +123,7 @@ namespace Larv
                 var normal = normals.GetExact(gx, gy).ToVector3();
                 if (normal.Y < 0.5f)
                     continue;
-                if (rnd.NextDouble() < 0.999)
+                if (rnd.NextDouble() < 0.998)
                     grass.Add(new Tuple<Vector3, Vector3>(position, normal));
                 else
                     trees.Add(new Tuple<Vector3, Vector3>(position, Vector3.Up));

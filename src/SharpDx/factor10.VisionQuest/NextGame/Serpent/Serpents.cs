@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
-    public class Serpents
+    public class Serpents : ClipDrawable
     {
         public enum Result
         {
@@ -39,6 +39,7 @@ namespace Larv.Serpent
             IVDrawable sphere,
             PlayingField playingField,
             ShadowMap shadowMap)
+            : base(vContent.LoadPlainEffect("effects/simplebumpeffect"))
         {
             VContent = vContent;
             Sphere = sphere;
@@ -64,6 +65,7 @@ namespace Larv.Serpent
                     i);
                 Enemies.Add(enemy);
             }
+            shadowMap.ShadowCastingObjects.AddRange(Enemies);
         }
 
         public Result Update(GameTime gameTime)
@@ -129,7 +131,7 @@ namespace Larv.Serpent
             return Result.GameOn;
         }
 
-        public void Draw(GameTime gameTime)
+        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             Data.PlayingField.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
@@ -147,6 +149,7 @@ namespace Larv.Serpent
                 enemy.Draw(SerpentCamera.Camera);
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
 
+            return true;
         }
 
     }

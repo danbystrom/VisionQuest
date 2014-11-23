@@ -124,7 +124,7 @@ namespace Larv
             _fps.Update(gameTime);
             _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
             Data.Update(gameTime);
-            _gameState.Update(gameTime, ref _gameState);
+            _gameState.Update(Data.Serpents.SerpentCamera.Camera, gameTime, ref _gameState);
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
             Data.ShadowMap.Camera.Update(
@@ -147,7 +147,7 @@ namespace Larv
             _windmill.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             //Data.Serpents.Draw(gameTime);
-            _gameState.Draw(gameTime);
+            _gameState.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                                   Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
