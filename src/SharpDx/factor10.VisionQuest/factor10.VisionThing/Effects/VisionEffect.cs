@@ -63,7 +63,7 @@ namespace factor10.VisionThing.Effects
             _techClipPlane = effect.Techniques["TechClipPlane"];
             _techDepthMap = effect.Techniques["TechDepthMap"];
 
-            Debug.Assert( _epView != null );
+            //Debug.Assert( _epView != null );
             //Debug.Assert(_techDepthMap != null);
 
             if ( _epSunlightDirection != null)

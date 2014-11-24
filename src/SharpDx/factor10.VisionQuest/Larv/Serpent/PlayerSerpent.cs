@@ -47,24 +47,6 @@ namespace Larv.Serpent
             return base.modifySpeed()*Speed;
         }
 
-        public void Update(SerpentCamera serpentCamera, GameTime gameTime)
-        {
-            UpdateCameraOnly(serpentCamera, gameTime);
-            //_turnAround ^= Data.Instance.HasKeyToggled(Keys.Down);
-            base.Update(serpentCamera.Camera, gameTime);
-        }
-
-        protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
-        {
-            //if (serpentCamera.CameraBehavior != CameraBehavior.Head)
-            return base.draw(camera, drawingReason, shadowMap);
-        }
-
-        public void UpdateCameraOnly(SerpentCamera serpentCamera, GameTime gameTime)
-        {
-            serpentCamera.Update(gameTime, LookAtPosition, _headDirection);
-        }
-
         public Vector3 LookAtPosition
         {
             get
@@ -80,10 +62,10 @@ namespace Larv.Serpent
         protected override void takeDirection()
         {
             if (DirectionTaker != null)
-                if (TryMove(_headDirection.Turn(DirectionTaker.TakeDirection(_headDirection)), DirectionTaker.CanOverrideRestrictedDirections()))
+                if (TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(HeadDirection)), DirectionTaker.CanOverrideRestrictedDirections()))
                     return;
 
-            if (!TryMove(_headDirection))
+            if (!TryMove(HeadDirection))
                 if (!TryMove(_whereabouts.Direction))
                     _whereabouts.Direction = Direction.None;
         }

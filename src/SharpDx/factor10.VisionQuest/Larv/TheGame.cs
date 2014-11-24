@@ -6,6 +6,7 @@ using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Util;
 using Larv.GameStates;
+using Larv.Serpent;
 using Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -114,6 +115,15 @@ namespace Larv
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
             Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
 
+            _frog = new Frog(
+               Data.VContent,
+                new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect")),
+                Data.Serpents.Sphere,
+                Content.Load<Texture2D>("textures/rocknormal"),
+                new Whereabouts(),
+                Data.Ground);
+            Data.ShadowMap.ShadowCastingObjects.Add(_frog);
+
             base.LoadContent();
         }
 
@@ -122,18 +132,22 @@ namespace Larv
             base.Update(gameTime);
 
             _fps.Update(gameTime);
-            _windmill.Update(Data.Serpents.SerpentCamera.Camera, gameTime);
+            _windmill.Update(Data.Serpents.Camera, gameTime);
             Data.Update(gameTime);
-            _gameState.Update(Data.Serpents.SerpentCamera.Camera, gameTime, ref _gameState);
+            _gameState.Update(Data.Serpents.Camera, gameTime, ref _gameState);
+
+            _frog.Update(Data.Serpents.Camera, gameTime);
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
             Data.ShadowMap.Camera.Update(
                 shadowCameraPos,
                 shadowCameraPos + VisionContent.SunlightDirection);
 
-            if (Data.Serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Escape))
+            if (Data.Serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
+
+        private Frog _frog;
 
         protected override void Draw(GameTime gameTime)
         {
@@ -144,18 +158,17 @@ namespace Larv
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _windmill.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
-
-            //Data.Serpents.Draw(gameTime);
-            _gameState.Draw(Data.Serpents.SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
+            _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
+            _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
+            _frog.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                                   Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
                                   Matrix.RotationY(time*2.0f)*
                                   Matrix.RotationZ(0)*
                                   Matrix.Translation(Data.ShadowMap.Camera.Position);
-            _myBumpEffect.View = Data.Serpents.SerpentCamera.Camera.View;
-            _myBumpEffect.Projection = Data.Serpents.SerpentCamera.Camera.Projection;
+            _myBumpEffect.View = Data.Serpents.Camera.View;
+            _myBumpEffect.Projection = Data.Serpents.Camera.Projection;
             _myBumpEffect.Texture = _image1;
             _myBumpEffect.Parameters["BumpMap"].SetResource(_snakeBump);
             _myBumpEffect.DiffuseColor = new Vector4(1, 1, 1, 0.9f);
@@ -167,7 +180,7 @@ namespace Larv
                       Matrix.Translation(Data.ShadowMap.Camera.Position + VisionContent.SunlightDirection * 3);
             _sphere.Draw(_myBumpEffect);
 
-            _myEffect.World = Matrix.Scaling(0.5f) * Data.WorldPicked;
+            _myEffect.World = Matrix.Scaling(0.2f) * Data.WorldPicked;
             _sphere.Draw(_myEffect);
 
 
@@ -181,7 +194,7 @@ namespace Larv
             text.AppendFormat("FPS: {0}", _fps.FrameRate).AppendLine();
 
             {
-                var c = Data.Serpents.SerpentCamera.Camera;
+                var c = Data.Serpents.Camera;
                 text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2}  Position/Target: {3}/{4}",
                     c.Yaw, c.Pitch, c.Forward, c.Position, c.Target).AppendLine();
             }
@@ -194,22 +207,24 @@ namespace Larv
                     cl.X, cl.Y, nl.X, nl.Y, w.Fraction).AppendLine();
             }
 
+            {
+                text.AppendFormat("Frog + B: ({0} {1}",
+                    _frog.Position, Data.WorldPicked.TranslationVector).AppendLine();
+            }
+
             // Display pressed keys
             var pressedKeys = new List<Keys>();
-            Data.Serpents.SerpentCamera.Camera.KeyboardState.GetDownKeys(pressedKeys);
+            Data.Serpents.Camera.KeyboardState.GetDownKeys(pressedKeys);
             text.Append("Key Pressed: [");
             foreach (var key in pressedKeys)
-            {
-                text.Append(key.ToString());
-                text.Append(" ");
-            }
+                text.Append(key).Append(" ");
             text.Append("]").AppendLine();
 
-            var mouseState = Data.Serpents.SerpentCamera.Camera.MouseState;
+            var mouseState = Data.Serpents.Camera.MouseState;
             // Display mouse coordinates and mouse button status
             text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", mouseState.X, mouseState.Y, mouseState.LeftButton, mouseState.RightButton).AppendLine();
 
-            var pointerState = Data.Serpents.SerpentCamera.Camera.PointerManager.GetState();
+            var pointerState = Data.Serpents.Camera.PointerManager.GetState();
             var points = pointerState.Points;
             foreach (var point in points)
                 text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X,
@@ -218,33 +233,8 @@ namespace Larv
             _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();
 
-            // ------------------------------------------------------------------------
-            // Use SpriteBatch to draw some balls on the screen using NonPremultiplied mode
-            // as the sprite texture used is not premultiplied
-            // ------------------------------------------------------------------------
-            GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, Data.ShadowMap.ShadowDepthTarget);
-            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.NonPremultiplied);
-            for (int i = 0; i < 40; i++)
-            {
-                var posX = (float) Math.Cos(time*4.5f + i*0.1f)*60.0f + 136.0f;
-                var posY = GraphicsDevice.BackBuffer.Height*2.0f/3.0f + 100.0f*(float) Math.Sin(time*10.0f + i*0.4f);
-
-                _spriteBatch.Draw(
-                    _ballsTexture,
-                    new Vector2(posX, posY),
-                    new Rectangle(0, 0, 32, 32),
-                    Color.White,
-                    0.0f,
-                    new Vector2(16, 16),
-                    Vector2.One,
-                    SpriteEffects.None,
-                    0f);
-            }
-            _spriteBatch.End();
-           GraphicsDevice.SetRenderTargets(GraphicsDevice.DepthStencilBuffer, GraphicsDevice.BackBuffer);
-
             _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
-            var shx = GraphicsDevice.BackBuffer.Width*3/4 - 4;
+            var shx = 500*0.25f - 4;
             var shy = 4;
             _spriteBatch.Draw(
                 Data.ShadowMap.ShadowDepthTarget,
@@ -253,7 +243,7 @@ namespace Larv
                 Color.White,
                 0.0f,
                 new Vector2(0, 0),
-                new Vector2(0.25f, 0.25f),
+                new Vector2(0.2f, 0.25f),
                 SpriteEffects.None,
                 0f);
             _spriteBatch.End();

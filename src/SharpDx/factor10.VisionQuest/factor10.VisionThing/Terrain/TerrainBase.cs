@@ -17,7 +17,7 @@ namespace factor10.VisionThing.Terrain
 
         public readonly VisionContent VContent;
 
-        public Ground Ground;
+        public GroundMap GroundMap;
 
         public Matrix World;
         private Vector3 _position;
@@ -50,16 +50,16 @@ namespace factor10.VisionThing.Terrain
             return TerrainPlane;
         }
 
-        protected void initialize(Ground ground)
+        protected void initialize(GroundMap groundMap)
         {
-            initialize(ground, ground.CreateWeigthsMap(), ground.CreateNormalsMap());
+            initialize(groundMap, groundMap.CreateWeigthsMap(), groundMap.CreateNormalsMap());
         }
 
-        protected void initialize(Ground ground, WeightsMap weights, ColorSurface normals)
+        protected void initialize(GroundMap groundMap, WeightsMap weights, ColorSurface normals)
         {
-            Ground = ground;
+            GroundMap = groundMap;
 
-            Debug.Assert((ground.Width%TerrainPlane.SquareSize) == 0 && (ground.Height%TerrainPlane.SquareSize) == 0);
+            Debug.Assert((groundMap.Width%TerrainPlane.SquareSize) == 0 && (groundMap.Height%TerrainPlane.SquareSize) == 0);
 
             _position = World.TranslationVector;
 
@@ -73,12 +73,12 @@ namespace factor10.VisionThing.Terrain
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
             Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/wheatfield");
 
-            HeightsMap = ground.CreateHeightsTexture(Effect.GraphicsDevice);
+            HeightsMap = groundMap.CreateHeightsTexture(Effect.GraphicsDevice);
             WeightsMap = weights.CreateTexture2D(Effect.GraphicsDevice);
             NormalsMap = normals.CreateTexture2D(Effect.GraphicsDevice);
 
-            var slicesW = ground.Width/Side;
-            var slicesH = ground.Height/Side;
+            var slicesW = groundMap.Width/Side;
+            var slicesH = groundMap.Height/Side;
             //TODO - this is wrong - I guess...
             var sliceFracX = 1f/slicesW;
             var sliceFracY = 1f/slicesH;
@@ -97,8 +97,8 @@ namespace factor10.VisionThing.Terrain
                     };
                 }
             BoundingSphere = new BoundingSphere(
-                _position + new Vector3(ground.Width, 0, ground.Height)/2,
-                (float) Math.Sqrt(ground.Width*ground.Width + ground.Height*ground.Height)/2);
+                _position + new Vector3(groundMap.Width, 0, groundMap.Height)/2,
+                (float) Math.Sqrt(groundMap.Width*groundMap.Width + groundMap.Height*groundMap.Height)/2);
 
             GroundExtentX = slicesW;
             GroundExtentZ = slicesH;
@@ -144,10 +144,10 @@ namespace factor10.VisionThing.Terrain
 
         public Vector3? HitTest(Ray ray)
         {
-            //var ground = new Ground(HeightsMap, _ => _);
+            //var GroundMap = new GroundMap(HeightsMap, _ => _);
             var world = World;
             world.Invert();
-            var p = Ground.HitTest(world, ray);
+            var p = GroundMap.HitTest(world, ray);
             if (!p.HasValue)
                 return null;
             return Vector3.TransformCoordinate(p.Value, World);

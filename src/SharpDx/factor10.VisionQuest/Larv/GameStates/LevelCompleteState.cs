@@ -16,7 +16,6 @@ namespace Larv.GameStates
             _serpents = serpents;
             _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
             _serpents.PlayerSerpent.DirectionTaker = this;
-            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.Static;
         }
 
 

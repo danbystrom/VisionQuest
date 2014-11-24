@@ -9,7 +9,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv
 {
-    public class Gq : TerrainBase
+    public class Ground : TerrainBase
     {
         private float _qx = -9f;
         private float _qy = -11f;
@@ -46,7 +46,7 @@ namespace Larv
 
         }
 
-        public Gq(VisionContent vContent, PlayingField playingField)
+        public Ground(VisionContent vContent, PlayingField playingField)
             : base(vContent)
         {
             var pfW = playingField.Width;
@@ -59,11 +59,7 @@ namespace Larv
 
             World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(_qx, -0.5f, _qy);
 
-            var ground = new Ground(gqW, gqH, 15);
-
-            //ground.AlterValues(100, 200, 10, 10, (x, y, h) => 20);
-            //ground.AlterValues(100, 210, 10, 10, (x, y, h) => 30);
-            //ground.AlterValues(100, 220, 10, 10, (x, y, h) => 40);
+            var ground = new GroundMap(gqW, gqH, 15);
 
             for (var i = 0; i < 5000; i++)
                 ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 20;
@@ -79,20 +75,11 @@ namespace Larv
             ground.DrawLine(gqW - 6, gqH - 6, 2, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
 
             ground.DrawLine(10, 10, 50, 50, 2, (a, b) => 5);
-            ground.Soften();
-            ground.Soften();
-            //ground.Soften();
+            ground.Soften(2);
 
-            carvePlayingField(ground, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2);
+            carvePlayingField(ground, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, 0);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
-
-            //weights.AlterValues(20, 20, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {B = 1});
-            //weights.AlterValues(30, 30, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {C = 1});
-            //weights.AlterValues(40, 40, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {D = 1});
-            //weights.AlterValues(50, 50, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {E = 1});
-            //weights.AlterValues(60, 60, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {F = 1});
-            //weights.AlterValues(70, 70, 20, 20, (x, y, mt) => new Mt9Surface.Mt9 {G = 1});
 
             for (var i = 0; i < 1000; i++)
             {
@@ -104,8 +91,7 @@ namespace Larv
                 });
             }
 
-            //weights.DrawLine(10, 10, 100, 100, 4, (a, b) => new Mt9Surface.Mt9 {F = 1});
-            carvePlayingField2(weights, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2);
+            carvePlayingField(weights, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, new Mt9Surface.Mt9 {H = 2});
 
             var normals = ground.CreateNormalsMap();
             initialize(ground, weights, normals);
@@ -135,7 +121,8 @@ namespace Larv
             _cxBillboardTrees.CreateBillboardVerticesFromList(trees);
         }
 
-        private static void carvePlayingField(Sculptable<float> ground, PlayingField playingField, int offx, int offy)
+        private static void carvePlayingField<T>(Sculptable<T> ground, PlayingField playingField, int offx, int offy, T value)
+             where T : struct
         {
             for (var y = 0; y < playingField.Height; y++)
                 for (var x = 0; x < playingField.Width; x++)
@@ -145,7 +132,7 @@ namespace Larv
                         var ny = offy + y*3;
                         for(var i=0;i<3;i++)
                             for (var j = 0; j < 3; j++)
-                                ground[nx+i, ny+j] = 0;
+                                ground[nx+i, ny+j] = value;
                     }
         }
 

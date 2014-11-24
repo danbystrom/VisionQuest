@@ -10,6 +10,9 @@ namespace Larv.GameStates
 {
     class AttractState : IGameState, PlayerSerpent.ITakeDirection
     {
+        public static readonly Vector3 CameraPosition = new Vector3(12, 12, 35);
+        public static readonly Vector3 CameraLookAt = new Vector3(12, 2, 12);
+
         private readonly Serpents _serpents;
         private MoveCamera _moveCamera;
 
@@ -19,11 +22,10 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
             _moveCamera = new MoveCamera(
-                _serpents.SerpentCamera.Camera,
-                5,
-                new Vector3(12, 2, 12),
-                new Vector3(12, 12, 35));
-            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.FreeFlying;
+                _serpents.Camera,
+                4,
+                CameraLookAt,
+                CameraPosition);
             _serpents.PlayerSerpent.DirectionTaker = this;
         }
 
@@ -33,8 +35,10 @@ namespace Larv.GameStates
                 if (!_moveCamera.Move(gameTime))
                     _moveCamera = null;
 
+            _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
+
             _serpents.Update(gameTime);
-            if (_serpents.SerpentCamera.Camera.KeyboardState.IsKeyPressed(Keys.Space))
+            if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
             {
                 gameState = new BeginGameState(_serpents);
                 _serpents.PlayerSerpent.DirectionTaker = null;

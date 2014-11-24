@@ -13,14 +13,14 @@ namespace factor10.VisionThing.Terrain
         public ReimersBillboards(
             VisionContent vContent,
             Matrix world,
-            Ground ground,
+            GroundMap groundMap,
             ColorSurface normals,
             Texture2D texture)
-            : base(vContent, world, texture, generateTreePositions(vContent.Load<Texture2D>("treeMap"), ground, normals), 6, 7)
+            : base(vContent, world, texture, generateTreePositions(vContent.Load<Texture2D>("treeMap"), groundMap, normals), 6, 7)
         {
         }
 
-        private static List<Vector3> generateTreePositions(Texture2D treeMap, Ground ground, ColorSurface normals)
+        private static List<Vector3> generateTreePositions(Texture2D treeMap, GroundMap groundMap, ColorSurface normals)
         {
             var treeMapColors = new Color[treeMap.Description.Width*treeMap.Description.Height];
             treeMap. GetData(treeMapColors);
@@ -38,7 +38,7 @@ namespace factor10.VisionThing.Terrain
             for (var y = normals.Height - 2; y > 0; y--)
                 for (var x = normals.Width - 2; x > 0; x--)
                 {
-                    var terrainHeight = ground[x, y];
+                    var terrainHeight = groundMap[x, y];
                     if ((terrainHeight <= 8) || (terrainHeight >= 14))
                         continue;
                     var flatness1 = Vector3.Dot(normals.AsVector3(x, y), Vector3.Up);
@@ -65,7 +65,7 @@ namespace factor10.VisionThing.Terrain
                         var rand2 = (float) random.NextDouble();
                         treeList.Add(new Vector3(
                                          x + rand1,
-                                         ground.GetExactHeight(x, y, rand1, rand2),
+                                         groundMap.GetExactHeight(x, y, rand1, rand2),
                                          y + rand2));
                     }
                 }

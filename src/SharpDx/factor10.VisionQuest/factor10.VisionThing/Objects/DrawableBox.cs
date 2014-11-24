@@ -13,7 +13,7 @@ namespace factor10.VisionThing.Objects
         private readonly Texture2D _bumpMap;
 
         public DrawableBox(VisionContent vContent, Matrix world, Vector3 size, float texScale = 1)
-            : base(vContent.LoadPlainEffect("effects/SimpleBumpEffect"))
+            : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
         {
             _texture = vContent.Load<Texture2D>("textures/brick_texture_map");
             _bumpMap = vContent.Load<Texture2D>("textures/brick_normal_map");

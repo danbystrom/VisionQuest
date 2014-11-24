@@ -17,7 +17,7 @@ namespace factor10.VisionThing
         private readonly float _totalTime;
         private float _elapsedTime;
 
-        private readonly Vector3[] _path;
+        public readonly Vector3[] Path;
 
         public MoveCamera(Camera camera, float totalTime, Vector3 toLookAt, params Vector3[] followPath)
         {
@@ -25,9 +25,9 @@ namespace factor10.VisionThing
             _totalTime = totalTime;
 
             var list = followPath.ToList();
-            if (Vector3.DistanceSquared(list.First(), _camera.Position) > 1)
+            if (Vector3.DistanceSquared(list.First(), _camera.Position) > 1 || followPath.Length < 2)
                 list.Insert(0, _camera.Position);
-            _path = list.ToArray();
+            Path = list.ToArray();
 
             _toLookAt = toLookAt;
             _fromLookAt = camera.Target;
@@ -36,13 +36,13 @@ namespace factor10.VisionThing
         private Vector3 getPointOnPath(float x)
         {
             if (x < 0)
-                return _path.First();
+                return Path.First();
             if (x >= 1)
-                return _path.Last();
-            var step = 1f/(_path.Length - 1);
+                return Path.Last();
+            var step = 1f/(Path.Length - 1);
             var idx = (int) (x/step);
             var frac = (x - idx*step)/step;
-            return Vector3.Lerp(_path[idx], _path[idx + 1], frac);
+            return Vector3.Lerp(Path[idx], Path[idx + 1], frac);
         }
 
         public bool Move(GameTime gameTime)

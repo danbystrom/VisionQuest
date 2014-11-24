@@ -74,7 +74,7 @@ namespace factor10.VisionQuest
             System.Diagnostics.Debug.Print("{0}: {1} {2}", vassembly.Name, surfaceWidth, surfaceHeight);
 
             //var qq = Math.Max(surfaceWidth, surfaceHeight);
-            var ground = new Ground(surfaceWidth, surfaceHeight);
+            var ground = new GroundMap(surfaceWidth, surfaceHeight);
 
             BoundingSphere = new BoundingSphere(new Vector3(
                 world.TranslationVector.X + ground.Width / 2f,
@@ -113,7 +113,7 @@ namespace factor10.VisionQuest
             //...and lower it...
             ground.Soften(2);
 
-            //make ground slices seamless
+            //make GroundMap slices seamless
             for (var x = 64; x < surfaceWidth; x += TerrainPlane.SquareSize)
                 for (var y = 0; y < surfaceHeight; y++)
                     ground[x, y] = ground[x - 1, y] = (ground[x, y] + ground[x - 1, y])/2;

@@ -163,7 +163,9 @@
   <ItemGroup>
     <ToolkitTexture Include="Content\Models\Galleon.dds" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SharpDX.2.6.2\build\SharpDX.targets" Condition="Exists('..\packages\SharpDX.2.6.2\build\SharpDX.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

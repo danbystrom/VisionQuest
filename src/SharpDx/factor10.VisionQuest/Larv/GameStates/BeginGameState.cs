@@ -1,6 +1,8 @@
-﻿using factor10.VisionThing;
+﻿using System;
+using factor10.VisionThing;
 using Larv.Serpent;
 using Serpent;
+using SharpDX;
 using SharpDX.Toolkit;
 
 namespace Larv.GameStates
@@ -14,16 +16,29 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
-            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.FreeFlying;
 
-            var lookAt = serpents.PlayerSerpent.LookAtPosition;
-            var cameraPos = lookAt - serpents.PlayerSerpent.Whereabouts.Direction.DirectionAsVector3()*SerpentCamera.CameraDistanceToHeadXz;
-            cameraPos.Y += SerpentCamera.CameraDistanceToHeadY;
+            var currentPos = serpents.Camera.Position;
+
+            var lookAtDirection = serpents.PlayerSerpent.Whereabouts.Direction.DirectionAsVector3();
+            var lookAt = serpents.PlayerSerpent.LookAtPosition + lookAtDirection * 4;
+
+            var finalNormal = Vector3.TransformNormal(
+                lookAtDirection*SerpentCamera.CameraDistanceToHeadXz*1.3f,
+                Matrix.RotationY(-MathUtil.Pi*0.2f));
+            var finalPos = lookAt + finalNormal;
+            finalPos.Y += SerpentCamera.CameraDistanceToHeadY;
+
+            var x = new ArcGenerator(4);
+            x.CreateArc(
+                currentPos,
+                finalPos,
+                Vector3.Right,
+                SerpentCamera.CameraDistanceToHeadXz);
             _moveCamera = new MoveCamera(
-                serpents.SerpentCamera.Camera,
+                serpents.Camera,
                 4,
                 lookAt,
-                cameraPos);
+                x.Points);
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
@@ -32,13 +47,12 @@ namespace Larv.GameStates
             {
                 if(_moveCamera.Move(gameTime))
                     return;
-                _moveCamera = null;
-                _serpents.SerpentCamera.CameraBehavior = CameraBehavior.FollowTarget;
+                //_moveCamera = null;
             }
 
-            _serpents.PlayerSerpent.Update(_serpents.SerpentCamera, gameTime);
+            _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents);
+                gameState = new PlayingState(_serpents,_moveCamera);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

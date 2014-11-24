@@ -19,8 +19,6 @@ namespace Larv.Serpent
         public const float CameraDistanceToHeadXz = 9;
         public const float CameraDistanceToHeadY = 5;
 
-        public readonly Camera Camera;
-
         private CameraBehavior _cameraBehavior;
         private float _acc;
         private Vector3 _desiredUpVector = Vector3.Up;
@@ -33,50 +31,50 @@ namespace Larv.Serpent
         private Vector3 _staticFromTarget;
 
         public SerpentCamera(
-            Camera camera,
             CameraBehavior cameraBehavior)
         {
             _cameraBehavior = cameraBehavior;
-            Camera = camera;
         }
 
         public CameraBehavior CameraBehavior
         {
             get { return _cameraBehavior; }
-            set
+        }
+
+        public void SetCameraBehavior(Camera camera, CameraBehavior cameraBehavior)
+        {
+            _cameraBehavior = cameraBehavior;
+            switch (CameraBehavior)
             {
-                _cameraBehavior = value;
-                switch (CameraBehavior)
-                {
-                    case CameraBehavior.FollowTarget:
-                    case CameraBehavior.Head:
-                        _desiredUpVector = Vector3.Up;
-                        break;
-                    case CameraBehavior.Static:
-                        _staticTimeMovement = 0;
-                        _staticFromPosition = Camera.Position;
-                        _staticFromTarget = Camera.Target;
-                        break;
-                    case CameraBehavior.FreeFlying:
-                        //Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
-                        break;
-                }
+                case CameraBehavior.FollowTarget:
+                case CameraBehavior.Head:
+                    _desiredUpVector = Vector3.Up;
+                    break;
+                case CameraBehavior.Static:
+                    _staticTimeMovement = 0;
+                    _staticFromPosition = camera.Position;
+                    _staticFromTarget = camera.Target;
+                    break;
+                case CameraBehavior.FreeFlying:
+                    //Camera.MouseManager.SetPosition(new Vector2(0.5f, 0.5f));
+                    break;
             }
         }
 
         public void Update(
             GameTime gameTime,
+            Camera camera,
             Vector3 target,
             Direction direction)
         {
-            Camera.Up = Vector3.Lerp(Camera.Up, _desiredUpVector, 0.03f);
+            camera.Up = Vector3.Lerp(camera.Up, _desiredUpVector, 0.03f);
 
             switch (CameraBehavior)
             {
                 case CameraBehavior.FollowTarget:
                     var target2D = new Vector2(target.X, target.Z);
                     var position2D = moveTo(
-                        new Vector2(Camera.Position.X, Camera.Position.Z),
+                        new Vector2(camera.Position.X, camera.Position.Z),
                         target2D,
                         target2D - direction.DirectionAsVector2()*CameraDistanceToHeadXz,
                         gameTime.ElapsedGameTime.TotalMilliseconds);
@@ -86,13 +84,14 @@ namespace Larv.Serpent
                         target.Y + CameraDistanceToHeadY,
                         position2D.Y);
 
-                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, Camera.Position))*
-                            (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.001f;
+                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, camera.Position))*
+                            (float) gameTime.ElapsedGameTime.TotalSeconds;
                     _acc *= 0.4f;
                     var v = MathUtil.Clamp(_acc, 0.1f, 0.3f);
-                    Camera.Update(
-                        Vector3.Lerp(Camera.Position, newPosition, v),
-                        Vector3.Lerp(Camera.Target, target, v));
+                    camera.Update(
+                        Vector3.Lerp(camera.Position, newPosition, v),
+                        Vector3.Lerp(camera.Target, target, v));
+
                     break;
 
                 case CameraBehavior.Static:
@@ -100,14 +99,14 @@ namespace Larv.Serpent
                         return;
                     _staticTimeMovement = Math.Min(_staticTimeMovement + (float) gameTime.ElapsedGameTime.TotalSeconds, TotalStaticMovementTime);
                     var f = MathUtil.SmootherStep(_staticTimeMovement/TotalStaticMovementTime);
-                    Camera.Update(
+                    camera.Update(
                         Vector3.Lerp(_staticFromPosition, _staticDestinationPosition, f),
                         Vector3.Lerp(_staticFromTarget, _staticDestinationTarget, f));
                     break;
 
                 case CameraBehavior.FreeFlying:
-                    Camera.UpdateInputDevices();
-                    Camera.UpdateFreeFlyingCamera(gameTime);
+                    camera.UpdateInputDevices();
+                    camera.UpdateFreeFlyingCamera(gameTime);
                     break;
 
                 case CameraBehavior.Head:
@@ -115,13 +114,13 @@ namespace Larv.Serpent
                     var newPosition2 = target + d3 + Vector3.Up;
                     target = newPosition2 + d3 + Vector3.Down*0.1f;
 
-                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition2, Camera.Position))*
+                    _acc += (float) Math.Sqrt(Vector3.Distance(newPosition2, camera.Position))*
                             (float) gameTime.ElapsedGameTime.TotalMilliseconds*0.001f;
                     _acc *= 0.4f;
                     var v2 = MathUtil.Clamp(_acc, 0.1f, 0.3f);
-                    Camera.Update(
-                        Vector3.Lerp(Camera.Position, newPosition2, v2),
-                        Vector3.Lerp(Camera.Target, target, v2));
+                    camera.Update(
+                        Vector3.Lerp(camera.Position, newPosition2, v2),
+                        Vector3.Lerp(camera.Target, target, v2));
 
                     break;
             }
@@ -138,7 +137,7 @@ namespace Larv.Serpent
             var d2CameraDesired = Vector2.DistanceSquared(camera, desired);
             var d2TargetCamera = Vector2.DistanceSquared(target, camera);
 
-            if (d2CameraDesired < 0.0001f || d2TargetCamera < 0.0001f)
+            if (d2TargetDesired<0.0001f || d2CameraDesired < 0.0001f || d2TargetCamera < 0.0001f)
                 return desired;
 
             var d1 = d2TargetDesired + d2TargetCamera - d2CameraDesired;

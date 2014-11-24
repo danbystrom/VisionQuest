@@ -25,13 +25,14 @@ namespace Larv.Serpent
         public Egg PlayerEgg;
         public readonly List<EnemySerpent> Enemies = new List<EnemySerpent>();
         public readonly List<Egg> EnemyEggs = new List<Egg>();
+        public readonly List<Frog> Frogs = new List<Frog>();
 
         public readonly IVDrawable Sphere;
 
         public readonly Random Rnd = new Random();
         private double _onceASecond;
 
-        public readonly SerpentCamera SerpentCamera;
+        public readonly Camera Camera;
 
         public Serpents(
             VisionContent vContent,
@@ -45,9 +46,7 @@ namespace Larv.Serpent
             Sphere = sphere;
             PlayingField = playingField;
 
-            SerpentCamera = new SerpentCamera(
-                camera,
-                CameraBehavior.FollowTarget);
+            Camera = camera;
 
             PlayerSerpent = new PlayerSerpent(
                 vContent,
@@ -76,20 +75,20 @@ namespace Larv.Serpent
             {
                 _onceASecond = 0;
 
-                if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || SerpentCamera.Camera.KeyboardState.IsKeyPressed(Keys.D3) ))
+                if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || Camera.KeyboardState.IsKeyPressed(Keys.D3) ))
                     PlayerSerpent.Fertilize();
 
                 if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
                     Enemies[Rnd.Next(Enemies.Count)].Fertilize();
             }
 
-            PlayerSerpent.Update(SerpentCamera, gameTime);
+            PlayerSerpent.Update(Camera, gameTime);
             if (PlayerEgg == null)
                 PlayerEgg = PlayerSerpent.TimeToLayEgg();
 
             foreach (var enemy in Enemies)
             {
-                enemy.Update(SerpentCamera.Camera, gameTime);
+                enemy.Update(Camera, gameTime);
                 if (enemy.EatAt(PlayerSerpent))
                 {
                     PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
@@ -110,13 +109,14 @@ namespace Larv.Serpent
 
             for (var i = EnemyEggs.Count - 1; i >= 0; i--)
             {
+                EnemyEggs[i].Update(gameTime);
+
                 if (PlayerSerpent.EatEgg(EnemyEggs[i]))
                 {
                     EnemyEggs.RemoveAt(i);
                     continue;
                 }
 
-                EnemyEggs[i].Update(gameTime);
                 if (!EnemyEggs[i].TimeToHatch())
                     continue;
                 Enemies.Add(new EnemySerpent(
@@ -128,25 +128,35 @@ namespace Larv.Serpent
                 EnemyEggs.RemoveAt(i);
             }
 
+            for (var i = Frogs.Count - 1; i >= 0; i--)
+            {
+                Frogs[i].Update(Camera, gameTime);
+
+                if (PlayerSerpent.EatFrog(Frogs[i]))
+                    EnemyEggs.RemoveAt(i);
+                else if (Enemies.Any(enemy => enemy.EatFrog(Frogs[i])))
+                    EnemyEggs.RemoveAt(i);
+            }
+
             return Result.GameOn;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            Data.PlayingField.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
+            Data.PlayingField.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
 
             if (PlayerEgg != null)
-                PlayerEgg.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
+                PlayerEgg.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
             foreach (var egg in EnemyEggs)
-                egg.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
+                egg.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
 
-            Data.Ground.Draw(SerpentCamera.Camera, DrawingReason.Normal, Data.ShadowMap);
-            Data.Sky.Draw(SerpentCamera.Camera);
+            Data.Ground.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
+            Data.Sky.Draw(camera);
 
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
-            PlayerSerpent.Draw(SerpentCamera.Camera);
+            PlayerSerpent.Draw(camera);
             foreach (var enemy in Enemies)
-                enemy.Draw(SerpentCamera.Camera);
+                enemy.Draw(camera);
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
 
             return true;

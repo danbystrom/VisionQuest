@@ -27,7 +27,7 @@ namespace Larv.Serpent
         protected readonly PlayingField _pf;
 
         public Whereabouts _whereabouts = new Whereabouts();
-        protected Direction _headDirection;
+        public Direction HeadDirection { get; protected set; }
 
         protected double _fractionAngle;
 
@@ -81,7 +81,7 @@ namespace Larv.Serpent
         protected void Restart(Whereabouts whereabouts)
         {
             _whereabouts = whereabouts;
-            _headDirection = _whereabouts.Direction;
+            HeadDirection = _whereabouts.Direction;
             _tail = new SerpentTailSegment(_pf, _whereabouts);
             _serpentLength = 1;
             _ascendToHeaven = 0;
@@ -128,7 +128,7 @@ namespace Larv.Serpent
                 _tail.Update(speed, _whereabouts);
 
             if (_whereabouts.Direction != Direction.None)
-                _headDirection = _whereabouts.Direction;
+                HeadDirection = _whereabouts.Direction;
 
             if (_layingEgg >= 0)
                 _layingEgg += (float) gameTime.ElapsedGameTime.TotalSeconds;
@@ -163,7 +163,7 @@ namespace Larv.Serpent
 
             var worlds = new List<Matrix>
             {
-                _headRotation[_headDirection]*
+                _headRotation[HeadDirection]*
                 Matrix.Scaling(HeadSize)*
                 Matrix.Translation(p.X, HeadSize + p.Y + _ascendToHeaven, p.Z)
             };
@@ -359,7 +359,15 @@ namespace Larv.Serpent
             AddTail();
             return true;
         }
-        
+
+        public bool EatFrog(Frog frog)
+        {
+            if (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f)
+                return false;
+            AddTail();
+            return true;
+        }
+
     }
 
 }

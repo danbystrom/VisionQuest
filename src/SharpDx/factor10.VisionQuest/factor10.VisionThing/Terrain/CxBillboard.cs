@@ -34,9 +34,9 @@ namespace factor10.VisionThing.Terrain
             _billboardHeight = height;
         }
 
-        public void GenerateTreePositions(Ground ground, ColorSurface normals)
+        public void GenerateTreePositions(GroundMap groundMap, ColorSurface normals)
         {
-            var treeList = generateTreePositions(ground, normals);
+            var treeList = generateTreePositions(groundMap, normals);
             CreateBillboardVerticesFromList(treeList);
         }
 
@@ -77,7 +77,7 @@ namespace factor10.VisionThing.Terrain
             bv[i++] = new BillboardVertex(p, n, new Vector2(0, 1), rnd);
         }
 
-        private List<Tuple<Vector3, Vector3>> generateTreePositions(Ground ground, ColorSurface normals)
+        private List<Tuple<Vector3, Vector3>> generateTreePositions(GroundMap groundMap, ColorSurface normals)
         {
             var treeList = new List<Tuple<Vector3,Vector3>>();
             var random = new Random();
@@ -85,7 +85,7 @@ namespace factor10.VisionThing.Terrain
             for (var y = normals.Height - 2; y > 0; y--)
                 for (var x = normals.Width - 2; x > 0; x--)
                 {
-                    var height = ground[x, y];
+                    var height = groundMap[x, y];
                     if ( height <3 || height > 5)
                         continue;
                     for (var currDetail = 0; currDetail < 5; currDetail++)
@@ -95,7 +95,7 @@ namespace factor10.VisionThing.Terrain
                         treeList.Add(new Tuple<Vector3, Vector3>(
                                          new Vector3(
                                              x + rand1,
-                                             ground.GetExactHeight(x, y, rand1, rand2),
+                                             groundMap.GetExactHeight(x, y, rand1, rand2),
                                              y + rand2),
                                          normals.AsVector3(x, y)));
                     }

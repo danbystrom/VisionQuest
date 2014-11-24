@@ -2,14 +2,14 @@
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
-using Larv;
+using Larv.GameStates;
 using Larv.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
-namespace Serpent
+namespace Larv
 {
     public class Data : IDisposable
     {
@@ -20,7 +20,7 @@ namespace Serpent
         public static PlayingField PlayingField;
 
         public static SkySphere Sky;
-        public static Gq Ground;
+        public static Ground Ground;
 
         public readonly IVDrawable Sphere;
 
@@ -51,24 +51,33 @@ namespace Serpent
                     VContent,
                     texture);
 
-            Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx * 2), 2);
+            Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
+                (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx*2), 2);
 
             //TODO
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Ground = new Gq(VContent, PlayingField);
+            Ground = new Ground(VContent, PlayingField);
 
-            Camera = new Camera(VContent.ClientSize, keyboardManager, mouseManager, pointerManager, new Vector3(10, 5, 10), Vector3.Zero);
+            Camera = new Camera(
+                VContent.ClientSize,
+                keyboardManager,
+                mouseManager,
+                pointerManager,
+                AttractState.CameraPosition,
+                AttractState.CameraLookAt);
             ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
         }
 
+        public Vector3 Attra { get; set; }
 
-        public bool HasKeyToggled( Keys key )
+
+        public bool HasKeyToggled(Keys key)
         {
-            return Serpents.SerpentCamera.Camera.KeyboardState.IsKeyPressed(key);
+            return Camera.KeyboardState.IsKeyPressed(key);
         }
 
         public void Dispose()
@@ -78,10 +87,9 @@ namespace Serpent
 
         public void Update(GameTime gameTime)
         {
-            var camera = Serpents.SerpentCamera;
-            camera.Camera.UpdateInputDevices();
+            Camera.UpdateInputDevices();
 
-            Ground.Update(camera.Camera, gameTime);
+            Ground.Update(Camera, gameTime);
 
             //if (Data.HasKeyToggled(Keys.Enter) && Data.KeyboardState.IsKeyDown(Keys.LeftAlt))
             //{
@@ -89,14 +97,14 @@ namespace Serpent
             //    _graphics.ApplyChanges();
             //}
 
-            //Ground.Move(camera.Camera.KeyboardState);
+            //GroundMap.Move(camera.Camera.KeyboardState);
 
-            if (HasKeyToggled(Keys.C))
-            {
-                var cameraStates = new[] {CameraBehavior.FollowTarget, CameraBehavior.FollowTarget, CameraBehavior.Static, CameraBehavior.Head}.ToList();
-                var idx = cameraStates.IndexOf(camera.CameraBehavior);
-                camera.CameraBehavior = cameraStates[(idx + 1) % cameraStates.Count];
-            }
+            //if (HasKeyToggled(Keys.C))
+            //{
+            //    var cameraStates = new[] {CameraBehavior.FollowTarget, CameraBehavior.FollowTarget, CameraBehavior.Static, CameraBehavior.Head}.ToList();
+            //    var idx = cameraStates.IndexOf(camera.CameraBehavior);
+            //    camera.CameraBehavior = cameraStates[(idx + 1)%cameraStates.Count];
+            //}
             if (HasKeyToggled(Keys.P))
                 _paused ^= true;
 
@@ -107,23 +115,12 @@ namespace Serpent
 
             if (HasKeyToggled(Keys.B))
             {
-                var ray = Serpents.SerpentCamera.Camera.GetPickingRay();
+                var ray = Camera.GetPickingRay();
                 var hit = Ground.HitTest(ray);
                 if (hit != null)
                     WorldPicked = Matrix.Translation(hit.Value);
             }
 
-            if (_paused)
-            {
-                Serpents.PlayerSerpent.UpdateCameraOnly(Serpents.SerpentCamera, gameTime);
-                return;
-            }
-
-
-            //Serpents.Update(gameTime);
-            //if (Data.Enemies.Count == 0)
-            //    startGame();
-    
         }
 
     }

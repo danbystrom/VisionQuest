@@ -2,6 +2,7 @@
 using factor10.VisionThing;
 using Larv.Serpent;
 using Serpent;
+using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Input;
 
@@ -12,16 +13,25 @@ namespace Larv.GameStates
         private readonly Serpents _serpents;
         private float _delayAfterLevelComplete = 0;
 
-        public PlayingState(Serpents serpents)
+        public SerpentCamera SerpentCamera = new SerpentCamera(
+            CameraBehavior.FollowTarget);
+
+        private MoveCamera _helper;
+
+        public PlayingState(Serpents serpents, MoveCamera helper)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
-            _serpents.SerpentCamera.CameraBehavior = CameraBehavior.FollowTarget;
+            SerpentCamera.SetCameraBehavior(_serpents.Camera, CameraBehavior.FollowTarget);
+            _helper = helper;
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _turnAround ^= _serpents.SerpentCamera.Camera.KeyboardState.IsKeyPressed(Keys.Down);
+            SerpentCamera.Update(gameTime, camera, _serpents.PlayerSerpent.LookAtPosition, _serpents.PlayerSerpent.HeadDirection);
+            //camera.UpdateFreeFlyingCamera(gameTime);
+
+            _turnAround ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.Down);
             switch (_serpents.Update(gameTime))
             {
                 case Serpents.Result.LevelComplete:
@@ -44,8 +54,7 @@ namespace Larv.GameStates
 
         RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
         {
-            var pointerPoints = _serpents.SerpentCamera.Camera.PointerState.Points.Where(
-                    _ => _.EventType == PointerEventType.Moved || _.EventType == PointerEventType.Pressed).ToArray();
+            var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ => _.EventType == PointerEventType.Pressed).ToArray();
             var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
             var pointerRight = pointerPoints.Any(_ => _.Position.X > 0.5f);
             if (pointerLeft && pointerRight)
@@ -60,9 +69,9 @@ namespace Larv.GameStates
 
             var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
             _turnAround = false;
-            if (_serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
+            if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
                 nextDirection = RelativeDirection.Left;
-            else if (_serpents.SerpentCamera.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
+            else if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
                 nextDirection = RelativeDirection.Right;
             return nextDirection;
         }
@@ -74,6 +83,13 @@ namespace Larv.GameStates
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
+            var scale = Matrix.Scaling(0.3f);
+            foreach (var v in _helper.Path)
+            {
+                camera.UpdateEffect(_serpents.Effect);
+                _serpents.Effect.World = scale*Matrix.Translation(v);
+                _serpents.Sphere.Draw(_serpents.Effect);
+            }
             _serpents.Draw(camera, drawingReason, shadowMap);
         }
 

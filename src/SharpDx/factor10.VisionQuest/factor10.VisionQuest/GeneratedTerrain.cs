@@ -15,7 +15,7 @@ namespace factor10.VisionThing
             : base(vContent)
         {
             World = world;
-            var ground = new Ground(heightsMap, h => (255 - h)/15f);
+            var ground = new GroundMap(heightsMap, h => (255 - h)/15f);
             ground.AlterValues(h => h*3 + 2);
             ground.ApplyNormalBellShape();
 
