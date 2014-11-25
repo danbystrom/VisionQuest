@@ -26,8 +26,6 @@ namespace Larv
 
         public Serpents Serpents;
 
-        private bool _paused;
-
         public Matrix WorldPicked;
         public Vector3 PickedQueriedGroundHeight1;
         public Vector3 PickedQueriedGroundHeight2;
@@ -69,9 +67,11 @@ namespace Larv
                 pointerManager,
                 AttractState.CameraPosition,
                 AttractState.CameraLookAt) {MovingSpeed = 8};
+            Serpents = new Serpents(VContent, Camera, Sphere, PlayingField);
+
             ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
-            Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
+            ShadowMap.ShadowCastingObjects.Add(Serpents);
         }
 
         public Vector3 Attra { get; set; }
@@ -107,8 +107,8 @@ namespace Larv
             //    var idx = cameraStates.IndexOf(camera.CameraBehavior);
             //    camera.CameraBehavior = cameraStates[(idx + 1)%cameraStates.Count];
             //}
-            if (HasKeyToggled(Keys.P))
-                _paused ^= true;
+            //if (HasKeyToggled(Keys.P))
+            //    _paused ^= true;
 
             if (HasKeyToggled(Keys.D1))
                 Serpents.PlayerSerpent.Speed *= 2;

@@ -5,7 +5,7 @@ using SharpDX.Toolkit;
 
 namespace Larv.GameStates
 {
-    class LevelCompleteState : IGameState, PlayerSerpent.ITakeDirection
+    class LevelCompleteState : IGameState, ITakeDirection
     {
         private readonly Serpents _serpents;
         private readonly PathFinder _pathFinder;
@@ -19,22 +19,21 @@ namespace Larv.GameStates
         }
 
 
-        RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var direction = _pathFinder.WayHome(_serpents.PlayerSerpent.Whereabouts);
+            var direction = _pathFinder.WayHome(serpent.Whereabouts);
             if (direction == Direction.None)
             {
                 _serpentIsHome = true;
                 return RelativeDirection.None;
             }
-            return headDirection.GetRelativeDirection(direction);
+            return serpent.HeadDirection.GetRelativeDirection(direction);
         }
 
-        bool PlayerSerpent.ITakeDirection.CanOverrideRestrictedDirections()
+        bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
         {
             return true;
         }
-
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {

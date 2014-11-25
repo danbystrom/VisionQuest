@@ -115,7 +115,7 @@
     <Compile Include="ShadowMap.cs" />
     <Compile Include="SkySphere.cs" />
     <Compile Include="Terrain\BillboardVertex.cs" />
-    <Compile Include="Terrain\Ground.cs" />
+    <Compile Include="Terrain\GroundMap.cs" />
     <Compile Include="Terrain\CxBillboard.cs" />
     <Compile Include="Terrain\ReimersBillboards.cs" />
     <Compile Include="Terrain\Sculptable.cs" />

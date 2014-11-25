@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.GameStates
 {
-    class AttractState : IGameState, PlayerSerpent.ITakeDirection
+    class AttractState : IGameState, ITakeDirection
     {
         public static readonly Vector3 CameraPosition = new Vector3(12, 12, 35);
         public static readonly Vector3 CameraLookAt = new Vector3(12, 2, 12);
@@ -50,13 +50,13 @@ namespace Larv.GameStates
             _serpents.Draw(camera, drawingReason, shadowMap);
         }
 
-        RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             var result = _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;
             return result;
         }
 
-        bool PlayerSerpent.ITakeDirection.CanOverrideRestrictedDirections()
+        bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
         {
             return false;
         }

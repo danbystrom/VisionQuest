@@ -170,11 +170,14 @@ namespace factor10.VisionThing.Effects
             {
                 _epDoShadowMapping.SetValue(true);
                 _epShadowMap.SetResource(shadow.ShadowDepthTarget);
-                _epShadowViewProjection.SetValue(shadow.Camera.View * shadow.Camera.Projection);
+                _epShadowViewProjection.SetValue(shadow.Camera.View*shadow.Camera.Projection);
                 _epShadowMult.SetValue(shadow.ShadowMult);
             }
             else
+            {
+                _epShadowMap.SetResource((Texture2D)null);
                 _epDoShadowMapping.SetValue(false);
+            }
         }
 
         public void SetTechnique(DrawingReason drawingReason )

@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.GameStates
 {
-    class PlayingState : IGameState, PlayerSerpent.ITakeDirection
+    class PlayingState : IGameState, ITakeDirection
     {
         private readonly Serpents _serpents;
         private float _delayAfterLevelComplete = 0;
@@ -42,6 +42,7 @@ namespace Larv.GameStates
                         gameState = new LevelCompleteState(_serpents);
                     }
                     break;
+
                 case Serpents.Result.PlayerDied:
                     _serpents.PlayerSerpent.DirectionTaker = null;
                     gameState = new DieState(_serpents);
@@ -52,7 +53,7 @@ namespace Larv.GameStates
         private bool _isHoldingBothPointers;
         private bool _turnAround;
 
-        RelativeDirection PlayerSerpent.ITakeDirection.TakeDirection(Direction headDirection)
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ => _.EventType == PointerEventType.Pressed).ToArray();
             var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
@@ -76,7 +77,7 @@ namespace Larv.GameStates
             return nextDirection;
         }
 
-        bool PlayerSerpent.ITakeDirection.CanOverrideRestrictedDirections()
+        bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
         {
             return false;
         }

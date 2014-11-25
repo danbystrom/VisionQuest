@@ -38,8 +38,7 @@ namespace Larv.Serpent
             VisionContent vContent,
             Camera camera,
             IVDrawable sphere,
-            PlayingField playingField,
-            ShadowMap shadowMap)
+            PlayingField playingField)
             : base(vContent.LoadPlainEffect("effects/simplebumpeffect"))
         {
             VContent = vContent;
@@ -52,7 +51,6 @@ namespace Larv.Serpent
                 vContent,
                 playingField,
                 Sphere);
-            shadowMap.ShadowCastingObjects.Add(PlayerSerpent);
 
             for (var i = 0; i < 5; i++)
             {
@@ -64,7 +62,6 @@ namespace Larv.Serpent
                     i);
                 Enemies.Add(enemy);
             }
-            shadowMap.ShadowCastingObjects.AddRange(Enemies);
 
             for (var i = 0; i < 3; i++)
                 Frogs.Add(new Frog(
@@ -72,8 +69,6 @@ namespace Larv.Serpent
                     vContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
                     new Whereabouts(),
                     Data.Ground));
-            shadowMap.ShadowCastingObjects.AddRange(Frogs);
-
         }
 
         public Result Update(GameTime gameTime)
@@ -100,9 +95,10 @@ namespace Larv.Serpent
                 enemy.Update(Camera, gameTime);
                 if (enemy.EatAt(PlayerSerpent))
                 {
-                    PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
+                    PlayerSerpent.SerpentStatus = SerpentStatus.Ghost;
+                    return Result.PlayerDied;
                 }
-                else if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
+                if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
                     enemy.SerpentStatus = SerpentStatus.Ghost;
 
                 if (enemy.EatEgg(PlayerEgg))
@@ -142,33 +138,44 @@ namespace Larv.Serpent
                 Frogs[i].Update(Camera, gameTime);
 
                 if (PlayerSerpent.EatFrog(Frogs[i], true))
-                    EnemyEggs.RemoveAt(i);
+                    replaceFrog(i);
                 else if (Enemies.Any(enemy => enemy.EatFrog(Frogs[i])))
-                    EnemyEggs.RemoveAt(i);
+                    replaceFrog(i);
             }
 
             return Result.GameOn;
         }
 
+        private void replaceFrog(int i)
+        {
+            Frogs[i] = new Frog(
+                VContent,
+                VContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
+                new Whereabouts(),
+                Data.Ground);
+        }
+
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            Data.PlayingField.Draw(camera, drawingReason, Data.ShadowMap);
+            Data.PlayingField.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)
-                PlayerEgg.Draw(camera, drawingReason, Data.ShadowMap);
+                PlayerEgg.Draw(camera, drawingReason, shadowMap);
             foreach (var egg in EnemyEggs)
-                egg.Draw(camera, drawingReason, Data.ShadowMap);
+                egg.Draw(camera, drawingReason, shadowMap);
             foreach (var frog in Frogs)
-                frog.Draw(camera, drawingReason, Data.ShadowMap);
+                frog.Draw(camera, drawingReason, shadowMap);
 
-            Data.Ground.Draw(camera, drawingReason, Data.ShadowMap);
-            Data.Sky.Draw(camera);
+            Data.Ground.Draw(camera, drawingReason, shadowMap);
+            Data.Sky.Draw(camera, drawingReason, shadowMap);
 
-            VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
-            PlayerSerpent.Draw(camera);
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+                VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
+            PlayerSerpent.Draw(camera, drawingReason, shadowMap);
             foreach (var enemy in Enemies)
-                enemy.Draw(camera);
-            VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
+                enemy.Draw(camera, drawingReason, shadowMap);
+            if (drawingReason != DrawingReason.ShadowDepthMap)
+                VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
 
             return true;
         }

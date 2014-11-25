@@ -32,6 +32,9 @@ namespace Larv.Serpent
                 return;
             }
 
+            if (TakeDirection())
+                return;
+
             if (_rnd.NextDouble() < 0.33 && TryMove(_whereabouts.Direction.Left))
                 return;
             if (_rnd.NextDouble() < 0.66 && TryMove(_whereabouts.Direction.Right))

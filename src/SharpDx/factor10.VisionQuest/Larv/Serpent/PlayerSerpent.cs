@@ -1,22 +1,13 @@
 ﻿using factor10.VisionThing;
 using Serpent;
 using SharpDX;
-using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
 {
     public class PlayerSerpent : BaseSerpent
     {
-        public interface ITakeDirection
-        {
-            RelativeDirection TakeDirection(Direction headDirection);
-            bool CanOverrideRestrictedDirections();
-        }
-
         public float Speed = 1.4f;
-
-        public ITakeDirection DirectionTaker;
 
         public PlayerSerpent(
             VisionContent vContent,
@@ -61,9 +52,8 @@ namespace Larv.Serpent
 
         protected override void takeDirection()
         {
-            if (DirectionTaker != null)
-                if (TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(HeadDirection)), DirectionTaker.CanOverrideRestrictedDirections()))
-                    return;
+            if (TakeDirection())
+                return;
 
             if (!TryMove(HeadDirection))
                 if (!TryMove(_whereabouts.Direction))

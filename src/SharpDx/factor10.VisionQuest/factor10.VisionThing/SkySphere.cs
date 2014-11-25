@@ -7,7 +7,7 @@ namespace factor10.VisionThing
 {
     public class SkySphere : ClipDrawable
     {
-        readonly IGeometricPrimitive _sphere;
+        private readonly IGeometricPrimitive _sphere;
 
         public SkySphere(
             VisionContent vtContent,
@@ -15,19 +15,16 @@ namespace factor10.VisionThing
             : base(new VisionEffect(vtContent.Load<Effect>("effects/skysphere")))
         {
             _sphere = new SpherePrimitive<VertexPosition>(vtContent.GraphicsDevice, (p, n, t, tx) => new VertexPosition(p), 20000, 10, false);
-            Effect.Parameters["Texture"].SetResource(texture);
+            Effect.Texture = texture;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
+            if (drawingReason == DrawingReason.ShadowDepthMap)
+                return false;
             camera.UpdateEffect(Effect);
             Effect.World = Matrix.Scaling(1, 0.5f, 1)*Matrix.Translation(camera.Position);
-
-            //TODO
-            //var saveCull = Effect.GraphicsDevice.RasterizerState;
             _sphere.Draw(Effect);
-            //Effect.GraphicsDevice.RasterizerState = saveCull;
-            //Effect.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             return true;
         }
 

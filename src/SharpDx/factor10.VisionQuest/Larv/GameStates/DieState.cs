@@ -1,31 +1,56 @@
 ﻿using factor10.VisionThing;
 using Larv.Serpent;
+using Serpent;
 using SharpDX.Toolkit;
 
 namespace Larv.GameStates
 {
-    class DieState : IGameState
+    class DieState : IGameState, ITakeDirection
     {
         private readonly Serpents _serpents;
-        private float _delay;
+        private readonly MoveCamera _moveCamera;
+        private readonly PathFinder _pathFinder;
 
         public DieState(Serpents serpents)
         {
             _serpents = serpents;
+            var forward = _serpents.PlayerSerpent.LookAtPosition - _serpents.Camera.Position;
+            forward.Normalize();
+            _moveCamera = MoveCamera.TotalTime(
+                _serpents.Camera,
+                10,
+                _serpents.PlayerSerpent.LookAtPosition,
+                _serpents.Camera.Position - forward * 8);
 
+            _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.EnemyWhereaboutsStart);
+            foreach (var enemy in _serpents.Enemies)
+                enemy.DirectionTaker = this;
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _delay += (float) gameTime.ElapsedGameTime.TotalSeconds;
             _serpents.Update(gameTime);
-            if(_delay > 5)
-                gameState = new StartSerpentState(_serpents);
+            if (_moveCamera.Move(gameTime))
+                return;
+            gameState = new BeginGameState(_serpents);
+            foreach (var enemy in _serpents.Enemies)
+                enemy.DirectionTaker = null;
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
+        }
+
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
+        {
+            var direction = _pathFinder.WayHome(serpent.Whereabouts);
+            return serpent.HeadDirection.GetRelativeDirection(direction);
+        }
+
+        bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
+        {
+            return true;
         }
 
     }

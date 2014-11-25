@@ -42,7 +42,7 @@ namespace Larv.Serpent
             _texture = vContent.Load<Texture2D>(@"terraintextures/sand");
             Whereabouts = whereabouts;
             _ground = ground;
-            _position = new Vector3(10, 0, 10);
+            _position = new Vector3(2, 0, -2);
             _actions.Add(() => _onTheMove > 1);
         }
 

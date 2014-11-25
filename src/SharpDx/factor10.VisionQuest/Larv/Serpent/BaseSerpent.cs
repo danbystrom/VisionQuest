@@ -17,12 +17,19 @@ namespace Larv.Serpent
         Finished
     }
 
+    public interface ITakeDirection
+    {
+        RelativeDirection TakeDirection(BaseSerpent serpent);
+        bool CanOverrideRestrictedDirections(BaseSerpent serpent);
+    }
+
     public abstract class BaseSerpent : ClipDrawable
     {
         public const float HeadSize = 0.5f;
         public const float SegmentSize = 0.4f;
 
         public SerpentStatus SerpentStatus;
+        public ITakeDirection DirectionTaker;
 
         protected readonly PlayingField _pf;
 
@@ -92,6 +99,12 @@ namespace Larv.Serpent
         protected virtual float modifySpeed()
         {
             return 1f;
+        }
+
+        protected bool TakeDirection()
+        {
+            return DirectionTaker != null &&
+                   TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(this)), DirectionTaker.CanOverrideRestrictedDirections(this));
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -362,8 +375,8 @@ namespace Larv.Serpent
 
         public bool EatFrog(Frog frog, bool debug = false)
         {
-            if (debug)
-                System.Diagnostics.Debug.Print("{0}", (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f));
+            //if (debug)
+            //    System.Diagnostics.Debug.Print("{0}", Vector3.DistanceSquared(GetPosition(), frog.Position));
             if (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f)
                 return false;
             AddTail();

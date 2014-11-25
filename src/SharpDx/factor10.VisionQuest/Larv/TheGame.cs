@@ -113,7 +113,7 @@ namespace Larv
             _gameState = new AttractState(Data.Serpents);
 
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
-            Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
+            //Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
 
             base.LoadContent();
         }
