@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using factor10.VisionThing.Util;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
@@ -100,6 +97,22 @@ namespace factor10.VisionThing.Terrain
             var ix = (int)x;
             var iy = (int)y;
             return GetExactHeight(ix, iy, x - ix, y - iy);
+        }
+
+        public float GetExactHeight2(float x, float y)
+        {
+            var ray = new Ray(new Vector3(x, 1000, y), Vector3.Down);
+
+            var ix = (int) x;
+            var iy = (int) y;
+
+            var p1 = new Vector3(ix, this[ix, iy], iy);
+            var p2 = new Vector3(ix + 1, this[ix + 1, iy], iy);
+            var p3 = new Vector3(ix, this[ix, iy + 1], iy + 1);
+            var plane = new Plane(p1, p2, p3);
+            Vector3 result;
+            plane.Intersects(ref ray, out result);
+            return result.Y;
         }
 
         public void ApplyNormalBellShape()
@@ -252,32 +265,7 @@ namespace factor10.VisionThing.Terrain
 
             if (p.X < 0 || p.Y < 0 || p.X > Width || p.Y > Height)
             {
-                //the ray does NOT start above the GroundMap - so find where it starts to come above the GroundMap
-                var pos2 = pos + ray.Direction * 100000; // a point far away along the ray
-                var p2 = p + new Vector2(pos2.X, pos2.Z); // the 2D version of pos2
-                var c0 = new Vector2(0, 0);
-                var c1 = new Vector2(0, Height - 1);
-                var c2 = new Vector2(Width - 1, 0);
-                var c3 = new Vector2(Width - 1, Height - 1);
-                var list = new List<Vector2?>
-                {
-                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c0, c1),
-                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c0, c2),
-                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c3, c1),
-                    CollisionHelpers.LineLineIntersectionPoint(p, p2, c3, c2)
-                }.Where(_ => _ != null).Select(_ => _.Value).ToList();
-                if (list.Count < 2)
-                    return null; // if the ray starts outside the GroundMap then it should intersect two sides in 2D space - if it touches
-                list.Sort((x, y) => Math.Sign(Vector2.DistanceSquared(x, p) - Vector2.DistanceSquared(y, p)));
-                var near = list.First(); // the 2D-ray intersects with the GroundMap edge here
-
-                // now calculate the 3d point where the ray enters the GroundMap area
-                var d1 = Vector2.Distance(p, near);
-                var d2 = Vector2.Distance(p, p2);
-                pos = Vector3.Lerp(pos, pos2, d1 / d2);
-
                 var box = new BoundingBox(Vector3.Zero, new Vector3(Width - 1, Width * Height, Height - 1));
-                Vector3 q;
                 box.Intersects(ref ray, out pos);
             }
 

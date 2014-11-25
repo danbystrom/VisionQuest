@@ -65,6 +65,15 @@ namespace Larv.Serpent
                 Enemies.Add(enemy);
             }
             shadowMap.ShadowCastingObjects.AddRange(Enemies);
+
+            for (var i = 0; i < 3; i++)
+                Frogs.Add(new Frog(
+                    Data.VContent,
+                    vContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
+                    new Whereabouts(),
+                    Data.Ground));
+            shadowMap.ShadowCastingObjects.AddRange(Frogs);
+
         }
 
         public Result Update(GameTime gameTime)
@@ -132,7 +141,7 @@ namespace Larv.Serpent
             {
                 Frogs[i].Update(Camera, gameTime);
 
-                if (PlayerSerpent.EatFrog(Frogs[i]))
+                if (PlayerSerpent.EatFrog(Frogs[i], true))
                     EnemyEggs.RemoveAt(i);
                 else if (Enemies.Any(enemy => enemy.EatFrog(Frogs[i])))
                     EnemyEggs.RemoveAt(i);
@@ -143,14 +152,16 @@ namespace Larv.Serpent
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            Data.PlayingField.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
+            Data.PlayingField.Draw(camera, drawingReason, Data.ShadowMap);
 
             if (PlayerEgg != null)
-                PlayerEgg.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
+                PlayerEgg.Draw(camera, drawingReason, Data.ShadowMap);
             foreach (var egg in EnemyEggs)
-                egg.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
+                egg.Draw(camera, drawingReason, Data.ShadowMap);
+            foreach (var frog in Frogs)
+                frog.Draw(camera, drawingReason, Data.ShadowMap);
 
-            Data.Ground.Draw(camera, DrawingReason.Normal, Data.ShadowMap);
+            Data.Ground.Draw(camera, drawingReason, Data.ShadowMap);
             Data.Sky.Draw(camera);
 
             VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);

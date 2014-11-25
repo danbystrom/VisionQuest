@@ -115,15 +115,6 @@ namespace Larv
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
             Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
 
-            _frog = new Frog(
-               Data.VContent,
-                new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect")),
-                Data.Serpents.Sphere,
-                Content.Load<Texture2D>("textures/rocknormal"),
-                new Whereabouts(),
-                Data.Ground);
-            Data.ShadowMap.ShadowCastingObjects.Add(_frog);
-
             base.LoadContent();
         }
 
@@ -136,8 +127,6 @@ namespace Larv
             Data.Update(gameTime);
             _gameState.Update(Data.Serpents.Camera, gameTime, ref _gameState);
 
-            _frog.Update(Data.Serpents.Camera, gameTime);
-
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
             Data.ShadowMap.Camera.Update(
                 shadowCameraPos,
@@ -146,8 +135,6 @@ namespace Larv
             if (Data.Serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
-
-        private Frog _frog;
 
         protected override void Draw(GameTime gameTime)
         {
@@ -160,7 +147,6 @@ namespace Larv
 
             _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
             _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
-            _frog.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                                   Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
@@ -207,10 +193,10 @@ namespace Larv
                     cl.X, cl.Y, nl.X, nl.Y, w.Fraction).AppendLine();
             }
 
-            {
-                text.AppendFormat("Frog + B: ({0} {1}",
-                    _frog.Position, Data.WorldPicked.TranslationVector).AppendLine();
-            }
+            //{
+            //    text.AppendFormat("Frog + B: ({0})  ({1})  ({2})  ({3})",
+            //        _frog.Position, Data.WorldPicked.TranslationVector, Data.PickedQueriedGroundHeight1, Data.PickedQueriedGroundHeight2).AppendLine();
+            //}
 
             // Display pressed keys
             var pressedKeys = new List<Keys>();
@@ -234,7 +220,7 @@ namespace Larv
             _spriteBatch.End();
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
-            var shx = 500*0.25f - 4;
+            var shx = GraphicsDevice.BackBuffer.Width - Data.ShadowMap.ShadowDepthTarget.Width*0.25f - 4;
             var shy = 4;
             _spriteBatch.Draw(
                 Data.ShadowMap.ShadowDepthTarget,

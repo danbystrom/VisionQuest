@@ -17,7 +17,7 @@ namespace factor10.VisionThing.Terrain
 
         public readonly VisionContent VContent;
 
-        public GroundMap GroundMap;
+        public GroundMap GroundMap { get; private set; }
 
         public Matrix World;
         private Vector3 _position;
@@ -144,7 +144,6 @@ namespace factor10.VisionThing.Terrain
 
         public Vector3? HitTest(Ray ray)
         {
-            //var GroundMap = new GroundMap(HeightsMap, _ => _);
             var world = World;
             world.Invert();
             var p = GroundMap.HitTest(world, ray);

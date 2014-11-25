@@ -21,9 +21,9 @@ namespace Larv.GameStates
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
-            _moveCamera = new MoveCamera(
+            _moveCamera = MoveCamera.UnitsPerSecond(
                 _serpents.Camera,
-                4,
+                10,
                 CameraLookAt,
                 CameraPosition);
             _serpents.PlayerSerpent.DirectionTaker = this;

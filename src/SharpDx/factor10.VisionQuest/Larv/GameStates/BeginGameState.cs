@@ -34,7 +34,7 @@ namespace Larv.GameStates
                 finalPos,
                 Vector3.Right,
                 SerpentCamera.CameraDistanceToHeadXz);
-            _moveCamera = new MoveCamera(
+            _moveCamera = MoveCamera.TotalTime(
                 serpents.Camera,
                 4,
                 lookAt,

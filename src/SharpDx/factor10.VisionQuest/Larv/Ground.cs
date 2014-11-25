@@ -43,7 +43,6 @@ namespace Larv
                         BoundingSphere = new BoundingSphere(world.TranslationVector + new Vector3(HalfSide, 0, HalfSide), raduis)
                     };
                 }
-
         }
 
         public Ground(VisionContent vContent, PlayingField playingField)
@@ -133,20 +132,6 @@ namespace Larv
                         for(var i=0;i<3;i++)
                             for (var j = 0; j < 3; j++)
                                 ground[nx+i, ny+j] = value;
-                    }
-        }
-
-        private static void carvePlayingField2(Sculptable<Mt9Surface.Mt9> ground, PlayingField playingField, int offx, int offy)
-        {
-            for (var y = 0; y < playingField.Height; y++)
-                for (var x = 0; x < playingField.Width; x++)
-                    if (!playingField.FieldValue(0, new Point(x, y)).IsNone)
-                    {
-                        var nx = offx + x * 3;
-                        var ny = offy + y * 3;
-                        for (var i = 0; i < 3; i++)
-                            for (var j = 0; j < 3; j++)
-                                ground[nx + i, ny + j] = new Mt9Surface.Mt9 {H = 2};
                     }
         }
 

@@ -29,6 +29,8 @@ namespace Larv
         private bool _paused;
 
         public Matrix WorldPicked;
+        public Vector3 PickedQueriedGroundHeight1;
+        public Vector3 PickedQueriedGroundHeight2;
 
         public Camera Camera;
         public static ShadowMap ShadowMap;
@@ -66,7 +68,7 @@ namespace Larv
                 mouseManager,
                 pointerManager,
                 AttractState.CameraPosition,
-                AttractState.CameraLookAt);
+                AttractState.CameraLookAt) {MovingSpeed = 8};
             ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             Serpents = new Serpents(VContent, Camera, Sphere, PlayingField, ShadowMap);
@@ -118,7 +120,17 @@ namespace Larv
                 var ray = Camera.GetPickingRay();
                 var hit = Ground.HitTest(ray);
                 if (hit != null)
+                {
                     WorldPicked = Matrix.Translation(hit.Value);
+
+                    var worldInv = Ground.World;
+                    worldInv.Invert();
+                    var local = Ground.GroundMap.HitTest(worldInv, ray).Value;
+                    local.Y = Ground.GroundMap.GetExactHeight(local.X, local.Z);
+                    PickedQueriedGroundHeight1 = Vector3.TransformCoordinate(local, Ground.World);
+                    local.Y = Ground.GroundMap.GetExactHeight2(local.X, local.Z);
+                    PickedQueriedGroundHeight2 = Vector3.TransformCoordinate(local, Ground.World);
+                }
             }
 
         }

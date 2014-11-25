@@ -83,13 +83,13 @@ namespace Larv.GameStates
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            var scale = Matrix.Scaling(0.3f);
-            foreach (var v in _helper.Path)
-            {
-                camera.UpdateEffect(_serpents.Effect);
-                _serpents.Effect.World = scale*Matrix.Translation(v);
-                _serpents.Sphere.Draw(_serpents.Effect);
-            }
+            //var scale = Matrix.Scaling(0.3f);
+            //foreach (var v in _helper.Path)
+            //{
+            //    camera.UpdateEffect(_serpents.Effect);
+            //    _serpents.Effect.World = scale*Matrix.Translation(v);
+            //    _serpents.Sphere.Draw(_serpents.Effect);
+            //}
             _serpents.Draw(camera, drawingReason, shadowMap);
         }
 

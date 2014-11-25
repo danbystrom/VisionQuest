@@ -16,7 +16,6 @@ namespace factor10.VisionThing
 
         private bool _dirtyViewProj;
         private Matrix _viewProjection;
-        public BoundingSphere _boundingSphere;
 
         public Vector3 Position { get; protected set; }
         public Vector3 Target { get; protected set; }
@@ -30,7 +29,6 @@ namespace factor10.VisionThing
         public readonly Vector2 ClientSize;
 
         private Vector2 _lastMousePosition;
-        private Vector2 _lastPointerPosition;
 
         private readonly List<Keys> _downKeys = new List<Keys>();
 
@@ -44,6 +42,8 @@ namespace factor10.VisionThing
 
         public readonly float ZNear;
         public readonly float ZFar;
+
+        public float MovingSpeed = 30;
 
         public Camera(
             Vector2 clientSize,
@@ -208,9 +208,10 @@ namespace factor10.VisionThing
                 MouseManager.SetPosition(_lastMousePosition);
             }
 
-            var step = (float) gameTime.ElapsedGameTime.TotalSeconds*30;
+            var step = (float) gameTime.ElapsedGameTime.TotalSeconds;
 
-            var rotStep = step*0.05f;
+            var rotStep = step*1.5f;
+            step *= MovingSpeed;
             if (_downKeys.Contains(Keys.Shift))
                 step *= 5;
 

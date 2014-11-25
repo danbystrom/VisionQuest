@@ -9,7 +9,7 @@ namespace Larv
     /// </summary>
     public class CavePrimitive<T> : factor10.VisionThing.Primitives.GeometricPrimitive<T> where T : struct, IEquatable<T>
     {
-        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate);
+        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 textureCoordinate);
 
         /// <summary>
         /// Constructs a new cylinder primitive, using default settings.
@@ -43,8 +43,8 @@ namespace Larv
             createRoof(createVertex, tessellation, height, radius - roofThickness, !swap);
 
             // Create flat triangle fan caps to seal the top and bottom.
-            //CreateCap(createVertex, tessellation, height, radius, Vector3.Up, swap);
-            //CreateCap(createVertex, tessellation, height, radius, Vector3.Down, swap);
+            CreateCap(createVertex, height, radius, roofThickness, tessellation, Vector3.Up, swap);
+            CreateCap(createVertex, height, radius, roofThickness, tessellation, Vector3.Down, swap);
 
             initializePrimitive(graphicsDevice);
         }
@@ -52,17 +52,18 @@ namespace Larv
         private void createRoof(CreateVertex createVertex, int tessellation, float height, float radius, bool swap)
         {
             var t2 = tessellation*2;
-            var v = CurrentVertex;
+            var cv = CurrentVertex;
 
             for (var i = tessellation/2; i < tessellation; i++)
             {
                 var normal = getCircleVector(i, tessellation);
+                var txCoord = new Vector2((float) i/tessellation, 0.0f);
 
-                addVertex(createVertex(normal*radius + Vector3.Up*height, normal, Vector2.Zero));
-                addVertex(createVertex(normal*radius + Vector3.Down*height, normal, Vector2.Zero));
+                addVertex(createVertex(normal*radius + Vector3.Up*height, normal, Vector3.Zero, txCoord));
+                addVertex(createVertex(normal*radius + Vector3.Down*height, normal, Vector3.Zero, txCoord + Vector2.UnitY));
 
-                addTriangle(v + i*2, v + i*2 + 1, v + (i*2 + 2)%t2, swap);
-                addTriangle(v + i*2 + 1, v + (i*2 + 3)%t2, v + (i*2 + 2)%t2, swap);
+                addTriangle(cv + i*2, cv + i*2 + 1, cv + i*2 + 2, swap);
+                addTriangle(cv + i*2 + 1, cv + i*2 + 3, cv + i*2 + 2, swap);
             }
             var g = new GeometricPrimitive.Cylinder();
         }
@@ -70,19 +71,27 @@ namespace Larv
         /// <summary>
         /// Helper method creates a triangle fan to close the ends of the cylinder.
         /// </summary>
-        private void CreateCap(CreateVertex createVertex, int tessellation, float height, float radius, Vector3 normal, bool swap)
+        private void CreateCap(CreateVertex createVertex, float height, float radius, float roofThickness, int tessellation, Vector3 normal, bool swap)
         {
             // Create cap indices.
             for (var i = 0; i < tessellation - 2; i++)
-                addTriangle(CurrentVertex, CurrentVertex + (i + 2) % tessellation, CurrentVertex + (i + 1) % tessellation, swap ^ normal.Y > 0);
+            {
+                var c = CurrentVertex + 1;
+                addTriangle(c, c + 1, c + 2, swap ^ normal.Y > 0);
+                addTriangle(c + 1, c + 2, c + 3, swap ^ normal.Y > 0);
+            }
 
+            var yoffset = normal*height;
             // Create cap vertices.
             for (var i = 0; i < tessellation; i++)
             {
-                var position = getCircleVector(i, tessellation) * radius + normal * height;
-                //var txCoord = new Vector2((float)((double)circleVector.X * (double)vector2.X + 0.5), (float)((double)circleVector.Z * (double)vector2.Y + 0.5));
-
-                addVertex(createVertex(position, normal, Vector2.Zero));
+                var cv = getCircleVector(i, tessellation);
+                var position = cv * radius + yoffset;
+                var txCoord = new Vector2((cv.X + 1)/2, (cv.Z + 1)/2);
+                addVertex(createVertex(position, normal, Vector3.Zero, txCoord));
+                position = cv * (radius-roofThickness) + yoffset;
+                txCoord = new Vector2((cv.X + 1) / 2, (cv.Z + 1) / 2);
+                addVertex(createVertex(position, normal, Vector3.Zero, txCoord));
             }
         }
 

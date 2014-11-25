@@ -360,8 +360,10 @@ namespace Larv.Serpent
             return true;
         }
 
-        public bool EatFrog(Frog frog)
+        public bool EatFrog(Frog frog, bool debug = false)
         {
+            if (debug)
+                System.Diagnostics.Debug.Print("{0}", (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f));
             if (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f)
                 return false;
             AddTail();
