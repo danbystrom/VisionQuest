@@ -37,7 +37,9 @@ namespace Larv.GameStates
 
             _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
 
-            _serpents.Update(gameTime);
+            if (_serpents.Update(gameTime) != Serpents.Result.GameOn)
+                _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
+
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
             {
                 gameState = new BeginGameState(_serpents);
@@ -52,8 +54,7 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var result = _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;
-            return result;
+            return _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;
         }
 
         bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)

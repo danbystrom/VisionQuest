@@ -11,6 +11,7 @@ namespace Larv.Serpent
     {
         private readonly IVDrawable _sphere;
         private readonly Texture2D _eggSkin;
+        private readonly Vector4 _diffuseColor;
         private readonly Matrix _world;
 
         public readonly Whereabouts Whereabouts;
@@ -21,6 +22,7 @@ namespace Larv.Serpent
             IVEffect effect,
             IVDrawable sphere,
             Texture2D eggSkin,
+            Vector4 diffuseColor,
             Matrix world,
             Whereabouts whereabouts,
             float timeToHatch)
@@ -28,6 +30,7 @@ namespace Larv.Serpent
         {
             _sphere = sphere;
             _eggSkin = eggSkin;
+            _diffuseColor = diffuseColor;
             _world = world;
             Whereabouts = whereabouts;
             _timeToHatch = timeToHatch;
@@ -46,6 +49,7 @@ namespace Larv.Serpent
         public static void Draw(
             IVEffect effect,
             Texture2D skin,
+            Vector4 diffuseColor,
             IVDrawable sphere,
             Matrix translation,
             Direction direction)
@@ -58,14 +62,14 @@ namespace Larv.Serpent
 
             effect.World = t*translation;
             effect.Texture = skin;
-            effect.DiffuseColor = Vector4.One;
+            effect.DiffuseColor = diffuseColor;
             sphere.Draw(effect);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
-            Draw(Effect, _eggSkin, _sphere, _world, Whereabouts.Direction);
+            Draw(Effect, _eggSkin, _diffuseColor, _sphere, _world, Whereabouts.Direction);
             return true;
         }
 

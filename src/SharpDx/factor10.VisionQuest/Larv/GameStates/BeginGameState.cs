@@ -10,7 +10,7 @@ namespace Larv.GameStates
     class BeginGameState : IGameState
     {
         private readonly Serpents _serpents;
-        private MoveCamera _moveCamera;
+        private readonly MoveCamera _moveCamera;
 
         public BeginGameState(Serpents serpents)
         {
@@ -39,6 +39,11 @@ namespace Larv.GameStates
                 4,
                 lookAt,
                 x.Points);
+        }
+
+        public static void x()
+        {
+            
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)

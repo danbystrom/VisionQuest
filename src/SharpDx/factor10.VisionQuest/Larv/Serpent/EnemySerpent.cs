@@ -8,6 +8,9 @@ namespace Larv.Serpent
 {
     public class EnemySerpent : BaseSerpent
     {
+        public static readonly Vector4 ColorWhenLonger = new Vector4(1.5f, 0.6f, 0.6f, 1);
+        public static readonly Vector4 ColorWhenShorter = new Vector4(0.6f, 1.5f, 0.6f, 1);
+
         private readonly Random _rnd = new Random();
  
         public EnemySerpent(
@@ -55,9 +58,7 @@ namespace Larv.Serpent
         {
             if (SerpentStatus != SerpentStatus.Alive)
                 return new Vector4(1.1f, 1.1f, 0.4f, AlphaValue());
-            return _isLonger
-                ? new Vector4(1.5f, 0.5f, 0.5f, 1)
-                : new Vector4(0.5f, 1.5f, 0.5f, 1);
+            return _isLonger ? ColorWhenLonger : ColorWhenShorter;
         }
 
     }

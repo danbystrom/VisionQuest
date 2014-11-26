@@ -59,7 +59,7 @@ namespace Larv.Serpent
                 _onTheMove = 100;
 
             _onTheMove += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            if (_actions[0]())
+            if (_actions.Any() && _actions[0]())
             {
                 _onTheMove = 0;
                 _actions.RemoveAt(0);
@@ -91,9 +91,11 @@ namespace Larv.Serpent
 
                 gspaceTo.Y = _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
                 gspaceTo = getApproxMax(gspaceTo, gspaceCurrent);
-                normal = _ground.GroundMap.GetNormal((int)gspaceTo.X, (int)gspaceTo.Z);
+                normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z);
                 if (normal.Y < 0.5f)
                     continue;
+
+//                normal = Vector3.Lerp(Vector3.Up, Vector3.Right, 0.5f);
 
                 // now we have a new position for the frog - set up jump commands
                 Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out toPosition);
@@ -101,7 +103,7 @@ namespace Larv.Serpent
 
                 var angle = (float)Math.Atan2(dx, dz);
                 var currentNormal = _rotation.Up;
-                var delay = rnd.Next(3, 6);
+                var delay = rnd.NextFloat(3, 6);
                 _actions.Add(() =>
                 {
                     if (_onTheMove < 1)
@@ -158,15 +160,15 @@ namespace Larv.Serpent
             return rotation;
         }
 
-        private Vector3 getApproxMax(Vector3 vNew, Vector3 vOld)
+        private Vector3 getApproxMax(Vector3 gNew, Vector3 gOld)
         {
             const int iterations = 10;
-            var result = vNew;
+            var result = gNew;
             for (var i = 1; i < iterations; i++)
             {
-                var vMiddle = Vector3.Lerp(vNew, vOld, (float) i/iterations);
+                var vMiddle = Vector3.Lerp(gNew, gOld, (float) i/iterations);
                 var height = _ground.GroundMap.GetExactHeight(vMiddle.X, vMiddle.Z);
-                if (height > vMiddle.Y - 0.1f)
+                if (height > vMiddle.Y + 3)
                     return new Vector3(vMiddle.X, height, vMiddle.Z);
             }
             return result;
@@ -175,11 +177,6 @@ namespace Larv.Serpent
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
-            //var t = direction.IsNorthSouth
-            //    ? Matrix.Scaling(0.6f, 0.6f, 0.8f)
-            //    : Matrix.Scaling(0.8f, 0.6f, 0.6f);
-            //var off = direction.DirectionAsVector3()*-0.3f;
-            //t.TranslationVector = _position;
             var t = _modelRotation * _rotation * Matrix.Translation(_position + new Vector3(0, 0, 0));
 
             Effect.World = t;

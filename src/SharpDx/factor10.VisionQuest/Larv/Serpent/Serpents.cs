@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using factor10.VisionThing;
 using Serpent;
 using SharpDX.Toolkit;
@@ -73,8 +74,13 @@ namespace Larv.Serpent
 
         public Result Update(GameTime gameTime)
         {
-            _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
+            var result = Result.GameOn;
 
+            if(Camera.KeyboardState.IsKeyPressed(Keys.Z))
+                foreach (var enemy in Enemies)
+                    enemy.SerpentStatus = SerpentStatus.Ghost;
+
+            _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
             if (_onceASecond >= 1)
             {
                 _onceASecond = 0;
@@ -96,7 +102,7 @@ namespace Larv.Serpent
                 if (enemy.EatAt(PlayerSerpent))
                 {
                     PlayerSerpent.SerpentStatus = SerpentStatus.Ghost;
-                    return Result.PlayerDied;
+                    result = Result.PlayerDied;
                 }
                 if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
                     enemy.SerpentStatus = SerpentStatus.Ghost;
@@ -143,7 +149,7 @@ namespace Larv.Serpent
                     replaceFrog(i);
             }
 
-            return Result.GameOn;
+            return result;
         }
 
         private void replaceFrog(int i)
@@ -169,13 +175,19 @@ namespace Larv.Serpent
             Data.Ground.Draw(camera, drawingReason, shadowMap);
             Data.Sky.Draw(camera, drawingReason, shadowMap);
 
-            if (drawingReason != DrawingReason.ShadowDepthMap)
+            var serpents = new List<BaseSerpent> {PlayerSerpent};
+            serpents.AddRange(Enemies);
+
+            foreach (var serpent in serpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
+                serpent.Draw(camera, drawingReason, shadowMap);
+
+            if (drawingReason != DrawingReason.ShadowDepthMap && serpents.Any(_ => _.SerpentStatus == SerpentStatus.Ghost))
+            {
                 VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
-            PlayerSerpent.Draw(camera, drawingReason, shadowMap);
-            foreach (var enemy in Enemies)
-                enemy.Draw(camera, drawingReason, shadowMap);
-            if (drawingReason != DrawingReason.ShadowDepthMap)
+                foreach (var serpent in serpents.Where(_ => _.SerpentStatus == SerpentStatus.Ghost))
+                    serpent.Draw(camera, drawingReason, shadowMap);
                 VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
+            }
 
             return true;
         }

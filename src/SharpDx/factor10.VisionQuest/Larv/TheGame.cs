@@ -28,15 +28,18 @@ namespace Larv
     {
         private GraphicsDeviceManager _graphicsDeviceManager;
         private SpriteBatch _spriteBatch;
-        private Texture2D _ballsTexture;
         private SpriteFont _arial16Font;
 
         private Windmill _windmill;
-
+        private CaveModel _caveModel;
 
         public Data Data;
 
+        private float _angleXZ = 0;
+        private float _angleY = 0;
+
         public IGeometricPrimitive _sphere;
+        public IGeometricPrimitive _cylinder;
         public VisionEffect _myEffect;
         public VisionEffect _myBumpEffect;
         private RasterizerState _rasterizerState;
@@ -82,9 +85,8 @@ namespace Larv
             // Instantiate a SpriteBatch
             _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
-            _ballsTexture = Content.Load<Texture2D>("Balls");
-
             _sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
+            _cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 1, 1, 10);
             _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
             _myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
             _image1 = Content.Load<Texture2D>("textures/rocknormal");
@@ -95,6 +97,7 @@ namespace Larv
             _arial16Font = Content.Load<SpriteFont>("Arial16");
 
             _windmill = new Windmill(Data.VContent, Vector3.Zero);
+            _caveModel = new CaveModel(Data.VContent, Vector3.Zero);
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
@@ -146,6 +149,7 @@ namespace Larv
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
+            _caveModel.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
             _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
@@ -165,6 +169,33 @@ namespace Larv
             _myBumpEffect.World = Matrix.Scaling(0.5f, 0.5f, 0.5f) *
                       Matrix.Translation(Data.ShadowMap.Camera.Position + VisionContent.SunlightDirection * 3);
             _sphere.Draw(_myBumpEffect);
+
+            _angleXZ += time/800;
+            _angleY += time/700;
+            var dy = (float) Math.Sin(_angleY);
+            var dxz = (float) Math.Cos(_angleY);
+            var dx = (float) Math.Cos(_angleXZ)*dxz;
+            var dz = (float) Math.Sin(_angleXZ)*dxz;
+            var n = new Vector3(dx, dy, dz);
+            _myBumpEffect.World = Matrix.Scaling(0.5f, 0.5f, 0.5f)*
+                                  Matrix.Translation(Data.ShadowMap.Camera.Position)*
+                                  Matrix.Translation(n*3);
+            _sphere.Draw(_myBumpEffect);
+
+            var default0 = Matrix.RotationZ(0)*Matrix.Translation(0, 0.5f, 0);
+
+            var rotation = Matrix.RotationY(0);
+            rotation.Up = n;
+            rotation.Right = Vector3.Normalize(Vector3.Cross(rotation.Forward, rotation.Up));
+            rotation.Forward = Vector3.Normalize(Vector3.Cross(rotation.Up, rotation.Right));
+
+            _myBumpEffect.World =
+                default0*
+                rotation *
+                Matrix.Translation(n * 2) *
+                Matrix.Translation(Data.ShadowMap.Camera.Position);
+            _cylinder.Draw(_myBumpEffect);
+
 
             _myEffect.World = Matrix.Scaling(0.2f) * Data.WorldPicked;
             _sphere.Draw(_myEffect);

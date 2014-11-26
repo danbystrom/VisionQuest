@@ -10,18 +10,23 @@ namespace Larv.GameStates
         private readonly Serpents _serpents;
         private readonly PathFinder _pathFinder;
         private bool _serpentIsHome;
+        private MoveCamera _moveCamera;
 
         public LevelCompleteState(Serpents serpents)
         {
             _serpents = serpents;
             _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
             _serpents.PlayerSerpent.DirectionTaker = this;
+            _moveCamera = MoveCamera.UnitsPerSecond(
+                _serpents.Camera,
+                10,
+                AttractState.CameraLookAt,
+                AttractState.CameraPosition);
         }
-
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var direction = _pathFinder.WayHome(serpent.Whereabouts);
+            var direction = _pathFinder.WayHome(serpent.Whereabouts, false);
             if (direction == Direction.None)
             {
                 _serpentIsHome = true;
@@ -37,6 +42,7 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
+            _moveCamera.Move(gameTime);
             _serpents.Update(gameTime);
             if (!_serpentIsHome)
                 return;

@@ -74,10 +74,10 @@ namespace factor10.VisionQuest
 
                 foreach (var island in islandsHit)
                 {
-                    var p = island.HitTest(ray);
-                    if (p == null)
+                    Vector3 hit, normal;
+                    if (! island.HitTest(ray, out hit, out normal))
                         continue;
-                    System.Diagnostics.Debug.Print("{0}: {1},{2}", island.VAssembly.Name, p.Value.X, p.Value.Y);
+                    System.Diagnostics.Debug.Print("{0}: {1},{2}", island.VAssembly.Name, hit.X, hit.Y);
                 }
                 //var q = hitTestGround(camera.GetPickingRay());
                 //if(q!=null)

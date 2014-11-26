@@ -130,7 +130,6 @@ namespace factor10.VisionThing.Primitives
                 graphicsDevice.DrawIndexed(PrimitiveType.TriangleList, _indexBuffers[lod].ElementCount);
                 VisionContent.RenderedTriangles += _indexBuffers[lod].ElementCount;
             }
-
         }
 
         public void Draw(BasicEffect effect, int lod = 0)

@@ -1,4 +1,5 @@
-﻿using factor10.VisionThing;
+﻿using System.Linq;
+using factor10.VisionThing;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -20,7 +21,7 @@ namespace Larv
 
         private float _angle;
 
-        public Windmill( VisionContent vContent, Vector3 location )
+        public Windmill(VisionContent vContent, Vector3 location)
             : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
         {
             World = Matrix.Scaling(0.004f)*Matrix.RotationY(0.4f)*Matrix.Translation(-1, 0, -1);
@@ -30,13 +31,7 @@ namespace Larv
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 
-            foreach (var mesh in _model.Meshes)
-            {
-                if (mesh.Name == "Fan")
-                {
-                    _animatedBone = mesh.ParentBone;
-                }
-            }
+            _animatedBone = _model.Meshes.Single(mesh => mesh.Name == "Fan").ParentBone;
             _originalBoneTransformation = Matrix.Translation(0, 850, 0);
         }
 

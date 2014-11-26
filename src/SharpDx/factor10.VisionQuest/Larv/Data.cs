@@ -23,6 +23,7 @@ namespace Larv
         public static Ground Ground;
 
         public readonly IVDrawable Sphere;
+        public readonly IVDrawable Cylinder;
 
         public Serpents Serpents;
 
@@ -52,7 +53,9 @@ namespace Larv
                     texture);
 
             Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
-                (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx*2), 2);
+                (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
+            Cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
+                (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2, 1, 10);
 
             //TODO
             if (Sky == null)
@@ -117,19 +120,19 @@ namespace Larv
 
             if (HasKeyToggled(Keys.B))
             {
+                Vector3 hit, normal;
                 var ray = Camera.GetPickingRay();
-                var hit = Ground.HitTest(ray);
-                if (hit != null)
+                if(Ground.HitTest(ray, out hit, out normal))
                 {
-                    WorldPicked = Matrix.Translation(hit.Value);
+                    WorldPicked = Matrix.Translation(hit);
 
-                    var worldInv = Ground.World;
-                    worldInv.Invert();
-                    var local = Ground.GroundMap.HitTest(worldInv, ray).Value;
-                    local.Y = Ground.GroundMap.GetExactHeight(local.X, local.Z);
-                    PickedQueriedGroundHeight1 = Vector3.TransformCoordinate(local, Ground.World);
-                    local.Y = Ground.GroundMap.GetExactHeight2(local.X, local.Z);
-                    PickedQueriedGroundHeight2 = Vector3.TransformCoordinate(local, Ground.World);
+                    //var worldInv = Ground.World;
+                    //worldInv.Invert();
+                    //var local = Ground.GroundMap.HitTest(worldInv, ray).Value;
+                    //local.Y = Ground.GroundMap.GetExactHeight(local.X, local.Z);
+                    //PickedQueriedGroundHeight1 = Vector3.TransformCoordinate(local, Ground.World);
+                    //local.Y = Ground.GroundMap.GetExactHeight2(local.X, local.Z);
+                    //PickedQueriedGroundHeight2 = Vector3.TransformCoordinate(local, Ground.World);
                 }
             }
 

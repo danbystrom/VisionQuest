@@ -132,7 +132,7 @@ namespace Larv
 "S X   X   X   X X   X X S",
 "X XXX X XXX XXX X XXX X X",
 "X   X X X X X   X X   X X",
-"X XXX XXX X XXXXX XXXXX X",
+"X XXX XXX X XXXXX XXXXX a",
 "b X       X   X   X     a",
 "B XXXXXXXXXXXXXXXXX     A",
                     });

@@ -11,39 +11,36 @@ namespace Larv
 {
     public class Ground : TerrainBase
     {
-        private float _qx = -9f;
-        private float _qy = -11f;
-
         private readonly CxBillboard _cxBillboardGrass;
         private readonly CxBillboard _cxBillboardTrees;
 
-        public void Move(KeyboardState keyboardState)
-        {
-            if (keyboardState.IsKeyPressed(Keys.X))
-                _qx += 0.3333f*(keyboardState.IsKeyDown(Keys.Shift) ? -1 : 1);
-            if (keyboardState.IsKeyPressed(Keys.Y))
-                _qy += 0.3333f * (keyboardState.IsKeyDown(Keys.Shift) ? -1 : 1);
-            World = Matrix.Scaling(1 / 3f) * Matrix.Translation(_qx, -0.5f, _qy);
+        //public void Move(KeyboardState keyboardState)
+        //{
+        //    if (keyboardState.IsKeyPressed(Keys.X))
+        //        _qx += 0.3333f*(keyboardState.IsKeyDown(Keys.Shift) ? -1 : 1);
+        //    if (keyboardState.IsKeyPressed(Keys.Y))
+        //        _qy += 0.3333f * (keyboardState.IsKeyDown(Keys.Shift) ? -1 : 1);
+        //    World = Matrix.Scaling(1 / 3f) * Matrix.Translation(_qx, -0.5f, _qy);
 
-            var slicesW = 2;
-            var slicesH = 2;
-            //TODO - this is wrong - I guess...
-            var sliceFracX = 1f / slicesW;
-            var sliceFracY = 1f / slicesH;
-            var raduis = HalfSide * (float)Math.Sqrt(2);
-            var i = 0;
-            for (var y = 0; y < slicesH; y++)
-                for (var x = 0; x < slicesW; x++)
-                {
-                    var world = Matrix.Translation(Side * x, 0, Side * y) * World;
-                    _slices[i++] = new terrainSlice
-                    {
-                        TexOffsetAndScale = new Vector4(x * sliceFracX, y * sliceFracY, sliceFracX, sliceFracY),
-                        World = world,
-                        BoundingSphere = new BoundingSphere(world.TranslationVector + new Vector3(HalfSide, 0, HalfSide), raduis)
-                    };
-                }
-        }
+        //    var slicesW = 2;
+        //    var slicesH = 2;
+        //    //TODO - this is wrong - I guess...
+        //    var sliceFracX = 1f / slicesW;
+        //    var sliceFracY = 1f / slicesH;
+        //    var raduis = HalfSide * (float)Math.Sqrt(2);
+        //    var i = 0;
+        //    for (var y = 0; y < slicesH; y++)
+        //        for (var x = 0; x < slicesW; x++)
+        //        {
+        //            var world = Matrix.Translation(Side * x, 0, Side * y) * World;
+        //            _slices[i++] = new terrainSlice
+        //            {
+        //                TexOffsetAndScale = new Vector4(x * sliceFracX, y * sliceFracY, sliceFracX, sliceFracY),
+        //                World = world,
+        //                BoundingSphere = new BoundingSphere(world.TranslationVector + new Vector3(HalfSide, 0, HalfSide), raduis)
+        //            };
+        //        }
+        //}
 
         public Ground(VisionContent vContent, PlayingField playingField)
             : base(vContent)
@@ -51,8 +48,11 @@ namespace Larv
             var pfW = playingField.Width;
             var pfH = playingField.Height;
 
-            var gqW = 128; // + 64;
-            var gqH = 128; // + 64;
+            var gqW = 128;
+            var gqH = 128;
+
+            var _qx = -((gqW - pfW*3)/2f + 0.5f)/3;  // -9f;  // 128 - 75 = 53 / 2 = (26.5+0.5) / 3 = 9 
+            var _qy = -((gqH - pfH*3)/2f + 0.5f)/3; // -11f;  // 128 - 63 = 65 / 2 = (32.5+0.5) / 3 = 11
 
             var rnd = new Random();
 
@@ -73,10 +73,13 @@ namespace Larv
             ground.DrawLine(gqW - 6, gqH - 6, gqW - 6, 2, 2, (a, b) => rnd.Next(40, 200));
             ground.DrawLine(gqW - 6, gqH - 6, 2, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
 
-            ground.DrawLine(10, 10, 50, 50, 2, (a, b) => 5);
+//            ground.DrawLine(10, 10, 50, 50, 2, (a, b) => 5);
             ground.Soften(2);
 
             carvePlayingField(ground, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, 0);
+            var nx = (gqW - pfW*3)/2 + playingField.PlayerWhereaboutsStart.Location.X*3-2;
+            var ny = (gqH - pfH*3)/2 + playingField.PlayerWhereaboutsStart.Location.Y*3-2;
+            ground.AlterValues(nx, ny, 7, 7, (a,b,c) => 30);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
 
@@ -92,7 +95,7 @@ namespace Larv
 
             carvePlayingField(weights, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, new Mt9Surface.Mt9 {H = 2});
 
-            var normals = ground.CreateNormalsMap();
+            var normals = ground.CreateNormalsMap(ref World);
             initialize(ground, weights, normals);
 
             var grass = new List<Tuple<Vector3, Vector3>>();
@@ -121,17 +124,19 @@ namespace Larv
         }
 
         private static void carvePlayingField<T>(Sculptable<T> ground, PlayingField playingField, int offx, int offy, T value)
-             where T : struct
+            where T : struct
         {
             for (var y = 0; y < playingField.Height; y++)
                 for (var x = 0; x < playingField.Width; x++)
                     if (!playingField.FieldValue(0, new Point(x, y)).IsNone)
                     {
+                        if (x == playingField.PlayerWhereaboutsStart.Location.X && y == playingField.PlayerWhereaboutsStart.Location.Y)
+                            continue;
                         var nx = offx + x*3;
                         var ny = offy + y*3;
-                        for(var i=0;i<3;i++)
+                        for (var i = 0; i < 3; i++)
                             for (var j = 0; j < 3; j++)
-                                ground[nx+i, ny+j] = value;
+                                ground[nx + i, ny + j] = value;
                     }
         }
 

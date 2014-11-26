@@ -88,6 +88,7 @@
     <Compile Include="GameStates\StartSerpentState.cs" />
     <Compile Include="Ground.cs" />
     <Compile Include="PlayingField\CavePrimitive.cs" />
+    <Compile Include="PlayingField\PlanePrimitive.cs" />
     <Compile Include="Serpent\Frog.cs" />
     <Compile Include="TheGame.cs" />
     <Compile Include="PlayingField\PathFinder.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Util\Direction.cs" />
     <Compile Include="Util\SinBump.cs" />
     <Compile Include="Util\Whereabouts.cs" />
+    <Compile Include="CaveModel.cs" />
     <Compile Include="Windmill.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +131,7 @@
     <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
     <ToolkitModel Include="Content\Models\windmillf.fbx" />
     <ToolkitModel Include="Content\Models\frog.3ds" />
+    <ToolkitModel Include="Content\Models\mycave.3ds" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>

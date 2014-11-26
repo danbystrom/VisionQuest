@@ -30,26 +30,26 @@ namespace Larv.Serpent
         {
             if (update(speed, previous))
             {
-                for (var seg = this; seg.Next != null; seg = seg.Next)
-                {
-                    var a = seg.Whereabouts.Location.X - seg.Next.Whereabouts.Location.X;
-                    var b = seg.Whereabouts.Location.Y - seg.Next.Whereabouts.Location.Y;
-                    if (a*a + b*b != 1)
-                    {
-                    }
-                }
-                var y = string.Join("\r\n", _log.Select(a => string.Join("\r\n", a)));
-                File.WriteAllText(@"c:\temp\x.log", y);
-                //throw new Exception();
+                //for (var seg = this; seg.Next != null; seg = seg.Next)
+                //{
+                //    var a = seg.Whereabouts.Location.X - seg.Next.Whereabouts.Location.X;
+                //    var b = seg.Whereabouts.Location.Y - seg.Next.Whereabouts.Location.Y;
+                //    if (a*a + b*b != 1)
+                //    {
+                //    }
+                //}
+                //var y = string.Join("\r\n", _log.Select(a => string.Join("\r\n", a)));
+                //File.WriteAllText(@"c:\temp\x.log", y);
+                ////throw new Exception();
             }
 
-            var x = new List<string>();
-            x.Add(string.Format("Speed:{0:0.00000}", speed));
-            for (var seg = this; seg != null; seg = seg.Next)
-                x.Add(seg.ToString());    
-            _log.Add(x);
-            if (_log.Count > 500)
-                _log.RemoveAt(0);
+            //var x = new List<string>();
+            //x.Add(string.Format("Speed:{0:0.00000}", speed));
+            //for (var seg = this; seg != null; seg = seg.Next)
+            //    x.Add(seg.ToString());    
+            //_log.Add(x);
+            //if (_log.Count > 500)
+            //    _log.RemoveAt(0);
 
         }
 

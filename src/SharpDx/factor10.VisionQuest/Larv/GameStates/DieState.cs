@@ -14,6 +14,8 @@ namespace Larv.GameStates
         public DieState(Serpents serpents)
         {
             _serpents = serpents;
+
+            // zoom out while ghost goes up and enemies goes home
             var forward = _serpents.PlayerSerpent.LookAtPosition - _serpents.Camera.Position;
             forward.Normalize();
             _moveCamera = MoveCamera.TotalTime(
@@ -44,7 +46,7 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var direction = _pathFinder.WayHome(serpent.Whereabouts);
+            var direction = _pathFinder.WayHome(serpent.Whereabouts, false);
             return serpent.HeadDirection.GetRelativeDirection(direction);
         }
 

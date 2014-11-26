@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
@@ -113,7 +114,7 @@ namespace Larv.Serpent
             {
                 case SerpentStatus.Ghost:
                     _ascendToHeaven += (float) gameTime.ElapsedGameTime.TotalSeconds;
-                    if (_ascendToHeaven > 5)
+                    if (_ascendToHeaven > 3)
                         SerpentStatus = SerpentStatus.Finished;
                     return;
                 case SerpentStatus.Finished:
@@ -211,7 +212,7 @@ namespace Larv.Serpent
             {
                 Effect.Texture = _eggSkin;
                 _eggWorld = worlds[worlds.Count - 1];
-                Egg.Draw(Effect, _eggSkin, _sphere, _eggWorld, segment.Whereabouts.Direction);
+                Egg.Draw(Effect, _eggSkin, TintColor(), _sphere, _eggWorld, segment.Whereabouts.Direction);
 
                 //move the last two  so that they slowly dissolves
                 var factor = MathUtil.Clamp(_layingEgg/TimeForLayingEggProcess - 0.5f, 0, 1);
@@ -250,7 +251,7 @@ namespace Larv.Serpent
         protected float AlphaValue()
         {
             return SerpentStatus == SerpentStatus.Ghost
-                ? MathUtil.Clamp(0.8f - _ascendToHeaven/2, 0, 1)
+                ? MathUtil.Clamp(0.8f - _ascendToHeaven/4, 0, 1)
                 : 1;
         }
 
@@ -276,6 +277,8 @@ namespace Larv.Serpent
 
         public bool EatAt(BaseSerpent other)
         {
+            if (SerpentStatus != SerpentStatus.Alive || other.SerpentStatus != SerpentStatus.Alive)
+                return false;
             _isLonger = _serpentLength >= other._serpentLength;
             if (SerpentStatus != SerpentStatus.Alive)
                 return false;
@@ -325,6 +328,7 @@ namespace Larv.Serpent
                 tail = tail.Next;
             tail.Next = new SerpentTailSegment(_pf, tail.Whereabouts);
             _serpentLength++;
+            Debug.Assert(_serpentLength < 20);
         }
 
         public Egg TimeToLayEgg()
@@ -340,7 +344,9 @@ namespace Larv.Serpent
                 removeTail(segment);
             else
                 SerpentStatus = SerpentStatus.Ghost;
-            return new Egg(Effect, _sphere, _eggSkin, _eggWorld, segment.Whereabouts, this is PlayerSerpent ? float.MaxValue : 20);
+            return this is PlayerSerpent
+                ? new Egg(Effect, _sphere, _eggSkin, TintColor(), _eggWorld, segment.Whereabouts, float.MaxValue)
+                : new Egg(Effect, _sphere, _eggSkin, EnemySerpent.ColorWhenLonger, _eggWorld, segment.Whereabouts, 20);
         }
 
         public void Fertilize()

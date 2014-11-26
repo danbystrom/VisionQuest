@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Globalization;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
@@ -9,7 +12,7 @@ namespace factor10.VisionThing.Primitives
     /// </summary>
     public class CylinderPrimitive<T> : GeometricPrimitive<T> where T : struct, IEquatable<T>
     {
-        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate);
+        public delegate T CreateVertex(Vector3 position, Vector3 normal, Vector3 tangent, Vector2 txCoor);
 
         /// <summary>
         /// Constructs a new cylinder primitive, using default settings.
@@ -28,31 +31,33 @@ namespace factor10.VisionThing.Primitives
             CreateVertex createVertex,
             float height,
             float diameter, 
-            int tessellation,
+            int ringTessellation,
             bool swap = false)
         {
-            if (tessellation < 3)
+            if (ringTessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");
 
             height /= 2;
             var radius = diameter/2;
-            var t2 = tessellation*2;
+            var t2 = ringTessellation*2;
 
             // Create a ring of triangles around the outside of the cylinder.
-            for (var i = 0; i < tessellation; i++)
+            for (var i = 0; i < ringTessellation; i++)
             {
-                var normal = getCircleVector(i, tessellation);
+                var normal = getCircleVector(i, ringTessellation);
 
-                addVertex(createVertex(normal*radius + Vector3.Up*height, normal, Vector2.Zero));
-                addVertex(createVertex(normal*radius + Vector3.Down*height, normal, Vector2.Zero));
+                var txX = 1 - (float) i/ringTessellation;
+                var tangent = new Vector3(-normal.Z, 0, normal.X);
+                addVertex(createVertex(normal * radius + Vector3.Up * height, normal, tangent, new Vector2(txX, 0)));
+                addVertex(createVertex(normal * radius + Vector3.Down * height, normal, tangent, new Vector2(txX, 1)));
 
                 addTriangle(i*2, i*2 + 1, (i*2 + 2)%t2, swap);
                 addTriangle(i*2 + 1, (i*2 + 3)%t2, (i*2 + 2)%t2, swap);
             }
 
             // Create flat triangle fan caps to seal the top and bottom.
-            CreateCap(createVertex, tessellation, height, radius, Vector3.Up, swap);
-            CreateCap(createVertex, tessellation, height, radius, Vector3.Down, swap);
+            CreateCap(createVertex, ringTessellation, height, radius, Vector3.Up, swap);
+            CreateCap(createVertex, ringTessellation, height, radius, Vector3.Down, swap);
 
             initializePrimitive(graphicsDevice);
         }
@@ -71,7 +76,7 @@ namespace factor10.VisionThing.Primitives
             for (var i = 0; i < tessellation; i++)
             {
                 var position = getCircleVector(i, tessellation)*radius + normal*height;
-                addVertex(createVertex(position, normal, Vector2.Zero));
+                addVertex(createVertex(position, normal, Vector3.Zero, Vector2.Zero));
             }
         }
 

@@ -52,7 +52,7 @@ namespace factor10.VisionThing.Terrain
 
         protected void initialize(GroundMap groundMap)
         {
-            initialize(groundMap, groundMap.CreateWeigthsMap(), groundMap.CreateNormalsMap());
+            initialize(groundMap, groundMap.CreateWeigthsMap(), groundMap.CreateNormalsMap(ref World));
         }
 
         protected void initialize(GroundMap groundMap, WeightsMap weights, ColorSurface normals)
@@ -142,14 +142,15 @@ namespace factor10.VisionThing.Terrain
             public bool Visible;
         }
 
-        public Vector3? HitTest(Ray ray)
+        public bool HitTest(Ray ray, out Vector3 hit, out Vector3 normal)
         {
             var world = World;
             world.Invert();
-            var p = GroundMap.HitTest(world, ray);
-            if (!p.HasValue)
-                return null;
-            return Vector3.TransformCoordinate(p.Value, World);
+            if (!GroundMap.HitTest(world, ray, out hit, out normal))
+                return false;
+            hit = Vector3.TransformCoordinate(hit, World);
+            normal = Vector3.TransformCoordinate(normal, World);
+            return true;
         }
 
     }

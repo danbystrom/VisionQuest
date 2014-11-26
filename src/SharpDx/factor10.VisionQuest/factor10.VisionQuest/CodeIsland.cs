@@ -124,7 +124,7 @@ namespace factor10.VisionQuest
             foreach (var vc in Classes.Values)
                 vc.Height = ground[vc.X, vc.Y];
 
-            var normals = ground.CreateNormalsMap();
+            var normals = ground.CreateNormalsMap(ref world);
 
             var signs = new Signs(
                 vContent,

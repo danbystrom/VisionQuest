@@ -177,7 +177,7 @@ namespace factor10.VisionThing.Terrain
             return result;
         }
 
-        private Vector3 getNormal(int index)
+        private Vector3 getNormal(int index, ref Matrix world)
         {
             var h0 = Values[index];
             var h1 = Values[index + 1];
@@ -185,23 +185,25 @@ namespace factor10.VisionThing.Terrain
             var v1 = new Vector3(0, h2 - h0, 1);
             var v2 = new Vector3(1, h1 - h0, 0);
             var n = Vector3.Cross(v1, v2);
+            n = Vector3.TransformNormal(n, world);
             n.Normalize();
             return n;
         }
 
         public Vector3 GetNormal(int x, int y)
         {
+            var world = Matrix.Identity;
             return x < 0 || y < 0 || x >= (Width - 1) || y >= (Height + 1)
                 ? Vector3.Up
-                : getNormal(y * Width + x);
+                : getNormal(y * Width + x, ref world);
         }
 
-        public ColorSurface CreateNormalsMap()
+        public ColorSurface CreateNormalsMap(ref Matrix world)
         {
             var normals = new Color[Values.Length];
             for (var i = 0; i < normals.Length - Width - 1; i++)
             {
-                var n = getNormal(i);
+                var n = getNormal(i, ref world);
                 normals[i] = new Color(n.X / 2 + 0.5f, n.Y / 2 + 0.5f, n.Z / 2 + 0.5f, 0);
             }
             for (var x = 0; x < Width; x++)
@@ -254,8 +256,10 @@ namespace factor10.VisionThing.Terrain
                 }
         }
 
-        public Vector3? HitTest(Matrix worldInverse, Ray rayWorld)
+        public bool HitTest(Matrix worldInverse, Ray rayWorld, out Vector3 hit, out Vector3 normal)
         {
+            hit = normal = Vector3.Zero;
+
             var ray = new Ray(
                 Vector3.TransformCoordinate(rayWorld.Position, worldInverse),
                 Vector3.TransformNormal(rayWorld.Direction, worldInverse));
@@ -270,7 +274,7 @@ namespace factor10.VisionThing.Terrain
             }
 
             if (pos.Y < 0)
-                return null;
+                return false;
 
             // change the length of the ray so that it is normalized in 2D space, disregarding the Y component
             // reason: take apropriate large steps forward in 2d space
@@ -301,12 +305,15 @@ namespace factor10.VisionThing.Terrain
                 var p2 = new Vector3(xd, this[xd, y], y);
                 var p3 = new Vector3(x, this[x, yd], yd);
                 var plane = new Plane(p1, p2, p3);
-                Vector3 result;
-                if (plane.Intersects(ref ray, out result))
-                    return result;
+
+                if (!plane.Intersects(ref ray, out hit))
+                    continue;
+
+                normal = plane.Normal;
+                return true;
             }
 
-            return null;
+            return false;
         }
 
     }

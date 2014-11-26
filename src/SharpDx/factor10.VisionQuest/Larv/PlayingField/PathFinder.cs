@@ -58,15 +58,16 @@ namespace Larv
             bestDistance = here;
         }
 
-        public Direction WayHome(Whereabouts whereabouts)
+        public Direction WayHome(Whereabouts whereabouts, bool canTurnAround)
         {
             if (getDistance(whereabouts.Floor, whereabouts.Location, Direction.None) <= 2)
-                return Direction.None;  // is home!
+                return Direction.None; // is home!
 
-            var bestDirection = Direction.None;
+            var bestDirection = whereabouts.Direction.Turn(RelativeDirection.Backward);
             var bestDistance = int.MaxValue;
             foreach (var direction in Direction.AllDirections)
-                testDistance(whereabouts.Floor, whereabouts.Location, ref bestDirection, ref bestDistance, direction);
+                if (canTurnAround || direction != bestDirection)
+                    testDistance(whereabouts.Floor, whereabouts.Location, ref bestDirection, ref bestDistance, direction);
             return bestDirection;
         }
 

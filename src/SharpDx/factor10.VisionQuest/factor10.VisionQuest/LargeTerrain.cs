@@ -17,7 +17,7 @@ namespace factor10.VisionThing
             var ground = new GroundMap(heightsMap, h => (255 - h)/15f);
             ground.AlterValues(h => h + 4);
             ground.ApplyNormalBellShape();
-            var normals = ground.CreateNormalsMap();
+            var normals = ground.CreateNormalsMap(ref world);
 
             var ms = new CxBillboard(vContent, world*Matrix.Translation(-64, 0.05f, -64), vContent.Load<Texture2D>("textures/grass"), 1, 1);
             ms.GenerateTreePositions(ground, normals);

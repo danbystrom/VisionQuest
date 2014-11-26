@@ -40,7 +40,7 @@ namespace factor10.VisionThing
                 new Random());
             //weights.AlterValues(c => new Color(255,0,0,0));
 
-            initialize(ground, weights, ground.CreateNormalsMap());
+            initialize(ground, weights, ground.CreateNormalsMap(ref world));
         }
 
     }
