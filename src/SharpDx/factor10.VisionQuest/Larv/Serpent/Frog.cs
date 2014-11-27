@@ -1,9 +1,7 @@
-﻿using System.CodeDom;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
-using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -12,13 +10,13 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
-    public class Frog : ClipDrawable
+    public class Frog : ClipDrawable, IPosition
     {
         private readonly Model _model;
         private readonly Matrix _modelRotation;
         private readonly Texture2D _texture;
 
-        public readonly Whereabouts Whereabouts;
+        private readonly Serpents _serpents;
 
         private readonly Ground _ground;
         private float _onTheMove;
@@ -27,28 +25,35 @@ namespace Larv.Serpent
         private Matrix _rotation;
         private float _currentAngle;
 
+        private static readonly Random Rnd = new Random();
+
         private readonly List<Func<bool>> _actions = new List<Func<bool>>();
- 
+
         public Frog(
             VisionContent vContent,
             IVEffect effect,
-            Whereabouts whereabouts,
+            Serpents serpents,
             Ground ground)
             : base(effect)
         {
             _model = vContent.Load<Model>(@"Models/frog");
-            _modelRotation = Matrix.RotationX(MathUtil.Pi) * Matrix.RotationY(MathUtil.Pi) * Matrix.Scaling(0.1f);
-
+            _modelRotation = Matrix.RotationX(MathUtil.Pi)*Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.1f);
+            
             _texture = vContent.Load<Texture2D>(@"terraintextures/sand");
-            Whereabouts = whereabouts;
+            _serpents = serpents;
             _ground = ground;
-            _position = new Vector3(2, 0, -2);
+            Restart();
+        }
+
+        public void Restart()
+        {
+            _position = new Vector3(_serpents.PlayingField.MiddleX, 0, -2);
             _actions.Add(() => _onTheMove > 1);
         }
 
         public Vector3 Position
         {
-            get { return _position; }    
+            get { return _position; }
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -69,86 +74,117 @@ namespace Larv.Serpent
 
             // out of actions - create new commands
 
+            Vector3 toPosition, normal;
+            float angle;
+            if (!findNewPosition(out toPosition, out normal, out angle))
+                return;
+
             var fromPosition = _position;
 
-            var winv = _ground.World;
-            winv.Invert();
-            Vector3 gspaceCurrent;
-            Vector3.TransformCoordinate(ref _position, ref winv, out gspaceCurrent);
-
-            var rnd = new Random();
-            for (var i = 0; i < 100; i++)
+            var currentNormal = _rotation.Up;
+            var shortDelay = Rnd.NextFloat(0.6f, 1.5f);
+            var delay = Rnd.NextFloat(3, 6);
+            _actions.Add(() =>
             {
-                var dx = (float) rnd.NextDouble()*3 - 1.5f;
-                var dz = (float) rnd.NextDouble()*3 - 1.5f;
-                var toPosition = Position + new Vector3(dx, 0, dz);
+                if (_onTheMove < shortDelay)
+                    return false;
+                _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal);
+                return true;
+            });
+            _actions.Add(() =>
+            {
+                if (_onTheMove < shortDelay)
+                    return false;
+                _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal);
+                return true;
+            });
+            _actions.Add(() =>
+            {
+                if (_onTheMove < shortDelay)
+                    return false;
+                _rotation = m(angle, currentNormal);
+                _currentAngle = angle;
+                return true;
+            });
+            _actions.Add(() => _onTheMove > shortDelay);
+            _actions.Add(() =>
+            {
+                var factor = Math.Min(_onTheMove/0.2f, 0.5f);
+                _position = Vector3.Lerp(fromPosition, toPosition, factor);
+                _position.Y += factor;
+                if (factor < 0.5f)
+                    return false;
+                _rotation = m(angle, normal);
+                return true;
+            });
+            _actions.Add(() =>
+            {
+                var factor = Math.Min(0.5f + _onTheMove/0.2f, 1);
+                _position = Vector3.Lerp(fromPosition, toPosition, factor);
+                _position.Y -= (1 - factor);
+                return factor >= 1;
+            });
+            _actions.Add(() => _onTheMove > delay);
 
-                Vector3 gspaceTo;
-                Vector3.TransformCoordinate(ref toPosition, ref winv, out gspaceTo);
-                var normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z);
-                if (normal.Y < 0.5f)
-                    continue;
+        }
 
-                gspaceTo.Y = _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
-                gspaceTo = getApproxMax(gspaceTo, gspaceCurrent);
-                normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z);
-                if (normal.Y < 0.5f)
-                    continue;
+        private bool findNewPosition(out Vector3 position, out Vector3 normal, out float angle)
+        {
+            // this is not even called once a second - performance is not a issue here
 
-//                normal = Vector3.Lerp(Vector3.Up, Vector3.Right, 0.5f);
+            try
+            {
+                var eggs = _serpents.EnemyEggs.Select(_ => _.Position).ToList();
+                if (_serpents.PlayerEgg != null)
+                    eggs.Add(_serpents.PlayerEgg.Position);
+                eggs.Sort((x, y) => Vector3.DistanceSquared(_position, x).CompareTo(Vector3.DistanceSquared(_position, y)));
+                var closeToEgg = eggs.Any() && Vector3.DistanceSquared(_position, eggs.First()) < 4;
 
-                // now we have a new position for the frog - set up jump commands
-                Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out toPosition);
-                toPosition.Y = Math.Max(0, toPosition.Y);
+                eggs.Add(new Vector3(_serpents.PlayingField.MiddleX, 0, _serpents.PlayingField.MiddleY));
+                var goodDirection = eggs.FirstOrDefault() - _position;
+                goodDirection.Normalize();
 
-                var angle = (float)Math.Atan2(dx, dz);
-                var currentNormal = _rotation.Up;
-                var delay = rnd.NextFloat(3, 6);
-                _actions.Add(() =>
+                var winv = _ground.World;
+                winv.Invert();
+                Vector3 gspaceCurrent;
+                Vector3.TransformCoordinate(ref _position, ref winv, out gspaceCurrent);
+
+                for (var i = 0; i < 100; i++)
                 {
-                    if (_onTheMove < 1)
-                        return false;
-                    _rotation = m(MathUtil.Lerp(_currentAngle,angle,0.33f), currentNormal);
+                    var dx = Rnd.NextFloat(1, 2)*(Rnd.NextDouble() < 0.5 ? -1 : 1);
+                    var dz = Rnd.NextFloat(1, 2)*(Rnd.NextDouble() < 0.5 ? -1 : 1);
+
+                    var toPosition = closeToEgg
+                        ? eggs.First()
+                        : Position + new Vector3(dx, 0, dz) + goodDirection*Rnd.NextFloat(0.5f, 1);
+
+                    Vector3 gspaceTo;
+                    Vector3.TransformCoordinate(ref toPosition, ref winv, out gspaceTo);
+                    normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z, ref _ground.World);
+                    if (normal.Y < 0.5f)
+                        continue;
+
+                    gspaceTo.Y = _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
+                    //gspaceTo = getApproxMax(gspaceTo, gspaceCurrent);
+                    //normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z, ref _ground.World);
+                    //if (normal.Y < 0.5f)
+                    //    continue;
+
+                    // now we have a new position for the frog
+                    Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out position);
+                    position.Y = Math.Max(0, position.Y);
+
+                    angle = (float) Math.Atan2(dx, dz);
                     return true;
-                });
-                _actions.Add(() =>
-                {
-                    if (_onTheMove < 1)
-                        return false;
-                    _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal);
-                    return true;
-                });
-                _actions.Add(() =>
-                {
-                    if (_onTheMove < 2)
-                        return false;
-                    _rotation = m(angle, currentNormal);
-                    _currentAngle = angle;
-                    return true;
-                });
-                _actions.Add(() =>
-                {
-                    var factor = Math.Min(_onTheMove / 0.1f, 0.5f);
-                    _position = Vector3.Lerp(fromPosition, toPosition, factor);
-                    _position.Y += factor;
-                    if (factor < 0.5f)
-                        return false;
-                    _rotation = m(angle, normal);
-                    return true;
-                });
-                _actions.Add(() =>
-                {
-                    var factor = Math.Min(0.5f + _onTheMove / 0.1f, 1);
-                    _position = Vector3.Lerp(fromPosition, toPosition, factor);
-                    _position.Y -= (1 - factor);
-                    return factor >= 1;
-                });
-                _actions.Add(() => _onTheMove > delay);
-
-                return;
+                }
+            }
+            catch
+            {
             }
 
-            //failed to find a new spot
+            angle = 0;
+            position = normal = Vector3.Zero;
+            return false;
         }
 
         private static Matrix m(float angle, Vector3 normal)
@@ -166,10 +202,10 @@ namespace Larv.Serpent
             var result = gNew;
             for (var i = 1; i < iterations; i++)
             {
-                var vMiddle = Vector3.Lerp(gNew, gOld, (float) i/iterations);
-                var height = _ground.GroundMap.GetExactHeight(vMiddle.X, vMiddle.Z);
-                if (height > vMiddle.Y + 3)
-                    return new Vector3(vMiddle.X, height, vMiddle.Z);
+                var gMiddle = Vector3.Lerp(gNew, gOld, (float) i/iterations);
+                var height = _ground.GroundMap.GetExactHeight(gMiddle.X, gMiddle.Z);
+                if (height > gMiddle.Y + 5)
+                    return new Vector3(gMiddle.X, height, gMiddle.Z);
             }
             return result;
         }

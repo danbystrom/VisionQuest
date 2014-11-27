@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Util;
 using Larv.GameStates;
-using Larv.Serpent;
-using Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
@@ -29,6 +29,7 @@ namespace Larv
         private GraphicsDeviceManager _graphicsDeviceManager;
         private SpriteBatch _spriteBatch;
         private SpriteFont _arial16Font;
+        private SpriteFont _blackCastleFont;
 
         private Windmill _windmill;
         private CaveModel _caveModel;
@@ -60,12 +61,15 @@ namespace Larv
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
             _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
             
-            //var screen = Screen.AllScreens.First(_ => _.Primary);
-            //graphicsDeviceManager.IsFullScreen = true;
-            //graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
-            //graphicsDeviceManager.PreferredBackBufferHeight = screen.Bounds.Height;
+#if true
+            var screen = Screen.AllScreens.First(_ => _.Primary);
+            _graphicsDeviceManager.IsFullScreen = true;
+            _graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
+            _graphicsDeviceManager.PreferredBackBufferHeight = screen.Bounds.Height;
+#else
             _graphicsDeviceManager.PreferredBackBufferWidth = 1920;
             _graphicsDeviceManager.PreferredBackBufferHeight = 1080;
+#endif
 
             // Setup the relative directory to the executable directory
             // for loading contents with the ContentManager
@@ -101,7 +105,7 @@ namespace Larv
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
-                FillMode = FillMode.Solid,
+                FillMode = FillMode.Wireframe,
                 CullMode = CullMode.Back,
                 IsFrontCounterClockwise = false,
                 DepthBias = 0,
@@ -116,7 +120,7 @@ namespace Larv
             _gameState = new AttractState(Data.Serpents);
 
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
-            //Data.ShadowMap.ShadowCastingObjects.Add(Data.Ground);
+            Data.ShadowMap.ShadowCastingObjects.Add(_caveModel);
 
             base.LoadContent();
         }
@@ -147,6 +151,7 @@ namespace Larv
             var time = (float) gameTime.TotalGameTime.TotalSeconds;
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            //GraphicsDevice.SetRasterizerState(_rasterizerState);
 
             _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
             _caveModel.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
@@ -170,8 +175,8 @@ namespace Larv
                       Matrix.Translation(Data.ShadowMap.Camera.Position + VisionContent.SunlightDirection * 3);
             _sphere.Draw(_myBumpEffect);
 
-            _angleXZ += time/800;
-            _angleY += time/700;
+            _angleXZ += 0; // time/800;
+            _angleY += 0; //time/700;
             var dy = (float) Math.Sin(_angleY);
             var dxz = (float) Math.Cos(_angleY);
             var dx = (float) Math.Cos(_angleXZ)*dxz;
@@ -197,8 +202,12 @@ namespace Larv
             _cylinder.Draw(_myBumpEffect);
 
 
-            _myEffect.World = Matrix.Scaling(0.2f) * Data.WorldPicked;
-            _sphere.Draw(_myEffect);
+            rotation = Matrix.RotationY(0);
+            rotation.Up = Data.PickedNormal;
+            rotation.Right = Vector3.Normalize(Vector3.Cross(rotation.Forward, rotation.Up));
+            rotation.Forward = Vector3.Normalize(Vector3.Cross(rotation.Up, rotation.Right));
+            _myEffect.World = Matrix.Scaling(0.2f,1,0.2f) * rotation * Data.WorldPicked;
+            _cylinder.Draw(_myEffect);
 
 
             // ------------------------------------------------------------------------
@@ -208,7 +217,7 @@ namespace Larv
 
             var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
 
-            text.AppendFormat("FPS: {0}", _fps.FrameRate).AppendLine();
+            text.AppendFormat("FPS: {0}  GameState: {1}", _fps.FrameRate, _gameState.GetType()).AppendLine();
 
             {
                 var c = Data.Serpents.Camera;

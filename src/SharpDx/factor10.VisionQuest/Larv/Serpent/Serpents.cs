@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml;
 using factor10.VisionThing;
 using Serpent;
@@ -60,7 +61,8 @@ namespace Larv.Serpent
                     playingField,
                     playingField.EnemyWhereaboutsStart,
                     Sphere,
-                    i);
+                    i*1.5f,
+                    2);
                 Enemies.Add(enemy);
             }
 
@@ -68,7 +70,7 @@ namespace Larv.Serpent
                 Frogs.Add(new Frog(
                     Data.VContent,
                     vContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
-                    new Whereabouts(),
+                    this,
                     Data.Ground));
         }
 
@@ -76,7 +78,7 @@ namespace Larv.Serpent
         {
             var result = Result.GameOn;
 
-            if(Camera.KeyboardState.IsKeyPressed(Keys.Z))
+            if (Camera.KeyboardState.IsKeyPressed(Keys.Z))
                 foreach (var enemy in Enemies)
                     enemy.SerpentStatus = SerpentStatus.Ghost;
 
@@ -85,7 +87,7 @@ namespace Larv.Serpent
             {
                 _onceASecond = 0;
 
-                if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || Camera.KeyboardState.IsKeyPressed(Keys.D3) ))
+                if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || Camera.KeyboardState.IsKeyPressed(Keys.D3)))
                     PlayerSerpent.Fertilize();
 
                 if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
@@ -135,35 +137,30 @@ namespace Larv.Serpent
                     PlayingField,
                     EnemyEggs[i].Whereabouts,
                     Sphere,
+                    0,
                     0));
                 EnemyEggs.RemoveAt(i);
             }
 
-            for (var i = Frogs.Count - 1; i >= 0; i--)
+            foreach (var frog in Frogs)
             {
-                Frogs[i].Update(Camera, gameTime);
+                frog.Update(Camera, gameTime);
 
-                if (PlayerSerpent.EatFrog(Frogs[i], true))
-                    replaceFrog(i);
-                else if (Enemies.Any(enemy => enemy.EatFrog(Frogs[i])))
-                    replaceFrog(i);
+                if (PlayerSerpent.EatFrog(frog, true))
+                    frog.Restart();
+                else if (Enemies.Any(enemy => enemy.EatFrog(frog)))
+                    frog.Restart();
             }
 
-            return result;
-        }
-
-        private void replaceFrog(int i)
-        {
-            Frogs[i] = new Frog(
-                VContent,
-                VContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
-                new Whereabouts(),
-                Data.Ground);
+            return PlayerSerpent.SerpentStatus == SerpentStatus.Alive ? Result.GameOn : Result.PlayerDied;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             Data.PlayingField.Draw(camera, drawingReason, shadowMap);
+
+            Data.Ground.Draw(camera, drawingReason, shadowMap);
+            Data.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)
                 PlayerEgg.Draw(camera, drawingReason, shadowMap);
@@ -171,9 +168,6 @@ namespace Larv.Serpent
                 egg.Draw(camera, drawingReason, shadowMap);
             foreach (var frog in Frogs)
                 frog.Draw(camera, drawingReason, shadowMap);
-
-            Data.Ground.Draw(camera, drawingReason, shadowMap);
-            Data.Sky.Draw(camera, drawingReason, shadowMap);
 
             var serpents = new List<BaseSerpent> {PlayerSerpent};
             serpents.AddRange(Enemies);

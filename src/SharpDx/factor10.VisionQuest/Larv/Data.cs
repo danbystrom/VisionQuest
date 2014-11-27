@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Primitives;
 using Larv.GameStates;
@@ -28,8 +27,8 @@ namespace Larv
         public Serpents Serpents;
 
         public Matrix WorldPicked;
-        public Vector3 PickedQueriedGroundHeight1;
-        public Vector3 PickedQueriedGroundHeight2;
+        public Vector3 PickedNormal;
+        public Vector3 PickedQueriedNormal;
 
         public Camera Camera;
         public static ShadowMap ShadowMap;
@@ -126,6 +125,10 @@ namespace Larv
                 {
                     WorldPicked = Matrix.Translation(hit);
 
+                    var winv = Ground.World;
+                    winv.Invert();
+                    var gspace = Vector3.TransformCoordinate(hit, winv);
+                    PickedNormal = Ground.GroundMap.GetNormal((int)gspace.X, (int)gspace.Z, ref Ground.World);
                     //var worldInv = Ground.World;
                     //worldInv.Invert();
                     //var local = Ground.GroundMap.HitTest(worldInv, ray).Value;

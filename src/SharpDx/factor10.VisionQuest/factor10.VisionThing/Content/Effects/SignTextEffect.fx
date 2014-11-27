@@ -41,8 +41,8 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
-	float4 sampledColor = Texture.Sample(TextureSampler, input.UV);
-	return sampledColor * DiffuseColor;
+	float4 sampledColor = Texture.Sample(TextureSampler, input.UV) * DiffuseColor.a;
+	return sampledColor * float4(DiffuseColor.xyz,1);
 }
 
  

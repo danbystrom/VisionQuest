@@ -30,7 +30,7 @@ namespace factor10.VisionThing.Effects
 
         public Vector3 CameraPosition { get; set; }
         public Vector3 SunlightDirection { get; set; }
-        public Vector4? ClipPlane { set; private get; }
+        public Vector4? ClipPlane { set; get; }
         public Effect Effect {
             get { return this; } 
         }

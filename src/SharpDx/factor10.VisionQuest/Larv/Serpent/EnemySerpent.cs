@@ -2,6 +2,7 @@
 using factor10.VisionThing;
 using Serpent;
 using SharpDX;
+using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
@@ -12,19 +13,30 @@ namespace Larv.Serpent
         public static readonly Vector4 ColorWhenShorter = new Vector4(0.6f, 1.5f, 0.6f, 1);
 
         private readonly Random _rnd = new Random();
- 
+        private float _delayBeforeStart;
+
         public EnemySerpent(
             VisionContent vContent,
             PlayingField pf,
             Whereabouts whereabouts,
             IVDrawable sphere,
-            int x)
-            : base(vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\snakeskinmap"), vContent.Load<Texture2D>(@"Textures\eggshell"))
+            float delayBeforeStart,
+            int length)
+            : base(
+                vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\snakeskinmap"),
+                vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
-             _rnd.NextBytes(new byte[x]);
- 
-            AddTail();
-            AddTail();
+            _delayBeforeStart = delayBeforeStart;
+            for (var i = 0; i < length; i++)
+                AddTail();
+        }
+
+        public override void Update(Camera camera, GameTime gameTime)
+        {
+            if (_delayBeforeStart <= 0)
+                base.Update(camera, gameTime);
+            else
+                _delayBeforeStart -= (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
         protected override void takeDirection()
@@ -58,7 +70,7 @@ namespace Larv.Serpent
         {
             if (SerpentStatus != SerpentStatus.Alive)
                 return new Vector4(1.1f, 1.1f, 0.4f, AlphaValue());
-            return _isLonger ? ColorWhenLonger : ColorWhenShorter;
+            return IsLonger ? ColorWhenLonger : ColorWhenShorter;
         }
 
     }

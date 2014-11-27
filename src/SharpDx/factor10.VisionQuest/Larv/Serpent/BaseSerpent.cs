@@ -24,7 +24,7 @@ namespace Larv.Serpent
         bool CanOverrideRestrictedDirections(BaseSerpent serpent);
     }
 
-    public abstract class BaseSerpent : ClipDrawable
+    public abstract class BaseSerpent : ClipDrawable, IPosition
     {
         public const float HeadSize = 0.5f;
         public const float SegmentSize = 0.4f;
@@ -60,6 +60,8 @@ namespace Larv.Serpent
 
         private float _ascendToHeaven;
 
+        public bool IsLonger { get; protected set; }
+
         protected BaseSerpent(
             VisionContent vContent,
             PlayingField pf,
@@ -77,13 +79,13 @@ namespace Larv.Serpent
             _eggSkin = eggSkin;
 
             _headRotation.Add(Direction.West,
-                              Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(MathUtil.Pi));
+                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(MathUtil.Pi));
             _headRotation.Add(Direction.East,
-                              Matrix.RotationY(MathUtil.PiOverTwo));
+                Matrix.RotationY(MathUtil.PiOverTwo));
             _headRotation.Add(Direction.South,
-                              Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(MathUtil.PiOverTwo));
+                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(MathUtil.PiOverTwo));
             _headRotation.Add(Direction.North,
-                              Matrix.RotationY(MathUtil.PiOverTwo) * Matrix.RotationY(-MathUtil.PiOverTwo));
+                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(-MathUtil.PiOverTwo));
         }
 
         protected void Restart(Whereabouts whereabouts)
@@ -163,12 +165,12 @@ namespace Larv.Serpent
         private static Vector3 wormTwist(ref float slinger)
         {
             slinger += 1.5f;
-            return new Vector3((float)Math.Sin(slinger) * 0.2f, 0, (float)Math.Sin(slinger) * 0.2f);
+            return new Vector3((float) Math.Sin(slinger)*0.2f, 0, (float) Math.Sin(slinger)*0.2f);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            var p = GetPosition();
+            var p = Position;
 
             var slinger = p.X + p.Z;
             p += wormTwist(ref slinger);
@@ -188,10 +190,10 @@ namespace Larv.Serpent
             {
                 var p2 = segment.GetPosition() + wormTwist(ref slinger);
                 worlds.Add(
-                    Matrix.Scaling(SegmentSize) *
+                    Matrix.Scaling(SegmentSize)*
                     Matrix.Translation(
                         (p.X + p2.X)/2,
-                        SegmentSize + (p.Y + p2.Y) / 2 + _ascendToHeaven,
+                        SegmentSize + (p.Y + p2.Y)/2 + _ascendToHeaven,
                         (p.Z + p2.Z)/2));
                 worlds.Add(
                     Matrix.Scaling(SegmentSize)*
@@ -255,34 +257,32 @@ namespace Larv.Serpent
                 : 1;
         }
 
-        public Vector3 GetPosition()
+        public Vector3 Position
         {
-            return _whereabouts.GetPosition(_pf);
+            get { return _whereabouts.GetPosition(_pf); }
         }
 
         public Whereabouts Whereabouts
         {
-            get { return _whereabouts; }    
+            get { return _whereabouts; }
         }
 
         private void grow(int length)
         {
             _pendingEatenSegments += length;
-            for (var count = _pendingEatenSegments / SegmentEatTreshold; count > 0; count--)
+            for (var count = _pendingEatenSegments/SegmentEatTreshold; count > 0; count--)
                 AddTail();
             _pendingEatenSegments %= SegmentEatTreshold;
         }
-
-        protected bool _isLonger;
 
         public bool EatAt(BaseSerpent other)
         {
             if (SerpentStatus != SerpentStatus.Alive || other.SerpentStatus != SerpentStatus.Alive)
                 return false;
-            _isLonger = _serpentLength >= other._serpentLength;
+            IsLonger = _serpentLength >= other._serpentLength;
             if (SerpentStatus != SerpentStatus.Alive)
                 return false;
-            if (Vector3.DistanceSquared(GetPosition(), other.GetPosition()) < 0.8f)
+            if (Vector3.DistanceSquared(Position, other.Position) < 0.8f)
             {
                 if (other._serpentLength > _serpentLength)
                     return false;
@@ -290,7 +290,7 @@ namespace Larv.Serpent
                 return true;
             }
             for (var tail = other._tail; tail != null; tail = tail.Next)
-                if (Vector3.DistanceSquared(GetPosition(), tail.GetPosition()) < 0.2f)
+                if (Vector3.DistanceSquared(Position, tail.GetPosition()) < 0.2f)
                 {
                     if (tail == other._tail)
                     {
@@ -357,7 +357,7 @@ namespace Larv.Serpent
 
         public bool IsPregnant
         {
-            get { return _layingEgg >= 0; }    
+            get { return _layingEgg >= 0; }
         }
 
         public int Length
@@ -368,14 +368,14 @@ namespace Larv.Serpent
                 for (var segment = _tail; segment.Next != null; segment = segment.Next)
                     length++;
                 return length;
-            }            
+            }
         }
 
         public bool EatEgg(Egg egg)
         {
-            if (egg==null || Vector3.DistanceSquared(GetPosition(), egg.Position) > 0.3f)
+            if (egg == null || Vector3.DistanceSquared(Position, egg.Position) > 0.4f)
                 return false;
-            AddTail();
+            grow(2);
             return true;
         }
 
@@ -383,9 +383,9 @@ namespace Larv.Serpent
         {
             //if (debug)
             //    System.Diagnostics.Debug.Print("{0}", Vector3.DistanceSquared(GetPosition(), frog.Position));
-            if (Vector3.DistanceSquared(GetPosition(), frog.Position) > 0.3f)
+            if (Vector3.DistanceSquared(Position, frog.Position) > 0.3f)
                 return false;
-            AddTail();
+            grow(2);
             return true;
         }
 

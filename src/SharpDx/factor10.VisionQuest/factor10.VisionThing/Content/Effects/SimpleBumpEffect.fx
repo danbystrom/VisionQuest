@@ -35,7 +35,7 @@ struct VertexShaderOutput
 	float3 Normal : NORMAL;
 	float3 Tangent : TANGENT;
 	float2 UV : TEXCOORD0;
-	float3 ViewDirection : TEXCOORD2;
+	float3 ViewDirectionZ : TEXCOORD2;
 	float3 WorldPosition : TEXCOORD3;
 	float4 ShadowScreenPosition : TEXCOORD4;
 	float4 PositionCopy  : TEXCOORD5;
@@ -54,7 +54,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.UV = input.UV;
 	output.Normal = mul(input.Normal, WorldInverseTranspose);
 	output.Tangent = mul(input.Tangent, (float3x3)World);
-	output.ViewDirection = output.WorldPosition - CameraPosition;
+	output.ViewDirectionZ = output.WorldPosition - CameraPosition;
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
 	return output;
@@ -103,13 +103,10 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		input.Tangent);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
+	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
 
 	float3 refl = reflect(SunlightDirection, normal);
-	float3 view = normalize(input.ViewDirection);
-
-	// Add specular highlights
-	lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
+	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
 
 	if (DoShadowMapping)
 	{

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
+using SharpDX;
+using Point = System.Drawing.Point;
 
 namespace factor10.VisionThing
 {
@@ -85,6 +86,16 @@ namespace factor10.VisionThing
             float dx = pnt.X - ptThis.X;
             float dy = pnt.Y - ptThis.Y;
             return dx * dx + dy * dy;
+        }
+
+        public static float Distance(this IPosition ptThis, IPosition pnt)
+        {
+            return Vector3.Distance(ptThis.Position, pnt.Position);
+        }
+
+        public static float DistanceSquared(this IPosition ptThis, IPosition pnt)
+        {
+            return Vector3.Distance(ptThis.Position, pnt.Position);
         }
 
         public static float DistanceToLine(this Point ptThis, Point lineStart, Point lineEnd)

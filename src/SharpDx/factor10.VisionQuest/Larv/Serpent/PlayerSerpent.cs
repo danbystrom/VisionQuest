@@ -27,6 +27,7 @@ namespace Larv.Serpent
 
         public void Restart(Whereabouts whereabouts, int length)
         {
+            DirectionTaker = null;
             SerpentStatus = SerpentStatus.Alive;
             Restart(whereabouts);
             while(length-->0)
@@ -66,6 +67,7 @@ namespace Larv.Serpent
                 return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
             return Vector4.One;
         }
+
 
     }
 

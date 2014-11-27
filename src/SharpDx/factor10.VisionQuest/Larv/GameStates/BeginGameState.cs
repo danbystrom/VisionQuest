@@ -7,57 +7,44 @@ using SharpDX.Toolkit;
 
 namespace Larv.GameStates
 {
-    class BeginGameState : IGameState
+    internal class BeginGameState : IGameState
     {
         private readonly Serpents _serpents;
-        private readonly MoveCamera _moveCamera;
+        private MoveCamera _moveCamera;
 
         public BeginGameState(Serpents serpents)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
 
-            var currentPos = serpents.Camera.Position;
-
-            var lookAtDirection = serpents.PlayerSerpent.Whereabouts.Direction.DirectionAsVector3();
-            var lookAt = serpents.PlayerSerpent.LookAtPosition + lookAtDirection * 4;
-
-            var finalNormal = Vector3.TransformNormal(
-                lookAtDirection*SerpentCamera.CameraDistanceToHeadXz*1.3f,
-                Matrix.RotationY(-MathUtil.Pi*0.2f));
-            var finalPos = lookAt + finalNormal;
-            finalPos.Y += SerpentCamera.CameraDistanceToHeadY;
+            Vector3 toPosition, toLookAt;
+            _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
             var x = new ArcGenerator(4);
             x.CreateArc(
-                currentPos,
-                finalPos,
+                serpents.Camera.Position,
+                toPosition,
                 Vector3.Right,
                 SerpentCamera.CameraDistanceToHeadXz);
             _moveCamera = MoveCamera.TotalTime(
                 serpents.Camera,
                 4,
-                lookAt,
+                toLookAt,
                 x.Points);
-        }
-
-        public static void x()
-        {
-            
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            if (_moveCamera!=null)
+            if (_moveCamera != null)
             {
-                if(_moveCamera.Move(gameTime))
+                if (_moveCamera.Move(gameTime))
                     return;
-                //_moveCamera = null;
+                _moveCamera = null;
             }
 
             _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents,_moveCamera);
+                gameState = new PlayingState(_serpents, _moveCamera);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

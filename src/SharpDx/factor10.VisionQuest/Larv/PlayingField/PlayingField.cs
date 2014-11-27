@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using factor10.VisionThing;
-using factor10.VisionThing.Effects;
-using factor10.VisionThing.Primitives;
+using Larv.Serpent;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
@@ -26,6 +25,9 @@ namespace Larv
         public readonly Whereabouts PlayerWhereaboutsStart;
         public readonly Whereabouts EnemyWhereaboutsStart;
 
+        public readonly float MiddleX;
+        public readonly float MiddleY;
+
         public PlayingField(VisionContent vContent, Texture2D texture)
             : base(vContent.LoadPlainEffect("effects/simpletextureeffect"))
         {
@@ -41,6 +43,9 @@ namespace Larv
             Height = field[0].Length;
             Width = field[0][0].Length;
             TheField = new PlayingFieldSquare[Floors, Height, Width];
+
+            MiddleX = Width/2f;
+            MiddleY = Height/2f;
 
             var builder = new PlayingFieldBuilder(TheField);
             for (var i = 0; i < field.Count; i++)
@@ -215,6 +220,17 @@ namespace Larv
             //return whereabouts.Floor * 1.3333f + (diffX + diffY);
         }
 
+        public void GetCammeraPositionForLookingAtPlayerCave(out Vector3 toPosition, out Vector3 toLookAt)
+        {
+            var lookAtDirection = PlayerWhereaboutsStart.Direction.DirectionAsVector3();
+            toLookAt = PlayerWhereaboutsStart.GetPosition(this) + lookAtDirection * 4;
+
+            var finalNormal = Vector3.TransformNormal(
+                lookAtDirection * SerpentCamera.CameraDistanceToHeadXz * 1.2f,
+                Matrix.RotationY(-MathUtil.Pi * 0.2f));
+            toPosition = toLookAt + finalNormal;
+            toPosition.Y += SerpentCamera.CameraDistanceToHeadY;
+        }
 
     }
 

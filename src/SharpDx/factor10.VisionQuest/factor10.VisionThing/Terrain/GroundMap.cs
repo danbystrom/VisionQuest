@@ -190,12 +190,24 @@ namespace factor10.VisionThing.Terrain
             return n;
         }
 
-        public Vector3 GetNormal(int x, int y)
+        public Vector3 GetNormal(int x, int y, ref Matrix world)
         {
-            var world = Matrix.Identity;
-            return x < 0 || y < 0 || x >= (Width - 1) || y >= (Height + 1)
-                ? Vector3.Up
-                : getNormal(y * Width + x, ref world);
+            if (x < 0 || y < 0 || x >= (Width - 1) || y >= (Height + 1))
+                return Vector3.Up;
+
+            var index = y*Width + x;
+            var l0 = new Vector3(x, Values[index], y);
+            var l1 = new Vector3(x + 1, Values[index + 1], y);
+            var l2 = new Vector3(x, Values[index + Width], y + 1);
+            Vector3 w0, w1, w2;
+            Vector3.TransformCoordinate(ref l0, ref world, out w0);
+            Vector3.TransformCoordinate(ref l1, ref world, out w1);
+            Vector3.TransformCoordinate(ref l2, ref world, out w2);
+            var v1 = w2 - w0;
+            var v2 = w1 - w0;
+            var n = Vector3.Cross(v1, v2);
+            n.Normalize();
+            return n;
         }
 
         public ColorSurface CreateNormalsMap(ref Matrix world)

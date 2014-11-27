@@ -7,7 +7,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
 {
-    public class Egg : ClipDrawable
+    public class Egg : ClipDrawable, IPosition
     {
         private readonly IVDrawable _sphere;
         private readonly Texture2D _eggSkin;

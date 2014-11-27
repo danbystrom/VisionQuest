@@ -1,4 +1,5 @@
 float4x4 World;
+float3x3 WorldInverseTranspose;
 float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
@@ -31,10 +32,9 @@ struct VertexShaderOutput
 	float4 Position : SV_Position;
 	float2 UV : TEXCOORD0;
 	float3 Normal : TEXCOORD1;
-	float3 ViewDirection : TEXCOORD2;
-	float3 WorldPosition : TEXCOORD3;
-	float4 ShadowScreenPosition : TEXCOORD4;
-	float4 PositionCopy  : TEXCOORD5;
+	float3 WorldPosition : TEXCOORD2;
+	float4 ShadowScreenPosition : TEXCOORD3;
+	float4 PositionCopy  : TEXCOORD4;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -48,8 +48,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
-	output.Normal = mul(input.Normal, World);
-	output.ViewDirection = worldPosition - CameraPosition;
+	output.Normal = mul(input.Normal, (float3x3)WorldInverseTranspose);
 	output.ShadowScreenPosition = mul(worldPosition, ShadowViewProjection);
 
     return output;
@@ -74,13 +73,13 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
+	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
 
 	float3 refl = reflect(SunlightDirection, normal);
-	float3 view = normalize(input.ViewDirection);
+	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
 	
 	// Add specular highlights
-	lighting += pow(saturate(dot(refl, -view)), SpecularPower) * SpecularColor;
+	lighting += pow(saturate(dot(refl, toEyeW)), SpecularPower) * SpecularColor;
 
 	if (DoShadowMapping)
 	{
