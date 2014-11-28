@@ -11,8 +11,11 @@ namespace Larv
 {
     public class Ground : TerrainBase
     {
-        private readonly CxBillboard _cxBillboardGrass;
-        private readonly CxBillboard _cxBillboardTrees;
+        public const int Width = 128;
+        public const int Height = 128;
+
+        private CxBillboard _cxBillboardGrass;
+        private CxBillboard _cxBillboardTrees;
 
         //public void Move(KeyboardState keyboardState)
         //{
@@ -42,69 +45,78 @@ namespace Larv
         //        }
         //}
 
-        public Ground(VisionContent vContent, PlayingField playingField)
+        public Ground(VisionContent vContent)
             : base(vContent)
+        {
+            var rnd = new Random();
+
+            GroundMap = new GroundMap(Width, Height, 15);
+
+            for (var i = 0; i < 5000; i++)
+                GroundMap[rnd.Next(3, Width - 5), rnd.Next(3, Height - 5)] += 20;
+
+            // generate mountains
+
+            GroundMap.DrawLine(2, 2, Width - 3, 2, 2, (a, b) => rnd.Next(50, 300));
+            GroundMap.DrawLine(2, 2, 2, Height - 3, 2, (a, b) => rnd.Next(50, 300));
+            GroundMap.DrawLine(Width - 3, Height - 3, Width - 3, 2, 2, (a, b) => rnd.Next(50, 300));
+            GroundMap.DrawLine(Width - 3, Height - 3, 2, Height - 3, 2, (a, b) => rnd.Next(50, 300));
+
+            GroundMap.DrawLine(5, 5, Width - 6, 5, 2, (a, b) => rnd.Next(40, 200));
+            GroundMap.DrawLine(5, 5, 5, Height - 6, 2, (a, b) => rnd.Next(40, 200));
+            GroundMap.DrawLine(Width - 6, Height - 6, Width - 6, 2, 2, (a, b) => rnd.Next(40, 200));
+            GroundMap.DrawLine(Width - 6, Height - 6, 2, Height - 6, 2, (a, b) => rnd.Next(40, 200));
+        }
+
+        public void GeneratePlayingField(PlayingField playingField)
         {
             var pfW = playingField.Width;
             var pfH = playingField.Height;
 
-            var gqW = 128;
-            var gqH = 128;
-
-            var _qx = -((gqW - pfW*3)/2f + 0.5f)/3;  // -9f;  // 128 - 75 = 53 / 2 = (26.5+0.5) / 3 = 9 
-            var _qy = -((gqH - pfH*3)/2f + 0.5f)/3; // -11f;  // 128 - 63 = 65 / 2 = (32.5+0.5) / 3 = 11
+            var qx = -((Width - pfW * 3) / 2f + 0.5f) / 3;  // -9f;  // 128 - 75 = 53 / 2 = (26.5+0.5) / 3 = 9 
+            var qy = -((Height - pfH * 3) / 2f + 0.5f) / 3; // -11f;  // 128 - 63 = 65 / 2 = (32.5+0.5) / 3 = 11
 
             var rnd = new Random();
 
-            World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(_qx, -0.5f, _qy);
+            World = Matrix.Scaling(1 / 3f, 0.05f, 1 / 3f) * Matrix.Translation(qx, -0.5f, qy);
 
-            var ground = new GroundMap(gqW, gqH, 15);
+            //reset everything but the mountains
+            GroundMap.AlterValues(8, 8, Width - 16, Height - 16, (a, b, c) => 15);
 
             for (var i = 0; i < 5000; i++)
-                ground[rnd.Next(3, gqW - 5), rnd.Next(3, gqH - 5)] += 20;
+                GroundMap[rnd.Next(3, Width - 5), rnd.Next(3, Height - 5)] += 20;
 
-            ground.DrawLine(2, 2, gqW - 3, 2, 2, (a, b) => rnd.Next(50, 300));
-            ground.DrawLine(2, 2, 2, gqH - 3, 2, (a, b) => rnd.Next(50, 300));
-            ground.DrawLine(gqW - 3, gqH - 3, gqW - 3, 2, 2, (a, b) => rnd.Next(50, 300));
-            ground.DrawLine(gqW - 3, gqH - 3, 2, gqH - 3, 2, (a, b) => rnd.Next(50, 300));
+            GroundMap.Soften(2);
 
-            ground.DrawLine(5, 5, gqW - 6, 5, 2, (a, b) => rnd.Next(40, 200));
-            ground.DrawLine(5, 5, 5, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
-            ground.DrawLine(gqW - 6, gqH - 6, gqW - 6, 2, 2, (a, b) => rnd.Next(40, 200));
-            ground.DrawLine(gqW - 6, gqH - 6, 2, gqH - 6, 2, (a, b) => rnd.Next(40, 200));
+            carvePlayingField(GroundMap, playingField, (Width - pfW * 3) / 2, (Height - pfH * 3) / 2, 0);
+            var nx = (Width - pfW * 3) / 2 + playingField.PlayerWhereaboutsStart.Location.X * 3 - 2;
+            var ny = (Height - pfH * 3) / 2 + playingField.PlayerWhereaboutsStart.Location.Y * 3 - 2;
+            GroundMap.AlterValues(nx, ny, 7, 7, (a, b, c) => 30);
 
-//            ground.DrawLine(10, 10, 50, 50, 2, (a, b) => 5);
-            ground.Soften(2);
-
-            carvePlayingField(ground, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, 0);
-            var nx = (gqW - pfW*3)/2 + playingField.PlayerWhereaboutsStart.Location.X*3-2;
-            var ny = (gqH - pfH*3)/2 + playingField.PlayerWhereaboutsStart.Location.Y*3-2;
-            ground.AlterValues(nx, ny, 7, 7, (a,b,c) => 30);
-
-            var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});
+            var weights = GroundMap.CreateWeigthsMap(new[] { 0, 0.40f, 0.60f, 0.9f });
 
             for (var i = 0; i < 1000; i++)
             {
                 var m = rnd.Next(9);
-                weights.AlterValues(rnd.Next(5, gqW - 7), rnd.Next(5, gqH - 7), 3, 3, (x, y, mt) =>
+                weights.AlterValues(rnd.Next(5, Width - 7), rnd.Next(5, Height - 7), 3, 3, (x, y, mt) =>
                 {
                     mt[m] += 0.5f;
                     return mt;
                 });
             }
 
-            carvePlayingField(weights, playingField, (gqW - pfW*3)/2, (gqH - pfH*3)/2, new Mt9Surface.Mt9 {H = 2});
+            carvePlayingField(weights, playingField, (Width - pfW * 3) / 2, (Height - pfH * 3) / 2, new Mt9Surface.Mt9 { H = 2 });
 
-            var normals = ground.CreateNormalsMap(ref World);
-            initialize(ground, weights, normals);
+            var normals = GroundMap.CreateNormalsMap(ref World);
+            initialize(GroundMap, weights, normals);
 
             var grass = new List<Tuple<Vector3, Vector3>>();
             var trees = new List<Tuple<Vector3, Vector3>>();
             for (var i = 0; i < 100000; i++)
             {
-                var gx = rnd.Next(10, gqW - 20) + (float) rnd.NextDouble();
-                var gy = rnd.Next(10, gqH - 20) + (float) rnd.NextDouble();
-                var position = Vector3.TransformCoordinate(new Vector3(gx, ground.GetExactHeight(gx, gy), gy), World);
+                var gx = rnd.Next(10, Width - 20) + (float)rnd.NextDouble();
+                var gy = rnd.Next(10, Height - 20) + (float)rnd.NextDouble();
+                var position = Vector3.TransformCoordinate(new Vector3(gx, GroundMap.GetExactHeight(gx, gy), gy), World);
                 if (position.Y < 0.7f)
                     continue;
                 position.Y -= 0.05f;
@@ -117,9 +129,13 @@ namespace Larv
                     trees.Add(new Tuple<Vector3, Vector3>(position, Vector3.Up));
             }
 
-            _cxBillboardGrass = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f);
+            if(_cxBillboardGrass!=null)
+                _cxBillboardGrass.Dispose();
+            if (_cxBillboardTrees != null)
+                _cxBillboardTrees.Dispose();
+            _cxBillboardGrass = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f);
             _cxBillboardGrass.CreateBillboardVerticesFromList(grass);
-            _cxBillboardTrees = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f);
+            _cxBillboardTrees = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f);
             _cxBillboardTrees.CreateBillboardVerticesFromList(trees);
         }
 

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Xml;
 using factor10.VisionThing;
-using Serpent;
+using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
@@ -36,6 +35,9 @@ namespace Larv.Serpent
 
         public readonly Camera Camera;
 
+        private readonly SpriteBatch _spriteBatch;
+        private readonly SpriteFont _spriteFont;
+
         public Serpents(
             VisionContent vContent,
             Camera camera,
@@ -47,21 +49,35 @@ namespace Larv.Serpent
             Sphere = sphere;
             PlayingField = playingField;
 
+            _spriteBatch = new SpriteBatch(vContent.GraphicsDevice);
+            _spriteFont = vContent.Content.Load<SpriteFont>("fonts/blackcastle");
+
             Camera = camera;
 
             PlayerSerpent = new PlayerSerpent(
                 vContent,
                 playingField,
                 Sphere);
+            Restart();
+        }
+
+        public void Restart()
+        {
+            PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
+
+            Enemies.Clear();
+            EnemyEggs.Clear();
+            Frogs.Clear();
+            PlayerEgg = null;
 
             for (var i = 0; i < 5; i++)
             {
                 var enemy = new EnemySerpent(
-                    vContent,
-                    playingField,
-                    playingField.EnemyWhereaboutsStart,
+                    VContent,
+                    PlayingField,
+                    PlayingField.EnemyWhereaboutsStart,
                     Sphere,
-                    i*1.5f,
+                    i * 1.5f,
                     2);
                 Enemies.Add(enemy);
             }
@@ -69,14 +85,18 @@ namespace Larv.Serpent
             for (var i = 0; i < 3; i++)
                 Frogs.Add(new Frog(
                     Data.VContent,
-                    vContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
+                    VContent.LoadPlainEffect(@"Effects\SimpleTextureEffect"),
                     this,
                     Data.Ground));
         }
 
+        private bool _paused;
+
         public Result Update(GameTime gameTime)
         {
-            var result = Result.GameOn;
+            _paused ^= Camera.KeyboardState.IsKeyPressed(Keys.P);
+            if (_paused)
+                return Result.GameOn;
 
             if (Camera.KeyboardState.IsKeyPressed(Keys.Z))
                 foreach (var enemy in Enemies)
@@ -102,10 +122,7 @@ namespace Larv.Serpent
             {
                 enemy.Update(Camera, gameTime);
                 if (enemy.EatAt(PlayerSerpent))
-                {
                     PlayerSerpent.SerpentStatus = SerpentStatus.Ghost;
-                    result = Result.PlayerDied;
-                }
                 if (enemy.SerpentStatus == SerpentStatus.Alive && PlayerSerpent.EatAt(enemy))
                     enemy.SerpentStatus = SerpentStatus.Ghost;
 
@@ -146,6 +163,10 @@ namespace Larv.Serpent
             {
                 frog.Update(Camera, gameTime);
 
+                if (PlayerEgg != null && frog.DistanceSquared(PlayerEgg) < 0.4f)
+                    PlayerEgg = null;
+                EnemyEggs.RemoveAll(_ => frog.DistanceSquared(_) < 0.4f);
+
                 if (PlayerSerpent.EatFrog(frog, true))
                     frog.Restart();
                 else if (Enemies.Any(enemy => enemy.EatFrog(frog)))
@@ -169,7 +190,7 @@ namespace Larv.Serpent
             foreach (var frog in Frogs)
                 frog.Draw(camera, drawingReason, shadowMap);
 
-            var serpents = new List<BaseSerpent> {PlayerSerpent};
+            var serpents = new List<BaseSerpent> { PlayerSerpent };
             serpents.AddRange(Enemies);
 
             foreach (var serpent in serpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
@@ -182,6 +203,16 @@ namespace Larv.Serpent
                     serpent.Draw(camera, drawingReason, shadowMap);
                 VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
             }
+
+            var w = VContent.GraphicsDevice.BackBuffer.Width;
+            _spriteBatch.Begin();
+            _spriteBatch.DrawString(_spriteFont, "Score: 000 000 000", new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, "Scene: 1", new Vector2((w - _spriteFont.MeasureString("Scene: 1").X * 2.1f)/2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, "Lives left: 0", new Vector2(w - _spriteFont.MeasureString("Lives left: 0").X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.End();
+
+            Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);
+            Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.Opaque);
 
             return true;
         }

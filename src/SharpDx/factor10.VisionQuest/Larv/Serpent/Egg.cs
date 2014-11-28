@@ -9,6 +9,9 @@ namespace Larv.Serpent
 {
     public class Egg : ClipDrawable, IPosition
     {
+        private static readonly Matrix NorthSouthScale = Matrix.Scaling(0.6f, 0.6f, 0.8f);
+        private static readonly Matrix EastWestScale = Matrix.Scaling(0.8f, 0.6f, 0.6f);
+
         private readonly IVDrawable _sphere;
         private readonly Texture2D _eggSkin;
         private readonly Vector4 _diffuseColor;
@@ -31,7 +34,7 @@ namespace Larv.Serpent
             _sphere = sphere;
             _eggSkin = eggSkin;
             _diffuseColor = diffuseColor;
-            _world = world;
+            _world = world * Matrix.Translation(0, -0.2f, 0);
             Whereabouts = whereabouts;
             _timeToHatch = timeToHatch;
         }
@@ -54,9 +57,7 @@ namespace Larv.Serpent
             Matrix translation,
             Direction direction)
         {
-            var t = direction.IsNorthSouth
-                ? Matrix.Scaling(0.6f, 0.6f, 0.8f)
-                : Matrix.Scaling(0.8f, 0.6f, 0.6f);
+            var t = direction.IsNorthSouth ? NorthSouthScale : EastWestScale;
             var off = direction.DirectionAsVector3()*-0.3f;
             t *= Matrix.Translation(off);
 

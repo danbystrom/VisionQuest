@@ -108,16 +108,13 @@
     <Compile Include="Serpent\SerpentTailSegment.cs" />
     <Compile Include="Util\Direction.cs" />
     <Compile Include="Util\SinBump.cs" />
+    <Compile Include="Util\ToDoQue.cs" />
     <Compile Include="Util\Whereabouts.cs" />
     <Compile Include="CaveModel.cs" />
     <Compile Include="Windmill.cs" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitFont Include="Content\Arial16.xml" />
-    <ToolkitTexture Include="Content\Balls.dds" />
-    <ToolkitModel Include="Content\Ship.fbx" />
-    <ToolkitTexture Include="Content\ShipDiffuse.dds" />
-    <ToolkitFxc Include="Content\Bloom.fx" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitTexture Include="Content\Textures\woodfloor.jpg" />
@@ -126,7 +123,7 @@
     <ToolkitFxc Include="Content\Effects\MicroEffect.fx" />
   </ItemGroup>
   <ItemGroup>
-    <ToolkitTexture Include="Content\Textures\sn.dds" />
+    <ToolkitTexture Include="Content\Textures\snakeskin.dds" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitModel Include="Content\Models\GalleonModel.3ds" />
@@ -157,6 +154,12 @@
   </ItemGroup>
   <ItemGroup>
     <ToolkitFont Include="Content\Fonts\BlackCastle.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\snakeskinhead.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\frogskin.dds" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

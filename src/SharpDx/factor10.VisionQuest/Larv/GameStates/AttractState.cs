@@ -53,10 +53,7 @@ namespace Larv.GameStates
             }
 
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
-            {
                 gameState = new BeginGameState(_serpents);
-                _serpents.PlayerSerpent.DirectionTaker = null;
-            }
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

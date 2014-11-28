@@ -24,7 +24,7 @@ namespace Larv
         public Windmill(VisionContent vContent, Vector3 location)
             : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
         {
-            World = Matrix.Scaling(0.004f)*Matrix.RotationY(0.4f)*Matrix.Translation(-1, 0, -1);
+            World = Matrix.Scaling(0.004f)*Matrix.RotationY(0.9f)*Matrix.Translation(-2, 0, 1);
             _model = vContent.Load<Model>("models/windmillf");
             _texture = vContent.Load<Texture2D>("models/windmill_diffuse");
             //_bumpMap = vContent.Load<Texture2D>("textures/windmill_normal");

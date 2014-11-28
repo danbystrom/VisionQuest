@@ -17,7 +17,7 @@ namespace factor10.VisionThing.Terrain
 
         public readonly VisionContent VContent;
 
-        public GroundMap GroundMap { get; private set; }
+        public GroundMap GroundMap { get; protected set; }
 
         public Matrix World;
         private Vector3 _position;
@@ -63,13 +63,13 @@ namespace factor10.VisionThing.Terrain
 
             _position = World.TranslationVector;
 
-            Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/dirtground");
+            Textures[0] = Textures[0] ?? VContent.Load<Texture2D>("terraintextures/sand");
             Textures[1] = Textures[1] ?? VContent.Load<Texture2D>("terraintextures/sahara");
             Textures[2] = Textures[2] ?? VContent.Load<Texture2D>("terraintextures/grass");
             Textures[3] = Textures[3] ?? VContent.Load<Texture2D>("terraintextures/rock");
             Textures[4] = Textures[4] ?? VContent.Load<Texture2D>("terraintextures/snow");
             Textures[5] = Textures[5] ?? VContent.Load<Texture2D>("terraintextures/stones");
-            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/sand");
+            Textures[6] = Textures[6] ?? VContent.Load<Texture2D>("terraintextures/dirtground");
             Textures[7] = Textures[7] ?? VContent.Load<Texture2D>("terraintextures/path");
             Textures[8] = Textures[8] ?? VContent.Load<Texture2D>("terraintextures/wheatfield");
 

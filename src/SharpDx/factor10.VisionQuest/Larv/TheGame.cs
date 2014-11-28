@@ -57,11 +57,13 @@ namespace Larv
         /// </summary>
         public TheGame()
         {
+            //VisionContent.SunlightDirection = new Vector3(11f, -7f, 2f);
+
             // Creates a graphics manager. This is mandatory.
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
             _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
             
-#if true
+#if false
             var screen = Screen.AllScreens.First(_ => _.Primary);
             _graphicsDeviceManager.IsFullScreen = true;
             _graphicsDeviceManager.PreferredBackBufferWidth = screen.Bounds.Width;
@@ -256,23 +258,23 @@ namespace Larv
                 text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X,
                     point.Position.Y).AppendLine();
 
-            _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
+            //_spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
             _spriteBatch.End();
 
-            _spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
-            var shx = GraphicsDevice.BackBuffer.Width - Data.ShadowMap.ShadowDepthTarget.Width*0.25f - 4;
-            var shy = 4;
-            _spriteBatch.Draw(
-                Data.ShadowMap.ShadowDepthTarget,
-                new Vector2(shx, shy),
-                new Rectangle(0, 0, Data.ShadowMap.ShadowDepthTarget.Width, Data.ShadowMap.ShadowDepthTarget.Height),
-                Color.White,
-                0.0f,
-                new Vector2(0, 0),
-                new Vector2(0.2f, 0.25f),
-                SpriteEffects.None,
-                0f);
-            _spriteBatch.End();
+            //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
+            //var shx = GraphicsDevice.BackBuffer.Width - Data.ShadowMap.ShadowDepthTarget.Width*0.25f - 4;
+            //var shy = 4;
+            //_spriteBatch.Draw(
+            //    Data.ShadowMap.ShadowDepthTarget,
+            //    new Vector2(shx, shy),
+            //    new Rectangle(0, 0, Data.ShadowMap.ShadowDepthTarget.Width, Data.ShadowMap.ShadowDepthTarget.Height),
+            //    Color.White,
+            //    0.0f,
+            //    new Vector2(0, 0),
+            //    new Vector2(0.2f, 0.25f),
+            //    SpriteEffects.None,
+            //    0f);
+            //_spriteBatch.End();
 
             base.Draw(gameTime);
         }

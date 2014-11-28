@@ -27,32 +27,34 @@ namespace factor10.VisionThing.Primitives
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");
 
-            var verticalSegments = tessellation;
-            var horizontalSegments = tessellation*2;
+            var stackCount = tessellation;
+            var sliceCount = tessellation*2;
 
             var radius = diameter/2;
 
             // Start with a single vertex at the bottom of the sphere.
-            addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector3.BackwardLH, new Vector2(0.5f, 0.5f)));
+            addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector3.BackwardLH, new Vector2(0.5f, 1)));
 
             // Create rings of vertices at progressively higher latitudes.
-            for (var i = 0; i < verticalSegments - 1; i++)
+            for (var i = 1; i <= stackCount - 1; i++)
             {
-                var latitude = ((i + 1)*MathUtil.Pi/verticalSegments) - MathUtil.PiOverTwo;
+                var latitude = i*MathUtil.Pi/stackCount - MathUtil.PiOverTwo;
 
                 var dy = (float) Math.Sin(latitude);
                 var dxz = (float) Math.Cos(latitude);
-                var txy = 0.5f - (float) Math.Asin(dy)/MathUtil.Pi;
                 // Create a single ring of vertices at this latitude.
-                for (var j = 0; j < horizontalSegments; j++)
+                for (var j = 0; j <= sliceCount; j++)
                 {
-                    var longitude = j * MathUtil.TwoPi / horizontalSegments;
+                    var longitude = j * MathUtil.TwoPi / sliceCount;
                     var dx = (float) Math.Cos(longitude)*dxz;
                     var dz = (float) Math.Sin(longitude)*dxz;
                     var normal = new Vector3(dx, dy, dz);
+                    //var textureCoordinate = new Vector2(
+                    //    0.5f + (float) Math.Atan2(dz, dx)/MathUtil.Pi,
+                    //    txy);
                     var textureCoordinate = new Vector2(
-                        0.5f + (float) Math.Atan2(dz, dx)/MathUtil.Pi,
-                        txy);
+                        j/(float)sliceCount,
+                        1 - i/(float)stackCount);
                     var tangent = new Vector3(
                         -radius*(float) Math.Sin(longitude)*dxz,
                         0,
@@ -63,28 +65,34 @@ namespace factor10.VisionThing.Primitives
             }
 
             // Finish with a single vertex at the top of the sphere.
-            addVertex(createVertex(Vector3.Up * radius, Vector3.Up, Vector3.ForwardLH, new Vector2(0.5f, 1)));
+            addVertex(createVertex(Vector3.Up * radius, Vector3.Up, Vector3.ForwardLH, new Vector2(0.5f, 0)));
 
             // Create a fan connecting the bottom vertex to the bottom latitude ring.
-            for (var i = 0; i < horizontalSegments; i++)
-                addTriangle(0, 1 + (i + 1)%horizontalSegments, 1 + i, swap);
+            for (var i = 1; i <= sliceCount; i++)
+                addTriangle(0, i, i + 1, !swap);
 
             // Fill the sphere body with triangles joining each pair of latitude rings.
-            for (var i = 0; i < verticalSegments - 2; i++)
-            {
-                for (var j = 0; j < horizontalSegments; j++)
+            var baseIndex = 1;
+            var ringVertexCount = sliceCount + 1;
+            for (var i = 0; i < stackCount - 2; i++)
+                for (var j = 0; j < sliceCount; j++)
                 {
-                    var nextI = i + 1;
-                    var nextJ = (j + 1)%horizontalSegments;
-
-                    addTriangle(1 + i*horizontalSegments + j, 1 + i*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + j, swap);
-                    addTriangle(1 + i*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + nextJ, 1 + nextI*horizontalSegments + j, swap);
+                    addTriangle(
+                        baseIndex + i * ringVertexCount+j,
+                        baseIndex+i*ringVertexCount+j+1,
+                        baseIndex+(i+1)*ringVertexCount+j,
+                        swap);
+                    addTriangle(
+                        baseIndex + (i + 1)*ringVertexCount + j,
+                        baseIndex + i*ringVertexCount + j + 1,
+                        baseIndex + (i + 1)*ringVertexCount + j + 1,
+                        swap);
                 }
-            }
 
             // Create a fan connecting the top vertex to the top latitude ring.
-            for (var i = 0; i < horizontalSegments; i++)
-                addTriangle(CurrentVertex - 1, CurrentVertex - 2 - (i + 1)%horizontalSegments, CurrentVertex - 2 - i, swap);
+            baseIndex = CurrentVertex - 1 - ringVertexCount;
+            for (var i = 0; i < sliceCount; i++)
+                addTriangle(CurrentVertex - 1, baseIndex + i, baseIndex + i + 1, swap);
 
             initializePrimitive(graphicsDevice);
         }

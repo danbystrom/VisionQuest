@@ -9,10 +9,10 @@ namespace Larv.Serpent
 {
     public class EnemySerpent : BaseSerpent
     {
-        public static readonly Vector4 ColorWhenLonger = new Vector4(1.5f, 0.6f, 0.6f, 1);
-        public static readonly Vector4 ColorWhenShorter = new Vector4(0.6f, 1.5f, 0.6f, 1);
+        public static readonly Vector4 ColorWhenLonger = new Vector4(1.2f, 0.7f, 0.7f, 1);
+        public static readonly Vector4 ColorWhenShorter = new Vector4(0.7f, 1.2f, 0.7f, 1);
 
-        private readonly Random _rnd = new Random();
+        private static readonly Random Rnd = new Random();
         private float _delayBeforeStart;
 
         public EnemySerpent(
@@ -23,7 +23,13 @@ namespace Larv.Serpent
             float delayBeforeStart,
             int length)
             : base(
-                vContent, pf, sphere, whereabouts, vContent.Load<Texture2D>(@"Textures\sn"), vContent.Load<Texture2D>(@"Textures\snakeskinmap"),
+                vContent,
+                pf,
+                sphere,
+                whereabouts,
+                vContent.Load<Texture2D>(@"Textures\snakeskin"),
+                vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
+                vContent.Load<Texture2D>(@"Textures\snakeskinmap"),
                 vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
             _delayBeforeStart = delayBeforeStart;
@@ -50,14 +56,14 @@ namespace Larv.Serpent
             if (TakeDirection())
                 return;
 
-            if (_rnd.NextDouble() < 0.33 && TryMove(_whereabouts.Direction.Left))
+            if (Rnd.NextDouble() < 0.33 && TryMove(_whereabouts.Direction.Left))
                 return;
-            if (_rnd.NextDouble() < 0.66 && TryMove(_whereabouts.Direction.Right))
+            if (Rnd.NextDouble() < 0.66 && TryMove(_whereabouts.Direction.Right))
                 return;
             if (TryMove(_whereabouts.Direction))
                 return;
 
-            if (_rnd.NextDouble() < 0.5 && TryMove(_whereabouts.Direction.Left))
+            if (Rnd.NextDouble() < 0.5 && TryMove(_whereabouts.Direction.Left))
                 return;
             if (TryMove(_whereabouts.Direction.Right))
                 return;

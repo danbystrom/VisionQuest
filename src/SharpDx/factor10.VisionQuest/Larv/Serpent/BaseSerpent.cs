@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
-using factor10.VisionThing.Effects;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -41,13 +40,14 @@ namespace Larv.Serpent
 
         protected readonly IVDrawable _sphere;
         protected readonly Texture2D _serpentSkin;
+        protected readonly Texture2D _serpentHeadSkin;
         protected readonly Texture2D _serpentBump;
         protected readonly Texture2D _eggSkin;
 
         protected SerpentTailSegment _tail;
         protected int _serpentLength;
 
-        protected readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
+        private readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
 
         protected abstract void takeDirection();
 
@@ -67,25 +67,23 @@ namespace Larv.Serpent
             PlayingField pf,
             IVDrawable sphere,
             Whereabouts whereabouts,
-            Texture2D serpentSerpentSkin,
+            Texture2D serpentSkin,
+            Texture2D serpentHeadSkin,
             Texture2D serpentBump,
             Texture2D eggSkin) : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
         {
             _pf = pf;
             Restart(whereabouts);
             _sphere = sphere;
-            _serpentSkin = serpentSerpentSkin;
+            _serpentSkin = serpentSkin;
+            _serpentHeadSkin = serpentHeadSkin;
             _serpentBump = serpentBump;
             _eggSkin = eggSkin;
 
-            _headRotation.Add(Direction.West,
-                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(MathUtil.Pi));
-            _headRotation.Add(Direction.East,
-                Matrix.RotationY(MathUtil.PiOverTwo));
-            _headRotation.Add(Direction.South,
-                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(MathUtil.PiOverTwo));
-            _headRotation.Add(Direction.North,
-                Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationY(-MathUtil.PiOverTwo));
+            _headRotation.Add(Direction.East, Matrix.RotationY(MathUtil.Pi));
+            _headRotation.Add(Direction.West, Matrix.Identity);
+            _headRotation.Add(Direction.North, Matrix.RotationY(MathUtil.PiOverTwo));
+            _headRotation.Add(Direction.South, Matrix.RotationY(-MathUtil.PiOverTwo));
         }
 
         protected void Restart(Whereabouts whereabouts)
@@ -229,20 +227,22 @@ namespace Larv.Serpent
                 worlds.Add(world1);
             }
 
-            Effect.Texture = _serpentSkin;
             Effect.Parameters["BumpMap"].SetResource(_serpentBump);
             Effect.DiffuseColor = TintColor();
-            foreach (var world in worlds)
-                drawSphere(world);
+
+            Effect.Texture = _serpentHeadSkin;
+            Effect.World = worlds.First();
+            _sphere.Draw(Effect);
+
+            Effect.Texture = _serpentSkin;
+            foreach (var world in worlds.Skip(1))
+            {
+                Effect.World = world;
+                _sphere.Draw(Effect);
+            }
 
             Effect.DiffuseColor = Vector4.One;
             return true;
-        }
-
-        private void drawSphere(Matrix world)
-        {
-            Effect.World = world;
-            _sphere.Draw(Effect);
         }
 
         protected virtual Vector4 TintColor()

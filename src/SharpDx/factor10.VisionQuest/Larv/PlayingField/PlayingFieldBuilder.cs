@@ -58,6 +58,12 @@ namespace Larv
                             case 'S':
                                 _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0, DirectionValue.South);
                                 break;
+                            case 'E':
+                                _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0, DirectionValue.East);
+                                break;
+                            case 'W':
+                                _field[floor, y, x] = PlayingFieldSquare.CreateFlat(0, DirectionValue.West);
+                                break;
 
                             case 'X':
                             case 'a':

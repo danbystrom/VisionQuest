@@ -232,6 +232,11 @@ namespace Larv
             toPosition.Y += SerpentCamera.CameraDistanceToHeadY;
         }
 
+        public override void Dispose()
+        {
+            VertexBuffer.Dispose();
+        }
+
     }
 
 }

@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
+using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using System;
-using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
@@ -19,7 +18,6 @@ namespace Larv.Serpent
         private readonly Serpents _serpents;
 
         private readonly Ground _ground;
-        private float _onTheMove;
 
         private Vector3 _position;
         private Matrix _rotation;
@@ -27,7 +25,7 @@ namespace Larv.Serpent
 
         private static readonly Random Rnd = new Random();
 
-        private readonly List<Func<bool>> _actions = new List<Func<bool>>();
+        private readonly ToDoQue _actions = new ToDoQue();
 
         public Frog(
             VisionContent vContent,
@@ -39,7 +37,7 @@ namespace Larv.Serpent
             _model = vContent.Load<Model>(@"Models/frog");
             _modelRotation = Matrix.RotationX(MathUtil.Pi)*Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.1f);
             
-            _texture = vContent.Load<Texture2D>(@"terraintextures/sand");
+            _texture = vContent.Load<Texture2D>(@"textures/frogskin");
             _serpents = serpents;
             _ground = ground;
             Restart();
@@ -48,7 +46,7 @@ namespace Larv.Serpent
         public void Restart()
         {
             _position = new Vector3(_serpents.PlayingField.MiddleX, 0, -2);
-            _actions.Add(() => _onTheMove > 1);
+            _actions.Add(0);  // start the state machine
         }
 
         public Vector3 Position
@@ -60,16 +58,7 @@ namespace Larv.Serpent
         {
             base.Update(camera, gameTime);
 
-            if (camera.KeyboardState.IsKeyPressed(Keys.J))
-                _onTheMove = 100;
-
-            _onTheMove += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            if (_actions.Any() && _actions[0]())
-            {
-                _onTheMove = 0;
-                _actions.RemoveAt(0);
-            }
-            if (_actions.Any())
+            if (_actions.Do(gameTime))
                 return;
 
             // out of actions - create new commands
@@ -82,50 +71,28 @@ namespace Larv.Serpent
             var fromPosition = _position;
 
             var currentNormal = _rotation.Up;
-            var shortDelay = Rnd.NextFloat(0.6f, 1.5f);
-            var delay = Rnd.NextFloat(3, 6);
-            _actions.Add(() =>
+            var shortDelay = Rnd.NextFloat(0.3f, 1.1f);
+            _actions.Add(shortDelay, () => _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal));
+            _actions.Add(shortDelay, () => _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal));
+            _actions.Add(shortDelay, () => _rotation = m(_currentAngle = angle, currentNormal));
+            _actions.Add(shortDelay, time =>
             {
-                if (_onTheMove < shortDelay)
-                    return false;
-                _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal);
-                return true;
-            });
-            _actions.Add(() =>
-            {
-                if (_onTheMove < shortDelay)
-                    return false;
-                _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal);
-                return true;
-            });
-            _actions.Add(() =>
-            {
-                if (_onTheMove < shortDelay)
-                    return false;
-                _rotation = m(angle, currentNormal);
-                _currentAngle = angle;
-                return true;
-            });
-            _actions.Add(() => _onTheMove > shortDelay);
-            _actions.Add(() =>
-            {
-                var factor = Math.Min(_onTheMove/0.2f, 0.5f);
+                var factor = Math.Min(time/0.2f, 0.5f);
                 _position = Vector3.Lerp(fromPosition, toPosition, factor);
                 _position.Y += factor;
                 if (factor < 0.5f)
-                    return false;
+                    return true;
                 _rotation = m(angle, normal);
-                return true;
+                return false;
             });
-            _actions.Add(() =>
+            _actions.Add(time =>
             {
-                var factor = Math.Min(0.5f + _onTheMove/0.2f, 1);
+                var factor = Math.Min(0.5f + time/0.2f, 1);
                 _position = Vector3.Lerp(fromPosition, toPosition, factor);
                 _position.Y -= (1 - factor);
-                return factor >= 1;
+                return factor < 1;
             });
-            _actions.Add(() => _onTheMove > delay);
-
+            _actions.Add(Rnd.NextFloat(3, 6));
         }
 
         private bool findNewPosition(out Vector3 position, out Vector3 normal, out float angle)

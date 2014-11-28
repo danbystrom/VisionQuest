@@ -18,11 +18,11 @@ namespace Larv.Serpent
                 pf,
                 sphere,
                 pf.PlayerWhereaboutsStart,
-                vContent.Load<Texture2D>(@"Textures\sn"),
+                vContent.Load<Texture2D>(@"Textures\snakeskin"),
+                vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
                 vContent.Load<Texture2D>(@"Textures\snakeskinmap"), 
                 vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
-            //AddTail();
         }
 
         public void Restart(Whereabouts whereabouts, int length)

@@ -60,7 +60,8 @@ namespace Larv
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Ground = new Ground(VContent, PlayingField);
+            Ground = new Ground(VContent);
+            Ground.GeneratePlayingField(PlayingField);
 
             Camera = new Camera(
                 VContent.ClientSize,
