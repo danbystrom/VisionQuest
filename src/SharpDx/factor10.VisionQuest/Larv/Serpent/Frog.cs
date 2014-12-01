@@ -25,7 +25,7 @@ namespace Larv.Serpent
 
         private static readonly Random Rnd = new Random();
 
-        private readonly ToDoQue _actions = new ToDoQue();
+        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
 
         public Frog(
             VisionContent vContent,

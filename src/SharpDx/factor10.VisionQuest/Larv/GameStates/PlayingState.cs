@@ -28,11 +28,13 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
+            _turnAround ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.Down);
+
             SerpentCamera.Update(gameTime, camera, _serpents.PlayerSerpent.LookAtPosition, _serpents.PlayerSerpent.HeadDirection);
+            _serpents.Update(camera, gameTime);
             //camera.UpdateFreeFlyingCamera(gameTime);
 
-            _turnAround ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.Down);
-            switch (_serpents.Update(gameTime))
+            switch (_serpents.GameStatus())
             {
                 case Serpents.Result.LevelComplete:
                     _delayAfterLevelComplete += (float) gameTime.ElapsedGameTime.TotalSeconds;

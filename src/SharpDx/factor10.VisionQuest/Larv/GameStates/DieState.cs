@@ -20,7 +20,7 @@ namespace Larv.GameStates
             forward.Normalize();
             _moveCamera = MoveCamera.TotalTime(
                 _serpents.Camera,
-                10,
+                7,  // time to look at death scene
                 _serpents.PlayerSerpent.LookAtPosition,
                 _serpents.Camera.Position - forward * 8);
 
@@ -31,7 +31,7 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _serpents.Update(gameTime);
+            _serpents.Update(camera, gameTime);
             if (_moveCamera.Move(gameTime))
                 return;
             gameState = new BeginGameState(_serpents);

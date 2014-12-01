@@ -45,8 +45,8 @@ namespace Larv.GameStates
                     _moveCamera = null;
 
             _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
-
-            if (_serpents.Update(gameTime) != Serpents.Result.GameOn)
+            _serpents.Update(camera, gameTime);
+            if (_serpents.GameStatus() != Serpents.Result.GameOn)
             {
                 _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
                 _serpents.PlayerSerpent.DirectionTaker = this;

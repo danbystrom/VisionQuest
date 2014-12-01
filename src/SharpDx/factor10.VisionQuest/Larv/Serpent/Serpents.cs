@@ -90,17 +90,26 @@ namespace Larv.Serpent
                     Data.Ground));
         }
 
+        public Result GameStatus()
+        {
+            if (Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive) && !EnemyEggs.Any())
+                return Result.LevelComplete;
+            return PlayerSerpent.SerpentStatus != SerpentStatus.Finished ? Result.GameOn : Result.PlayerDied;
+        }
+
         private bool _paused;
 
-        public Result Update(GameTime gameTime)
+        public override void Update(Camera camera, GameTime gameTime)
         {
             _paused ^= Camera.KeyboardState.IsKeyPressed(Keys.P);
             if (_paused)
-                return Result.GameOn;
+                return;
 
             if (Camera.KeyboardState.IsKeyPressed(Keys.Z))
                 foreach (var enemy in Enemies)
                     enemy.SerpentStatus = SerpentStatus.Ghost;
+            if (Camera.KeyboardState.IsKeyPressed(Keys.X))
+                PlayerSerpent.AddTail();
 
             _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
             if (_onceASecond >= 1)
@@ -134,8 +143,6 @@ namespace Larv.Serpent
                     EnemyEggs.Add(egg);
             }
             Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
-            if (Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive))
-                return Result.LevelComplete;
 
             for (var i = EnemyEggs.Count - 1; i >= 0; i--)
             {
@@ -172,14 +179,11 @@ namespace Larv.Serpent
                 else if (Enemies.Any(enemy => enemy.EatFrog(frog)))
                     frog.Restart();
             }
-
-            return PlayerSerpent.SerpentStatus == SerpentStatus.Alive ? Result.GameOn : Result.PlayerDied;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             Data.PlayingField.Draw(camera, drawingReason, shadowMap);
-
             Data.Ground.Draw(camera, drawingReason, shadowMap);
             Data.Sky.Draw(camera, drawingReason, shadowMap);
 
@@ -190,16 +194,16 @@ namespace Larv.Serpent
             foreach (var frog in Frogs)
                 frog.Draw(camera, drawingReason, shadowMap);
 
-            var serpents = new List<BaseSerpent> { PlayerSerpent };
-            serpents.AddRange(Enemies);
+            var allSerpents = new List<BaseSerpent> { PlayerSerpent };
+            allSerpents.AddRange(Enemies);
 
-            foreach (var serpent in serpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
+            foreach (var serpent in allSerpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
                 serpent.Draw(camera, drawingReason, shadowMap);
 
-            if (drawingReason != DrawingReason.ShadowDepthMap && serpents.Any(_ => _.SerpentStatus == SerpentStatus.Ghost))
+            if (drawingReason != DrawingReason.ShadowDepthMap && allSerpents.Any(_ => _.SerpentStatus == SerpentStatus.Ghost))
             {
                 VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.AlphaBlend);
-                foreach (var serpent in serpents.Where(_ => _.SerpentStatus == SerpentStatus.Ghost))
+                foreach (var serpent in allSerpents.Where(_ => _.SerpentStatus == SerpentStatus.Ghost))
                     serpent.Draw(camera, drawingReason, shadowMap);
                 VContent.GraphicsDevice.SetBlendState(VContent.GraphicsDevice.BlendStates.Default);
             }

@@ -62,7 +62,7 @@ namespace Larv
             // Creates a graphics manager. This is mandatory.
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
             _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
-            
+            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;            
 #if false
             var screen = Screen.AllScreens.First(_ => _.Primary);
             _graphicsDeviceManager.IsFullScreen = true;
@@ -258,7 +258,7 @@ namespace Larv
                 text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X,
                     point.Position.Y).AppendLine();
 
-            //_spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
+            _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 50), Color.White);
             _spriteBatch.End();
 
             //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);

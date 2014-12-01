@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SharpDX;
@@ -36,6 +37,7 @@ namespace factor10.VisionThing
             var list = followPath.ToList();
             if (Vector3.DistanceSquared(list.First(), _camera.Position) > 0.1f || followPath.Length < 2)
                 list.Insert(0, _camera.Position);
+            qwerty(list, toLookAt);
             _path = list.ToArray();
 
             _totalTime = MathUtil.IsZero(unitsPerSecond)
@@ -44,6 +46,20 @@ namespace factor10.VisionThing
 
             _toLookAt = toLookAt;
             _fromLookAt = camera.Target;
+        }
+
+        private static void qwerty(List<Vector3> list, Vector3 toLookAt)
+        {
+            if (list.Count != 2)
+                return;
+            var v1 = list.Last() - list.First();
+            var v2 = toLookAt - list.First();
+            var v3 = toLookAt - list.Last();
+            var distanceFromLookAtToLine = Vector3.Cross(v1, v2).Length();
+            var distanceFromLookAtToEndPoint = v2.Length();
+            if (distanceFromLookAtToLine < distanceFromLookAtToEndPoint)
+                return;
+            // ta fram en punkt som vi måste passera genom och bryt sedan polylinjen tills bitarna blir lagom långa
         }
 
         private float pathLength()

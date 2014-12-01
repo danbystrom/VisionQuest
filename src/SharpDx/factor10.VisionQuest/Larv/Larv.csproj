@@ -107,8 +107,9 @@
     <Compile Include="Serpent\Serpents.cs" />
     <Compile Include="Serpent\SerpentTailSegment.cs" />
     <Compile Include="Util\Direction.cs" />
+    <Compile Include="Util\ToDoBase.cs" />
     <Compile Include="Util\SinBump.cs" />
-    <Compile Include="Util\ToDoQue.cs" />
+    <Compile Include="Util\SequentialToDoQue.cs" />
     <Compile Include="Util\Whereabouts.cs" />
     <Compile Include="CaveModel.cs" />
     <Compile Include="Windmill.cs" />

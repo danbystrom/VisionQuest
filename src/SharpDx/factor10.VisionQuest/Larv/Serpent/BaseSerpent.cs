@@ -321,6 +321,18 @@ namespace Larv.Serpent
             throw new Exception("No tail to remove");
         }
 
+        public Vector3 RemoveTailWhenLevelComplete()
+        {
+            if (_tail.Next.Next == null)
+                return Vector3.Zero;
+            var tail = _tail;
+            if (tail.Next.Next != null)
+                tail = tail.Next;
+            var position = tail.Next.GetPosition();
+            tail.Next = null;
+            return position;
+        }
+
         public void AddTail()
         {
             var tail = _tail;

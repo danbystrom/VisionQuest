@@ -165,9 +165,11 @@ namespace Larv
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            _cxBillboardGrass.Draw(camera, drawingReason, shadowMap);
+            base.draw(camera, drawingReason, shadowMap);
+            if(drawingReason!=DrawingReason.ShadowDepthMap)
+                _cxBillboardGrass.Draw(camera, drawingReason, shadowMap);
             _cxBillboardTrees.Draw(camera, drawingReason, shadowMap);
-            return base.draw(camera, drawingReason, shadowMap);
+            return true;
         }
     }
 

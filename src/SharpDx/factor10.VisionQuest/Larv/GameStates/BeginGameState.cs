@@ -42,7 +42,7 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _serpents.Update(gameTime);
+            _serpents.Update(camera, gameTime);
 
             if (_moveCamera != null)
             {

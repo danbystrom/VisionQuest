@@ -14,7 +14,7 @@ namespace Larv.GameStates
         private bool _serpentIsHome;
         private MoveCamera _moveCamera;
 
-        private ToDoQue _actions = new ToDoQue();
+        private SequentialToDoQue _actions = new SequentialToDoQue();
         private readonly ExplanationTexts _explanationTexts;
 
         public LevelCompleteState(Serpents serpents)
@@ -42,12 +42,24 @@ namespace Larv.GameStates
 
             _moveCamera = MoveCamera.UnitsPerSecond(
                 _serpents.Camera,
-                3,
+                2,
                 toLookAt,
                 toPosition);
 
             _actions.Add(time => !_serpentIsHome);
-            _actions.Add(3);
+            for (var i = 3; i < _serpents.PlayerSerpent.Length; i++)
+                _actions.Add(1, () =>
+                {
+                    var pos = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
+                    System.Diagnostics.Debug.Print("{0} {1}", pos, _serpents.PlayerSerpent.Length);
+                    _explanationTexts.Items.Add(new ExplanationTexts.Item
+                    {
+                        TimeToLive = 3,
+                        Target = new PositionHolder {Position = pos},
+                        GetDrawingInfo = _ => new ExplanationTexts.DrawingInfo {Text1 = "+500"}
+                    });
+                });
+
             _actions.Add(() =>
             {
                 if (_serpents.PlayerEgg == null)
@@ -78,7 +90,8 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _serpents.Update(gameTime);
+            _serpents.Update(camera, gameTime);
+            _explanationTexts.Update(camera, gameTime);
             _moveCamera.Move(gameTime);
             if (_actions.Do(gameTime))
                 return;
@@ -89,12 +102,14 @@ namespace Larv.GameStates
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera,drawingReason,shadowMap);
+            _explanationTexts.Draw(camera, drawingReason, shadowMap);
         }
 
         private class PositionHolder : IPosition
         {
             public Vector3 Position { get; set; }
         }
+
     }
 
 }

@@ -105,8 +105,8 @@ namespace Larv
         {
             verts.Add(new VertexPositionNormalTexture(
                 new Vector3((x + w), (floor + z)/3f, (y + h)),
-                Vector3.Up, 
-                new Vector2((w%8)*0.25f,(h%8)*0.25f)));//TODOnew Vector2((x+w)/2f, (y+h)/2f)));
+                Vector3.Up,
+                new Vector2((w%8)*0.25f, (h%8)*0.25f)));
 
             var dx = w == 0 ? -1 : 1;
             var dy = h == 0 ? -1 : 1;
