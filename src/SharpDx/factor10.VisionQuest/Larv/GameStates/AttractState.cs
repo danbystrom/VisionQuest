@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Net.Mime;
 using factor10.VisionThing;
+using Larv.FloatingText;
 using Larv.Serpent;
 using Serpent;
 using SharpDX;
@@ -20,11 +22,11 @@ namespace Larv.GameStates
 
         private readonly Random _random = new Random();
 
-        private readonly ExplanationTexts _explanationTexts;
+        private readonly FloatingTexts _floatingTexts;
 
         public AttractState(Serpents serpents)
         {
-            _explanationTexts = new ExplanationTexts(serpents.VContent);
+            _floatingTexts = new FloatingTexts(serpents.VContent);
 
             _serpents = serpents;
             _moveCamera = MoveCamera.UnitsPerSecond(
@@ -37,7 +39,7 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _explanationTexts.Update(camera, gameTime);
+            _floatingTexts.Update(camera, gameTime);
             addExplanationText();
 
             if(_moveCamera!=null)
@@ -48,7 +50,7 @@ namespace Larv.GameStates
             _serpents.Update(camera, gameTime);
             if (_serpents.GameStatus() != Serpents.Result.GameOn)
             {
-                _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
+                _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
                 _serpents.PlayerSerpent.DirectionTaker = this;
             }
 
@@ -59,12 +61,12 @@ namespace Larv.GameStates
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
-            _explanationTexts.Draw(camera, drawingReason, shadowMap);
+            _floatingTexts.Draw(camera, drawingReason, shadowMap);
         }
 
         private void addExplanationText()
         {
-            ExplanationTexts.Item newItem = null;
+            FloatingTextItem newItem = null;
             switch (_random.Next(0, 500))
             {
                 case 0:
@@ -91,36 +93,18 @@ namespace Larv.GameStates
                     break;
             }
             if (newItem != null)
-                _explanationTexts.Items.Add(newItem);
+                _floatingTexts.Items.Add(newItem);
         }
 
-        private ExplanationTexts.Item createExplanationText(IPosition target, string text1)
+        private FloatingTextItem createExplanationText(IPosition target, string text)
         {
-            return new ExplanationTexts.Item
+            return new FloatingTextItem(
+                target,
+                text,
+                5)
             {
-                Target = target,
-                TimeToLive = 5,
-                GetDrawingInfo = (_) => new ExplanationTexts.DrawingInfo
-                {
-                    DiffuseColor = textDiffuse(_.Age/_.TimeToLive),
-                    Text1 = text1,
-                }
-            };
-        }
-
-        private Vector4 textDiffuse(float factor)
-        {
-            var alpha = 1f;
-            switch((int)(factor*3))
-            {
-                case 0:
-                    alpha = factor*3;
-                    break;
-                case 2:
-                    alpha = (1 - factor) * 3;
-                    break;
-            }
-            return new Vector4(1, 1, 0.8f, alpha);
+                GetOffset = _ => Vector3.Up*1.5f
+            }.SetAlphaAnimation(Color.LightYellow);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)

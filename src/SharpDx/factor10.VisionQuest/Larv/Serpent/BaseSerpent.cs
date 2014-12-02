@@ -31,7 +31,7 @@ namespace Larv.Serpent
         public SerpentStatus SerpentStatus;
         public ITakeDirection DirectionTaker;
 
-        protected readonly PlayingField _pf;
+        protected PlayingField PlayingField;
 
         public Whereabouts _whereabouts = new Whereabouts();
         public Direction HeadDirection { get; protected set; }
@@ -64,16 +64,14 @@ namespace Larv.Serpent
 
         protected BaseSerpent(
             VisionContent vContent,
-            PlayingField pf,
+            PlayingField playingField,
             IVDrawable sphere,
-            Whereabouts whereabouts,
             Texture2D serpentSkin,
             Texture2D serpentHeadSkin,
             Texture2D serpentBump,
             Texture2D eggSkin) : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
         {
-            _pf = pf;
-            Restart(whereabouts);
+            Restart(playingField);
             _sphere = sphere;
             _serpentSkin = serpentSkin;
             _serpentHeadSkin = serpentHeadSkin;
@@ -86,11 +84,12 @@ namespace Larv.Serpent
             _headRotation.Add(Direction.South, Matrix.RotationY(-MathUtil.PiOverTwo));
         }
 
-        protected void Restart(Whereabouts whereabouts)
+        protected void Restart(PlayingField playingField)
         {
-            _whereabouts = whereabouts;
+            PlayingField = playingField;
+            _whereabouts = PlayingField.EnemyWhereaboutsStart;
             HeadDirection = _whereabouts.Direction;
-            _tail = new SerpentTailSegment(_pf, _whereabouts);
+            _tail = new SerpentTailSegment(PlayingField, _whereabouts);
             _serpentLength = 1;
             _ascendToHeaven = 0;
             _layingEgg = -1;
@@ -153,7 +152,7 @@ namespace Larv.Serpent
             if (dir == Direction.None)
                 return false;
             var possibleLocationTo = _whereabouts.Location.Add(dir);
-            if (!_pf.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo, ignoreRestriction))
+            if (!PlayingField.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo, ignoreRestriction))
                 return false;
             _whereabouts.Direction = dir;
             _tail.AddPathToWalk(_whereabouts);
@@ -186,7 +185,7 @@ namespace Larv.Serpent
             var segment = _tail;
             while (true)
             {
-                var p2 = segment.GetPosition() + wormTwist(ref slinger);
+                var p2 = segment.Position + wormTwist(ref slinger);
                 worlds.Add(
                     Matrix.Scaling(SegmentSize)*
                     Matrix.Translation(
@@ -259,7 +258,7 @@ namespace Larv.Serpent
 
         public Vector3 Position
         {
-            get { return _whereabouts.GetPosition(_pf); }
+            get { return _whereabouts.GetPosition(PlayingField); }
         }
 
         public Whereabouts Whereabouts
@@ -290,7 +289,7 @@ namespace Larv.Serpent
                 return true;
             }
             for (var tail = other._tail; tail != null; tail = tail.Next)
-                if (Vector3.DistanceSquared(Position, tail.GetPosition()) < 0.2f)
+                if (this.DistanceSquared(tail) < 0.2f)
                 {
                     if (tail == other._tail)
                     {
@@ -321,16 +320,16 @@ namespace Larv.Serpent
             throw new Exception("No tail to remove");
         }
 
-        public Vector3 RemoveTailWhenLevelComplete()
+        public IPosition RemoveTailWhenLevelComplete()
         {
-            if (_tail.Next.Next == null)
-                return Vector3.Zero;
+            if (_tail.Next == null)
+                return null;
             var tail = _tail;
-            if (tail.Next.Next != null)
+            while (tail.Next.Next != null)
                 tail = tail.Next;
-            var position = tail.Next.GetPosition();
+            var result = tail.Next;
             tail.Next = null;
-            return position;
+            return result;
         }
 
         public void AddTail()
@@ -338,7 +337,7 @@ namespace Larv.Serpent
             var tail = _tail;
             while (tail.Next != null)
                 tail = tail.Next;
-            tail.Next = new SerpentTailSegment(_pf, tail.Whereabouts);
+            tail.Next = new SerpentTailSegment(PlayingField, tail.Whereabouts);
             _serpentLength++;
             Debug.Assert(_serpentLength < 20);
         }

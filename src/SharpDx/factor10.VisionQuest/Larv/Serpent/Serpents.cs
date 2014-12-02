@@ -20,9 +20,10 @@ namespace Larv.Serpent
 
         public readonly VisionContent VContent;
 
-        public readonly PlayingField PlayingField;
+        public PlayingField PlayingField { get; private set; }
 
-        public readonly PlayerSerpent PlayerSerpent;
+        public PlayerSerpent PlayerSerpent { get; private set; }
+
         public Egg PlayerEgg;
         public readonly List<EnemySerpent> Enemies = new List<EnemySerpent>();
         public readonly List<Egg> EnemyEggs = new List<Egg>();
@@ -42,28 +43,33 @@ namespace Larv.Serpent
             VisionContent vContent,
             Camera camera,
             IVDrawable sphere,
-            PlayingField playingField)
+            int level)
             : base(vContent.LoadPlainEffect("effects/simplebumpeffect"))
         {
             VContent = vContent;
             Sphere = sphere;
-            PlayingField = playingField;
 
             _spriteBatch = new SpriteBatch(vContent.GraphicsDevice);
             _spriteFont = vContent.Content.Load<SpriteFont>("fonts/blackcastle");
 
             Camera = camera;
 
-            PlayerSerpent = new PlayerSerpent(
-                vContent,
-                playingField,
-                Sphere);
-            Restart();
+            Restart(level);
         }
 
-        public void Restart()
+        public void Restart(int level)
         {
-            PlayerSerpent.Restart(PlayingField.PlayerWhereaboutsStart, 1);
+            if(PlayingField!=null)
+                PlayingField.Dispose();
+            PlayingField = new PlayingField(
+                VContent,
+                VContent.Content.Load<Texture2D>(@"Textures\woodfloor"),
+                level);
+
+            PlayerSerpent = new PlayerSerpent(
+                VContent,
+                PlayingField,
+                Sphere);
 
             Enemies.Clear();
             EnemyEggs.Clear();
@@ -92,7 +98,7 @@ namespace Larv.Serpent
 
         public Result GameStatus()
         {
-            if (Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive) && !EnemyEggs.Any())
+            if (PlayerSerpent.SerpentStatus == SerpentStatus.Alive && Enemies.All(e => e.SerpentStatus != SerpentStatus.Alive) && !EnemyEggs.Any())
                 return Result.LevelComplete;
             return PlayerSerpent.SerpentStatus != SerpentStatus.Finished ? Result.GameOn : Result.PlayerDied;
         }
@@ -110,6 +116,8 @@ namespace Larv.Serpent
                     enemy.SerpentStatus = SerpentStatus.Ghost;
             if (Camera.KeyboardState.IsKeyPressed(Keys.X))
                 PlayerSerpent.AddTail();
+            if (Camera.KeyboardState.IsKeyPressed(Keys.Q))
+                PlayerSerpent.Fertilize();
 
             _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
             if (_onceASecond >= 1)
@@ -183,7 +191,7 @@ namespace Larv.Serpent
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            Data.PlayingField.Draw(camera, drawingReason, shadowMap);
+            PlayingField.Draw(camera, drawingReason, shadowMap);
             Data.Ground.Draw(camera, drawingReason, shadowMap);
             Data.Sky.Draw(camera, drawingReason, shadowMap);
 
@@ -219,6 +227,13 @@ namespace Larv.Serpent
             Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.Opaque);
 
             return true;
+        }
+
+        public override void Dispose()
+        {
+            if (PlayingField != null)
+                PlayingField.Dispose();
+            base.Dispose();
         }
 
     }

@@ -1,4 +1,9 @@
-﻿using factor10.VisionThing;
+﻿using System;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
+using factor10.VisionThing;
+using Larv.FloatingText;
 using Larv.Serpent;
 using Larv.Util;
 using Serpent;
@@ -11,76 +16,96 @@ namespace Larv.GameStates
     {
         private readonly Serpents _serpents;
         private readonly PathFinder _pathFinder;
-        private bool _serpentIsHome;
         private MoveCamera _moveCamera;
 
-        private SequentialToDoQue _actions = new SequentialToDoQue();
-        private readonly ExplanationTexts _explanationTexts;
+        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
+        private readonly FloatingTexts _floatingTexts;
+
+        private bool _serpentIsHome;
+        private bool _haltSerpents;
+        private bool _homeIsNearCaveEntrance;
 
         public LevelCompleteState(Serpents serpents)
         {
             _serpents = serpents;
-            _explanationTexts = new ExplanationTexts(_serpents.VContent);
+            _floatingTexts = new FloatingTexts(_serpents.VContent);
 
             _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
             _serpents.PlayerSerpent.DirectionTaker = this;
-            _serpents.PlayerSerpent.TimeToLayEgg();  // don't lay egg on the way home...
 
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            _explanationTexts.Items.Add(new ExplanationTexts.Item
-            {
-                Target = _serpents.PlayerSerpent,
-                TimeToLive = 3,
-                GetDrawingInfo = _ => new ExplanationTexts.DrawingInfo
-                {
-                    DiffuseColor = new Vector4(1,1,1,1),
-                    Text1 = "Yeah"
-                }
-            });
-
             _moveCamera = MoveCamera.UnitsPerSecond(
                 _serpents.Camera,
-                2,
-                toLookAt,
+                4,
+                () => _serpents.PlayerSerpent.LookAtPosition,
                 toPosition);
 
+            // wait until serpent is in cave, then give length bonus
+            _actions.Add(() => _homeIsNearCaveEntrance = true);
             _actions.Add(time => !_serpentIsHome);
-            for (var i = 3; i < _serpents.PlayerSerpent.Length; i++)
+            _actions.Add(() => _haltSerpents = true);
+            for (var i = 0; i < _serpents.PlayerSerpent.Length; i++)
                 _actions.Add(1, () =>
                 {
-                    var pos = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
-                    System.Diagnostics.Debug.Print("{0} {1}", pos, _serpents.PlayerSerpent.Length);
-                    _explanationTexts.Items.Add(new ExplanationTexts.Item
-                    {
-                        TimeToLive = 3,
-                        Target = new PositionHolder {Position = pos},
-                        GetDrawingInfo = _ => new ExplanationTexts.DrawingInfo {Text1 = "+500"}
-                    });
+                    var tailSegement = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
+                    if (tailSegement != null)
+                        _floatingTexts.Items.Add(new FloatingTextItem(
+                            tailSegement,
+                            "+500",
+                            3).SetAlphaAnimation(Color.WhiteSmoke, 0.1f, 0.2f).SetOffsetMovement(Vector3.Up, Vector3.Up*3));
                 });
+
+            // wait until all bonus texts gone
+            _actions.Add(time => _floatingTexts.Items.Any());
+            _actions.Add(() =>
+            {
+                _serpentIsHome = false;
+                _haltSerpents = false;
+                _homeIsNearCaveEntrance = false;
+            });
+            _actions.Add(time => !_serpentIsHome);
 
             _actions.Add(() =>
             {
                 if (_serpents.PlayerEgg == null)
+                {
+                    _haltSerpents = false;
                     return;
-                _serpents.PlayerSerpent.Restart(_serpents.PlayerEgg.Whereabouts, 0);
-                _serpents.PlayerSerpent.DirectionTaker = this;
-                _serpents.PlayerEgg = null;
-                _serpentIsHome = false;
+                }
+                _serpents.PlayerSerpent.DirectionTaker = null;
+                _moveCamera = MoveCamera.TotalTime(_serpents.Camera, 2, _serpents.PlayerEgg.Position, toPosition);
+                // wait two sec (for camera) and then drive the baby home
+                _actions.InsertFirst(
+                    time => time < 2,
+                    time =>
+                    {
+                        _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 0, _serpents.PlayerEgg.Whereabouts);
+                        _serpents.PlayerEgg = null;
+                        _serpents.PlayerSerpent.DirectionTaker = this;
+                        _haltSerpents = false;
+                        _serpentIsHome = false;
+                        return false;
+                    });
             });
-            _actions.Add(time => !_serpentIsHome);
+
+            // make sure the camera aims at a serpent (the original or the new born baby)
+            _actions.Add(() =>
+            {
+                _moveCamera = MoveCamera.TotalTime(_serpents.Camera, 1, () => _serpents.PlayerSerpent.LookAtPosition, toPosition);
+                _moveCamera.NeverComplete = true;
+            });
+
+            _actions.Add(time => !_serpentIsHome || _floatingTexts.Items.Any());
+            _actions.Add(2);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var direction = _pathFinder.WayHome(serpent.Whereabouts, false);
-            if (direction == Direction.None)
-            {
-                _serpentIsHome = true;
-                return RelativeDirection.None;
-            }
-            return serpent.HeadDirection.GetRelativeDirection(direction);
+            _serpentIsHome = _pathFinder.GetDistance(_serpents.PlayerSerpent.Whereabouts) < (_homeIsNearCaveEntrance ? 6 : 3);
+            _haltSerpents |= _serpentIsHome;
+            return serpent.HeadDirection.GetRelativeDirection(_pathFinder.WayHome(serpent.Whereabouts, false));
         }
 
         bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
@@ -90,19 +115,22 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _serpents.Update(camera, gameTime);
-            _explanationTexts.Update(camera, gameTime);
-            _moveCamera.Move(gameTime);
+            if (!_haltSerpents)
+                _serpents.Update(camera, gameTime);
+            _floatingTexts.Update(camera, gameTime);
+            if (_moveCamera != null && !_moveCamera.Move(gameTime))
+                _moveCamera = null;
             if (_actions.Do(gameTime))
                 return;
-            _serpents.Restart();
+            _serpents.Restart(1);
+            Data.Ground.GeneratePlayingField(_serpents.PlayingField);
             gameState = new StartSerpentState(_serpents);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera,drawingReason,shadowMap);
-            _explanationTexts.Draw(camera, drawingReason, shadowMap);
+            _floatingTexts.Draw(camera, drawingReason, shadowMap);
         }
 
         private class PositionHolder : IPosition

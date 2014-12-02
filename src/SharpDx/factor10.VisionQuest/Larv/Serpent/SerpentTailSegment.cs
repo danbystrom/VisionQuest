@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using factor10.VisionThing;
 using Serpent;
 using SharpDX;
 
 namespace Larv.Serpent
 {
-    public class SerpentTailSegment
+    public class SerpentTailSegment : IPosition
     {
         public readonly List<Whereabouts> PathToWalk;
  
@@ -25,35 +25,7 @@ namespace Larv.Serpent
             get { return PathToWalk[0]; }
         }
 
-        private readonly List<List<string>> _log = new List<List<string>>(); 
-        public void Update(float speed, Whereabouts previous)
-        {
-            if (update(speed, previous))
-            {
-                //for (var seg = this; seg.Next != null; seg = seg.Next)
-                //{
-                //    var a = seg.Whereabouts.Location.X - seg.Next.Whereabouts.Location.X;
-                //    var b = seg.Whereabouts.Location.Y - seg.Next.Whereabouts.Location.Y;
-                //    if (a*a + b*b != 1)
-                //    {
-                //    }
-                //}
-                //var y = string.Join("\r\n", _log.Select(a => string.Join("\r\n", a)));
-                //File.WriteAllText(@"c:\temp\x.log", y);
-                ////throw new Exception();
-            }
-
-            //var x = new List<string>();
-            //x.Add(string.Format("Speed:{0:0.00000}", speed));
-            //for (var seg = this; seg != null; seg = seg.Next)
-            //    x.Add(seg.ToString());    
-            //_log.Add(x);
-            //if (_log.Count > 500)
-            //    _log.RemoveAt(0);
-
-        }
-
-        private bool update(float speed, Whereabouts previous)
+        public bool Update(float speed, Whereabouts previous)
         {
             var last = PathToWalk.Last();
             if (previous.LocationDistanceSquared(last) >= 2)
@@ -76,17 +48,12 @@ namespace Larv.Serpent
                 PathToWalk[0] = w;
             }
 
-            if (Next != null)
-            {
-                return Next.update(speed, PathToWalk.First()) |
-                       Vector3.DistanceSquared(GetPosition(), Next.GetPosition()) > 1.9;
-            }
-            return false;
+            return Next != null && (Next.Update(speed, PathToWalk.First()) || this.DistanceSquared(Next) > 1.9);
         }
 
-        public Vector3 GetPosition()
+        public Vector3 Position
         {
-            return PathToWalk[0].GetPosition(_pf);
+            get { return PathToWalk[0].GetPosition(_pf); }
         }
 
         public void AddPathToWalk(Whereabouts w)

@@ -15,7 +15,7 @@ namespace Larv.GameStates
         public StartSerpentState(Serpents serpents)
         {
             _serpents = serpents;
-            _serpents.PlayerSerpent.Restart(_serpents.PlayingField.PlayerWhereaboutsStart, 1);
+            _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
 
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);

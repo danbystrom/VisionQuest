@@ -16,8 +16,6 @@ namespace Larv
 
         public static Data Instance;
 
-        public static PlayingField PlayingField;
-
         public static SkySphere Sky;
         public static Ground Ground;
 
@@ -44,12 +42,6 @@ namespace Larv
             Instance = this;
 
             VContent = new VisionContent(game1.GraphicsDevice, game1.Content);
-            var texture = game1.Content.Load<Texture2D>(@"Textures\woodfloor");
-
-            if (PlayingField == null)
-                PlayingField = new PlayingField(
-                    VContent,
-                    texture);
 
             Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
                 (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
@@ -60,17 +52,17 @@ namespace Larv
             if (Sky == null)
                 Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
 
-            Ground = new Ground(VContent);
-            Ground.GeneratePlayingField(PlayingField);
-
             Camera = new Camera(
                 VContent.ClientSize,
                 keyboardManager,
                 mouseManager,
                 pointerManager,
                 AttractState.CameraPosition,
-                AttractState.CameraLookAt) {MovingSpeed = 8};
-            Serpents = new Serpents(VContent, Camera, Sphere, PlayingField);
+                AttractState.CameraLookAt) { MovingSpeed = 8 };
+            Ground = new Ground(VContent);
+            Serpents = new Serpents(VContent, Camera, Sphere, 0);
+
+            Ground.GeneratePlayingField(Serpents.PlayingField);
 
             ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
@@ -87,7 +79,7 @@ namespace Larv
 
         public void Dispose()
         {
-            PlayingField.Dispose();
+            Serpents.Dispose();
         }
 
         public void Update(GameTime gameTime)

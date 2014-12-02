@@ -79,10 +79,11 @@
   <ItemGroup>
     <Compile Include="Data.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FloatingText\FloatingTextItem.cs" />
     <Compile Include="GameStates\AttractState.cs" />
     <Compile Include="GameStates\BeginGameState.cs" />
     <Compile Include="GameStates\DieState.cs" />
-    <Compile Include="GameStates\ExplanationTexts.cs" />
+    <Compile Include="FloatingText\FloatingTexts.cs" />
     <Compile Include="GameStates\IGameState.cs" />
     <Compile Include="GameStates\LevelCompleteState.cs" />
     <Compile Include="GameStates\PlayingState.cs" />

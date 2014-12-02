@@ -11,7 +11,7 @@ namespace factor10.VisionThing
     {
         private readonly Camera _camera;
 
-        private readonly Vector3 _toLookAt;
+        private readonly Func<Vector3> _toLookAt;
 
         private readonly Vector3 _fromLookAt;
 
@@ -20,24 +20,36 @@ namespace factor10.VisionThing
 
         private readonly Vector3[] _path;
 
-        public static MoveCamera TotalTime(Camera camera, float totalTime, Vector3 toLookAt, params Vector3[] followPath)
+        public bool NeverComplete;
+
+        public static MoveCamera TotalTime(Camera camera, float totalTime, Func<Vector3> toLookAt, params Vector3[] followPath)
         {
             return new MoveCamera(camera, totalTime, 0, toLookAt, followPath);
         }
 
-        public static MoveCamera UnitsPerSecond(Camera camera, float unitsPerSecond, Vector3 toLookAt, params Vector3[] followPath)
+        public static MoveCamera UnitsPerSecond(Camera camera, float unitsPerSecond, Func<Vector3> toLookAt, params Vector3[] followPath)
         {
             return new MoveCamera(camera, 0, unitsPerSecond, toLookAt, followPath);
         }
 
-        private MoveCamera(Camera camera, float totalTime, float unitsPerSecond, Vector3 toLookAt, params Vector3[] followPath)
+        public static MoveCamera TotalTime(Camera camera, float totalTime, Vector3 toLookAt, params Vector3[] followPath)
+        {
+            return new MoveCamera(camera, totalTime, 0, () => toLookAt, followPath);
+        }
+
+        public static MoveCamera UnitsPerSecond(Camera camera, float unitsPerSecond, Vector3 toLookAt, params Vector3[] followPath)
+        {
+            return new MoveCamera(camera, 0, unitsPerSecond, () => toLookAt, followPath);
+        }
+
+        private MoveCamera(Camera camera, float totalTime, float unitsPerSecond, Func<Vector3> toLookAt, params Vector3[] followPath)
         {
             _camera = camera;
 
             var list = followPath.ToList();
             if (Vector3.DistanceSquared(list.First(), _camera.Position) > 0.1f || followPath.Length < 2)
                 list.Insert(0, _camera.Position);
-            qwerty(list, toLookAt);
+            qwerty(list, toLookAt());
             _path = list.ToArray();
 
             _totalTime = MathUtil.IsZero(unitsPerSecond)
@@ -94,9 +106,9 @@ namespace factor10.VisionThing
 
             _camera.Update(
                 pos,
-                Vector3.Lerp(_fromLookAt, _toLookAt, posFactor));
+                Vector3.Lerp(_fromLookAt, _toLookAt(), posFactor));
 
-            return _elapsedTime < _totalTime;
+            return _elapsedTime < _totalTime || NeverComplete;
         }
 
     }

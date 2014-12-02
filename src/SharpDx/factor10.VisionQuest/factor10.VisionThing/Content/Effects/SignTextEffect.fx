@@ -39,6 +39,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
     return output;
 }
 
+
 float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 {
 	float4 sampledColor = Texture.Sample(TextureSampler, input.UV) * DiffuseColor.a;
@@ -46,7 +47,6 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 }
 
  
-
 float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : SV_Target
 {
 	clip(dot(float4(input.WorldPosition,1), ClipPlane));

@@ -4,7 +4,7 @@ namespace Larv
 {
     public static class PlayingFields
     {
-        public static List<string[]> GetZ()
+        private static List<string[]> GetZ()
         {
             var list = new List<string[]>();
             list.Add(
@@ -108,7 +108,7 @@ namespace Larv
             return list;
         }
 
-        public static List<string[]> GetQ1()
+        private static List<string[]> GetQ1()
         {
             var list = new List<string[]>();
             list.Add(
@@ -139,7 +139,7 @@ namespace Larv
             return list;
         }
 
-        public static List<string[]> GetQ2()
+        private static List<string[]> GetQ2()
         {
             var list = new List<string[]>();
             list.Add(
@@ -168,6 +168,19 @@ namespace Larv
 "B XXXXXXX XXXXX XXX XXXXA",
                     });
             return list;
+        }
+
+        public static List<string[]> GetLevel(int level)
+        {
+            switch (level)
+            {
+                case 0:
+                    return GetQ1();
+                case 1:
+                    return GetQ2();
+                default:
+                    return GetZ();
+            }
         }
 
     }

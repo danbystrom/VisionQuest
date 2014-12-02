@@ -11,25 +11,26 @@ namespace Larv.Serpent
 
         public PlayerSerpent(
             VisionContent vContent,
-            PlayingField pf,
+            PlayingField playingField,
             IVDrawable sphere)
             : base(
                 vContent,
-                pf,
+                playingField,
                 sphere,
-                pf.PlayerWhereaboutsStart,
                 vContent.Load<Texture2D>(@"Textures\snakeskin"),
                 vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
                 vContent.Load<Texture2D>(@"Textures\snakeskinmap"), 
                 vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
+            Restart(playingField, 0);
         }
 
-        public void Restart(Whereabouts whereabouts, int length)
+        public void Restart(PlayingField playingField, int length, Whereabouts? whereabouts = null)
         {
+            Restart(playingField);
+            _whereabouts = whereabouts.GetValueOrDefault(PlayingField.PlayerWhereaboutsStart);
             DirectionTaker = null;
             SerpentStatus = SerpentStatus.Alive;
-            Restart(whereabouts);
             while(length-->0)
                 AddTail();
         }
@@ -46,7 +47,7 @@ namespace Larv.Serpent
                 var d = _whereabouts.Direction.DirectionAsPoint();
                 return new Vector3(
                     _whereabouts.Location.X + d.X*(float) _fractionAngle,
-                    _pf.GetElevation(_whereabouts),
+                    PlayingField.GetElevation(_whereabouts),
                     _whereabouts.Location.Y + d.Y*(float) _fractionAngle);
             }
         }

@@ -58,6 +58,11 @@ namespace Larv
             bestDistance = here;
         }
 
+        public int GetDistance(Whereabouts whereabouts)
+        {
+            return Distance[whereabouts.Floor, whereabouts.Location.Y, whereabouts.Location.X];
+        }
+
         public Direction WayHome(Whereabouts whereabouts, bool canTurnAround)
         {
             if (getDistance(whereabouts.Floor, whereabouts.Location, Direction.None) <= 2)

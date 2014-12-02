@@ -119,7 +119,7 @@ namespace Larv
                 IsAntialiasedLineEnabled = false
             });
 
-            _gameState = new AttractState(Data.Serpents);
+            _gameState = new StartSerpentState(Data.Serpents);
 
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
             Data.ShadowMap.ShadowCastingObjects.Add(_caveModel);

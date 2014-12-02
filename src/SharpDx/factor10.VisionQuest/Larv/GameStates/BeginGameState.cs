@@ -49,7 +49,7 @@ namespace Larv.GameStates
                 if (_moveCamera.Move(gameTime))
                     return;
                 _moveCamera = null;
-                _serpents.Restart();
+                _serpents.Restart(0);
             }
 
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)

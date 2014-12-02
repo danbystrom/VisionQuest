@@ -28,12 +28,12 @@ namespace Larv
         public readonly float MiddleX;
         public readonly float MiddleY;
 
-        public PlayingField(VisionContent vContent, Texture2D texture)
+        public PlayingField(VisionContent vContent, Texture2D texture, int level)
             : base(vContent.LoadPlainEffect("effects/simpletextureeffect"))
         {
             _texture = texture;
 
-            var field = PlayingFields.GetQ1();
+            var field = PlayingFields.GetLevel(level);
 
             _plane = new PlanePrimitive<VertexPositionNormalTexture>(vContent.GraphicsDevice, (x, y, w, h) => new VertexPositionNormalTexture(
                 new Vector3(x, 0, y), Vector3.Up, new Vector2(x/w, y/h)),

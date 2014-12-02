@@ -17,16 +17,15 @@ namespace Larv.Serpent
 
         public EnemySerpent(
             VisionContent vContent,
-            PlayingField pf,
+            PlayingField playingField,
             Whereabouts whereabouts,
             IVDrawable sphere,
             float delayBeforeStart,
             int length)
             : base(
                 vContent,
-                pf,
+                playingField,
                 sphere,
-                whereabouts,
                 vContent.Load<Texture2D>(@"Textures\snakeskin"),
                 vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
                 vContent.Load<Texture2D>(@"Textures\snakeskinmap"),
