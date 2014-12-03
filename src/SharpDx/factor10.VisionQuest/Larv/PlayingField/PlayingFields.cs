@@ -165,7 +165,71 @@ namespace Larv
 "X X   X X X X X X     X X",
 "X X XXX X X X X X XXXXX X",
 "b X X   X X X X X X     a",
-"B XXXXXXX XXXXX XXX XXXXA",
+"B XXXXXXX XXXXX XXX     A",
+                    });
+            return list;
+        }
+
+        private static List<string[]> GetQ3()
+        {
+            var list = new List<string[]>();
+            list.Add(
+                new[]
+                    {
+"XXXXXXX XXXXXXXXX XXXXXXX",
+"X     X X   X   X X     X",
+"X XXX XXX XXXXX XXX XXX X",
+"X X X X X X X X X X X X X",
+"X X XXX X X X X X XXX X X",
+"X X   X XXX X XXX X   X X",
+"X XXX XXX X X X XXX XXX X",
+"X X X X X X X X X X X X X",
+"X X X X X X X X X X X X X",
+"XXX XXX XXX X XXX XXX XXX",
+"X   X   X   X   X   X   X",
+"XXXXXXXXXXXXXXXXXXXXXXXXX",
+"X   X   X   X   X   X   X",
+"XXX XXX XXX X XXX XXX XXX",
+"SXXXX X X X X X X X XXXXS",
+"X X   X X X X X X X   X X",
+"X X XXX XXX X XXX XXX X X",
+"X X X   X X X X X   X X X",
+"X XXXXX X X X X X XXXXX X",
+"b X   X X X X X X X     a",
+"B XXXXXXXXXXXXXXXXX     A",
+
+                    });
+            return list;
+        }
+
+        private static List<string[]> GetQ4()
+        {
+            var list = new List<string[]>();
+            list.Add(
+                new[]
+                    {
+"XXXXXXXXXXX X XXXXXXXXXXX",
+"X X   X   X   X   X   X X",
+"X XXX XXX XXXXX XXX XXX X",
+"X   X   X   X   X   X   X",
+"XXX XXX XXX X XXX XXX XXX",
+"X X   X   X X X   X   X X",
+"X XXX XXX XXXXX XXX XXX X",
+"X   X   X   X   X   X   X",
+"XXX XXXXXXXXXXXXXXXXX XXX",
+"  X X     X   X     X X  ",
+"XXXXXXXXXXXXXXXXXXXXXXXXX",
+"X X       X X X       X X",
+"X XXXXX XXX X XXX XXXXX X",
+"X     X X   X   X X     X",
+"XXXXX XXX XXXXX XXX XXXXX",
+"S X X X   X X X   X X X S",
+"X X XXX XXX X XXX XXX X X",
+"X X X   X   X   X   X X X",
+"X XXX XXX XXXXX XXX XXX X",
+"b X   X   X   X   X     a",
+"B XXXXXXXXX X XXXXX     A"
+
                     });
             return list;
         }
@@ -175,7 +239,7 @@ namespace Larv
             switch (level)
             {
                 case 0:
-                    return GetQ1();
+                    return GetQ4();
                 case 1:
                     return GetQ2();
                 default:

@@ -10,8 +10,8 @@ Texture2D BumpMap;
 
 float4 DiffuseColor = float4(1, 1, 1, 1);
 float3 AmbientColor = float3(0.2, 0.2, 0.2);
-float3 LightColor = float3(0.9, 0.9, 0.9);
-float SpecularPower = 128;
+float3 LightColor = float3(0.8, 0.8, 0.8);
+float SpecularPower = 16;
 float3 SpecularColor = float3(1, 1, 1);
 
 struct VertexShaderInput
@@ -75,23 +75,22 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float3 txColor = Texture.Sample(TextureSampler, input.UV);
 	float3 color = DiffuseColor * txColor;
 
-	// Start with ambient lighting
-	float3 lighting = AmbientColor;
-
 	float3 normal = NormalSampleToWorldSpace(
 		BumpMap.Sample(TextureSampler, input.UV),
 		normalize(input.Normal),
 		input.Tangent);
 
+	// Start with ambient lighting
+	float3 lighting = AmbientColor;
+
 	// Add lambertian lighting
-	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
+	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
 
 	float3 refl = reflect(-SunlightDirection, normal);
 	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
 
-		// Add specular highlights
-	float q = dot(refl, toEyeW);
-	lighting += pow(saturate(q), SpecularPower) * SpecularColor;
+	// Add specular highlights
+	lighting += pow(saturate(dot(refl, toEyeW)), SpecularPower) * SpecularColor;
 
 	// Calculate final color
 	return float4(saturate(lighting) * color * DiffuseColor.a, DiffuseColor.a);

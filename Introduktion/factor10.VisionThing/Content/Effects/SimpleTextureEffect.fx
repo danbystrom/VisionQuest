@@ -15,9 +15,9 @@ float ShadowBias = 0.001f;
 Texture2D ShadowMap;
 
 float4 DiffuseColor = float4(1, 1, 1, 1);
-float3 AmbientColor = float3(0.6, 0.6, 0.6);
-float3 LightColor = float3(0.7, 0.7, 0.7);
-float SpecularPower = 32;
+float3 AmbientColor = float3(0.1, 0.1, 0.1);
+float3 LightColor = float3(0.9, 0.9, 0.9);
+float SpecularPower = 128;
 float3 SpecularColor = float3(1, 1, 1);
 
 struct VertexShaderInput
@@ -73,11 +73,11 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float3 normal = normalize(input.Normal);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
+	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
 
-	float3 refl = reflect(SunlightDirection, normal);
+	float3 refl = reflect(-SunlightDirection, normal);
 	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
-	
+
 	// Add specular highlights
 	lighting += pow(saturate(dot(refl, toEyeW)), SpecularPower) * SpecularColor;
 

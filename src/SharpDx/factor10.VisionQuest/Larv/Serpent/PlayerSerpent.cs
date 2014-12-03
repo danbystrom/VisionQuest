@@ -22,16 +22,15 @@ namespace Larv.Serpent
                 vContent.Load<Texture2D>(@"Textures\snakeskinmap"), 
                 vContent.Load<Texture2D>(@"Textures\eggshell"))
         {
-            Restart(playingField, 0);
+            Restart(playingField, 1);
         }
 
         public void Restart(PlayingField playingField, int length, Whereabouts? whereabouts = null)
         {
-            Restart(playingField);
-            _whereabouts = whereabouts.GetValueOrDefault(PlayingField.PlayerWhereaboutsStart);
+            Restart(playingField, whereabouts.GetValueOrDefault(PlayingField.PlayerWhereaboutsStart));
             DirectionTaker = null;
             SerpentStatus = SerpentStatus.Alive;
-            while(length-->0)
+            while (length-- > 0)
                 AddTail();
         }
 

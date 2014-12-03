@@ -122,14 +122,12 @@ namespace factor10.VisionQuest
             _data.Shadow = _shadow;
 
             _q = new CxBillboard(_vContent, Matrix.Identity, _vContent.Load<Texture2D>("billboards/wheat_billboard"), 20, 10);
-            _q.CreateBillboardVerticesFromList(new List<Tuple<Vector3, Vector3>>
-            {
-                new Tuple<Vector3, Vector3>(Vector3.Zero, Vector3.Up),
-                new Tuple<Vector3, Vector3>(Vector3.Left*10.5f, Vector3.Up),
-                new Tuple<Vector3, Vector3>(Vector3.Right*10.4f, Vector3.Up),
-                new Tuple<Vector3, Vector3>(Vector3.ForwardRH*3.45f, Vector3.Up),
-                new Tuple<Vector3, Vector3>(Vector3.BackwardRH*2.9f, Vector3.Up),
-            });
+            _q.AddPositionsWithSameNormal(Vector3.Up,
+                Vector3.Zero,
+                Vector3.Left*10.5f, Vector3.Up,
+                Vector3.Right*10.4f, Vector3.Up,
+                Vector3.ForwardRH*3.45f, Vector3.Up,
+                Vector3.BackwardRH*2.9f, Vector3.Up);
 
             _qq = new SimpleBillboards(
                 _vContent, Matrix.Identity, _vContent.Load<Texture2D>("textures/sand"), (Vector3.Left*10).AsList(), 10, 10);

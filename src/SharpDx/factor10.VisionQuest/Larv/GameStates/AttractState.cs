@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
-using System.Net.Mime;
 using factor10.VisionThing;
 using Larv.FloatingText;
 using Larv.Serpent;
@@ -80,7 +78,7 @@ namespace Larv.GameStates
                     if (_serpents.Enemies.Any())
                     {
                         var enemy = _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
-                        newItem = createExplanationText(enemy, enemy.IsLonger ? "Red Enemy - eat at tail" : "Green Enemy - eat anywhere");
+                        newItem = createExplanationText(enemy, enemy.IsLonger ? "Red Enemy - eat at tail" : "Green Enemy - just eat it");
                     }
                     break;
                 case 3:

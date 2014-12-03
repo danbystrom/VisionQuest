@@ -16,9 +16,9 @@ float ShadowBias = 0.001f;
 texture2D ShadowMap;
 
 float4 DiffuseColor = float4(1, 1, 1, 1);
-float3 AmbientColor = float3(0.6, 0.6, 0.6);
-float3 LightColor = float3(0.7, 0.7, 0.7);
-float SpecularPower = 32;
+float3 AmbientColor = float3(0.3, 0.3, 0.3);
+float3 LightColor = float3(0.8, 0.8, 0.8);
+float SpecularPower = 16;
 float3 SpecularColor = float3(1, 1, 1);
 
 struct VertexShaderInput
@@ -46,9 +46,9 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
 	float4 worldPosition = mul(input.Position, World);
-	float4x4 viewProjection = mul(View, Projection);
+		float4x4 viewProjection = mul(View, Projection);
 
-	output.WorldPosition = (float3)worldPosition;
+		output.WorldPosition = (float3)worldPosition;
 	output.Position = output.PositionCopy = mul(worldPosition, viewProjection);
 
 	output.UV = input.UV;
@@ -68,17 +68,17 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 	// Uncompress each component from [0,1] to [-1,1].
 	float3 normalT = 2.0f*normalMapSample - 1.0f;
 
-	// Build orthonormal basis.
-	float3 N = unitNormalW;
-	float3 T = normalize(tangentW - dot(tangentW, N)*N);
-	float3 B = cross(N, T);
+		// Build orthonormal basis.
+		float3 N = unitNormalW;
+		float3 T = normalize(tangentW - dot(tangentW, N)*N);
+		float3 B = cross(N, T);
 
-	float3x3 TBN = float3x3(T, B, N);
+		float3x3 TBN = float3x3(T, B, N);
 
-	// Transform from tangent space to world space.
-	float3 bumpedNormalW = mul(normalT, TBN);
+		// Transform from tangent space to world space.
+		float3 bumpedNormalW = mul(normalT, TBN);
 
-	return bumpedNormalW;
+		return bumpedNormalW;
 }
 
 float2 sampleShadowMap(float2 UV)
@@ -98,15 +98,17 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float3 lighting = AmbientColor;
 
 	float3 normal = NormalSampleToWorldSpace(
-		BumpMap.Sample(TextureSampler, input.UV),
-		normalize(input.Normal),
-		input.Tangent);
+	BumpMap.Sample(TextureSampler, input.UV),
+	normalize(input.Normal),
+	input.Tangent);
 
 	// Add lambertian lighting
 	lighting += saturate(dot(-SunlightDirection, normal)) * LightColor;
 
 	float3 refl = reflect(SunlightDirection, normal);
 	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
+
+	lighting += pow(saturate(dot(refl, toEyeW)), SpecularPower) * SpecularColor;
 
 	if (DoShadowMapping)
 	{
@@ -116,13 +118,13 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 		{
 			// Sample from depth texture
 			float2 screenPos = input.ShadowScreenPosition.xy / input.ShadowScreenPosition.w;
-			float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
+				float2 shadowTexCoord = 0.5f * (float2(screenPos.x, -screenPos.y) + 1);
 
-			float2 moments = sampleShadowMap(shadowTexCoord);
+				float2 moments = sampleShadowMap(shadowTexCoord);
 
-			// Check if we're in shadow
-			float lit_factor = (realDepth <= moments.x);
-	   
+				// Check if we're in shadow
+				float lit_factor = (realDepth <= moments.x);
+
 			// Variance shadow mapping
 			float E_x2 = moments.y;
 			float Ex_2 = moments.x * moments.x;

@@ -49,7 +49,7 @@ namespace factor10.VisionThing
                 Vector3.Up,
                 ShadowNearPlane,
                 ShadowFarPlane);
-            UpdateProjection(50, 50);
+            UpdateProjection(60, 60);
         }
 
         public void UpdateProjection(int width, int height, int near = 0, int far = 0)

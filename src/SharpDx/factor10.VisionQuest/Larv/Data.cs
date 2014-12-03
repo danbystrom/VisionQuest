@@ -64,7 +64,7 @@ namespace Larv
 
             Ground.GeneratePlayingField(Serpents.PlayingField);
 
-            ShadowMap = new ShadowMap(VContent, Camera, 500, 500, 1, 50);
+            ShadowMap = new ShadowMap(VContent, Camera, 768, 768, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             ShadowMap.ShadowCastingObjects.Add(Serpents);
         }

@@ -7,10 +7,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D5FA662C-EFCF-4552-89BA-3E08BB7A9836}</ProjectGuid>
+    <ProjectGuid>{93E9C7BB-8AC0-4DE7-A6D3-5AEC79205150}</ProjectGuid>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DxExempel1</RootNamespace>
-    <AssemblyName>DxExempel1</AssemblyName>
+    <RootNamespace>DxExempel2</RootNamespace>
+    <AssemblyName>DxExempel2</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <!-- Platform Dependent Properties -->
     <OutputType>WinExe</OutputType>
@@ -103,7 +103,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ToolkitFxc Include="Content\Exempeleffect.fx" />
+  </ItemGroup>
+  <ItemGroup>
     <ToolkitFxc Include="Content\Fx1.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Tx.fx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

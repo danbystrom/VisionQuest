@@ -20,6 +20,8 @@ namespace factor10.VisionThing.Terrain
 
         private float _time;
 
+        private List<Tuple<Vector3, Vector3>> _items = new List<Tuple<Vector3, Vector3>>();
+
         public CxBillboard(
             VisionContent vContent,
             Matrix world,
@@ -36,25 +38,43 @@ namespace factor10.VisionThing.Terrain
 
         public void GenerateTreePositions(GroundMap groundMap, ColorSurface normals)
         {
-            var treeList = generateTreePositions(groundMap, normals);
-            CreateBillboardVerticesFromList(treeList);
+            generateTreePositions(groundMap, normals);
+            CreateBillboardVertices();
         }
 
-        public void CreateBillboardVerticesFromList(List<Tuple<Vector3, Vector3>> treeList)
+        public void Add(Vector3 position, Vector3 normal)
         {
-            if (!treeList.Any())
+            _items.Add(new Tuple<Vector3, Vector3>(position, normal));
+        }
+
+        public void AddPositionsAndNormals(params Vector3[] positionsAndNormals)
+        {
+            for (var i = 0; i < positionsAndNormals.Length/2; i++)
+                Add(positionsAndNormals[i], positionsAndNormals[i + 1]);
+        }
+
+        public void AddPositionsWithSameNormal(Vector3 normal, params Vector3[] positions)
+        {
+            foreach (var position in positions)
+                Add(position, normal);
+        }
+
+        public void CreateBillboardVertices()
+        {
+            if (_items==null | !_items.Any())
                 return;
 
-            var billboardVertices = new BillboardVertex[treeList.Count * 6];
-            int i = 0;
+            var billboardVertices = new BillboardVertex[_items.Count * 6];
+            var i = 0;
             var random = new Random();
-            foreach (var t in treeList)
+            foreach (var t in _items)
                 createOne(
                     ref i,
                     billboardVertices,
                     t.Item1 + _world.TranslationVector,
                     t.Item2,
                     0.0001f + (float) random.NextDouble());
+            _items = null;
 
             _vertexBuffer = Buffer.Vertex.New(Effect.GraphicsDevice, billboardVertices);
             _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
@@ -77,9 +97,8 @@ namespace factor10.VisionThing.Terrain
             bv[i++] = new BillboardVertex(p, n, new Vector2(0, 1), rnd);
         }
 
-        private List<Tuple<Vector3, Vector3>> generateTreePositions(GroundMap groundMap, ColorSurface normals)
+        private void generateTreePositions(GroundMap groundMap, ColorSurface normals)
         {
-            var treeList = new List<Tuple<Vector3,Vector3>>();
             var random = new Random();
 
             for (var y = normals.Height - 2; y > 0; y--)
@@ -92,7 +111,7 @@ namespace factor10.VisionThing.Terrain
                     {
                         var rand1 = (float) random.NextDouble();
                         var rand2 = (float) random.NextDouble();
-                        treeList.Add(new Tuple<Vector3, Vector3>(
+                        _items.Add(new Tuple<Vector3, Vector3>(
                                          new Vector3(
                                              x + rand1,
                                              groundMap.GetExactHeight(x, y, rand1, rand2),
@@ -100,8 +119,6 @@ namespace factor10.VisionThing.Terrain
                                          normals.AsVector3(x, y)));
                     }
                 }
-
-            return treeList;
         }
 
         public override void Update(Camera camera, GameTime gameTime)

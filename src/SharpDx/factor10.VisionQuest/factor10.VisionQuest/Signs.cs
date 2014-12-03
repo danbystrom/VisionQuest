@@ -34,7 +34,6 @@ namespace factor10.VisionQuest
 
             foreach (var vc in vclasses)
             {
-
                 vc.GroundBoundingSphere = new BoundingSphere(
                     vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround/2, 0),
                     vc.R);

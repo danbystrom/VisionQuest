@@ -150,7 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ToolkitTexture Include="Content\TerrainTextures\wheatfield.dds" />
-    <ToolkitTexture Include="Content\Textures\woodensign.dds" />
+    <ToolkitTexture Include="Content\Billboards\woodensign.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />
     <ToolkitFxc Include="Content\ShadowEffects\GaussianBlur.fx" />
     <ToolkitFxc Include="Content\Billboards\MSBillboard.fx" />

@@ -71,7 +71,7 @@ namespace Larv.Serpent
             Texture2D serpentBump,
             Texture2D eggSkin) : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
         {
-            Restart(playingField);
+            Restart(playingField, playingField.EnemyWhereaboutsStart);
             _sphere = sphere;
             _serpentSkin = serpentSkin;
             _serpentHeadSkin = serpentHeadSkin;
@@ -84,10 +84,10 @@ namespace Larv.Serpent
             _headRotation.Add(Direction.South, Matrix.RotationY(-MathUtil.PiOverTwo));
         }
 
-        protected void Restart(PlayingField playingField)
+        protected void Restart(PlayingField playingField, Whereabouts whereabouts)
         {
             PlayingField = playingField;
-            _whereabouts = PlayingField.EnemyWhereaboutsStart;
+            _whereabouts = whereabouts;
             HeadDirection = _whereabouts.Direction;
             _tail = new SerpentTailSegment(PlayingField, _whereabouts);
             _serpentLength = 1;

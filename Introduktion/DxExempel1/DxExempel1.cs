@@ -19,24 +19,22 @@ namespace DxExempel1
     public class DxExempel1 : Game
     {
         private GraphicsDeviceManager graphicsDeviceManager;
-        private SpriteBatch spriteBatch;
-        //private SpriteFont arial16Font;
 
         private Matrix view;
         private Matrix projection;
 
-        private IVEffect basicEffect;
+        private Effect _fx;
+
         private IVDrawable primitive;
 
         private KeyboardManager keyboard;
         private KeyboardState keyboardState;
 
         private bool _wireframe = true;
-        private bool _lighting = false;
-        private bool _texture = false;
 
-        private Texture2D _bumpMap;
-        private bool _bumMapping;
+        private Buffer<VertexPositionColor> _vertexBuffer;
+        private Buffer[] _indexBuffers;
+        private VertexInputLayout _vertexInputLayout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DxExempel1" /> class.
@@ -64,33 +62,47 @@ namespace DxExempel1
 
         protected override void LoadContent()
         {
-            // Instantiate a SpriteBatch
-            spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
+            _fx = Content.Load<Effect>("fx1");
 
-            // Loads a sprite font
-            // The [Arial16.xml] file is defined with the build action [ToolkitFont] in the project
-            //arial16Font = Content.Load<SpriteFont>("Arial16");
+            var verticies = new List<VertexPositionColor>();
+            addPlane(verticies, Vector3.Up);
+            addPlane(verticies, Vector3.Down);
+            addPlane(verticies, Vector3.Left);
+            addPlane(verticies, Vector3.Right);
+            addPlane(verticies, Vector3.ForwardRH);
+            addPlane(verticies, Vector3.BackwardRH);
 
-            // Creates a basic effect
-            //basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
-            var vContent = new VisionContent(GraphicsDevice, Content);
-            //basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
-            basicEffect = vContent.LoadPlainEffect("exempeleffect");
-            basicEffect.SunlightDirection = new Vector3(1, 0, 1);
-            basicEffect.Texture = Content.Load<Texture2D>("textures/brick_texture_map");
-            _bumpMap = Content.Load<Texture2D>("textures/brick_normal_map");
-
-            //var be = (BasicEffect)basicEffect.Effect;
-            //be.PreferPerPixelLighting = true;
-            //be.EnableDefaultLighting();
-            //be.LightingEnabled = _lighting;
- 
-            // Creates torus primitive
-            primitive =
-                ToDisposeContent(new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice,
-                    (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2));
+            _vertexBuffer = Buffer.Vertex.New(GraphicsDevice, verticies.ToArray());
+            _vertexInputLayout = VertexInputLayout.FromBuffer(0, _vertexBuffer);
 
             base.LoadContent();
+        }
+
+        private void addPlane(List<VertexPositionColor> verticies, Vector3 normal)
+        {
+            var mask = Vector3.One - new Vector3(Math.Abs(normal.X), Math.Abs(normal.Y), Math.Abs(normal.Z));
+            var d = Vector3.Cross(normal, mask);
+            var d0 = (mask + d)/2;
+            var d1 = (mask - d) / 2;
+
+            var v0 = normal - d0 - d1;
+            var v1 = normal - d0 + d1;
+            var v2 = normal + d0 - d1;
+            var v3 = normal + d0 + d1;
+
+            verticies.Add(new VertexPositionColor(v0, toColor(v0)));
+            verticies.Add(new VertexPositionColor(v2, toColor(v2)));
+            verticies.Add(new VertexPositionColor(v1, toColor(v1)));
+
+            verticies.Add(new VertexPositionColor(v1, toColor(v1)));
+            verticies.Add(new VertexPositionColor(v2, toColor(v2)));
+            verticies.Add(new VertexPositionColor(v3, toColor(v3)));
+        }
+
+        private static Color toColor(Vector3 v)
+        {
+            return Color.White;
+            return new Color((v + Vector3.One) / 2);
         }
 
         protected override void Update(GameTime gameTime)
@@ -102,21 +114,14 @@ namespace DxExempel1
             projection = Matrix.PerspectiveFovRH(0.9f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f);
 
             // Update basic effect for rendering the Primitive
-            basicEffect.View = view;
-            basicEffect.Projection = projection;
-            basicEffect.CameraPosition = new Vector3(0.0f, 0.0f, 7.0f);
+            _fx.Parameters["View"].SetValue(view);
+            _fx.Parameters["Projection"].SetValue(projection);
 
             // Get the current state of the keyboard
             keyboardState = keyboard.GetState();
 
             if (keyboardState.IsKeyPressed(Keys.D1))
                 _wireframe ^= true;
-            if (keyboardState.IsKeyPressed(Keys.D2))
-                ((BasicEffect) basicEffect).LightingEnabled ^= true;
-            if (keyboardState.IsKeyPressed(Keys.D3))
-                ((BasicEffect)basicEffect).TextureEnabled ^= true;
-            if (keyboardState.IsKeyPressed(Keys.D4))
-                basicEffect.Parameters["BumpMap"].SetResource((_bumMapping ^= true) ? _bumpMap : null);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -128,37 +133,22 @@ namespace DxExempel1
             GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.SetRasterizerState(_wireframe ? GraphicsDevice.RasterizerStates.WireFrame : GraphicsDevice.RasterizerStates.Default);
 
-            // Constant used to translate 3d models
-            float translateX = 0.0f;
-
-            // ------------------------------------------------------------------------
-            // Draw the 3d primitive using BasicEffect
-            // ------------------------------------------------------------------------
-            basicEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f) *
-                                Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
-                                Matrix.RotationY(time * 2.0f) *
-                                Matrix.RotationZ(0) *
-                                Matrix.Translation(translateX, -1.0f, 0);
-            primitive.Draw(basicEffect);
-
-            // ------------------------------------------------------------------------
-            // Draw the some 2d text
-            // ------------------------------------------------------------------------
-            spriteBatch.Begin();
-            var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
-
-            var pressedKeys = new List<Keys>();
-            keyboardState.GetDownKeys(pressedKeys);
-            text.Append("Key Pressed: [");
-            foreach (var key in pressedKeys)
+            _fx.Parameters["World"].SetValue(Matrix.Scaling(2.0f, 2.0f, 2.0f)*
+                                             Matrix.RotationX(0.4f*(float) Math.Sin(time*1.45))*
+                                             Matrix.RotationY(time*0.9f)*
+                                             Matrix.RotationZ(0)*
+                                             Matrix.Translation(-2, 0, -4));
+            foreach (var effectPass in _fx.CurrentTechnique.Passes)
             {
-                text.Append(key.ToString());
-                text.Append(" ");
-            }
-            text.Append("]").AppendLine();
+                effectPass.Apply();
 
-            //spriteBatch.DrawString(arial16Font, text.ToString(), new Vector2(16, 16), Color.White);
-            spriteBatch.End();
+                GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+                GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
+
+                GraphicsDevice.Draw(
+                    PrimitiveType.TriangleList,
+                    _vertexBuffer.ElementCount);
+            }
 
             base.Draw(gameTime);
         }

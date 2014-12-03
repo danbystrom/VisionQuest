@@ -129,27 +129,26 @@ namespace factor10.VisionQuest
             var signs = new Signs(
                 vContent,
                 world*Matrix.Translation(0, -0.1f, 0),
-                vContent.Load<Texture2D>("textures/woodensign"),
+                vContent.Load<Texture2D>("billboards/woodensign"),
                 Classes.Values.ToList(),
                 16,
                 4);
             Children.Add(signs);
 
             var qqq = world; //*Matrix.Translation(0, 0.05f, 0);
-            var grass = new List<Tuple<Vector3, Vector3>>();
+            var ms = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/grass"), 1, 1);
             foreach (var vc in Classes.Values)
             {
                 for (var i = (vc.CyclomaticComplexity - 1)*2; i > 0; i--)
                 {
                     var gx = vc.X + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 3);
                     var gy = vc.Y + ((float) rnd.NextDouble() - 0.5f)*(ClassSide - 3);
-                    grass.Add(new Tuple<Vector3, Vector3>(
-                        Vector3.TransformCoordinate(new Vector3(gx, ground.GetExactHeight(gx, gy), gy),qqq),
-                        normals.AsVector3(vc.X, vc.Y)));
+                    ms.Add(
+                        Vector3.TransformCoordinate(new Vector3(gx, ground.GetExactHeight(gx, gy), gy), qqq),
+                        normals.AsVector3(vc.X, vc.Y));
                 }
             }
-            var ms = new CxBillboard(vContent, Matrix.Identity, vContent.Load<Texture2D>("billboards/grass"), 1, 1);
-            ms.CreateBillboardVerticesFromList(grass);
+            ms.CreateBillboardVertices();
             Children.Add(ms);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});

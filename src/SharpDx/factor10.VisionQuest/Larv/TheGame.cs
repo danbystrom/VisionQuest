@@ -222,12 +222,6 @@ namespace Larv
             text.AppendFormat("FPS: {0}  GameState: {1}", _fps.FrameRate, _gameState.GetType()).AppendLine();
 
             {
-                var c = Data.Serpents.Camera;
-                text.AppendFormat("Camera Yaw/Pitch: {0:0.000}/{1:0.000}  Forward: {2}  Position/Target: {3}/{4}",
-                    c.Yaw, c.Pitch, c.Forward, c.Position, c.Target).AppendLine();
-            }
-
-            {
                 var w = Data.Serpents.PlayerSerpent._whereabouts;
                 var cl = w.Location;
                 var nl = w.NextLocation;

@@ -15,16 +15,16 @@ namespace factor10.VisionThing
 
         private readonly Vector3 _fromLookAt;
 
-        private readonly float _totalTime;
-        private float _elapsedTime;
+        private readonly float _endTime;
+        private float _totalTime;
 
         private readonly Vector3[] _path;
 
         public bool NeverComplete;
 
-        public static MoveCamera TotalTime(Camera camera, float totalTime, Func<Vector3> toLookAt, params Vector3[] followPath)
+        public static MoveCamera TotalTime(Camera camera, float endTime, Func<Vector3> toLookAt, params Vector3[] followPath)
         {
-            return new MoveCamera(camera, totalTime, 0, toLookAt, followPath);
+            return new MoveCamera(camera, endTime, 0, toLookAt, followPath);
         }
 
         public static MoveCamera UnitsPerSecond(Camera camera, float unitsPerSecond, Func<Vector3> toLookAt, params Vector3[] followPath)
@@ -32,9 +32,9 @@ namespace factor10.VisionThing
             return new MoveCamera(camera, 0, unitsPerSecond, toLookAt, followPath);
         }
 
-        public static MoveCamera TotalTime(Camera camera, float totalTime, Vector3 toLookAt, params Vector3[] followPath)
+        public static MoveCamera TotalTime(Camera camera, float endTime, Vector3 toLookAt, params Vector3[] followPath)
         {
-            return new MoveCamera(camera, totalTime, 0, () => toLookAt, followPath);
+            return new MoveCamera(camera, endTime, 0, () => toLookAt, followPath);
         }
 
         public static MoveCamera UnitsPerSecond(Camera camera, float unitsPerSecond, Vector3 toLookAt, params Vector3[] followPath)
@@ -42,7 +42,7 @@ namespace factor10.VisionThing
             return new MoveCamera(camera, 0, unitsPerSecond, () => toLookAt, followPath);
         }
 
-        private MoveCamera(Camera camera, float totalTime, float unitsPerSecond, Func<Vector3> toLookAt, params Vector3[] followPath)
+        private MoveCamera(Camera camera, float endTime, float unitsPerSecond, Func<Vector3> toLookAt, params Vector3[] followPath)
         {
             _camera = camera;
 
@@ -52,8 +52,8 @@ namespace factor10.VisionThing
             qwerty(list, toLookAt());
             _path = list.ToArray();
 
-            _totalTime = MathUtil.IsZero(unitsPerSecond)
-                ? totalTime
+            _endTime = MathUtil.IsZero(unitsPerSecond)
+                ? endTime
                 : (0.1f + pathLength())/unitsPerSecond;
 
             _toLookAt = toLookAt;
@@ -98,8 +98,19 @@ namespace factor10.VisionThing
         public bool Move(GameTime gameTime)
         {
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _elapsedTime += dt;
-            var timeFactor = Math.Min(1, _elapsedTime/_totalTime);
+            _totalTime += dt;
+            return move();
+        }
+
+        public bool Move(float totalTime)
+        {
+            _totalTime = totalTime;
+            return move();
+        }
+
+        private bool move()
+        {
+            var timeFactor = Math.Min(1, _totalTime/_endTime);
 
             var posFactor = MathUtil.SmootherStep(timeFactor);
             var pos = getPointOnPath(posFactor);
@@ -108,7 +119,7 @@ namespace factor10.VisionThing
                 pos,
                 Vector3.Lerp(_fromLookAt, _toLookAt(), posFactor));
 
-            return _elapsedTime < _totalTime || NeverComplete;
+            return _totalTime < _endTime || NeverComplete;
         }
 
     }

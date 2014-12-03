@@ -69,6 +69,17 @@ namespace Larv
                          }
 
 
+            verts.Clear();
+            verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, -1), Vector3.Up, new Vector2(0, 0)));
+            verts.Add(new VertexPositionNormalTexture(new Vector3(Width + 1, 0, -1), Vector3.Up, new Vector2(Width*0.25f, 0)));
+            verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, Height + 1), Vector3.Up, new Vector2(0, Height * 0.25f)));
+
+            verts.Add(new VertexPositionNormalTexture(new Vector3(Width + 1, 0, -1), Vector3.Up, new Vector2(Width * 0.25f, 0)));
+            verts.Add(new VertexPositionNormalTexture(new Vector3(Width + 1, 0, Height + 1), Vector3.Up, new Vector2(Width * 0.25f, Height * 0.25f)));
+            verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, Height + 1), Vector3.Up, new Vector2(0, Height * 0.25f)));
+
+            //verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, -1), Vector3.Up, new Vector2(0, 0)));
+
             VertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, verts.ToArray());
             VertexBufferShadow = Buffer.Vertex.New(vContent.GraphicsDevice, vertsShadow.ToArray());
             VertexInputLayout = VertexInputLayout.FromBuffer(0, VertexBuffer);

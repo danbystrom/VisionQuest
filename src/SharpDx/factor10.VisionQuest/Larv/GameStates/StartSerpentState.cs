@@ -1,6 +1,7 @@
 ﻿using System;
 using factor10.VisionThing;
 using Larv.Serpent;
+using Larv.Util;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -11,6 +12,8 @@ namespace Larv.GameStates
     {
         private readonly Serpents _serpents;
         private MoveCamera _moveCamera;
+
+        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
 
         public StartSerpentState(Serpents serpents)
         {
@@ -31,18 +34,19 @@ namespace Larv.GameStates
                 4,
                 toLookAt,
                 x.Points);
+
+            _actions.Add(time => _moveCamera.Move(time));
+            _actions.Add(() => _moveCamera = MoveCamera.TotalTime(_serpents.Camera, 1, Data.Ground.SignPosition, _serpents.Camera.Position));
+            _actions.Add(time => _moveCamera.Move(time));
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            if (_moveCamera != null)
-            {
-                if (_moveCamera.Move(gameTime))
-                    return;
-                _moveCamera = null;
-            }
+            if (_actions.Do(gameTime))
+                return;
 
             _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
+            // farligt - skulle det ske ett "hopp" här så skulle vi intemärka att rutan passerades...
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
                 gameState = new PlayingState(_serpents, _moveCamera);
         }
