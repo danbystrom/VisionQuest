@@ -69,7 +69,8 @@ namespace Larv.Serpent
             Texture2D serpentSkin,
             Texture2D serpentHeadSkin,
             Texture2D serpentBump,
-            Texture2D eggSkin) : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
+            Texture2D eggSkin)
+            : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
         {
             Restart(playingField, playingField.EnemyWhereaboutsStart);
             _sphere = sphere;
@@ -84,7 +85,7 @@ namespace Larv.Serpent
             _headRotation.Add(Direction.South, Matrix.RotationY(-MathUtil.PiOverTwo));
         }
 
-        protected void Restart(PlayingField playingField, Whereabouts whereabouts)
+        public void Restart(PlayingField playingField, Whereabouts whereabouts)
         {
             PlayingField = playingField;
             _whereabouts = whereabouts;
@@ -207,13 +208,13 @@ namespace Larv.Serpent
             if (_pendingEatenSegments <= SegmentEatTreshold/2)
                 worlds.RemoveAt(worlds.Count - 1);
 
-            if (_layingEgg > 0)
+            if (_layingEgg > 0 && worlds.Count>=2)
             {
                 Effect.Texture = _eggSkin;
-                _eggWorld = worlds[worlds.Count - 1];
+                _eggWorld = worlds.Last();
                 Egg.Draw(Effect, _eggSkin, TintColor(), _sphere, _eggWorld, segment.Whereabouts.Direction);
 
-                //move the last two  so that they slowly dissolves
+                //move the last two spheres so that they slowly dissolves into the serpent
                 var factor = MathUtil.Clamp(_layingEgg/TimeForLayingEggProcess - 0.5f, 0, 1);
                 var world1 = worlds.Last();
                 worlds.RemoveAt(worlds.Count - 1);

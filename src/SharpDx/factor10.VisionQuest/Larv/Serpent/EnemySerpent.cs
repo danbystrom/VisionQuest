@@ -18,7 +18,6 @@ namespace Larv.Serpent
         public EnemySerpent(
             VisionContent vContent,
             PlayingField playingField,
-            Whereabouts whereabouts,
             IVDrawable sphere,
             float delayBeforeStart,
             int length)

@@ -21,17 +21,19 @@ namespace Larv.GameStates
             _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
 
             Vector3 toPosition, toLookAt;
-            _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
+            _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
+            // här ska jag ändra så att kameran först går till skylten
+            // och sedan långsamt vänder sig mot masken medan den startar upp
             var x = new ArcGenerator(4);
             x.CreateArc(
                 serpents.Camera.Position,
                 toPosition,
                 Vector3.Right,
                 SerpentCamera.CameraDistanceToHeadXz);
-            _moveCamera = MoveCamera.TotalTime(
+            _moveCamera = MoveCamera.UnitsPerSecond(
                 serpents.Camera,
-                4,
+                5,
                 toLookAt,
                 x.Points);
 
@@ -46,9 +48,9 @@ namespace Larv.GameStates
                 return;
 
             _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
-            // farligt - skulle det ske ett "hopp" här så skulle vi intemärka att rutan passerades...
+            // farligt - skulle det ske ett "hopp" här så skulle vi inte märka att rutan passerades...
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents, _moveCamera);
+                gameState = new PlayingState(_serpents);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

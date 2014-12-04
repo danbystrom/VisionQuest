@@ -24,10 +24,10 @@ namespace Exempel5
             {
                 var p1 = Vector3.TransformCoordinate(line.P1, wp);
                 var p2 = Vector3.TransformCoordinate(line.P2, wp);
-                p1.X = (0.5f + p1.X)*_width;
-                p1.Y = (0.5f + p1.Y)*_height;
-                p2.X = (0.5f + p2.X)*_width;
-                p2.Y = (0.5f + p2.Y)*_height;
+                p1.X = (1 + p1.X)*_width/2;
+                p1.Y = (1 + p1.Y)*_height/2;
+                p2.X = (1 + p2.X)*_width/2;
+                p2.Y = (1 + p2.Y)*_height/2;
                 _graphics.DrawLine(Pens.Black, new PointF(p1.X, p1.Y), new PointF(p2.X, p2.Y));
             }
         }

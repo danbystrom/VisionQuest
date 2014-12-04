@@ -39,11 +39,13 @@ namespace Larv.Serpent
         private readonly SpriteBatch _spriteBatch;
         private readonly SpriteFont _spriteFont;
 
+        public int Scene { get; private set; }
+
         public Serpents(
             VisionContent vContent,
             Camera camera,
             IVDrawable sphere,
-            int level)
+            int scene)
             : base(vContent.LoadPlainEffect("effects/simplebumpeffect"))
         {
             VContent = vContent;
@@ -54,17 +56,21 @@ namespace Larv.Serpent
 
             Camera = camera;
 
-            Restart(level);
+            Restart(scene);
         }
 
-        public void Restart(int level)
+        public void Restart(int scene)
         {
             if(PlayingField!=null)
                 PlayingField.Dispose();
             PlayingField = new PlayingField(
                 VContent,
                 VContent.Content.Load<Texture2D>(@"Textures\woodfloor"),
-                level);
+                scene);
+
+            if(Scene!=scene)
+                Data.Ground.GeneratePlayingField(PlayingField);
+            Scene = scene;
 
             PlayerSerpent = new PlayerSerpent(
                 VContent,
@@ -81,7 +87,6 @@ namespace Larv.Serpent
                 var enemy = new EnemySerpent(
                     VContent,
                     PlayingField,
-                    PlayingField.EnemyWhereaboutsStart,
                     Sphere,
                     i * 1.5f,
                     2);
@@ -164,14 +169,15 @@ namespace Larv.Serpent
 
                 if (!EnemyEggs[i].TimeToHatch())
                     continue;
-                Enemies.Add(new EnemySerpent(
+                var newSerpent= new  EnemySerpent(
                     VContent,
                     PlayingField,
-                    EnemyEggs[i].Whereabouts,
                     Sphere,
                     0,
-                    0));
+                    0);
+                newSerpent.Restart(PlayingField, EnemyEggs[i].Whereabouts);
                 EnemyEggs.RemoveAt(i);
+                Enemies.Add(newSerpent);
             }
 
             foreach (var frog in Frogs)
@@ -217,10 +223,13 @@ namespace Larv.Serpent
             }
 
             var w = VContent.GraphicsDevice.BackBuffer.Width;
+            var text1 = string.Format("Score: {0:000 000}", 0);
+            var text2 = string.Format("Scene: {0}", Scene + 1);
+            var text3 = string.Format("Lives left: {0}", 1);
             _spriteBatch.Begin();
-            _spriteBatch.DrawString(_spriteFont, "Score: 000 000 000", new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(_spriteFont, "Scene: 1", new Vector2((w - _spriteFont.MeasureString("Scene: 1").X * 2.1f)/2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(_spriteFont, "Lives left: 0", new Vector2(w - _spriteFont.MeasureString("Lives left: 0").X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, text2, new Vector2((w - _spriteFont.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            _spriteBatch.DrawString(_spriteFont, text3, new Vector2(w - _spriteFont.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
             _spriteBatch.End();
 
             Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);

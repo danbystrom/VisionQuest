@@ -1,27 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using WindowsFormsApplication1;
+﻿using System.Collections.Generic;
 using SharpDX;
 
-namespace Exempel2
+namespace Exempel3
 {
     public class Game
     {
         private float _time;
 
-        private List<Line> _square = new List<Line>
+        private readonly List<Line> _square = new List<Line>
         {
             new Line(-1, -1, 0, 1, -1, 0),
             new Line(1, -1, 0, 1, 1, 0),
             new Line(1, 1, 0, -1, 1, 0),
             new Line(-1, 1, 0, -1, -1, 0)
         };
-
-        public bool UseTranslation;
-
-        public Game()
-        {
-        }
 
         public void Update(float elapsedTime)
         {

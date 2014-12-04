@@ -50,12 +50,12 @@ namespace Exempel4
             var extraRot = RotateXy
                 ? Matrix.RotationX(_time*0.9f)*Matrix.RotationY(_time*0.8f)
                 : Matrix.Identity;
-            painter.Paint(Matrix.Scaling(50, 50, 200)*extraRot*Matrix.RotationZ(_time)*Matrix.Translation(300, 300, 500), _cube);
+            painter.Paint(Matrix.Scaling(50, 50, 200)*extraRot*Matrix.RotationZ(_time)*Matrix.Translation(200, 300, 500), _cube);
 
             extraRot = RotateXy
                 ? Matrix.RotationX(_time*1.1f)*Matrix.RotationY(_time*0.7f)
                 : Matrix.Identity;
-            painter.Paint(Matrix.Scaling(200)*extraRot*Matrix.RotationZ(_time*1.5f)*Matrix.Translation(800, 300, 500), _cube);
+            painter.Paint(Matrix.Scaling(200)*extraRot*Matrix.RotationZ(_time*1.5f)*Matrix.Translation(600, 300, 500), _cube);
         }
 
     }

@@ -25,7 +25,7 @@ namespace Larv.GameStates
                 enemy.DirectionTaker = this;
 
             Vector3 toPosition, toLookAt;
-            _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
+            _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
             var x = new ArcGenerator(4);
             x.CreateArc(
@@ -44,16 +44,11 @@ namespace Larv.GameStates
         {
             _serpents.Update(camera, gameTime);
 
-            if (_moveCamera != null)
-            {
-                if (_moveCamera.Move(gameTime))
-                    return;
-                _moveCamera = null;
-                _serpents.Restart(0);
-            }
+            if (_moveCamera.Move(gameTime))
+                return;
 
-            if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents, _moveCamera);
+            _serpents.Restart(0);
+            gameState = new StartSerpentState(_serpents);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

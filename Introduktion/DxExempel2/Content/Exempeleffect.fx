@@ -83,10 +83,12 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	// Start with ambient lighting
 	float3 lighting = AmbientColor;
 
-	// Add lambertian lighting
-	lighting += saturate(dot(SunlightDirection, normal)) * LightColor;
+	float3 lightVec = normalize(SunlightDirection);
 
-	float3 refl = reflect(-SunlightDirection, normal);
+	// Add lambertian lighting
+	lighting += saturate(dot(lightVec, normal)) * LightColor;
+
+	float3 refl = reflect(-lightVec, normal);
 	float3 toEyeW = normalize(CameraPosition - input.WorldPosition);
 
 	// Add specular highlights

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace DxExempel1
 {
     /// <summary>
-    /// Simple DxExempel1 application using SharpDX.Toolkit.
+    /// Simple DxExempel2 application using SharpDX.Toolkit.
     /// </summary>
     class Program
     {
@@ -18,7 +18,7 @@ namespace DxExempel1
 #endif
         static void Main()
         {
-            using (var program = new DxExempel1())
+            using (var program = new DxExempel2.DxExempel2())
                 program.Run();
 
         }

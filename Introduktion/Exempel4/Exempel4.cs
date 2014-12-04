@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using SharpDX;
 
 namespace Exempel4
 {
@@ -30,7 +29,7 @@ namespace Exempel4
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            _game.Draw(new ObjectPainter(e.Graphics, ClientSize.Height));
+            _game.Draw(new ObjectPainter(e.Graphics));
         }
 
         private void chkRotXy_CheckedChanged(object sender, EventArgs e)

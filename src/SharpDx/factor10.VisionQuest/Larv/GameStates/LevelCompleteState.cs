@@ -34,7 +34,7 @@ namespace Larv.GameStates
             _serpents.PlayerSerpent.DirectionTaker = this;
 
             Vector3 toPosition, toLookAt;
-            _serpents.PlayingField.GetCammeraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
+            _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
             _moveCamera = MoveCamera.UnitsPerSecond(
                 _serpents.Camera,
@@ -122,8 +122,7 @@ namespace Larv.GameStates
                 _moveCamera = null;
             if (_actions.Do(gameTime))
                 return;
-            _serpents.Restart(1);
-            Data.Ground.GeneratePlayingField(_serpents.PlayingField);
+            _serpents.Restart(_serpents.Scene + 1);
             gameState = new StartSerpentState(_serpents);
         }
 

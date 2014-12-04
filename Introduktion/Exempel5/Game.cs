@@ -52,8 +52,8 @@ namespace Exempel5
             Matrix view;
             if (MoveCamera)
             {
-                var cameraX = (float) Math.Sin(_time)*800;
-                var cameraZ = (float) Math.Cos(_time)*800;
+                var cameraX = (float) Math.Sin(_time)*400;
+                var cameraZ = (float) Math.Cos(_time)*400;
                 var target = new Vector3(0, 0, 500);
                 view = Matrix.LookAtLH(target + new Vector3(cameraX, 0, cameraZ), target, Vector3.Up);
             }

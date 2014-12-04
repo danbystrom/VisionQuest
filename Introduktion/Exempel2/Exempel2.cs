@@ -28,7 +28,7 @@ namespace Exempel2
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            _game.Draw(new ObjectPainter(e.Graphics, ClientSize.Height));
+            _game.Draw(new ObjectPainter(e.Graphics));
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)

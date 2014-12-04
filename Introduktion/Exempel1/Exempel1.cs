@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Exempel1;
+using WindowsFormsApplication1;
 
-namespace WindowsFormsApplication1
+namespace Exempel1
 {
     public partial class Exempel1 : Form
     {
@@ -36,7 +29,7 @@ namespace WindowsFormsApplication1
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            _game.Draw(new ObjectPainter(e.Graphics, ClientSize.Height));
+            _game.Draw(new ObjectPainter(e.Graphics));
         }
 
     }

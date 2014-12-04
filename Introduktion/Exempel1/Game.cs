@@ -1,28 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Exempel1;
 
-namespace WindowsFormsApplication1
+namespace Exempel1
 {
     public class Game
     {
         private float _time;
 
-        private List<Line> _square = new List<Line>
+        private readonly List<Line> _square = new List<Line>
         {
             new Line(-1, -1, 1, -1),
             new Line(1, -1, 1, 1),
             new Line(1, 1, -1, 1),
             new Line(-1, 1, -1, -1)
         };
-
-        public Game()
-        {
-            
-        }
 
         public void Update(float elapsedTime)
         {

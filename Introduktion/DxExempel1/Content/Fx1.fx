@@ -1,18 +1,6 @@
 float4x4 World;
-float3x3 WorldInverseTranspose;
 float4x4 View;
 float4x4 Projection;
-float3 CameraPosition;
-float3 SunlightDirection = float3(-10, 20, 5);
-SamplerState TextureSampler;
-Texture2D Texture;
-Texture2D BumpMap;
-
-float4 DiffuseColor = float4(1, 1, 1, 1);
-float3 AmbientColor = float3(0.2, 0.2, 0.2);
-float3 LightColor = float3(0.9, 0.9, 0.9);
-float SpecularPower = 128;
-float3 SpecularColor = float3(1, 1, 1);
 
 struct VertexShaderInput
 {

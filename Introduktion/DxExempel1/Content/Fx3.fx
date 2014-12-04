@@ -1,10 +1,14 @@
 float4x4 World;
+float3x3 WorldInverseTranspose;
 float4x4 View;
 float4x4 Projection;
+float3 CameraPosition = float3(0, 0, 7);;
 float3 SunlightDirection = float3(-10, 0, 0);
 
-float4 AmbientColor = float4(0.2, 0.2, 0.2, 1);
+float4 AmbientColor = float4(0.3, 0.3, 0.3, 1);
 float4 LightColor = float4(0.8, 0.8, 0.8, 1);
+float SpecularPower = 32;
+float4 SpecularColor = float4(1, 1, 1, 1);
 
 struct VertexShaderInput
 {
@@ -18,6 +22,7 @@ struct VertexShaderOutput
 	float4 Position : SV_Position;
 	float3 Normal : Normal;
 	float4 Color : Color;
+	float3 ViewDirection : TextCoord;
 };
 
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
@@ -30,6 +35,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.Position = mul(worldPosition, viewProjection);
 	output.Normal = mul(input.Normal, World);
 	output.Color = input.Color;
+	output.ViewDirection = worldPosition - CameraPosition;
 
 	return output;
 }
@@ -40,10 +46,15 @@ float4 PixelShaderFunction(VertexShaderOutput input) : SV_Target
 	float4 lighting = AmbientColor;
 
 	float3 normal = normalize(input.Normal);
-	float3 lightDir = normalize(SunlightDirection);
+	float3 lightDir = -normalize(SunlightDirection);
 
 	// Add lambertian lighting
-	lighting += saturate(dot(-lightDir, normal)) * LightColor;
+	lighting += saturate(dot(lightDir, normal)) * LightColor;
+
+	// Add specular highlights
+	float3 refl = reflect(lightDir, normal);
+	float3 view = normalize(input.ViewDirection);
+	lighting += pow(saturate(dot(refl, view)), SpecularPower) * SpecularColor;
 
 	// Calculate final color
 	return saturate(lighting) * input.Color;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using Exempel2;
 
 namespace Exempel3
 {
@@ -29,13 +28,7 @@ namespace Exempel3
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            _game.Draw(new ObjectPainter(e.Graphics, ClientSize.Height));
-        }
-
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            if (e.KeyChar == 't')
-                _game.UseTranslation = !_game.UseTranslation;
+            _game.Draw(new ObjectPainter(e.Graphics));
         }
 
     }

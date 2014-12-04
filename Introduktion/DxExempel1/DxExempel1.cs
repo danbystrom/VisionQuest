@@ -33,7 +33,6 @@ namespace DxExempel1
         private bool _wireframe = true;
 
         private Buffer<VertexPositionColor> _vertexBuffer;
-        private Buffer[] _indexBuffers;
         private VertexInputLayout _vertexInputLayout;
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace DxExempel1
             var mask = Vector3.One - new Vector3(Math.Abs(normal.X), Math.Abs(normal.Y), Math.Abs(normal.Z));
             var d = Vector3.Cross(normal, mask);
             var d0 = (mask + d)/2;
-            var d1 = (mask - d) / 2;
+            var d1 = (mask - d)/2;
 
             var v0 = normal - d0 - d1;
             var v1 = normal - d0 + d1;
@@ -101,8 +100,29 @@ namespace DxExempel1
 
         private static Color toColor(Vector3 v)
         {
-            return Color.White;
-            return new Color((v + Vector3.One) / 2);
+            //return Color.White;
+            return new Color((v + Vector3.One)/2);
+        }
+
+        private void addPlane2(List<VertexPositionColorNormal> verticies, Vector3 normal)
+        {
+            var mask = Vector3.One - new Vector3(Math.Abs(normal.X), Math.Abs(normal.Y), Math.Abs(normal.Z));
+            var d = Vector3.Cross(normal, mask);
+            var d0 = (mask + d)/2;
+            var d1 = (mask - d)/2;
+
+            var v0 = normal - d0 - d1;
+            var v1 = normal - d0 + d1;
+            var v2 = normal + d0 - d1;
+            var v3 = normal + d0 + d1;
+
+            verticies.Add(new VertexPositionColorNormal(v0, toColor(v0), normal));
+            verticies.Add(new VertexPositionColorNormal(v2, toColor(v2), normal));
+            verticies.Add(new VertexPositionColorNormal(v1, toColor(v1), normal));
+
+            verticies.Add(new VertexPositionColorNormal(v1, toColor(v1), normal));
+            verticies.Add(new VertexPositionColorNormal(v2, toColor(v2), normal));
+            verticies.Add(new VertexPositionColorNormal(v3, toColor(v3), normal));
         }
 
         protected override void Update(GameTime gameTime)
@@ -111,7 +131,7 @@ namespace DxExempel1
 
             // Calculates the world and the view based on the model size
             view = Matrix.LookAtRH(new Vector3(0.0f, 0.0f, 7.0f), new Vector3(0, 0.0f, 0), Vector3.UnitY);
-            projection = Matrix.PerspectiveFovRH(0.9f, (float)GraphicsDevice.BackBuffer.Width / GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f);
+            projection = Matrix.PerspectiveFovRH(0.9f, (float) GraphicsDevice.BackBuffer.Width/GraphicsDevice.BackBuffer.Height, 0.1f, 100.0f);
 
             // Update basic effect for rendering the Primitive
             _fx.Parameters["View"].SetValue(view);
@@ -127,7 +147,7 @@ namespace DxExempel1
         protected override void Draw(GameTime gameTime)
         {
             // Use time in seconds directly
-            var time = (float)gameTime.TotalGameTime.TotalSeconds;
+            var time = (float) gameTime.TotalGameTime.TotalSeconds;
 
             // Clears the screen with the Color.CornflowerBlue
             GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -136,7 +156,6 @@ namespace DxExempel1
             _fx.Parameters["World"].SetValue(Matrix.Scaling(2.0f, 2.0f, 2.0f)*
                                              Matrix.RotationX(0.4f*(float) Math.Sin(time*1.45))*
                                              Matrix.RotationY(time*0.9f)*
-                                             Matrix.RotationZ(0)*
                                              Matrix.Translation(-2, 0, -4));
             foreach (var effectPass in _fx.CurrentTechnique.Passes)
             {
@@ -145,12 +164,11 @@ namespace DxExempel1
                 GraphicsDevice.SetVertexBuffer(_vertexBuffer);
                 GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
 
-                GraphicsDevice.Draw(
-                    PrimitiveType.TriangleList,
-                    _vertexBuffer.ElementCount);
+                GraphicsDevice.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
             }
 
             base.Draw(gameTime);
         }
     }
+
 }

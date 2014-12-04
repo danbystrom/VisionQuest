@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
-using factor10.VisionThing;
+using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
+using SharpDX.Toolkit.Input;
 
-namespace DxExempel1
+namespace DxExempel2
 {
     // Use these namespaces here to override SharpDX.Direct3D11
-    using SharpDX.Toolkit;
-    using SharpDX.Toolkit.Graphics;
-    using SharpDX.Toolkit.Input;
-
+    
     /// <summary>
-    /// Simple DxExempel1 game using SharpDX.Toolkit.
+    /// Simple DxExempel2 game using SharpDX.Toolkit.
     /// </summary>
-    public class DxExempel1 : Game
+    public class DxExempel2 : Game
     {
         private GraphicsDeviceManager graphicsDeviceManager;
         private SpriteBatch spriteBatch;
@@ -38,9 +38,9 @@ namespace DxExempel1
         private bool _useExampleEffect = true;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DxExempel1" /> class.
+        /// Initializes a new instance of the <see cref="DxExempel2" /> class.
         /// </summary>
-        public DxExempel1()
+        public DxExempel2()
         {
             // Creates a graphics manager. This is mandatory.
             graphicsDeviceManager = new GraphicsDeviceManager(this);
@@ -56,7 +56,7 @@ namespace DxExempel1
         protected override void Initialize()
         {
             // Modify the title of the window
-            Window.Title = "DxExempel1";
+            Window.Title = "DxExempel2";
 
             base.Initialize();
         }
@@ -70,18 +70,20 @@ namespace DxExempel1
             // The [Arial16.xml] file is defined with the build action [ToolkitFont] in the project
             //arial16Font = Content.Load<SpriteFont>("Arial16");
 
+            var lightVec = new Vector3(1, 0, 5);
+            lightVec.Normalize();
             // Creates a basic effect
             //basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
             var vContent = new VisionContent(GraphicsDevice, Content);
             //basicEffect = ToDisposeContent(new VBasicEffect(GraphicsDevice));
             //_textureEffect = vContent.LoadPlainEffect("effects/simpletextureeffect");
-            _textureEffect = vContent.LoadPlainEffect("effects/simplebumpeffect");
+            _textureEffect = vContent.LoadPlainEffect("effects/simpletextureeffect");
             _exampleEffect = vContent.LoadPlainEffect("exempeleffect");
-            _textureEffect.SunlightDirection = new Vector3(1, 0, 5);
-            _exampleEffect.SunlightDirection = new Vector3(1, 0, 5);
+            _textureEffect.SunlightDirection = lightVec;
+            _exampleEffect.SunlightDirection = lightVec;
             _textureEffect.Texture = Content.Load<Texture2D>("textures/brick_texture_map");
             _exampleEffect.Texture = Content.Load<Texture2D>("textures/brick_texture_map");
-             _textureEffect.Parameters["BumpMap"].SetResource(Content.Load<Texture2D>("textures/brick_normal_map"));
+             //_textureEffect.Parameters["BumpMap"].SetResource(Content.Load<Texture2D>("textures/brick_normal_map"));
             _exampleEffect.Parameters["BumpMap"].SetResource(Content.Load<Texture2D>("textures/brick_normal_map"));
 
             //var be = (BasicEffect)basicEffect.Effect;
@@ -119,10 +121,6 @@ namespace DxExempel1
 
             if (keyboardState.IsKeyPressed(Keys.D1))
                 _wireframe ^= true;
-            if (keyboardState.IsKeyPressed(Keys.D2))
-                ((BasicEffect) _textureEffect).LightingEnabled ^= true;
-            if (keyboardState.IsKeyPressed(Keys.D3))
-                ((BasicEffect)_textureEffect).TextureEnabled ^= true;
         }
 
         protected override void Draw(GameTime gameTime)
@@ -145,7 +143,7 @@ namespace DxExempel1
                     Matrix.RotationX(0.8f * (float)Math.Sin(time * 1.45)) *
                     Matrix.RotationY(time * 2.0f) *
                     Matrix.RotationZ(0) *
-                    Matrix.Translation(3, 0, 0);
+                    Matrix.Translation(2.5f, 0, 0);
             primitive.Draw(_exampleEffect);
 
             // ------------------------------------------------------------------------

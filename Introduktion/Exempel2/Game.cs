@@ -9,7 +9,7 @@ namespace Exempel2
     {
         private float _time;
 
-        private List<Line> _square = new List<Line>
+        private readonly List<Line> _square = new List<Line>
         {
             new Line(-1, -1, 1, -1),
             new Line(1, -1, 1, 1),
@@ -51,7 +51,6 @@ namespace Exempel2
 
             world.Multiply(scale);
             painter.Paint(world, _square);
-
         }
 
     }

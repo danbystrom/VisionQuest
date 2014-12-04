@@ -231,7 +231,7 @@ namespace Larv
             //return whereabouts.Floor * 1.3333f + (diffX + diffY);
         }
 
-        public void GetCammeraPositionForLookingAtPlayerCave(out Vector3 toPosition, out Vector3 toLookAt)
+        public void GetCameraPositionForLookingAtPlayerCave(out Vector3 toPosition, out Vector3 toLookAt)
         {
             var lookAtDirection = PlayerWhereaboutsStart.Direction.DirectionAsVector3();
             toLookAt = PlayerWhereaboutsStart.GetPosition(this) + lookAtDirection * 4;

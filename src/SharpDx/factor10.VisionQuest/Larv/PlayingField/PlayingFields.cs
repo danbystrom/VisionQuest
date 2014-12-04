@@ -239,9 +239,13 @@ namespace Larv
             switch (level)
             {
                 case 0:
-                    return GetQ4();
+                    return GetQ1();
                 case 1:
                     return GetQ2();
+                case 2:
+                    return GetQ3();
+                case 3:
+                    return GetQ4();
                 default:
                     return GetZ();
             }
