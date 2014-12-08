@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
+using Larv.Util;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -114,7 +115,7 @@ namespace Larv.Serpent
             {
                 case SerpentStatus.Ghost:
                     _ascendToHeaven += (float) gameTime.ElapsedGameTime.TotalSeconds;
-                    if (_ascendToHeaven > 3)
+                    if (_ascendToHeaven > 4)
                         SerpentStatus = SerpentStatus.Finished;
                     return;
                 case SerpentStatus.Finished:
@@ -208,7 +209,7 @@ namespace Larv.Serpent
             if (_pendingEatenSegments <= SegmentEatTreshold/2)
                 worlds.RemoveAt(worlds.Count - 1);
 
-            if (_layingEgg > 0 && worlds.Count>=2)
+            if (_layingEgg > 0 && worlds.Count >= 3)
             {
                 Effect.Texture = _eggSkin;
                 _eggWorld = worlds.Last();
@@ -253,7 +254,7 @@ namespace Larv.Serpent
         protected float AlphaValue()
         {
             return SerpentStatus == SerpentStatus.Ghost
-                ? MathUtil.Clamp(0.8f - _ascendToHeaven/4, 0, 1)
+                ? MathUtil.Clamp(0.8f - _ascendToHeaven/5, 0, 1)
                 : 1;
         }
 

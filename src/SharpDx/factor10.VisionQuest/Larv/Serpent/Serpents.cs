@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
+using Larv.FloatingText;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -19,6 +20,9 @@ namespace Larv.Serpent
         }
 
         public readonly VisionContent VContent;
+        public readonly FloatingTexts FloatingTexts;
+        public readonly SpriteBatch SpriteBatch;
+        public readonly SpriteFont SpriteFont;
 
         public PlayingField PlayingField { get; private set; }
 
@@ -36,9 +40,6 @@ namespace Larv.Serpent
 
         public readonly Camera Camera;
 
-        private readonly SpriteBatch _spriteBatch;
-        private readonly SpriteFont _spriteFont;
-
         public int Scene { get; private set; }
 
         public Serpents(
@@ -51,8 +52,10 @@ namespace Larv.Serpent
             VContent = vContent;
             Sphere = sphere;
 
-            _spriteBatch = new SpriteBatch(vContent.GraphicsDevice);
-            _spriteFont = vContent.Content.Load<SpriteFont>("fonts/blackcastle");
+            SpriteBatch = new SpriteBatch(vContent.GraphicsDevice);
+            SpriteFont = vContent.Content.Load<SpriteFont>("fonts/blackcastle");
+            FloatingTexts = new FloatingTexts(VContent);
+
 
             Camera = camera;
 
@@ -112,6 +115,8 @@ namespace Larv.Serpent
 
         public override void Update(Camera camera, GameTime gameTime)
         {
+            FloatingTexts.Update(camera, gameTime);
+
             _paused ^= Camera.KeyboardState.IsKeyPressed(Keys.P);
             if (_paused)
                 return;
@@ -226,11 +231,13 @@ namespace Larv.Serpent
             var text1 = string.Format("Score: {0:000 000}", 0);
             var text2 = string.Format("Scene: {0}", Scene + 1);
             var text3 = string.Format("Lives left: {0}", 1);
-            _spriteBatch.Begin();
-            _spriteBatch.DrawString(_spriteFont, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(_spriteFont, text2, new Vector2((w - _spriteFont.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            _spriteBatch.DrawString(_spriteFont, text3, new Vector2(w - _spriteFont.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            _spriteBatch.End();
+            SpriteBatch.Begin();
+            SpriteBatch.DrawString(SpriteFont, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            SpriteBatch.DrawString(SpriteFont, text2, new Vector2((w - SpriteFont.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            SpriteBatch.DrawString(SpriteFont, text3, new Vector2(w - SpriteFont.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            SpriteBatch.End();
+
+            FloatingTexts.Draw(camera, drawingReason, shadowMap);
 
             Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);
             Effect.GraphicsDevice.SetBlendState(Effect.GraphicsDevice.BlendStates.Opaque);

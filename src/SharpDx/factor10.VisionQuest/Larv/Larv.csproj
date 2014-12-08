@@ -81,12 +81,14 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FloatingText\FloatingTextItem.cs" />
     <Compile Include="GameStates\AttractState.cs" />
+    <Compile Include="GameStates\HomingDevice.cs" />
     <Compile Include="GameStates\BeginGameState.cs" />
     <Compile Include="GameStates\DieState.cs" />
     <Compile Include="FloatingText\FloatingTexts.cs" />
     <Compile Include="GameStates\IGameState.cs" />
     <Compile Include="GameStates\LevelCompleteState.cs" />
     <Compile Include="GameStates\PlayingState.cs" />
+    <Compile Include="GameStates\GotoBoardState.cs" />
     <Compile Include="GameStates\StartSerpentState.cs" />
     <Compile Include="Ground.cs" />
     <Compile Include="PlayingField\CavePrimitive.cs" />

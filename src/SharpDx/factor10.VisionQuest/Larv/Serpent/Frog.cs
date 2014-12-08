@@ -45,7 +45,21 @@ namespace Larv.Serpent
 
         public void Restart()
         {
-            _position = new Vector3(_serpents.PlayingField.MiddleX, 0, -2);
+            switch (Rnd.Next(4))
+            {
+                case 0:
+                    _position = new Vector3(_serpents.PlayingField.MiddleX, 0, -2);
+                    break;
+                case 1:
+                    _position = new Vector3(_serpents.PlayingField.MiddleX, 0, _serpents.PlayingField.Height + 1);
+                    break;
+                case 2:
+                    _position = new Vector3(-2, 0, _serpents.PlayingField.MiddleY);
+                    break;
+                default:
+                    _position = new Vector3(_serpents.PlayingField.Width + 1, 0, _serpents.PlayingField.MiddleY);
+                    break;
+            }
             _actions.Add(0);  // start the state machine
         }
 
@@ -72,9 +86,9 @@ namespace Larv.Serpent
 
             var currentNormal = _rotation.Up;
             var shortDelay = Rnd.NextFloat(0.3f, 1.1f);
-            _actions.Add(shortDelay, () => _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal));
-            _actions.Add(shortDelay, () => _rotation = m(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal));
-            _actions.Add(shortDelay, () => _rotation = m(_currentAngle = angle, currentNormal));
+            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal));
+            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal));
+            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(_currentAngle = angle, currentNormal));
             _actions.Add(shortDelay, time =>
             {
                 var factor = Math.Min(time/0.2f, 0.5f);
@@ -82,7 +96,7 @@ namespace Larv.Serpent
                 _position.Y += factor;
                 if (factor < 0.5f)
                     return true;
-                _rotation = m(angle, normal);
+                _rotation = alignObjectToNorma(angle, normal);
                 return false;
             });
             _actions.Add(time =>
@@ -132,10 +146,6 @@ namespace Larv.Serpent
                         continue;
 
                     gspaceTo.Y = _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
-                    //gspaceTo = getApproxMax(gspaceTo, gspaceCurrent);
-                    //normal = _ground.GroundMap.GetNormal((int) gspaceTo.X, (int) gspaceTo.Z, ref _ground.World);
-                    //if (normal.Y < 0.5f)
-                    //    continue;
 
                     // now we have a new position for the frog
                     Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out position);
@@ -154,27 +164,13 @@ namespace Larv.Serpent
             return false;
         }
 
-        private static Matrix m(float angle, Vector3 normal)
+        private static Matrix alignObjectToNorma(float angle, Vector3 normal)
         {
             var rotation = Matrix.RotationY(angle);
             rotation.Up = normal;
             rotation.Right = Vector3.Normalize(Vector3.Cross(rotation.Forward, rotation.Up));
             rotation.Forward = Vector3.Normalize(Vector3.Cross(rotation.Up, rotation.Right));
             return rotation;
-        }
-
-        private Vector3 getApproxMax(Vector3 gNew, Vector3 gOld)
-        {
-            const int iterations = 10;
-            var result = gNew;
-            for (var i = 1; i < iterations; i++)
-            {
-                var gMiddle = Vector3.Lerp(gNew, gOld, (float) i/iterations);
-                var height = _ground.GroundMap.GetExactHeight(gMiddle.X, gMiddle.Z);
-                if (height > gMiddle.Y + 5)
-                    return new Vector3(gMiddle.X, height, gMiddle.Z);
-            }
-            return result;
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

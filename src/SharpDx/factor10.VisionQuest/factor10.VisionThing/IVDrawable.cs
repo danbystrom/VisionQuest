@@ -13,4 +13,15 @@ namespace factor10.VisionThing
         Vector3 Position { get; }
     }
 
+    public struct PositionHolder : IPosition
+    {
+        public Vector3 Position { get; set; }
+
+        public PositionHolder(Vector3 position) : this()
+        {
+            Position = position;
+        }
+
+    }
+
 }

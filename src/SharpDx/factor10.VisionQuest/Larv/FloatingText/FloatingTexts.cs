@@ -39,7 +39,7 @@ namespace Larv.FloatingText
                 Effect.World = Matrix.BillboardLH(item.Target.Position + item.GetOffset(item), camera.Position, -camera.Up, camera.Front);
                 Effect.DiffuseColor = item.GetColor(item);
                 _spriteBatch.Begin(SpriteSortMode.Deferred, Effect.GraphicsDevice.BlendStates.NonPremultiplied, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, Effect.Effect);
-                _spriteBatch.DrawString(_spriteFont, item.Text, Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString(item.Text)/2, item.GetSize(item), 0, 0);
+                _spriteBatch.DrawString(_spriteFont, item.Text, Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString(item.Text) / 2, item.GetSize(item), 0, 0);
                 _spriteBatch.End();
             }
 

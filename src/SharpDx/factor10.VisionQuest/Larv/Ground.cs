@@ -19,7 +19,7 @@ namespace Larv
 
         private CxBillboard _cxBillboardGrass;
         private CxBillboard _cxBillboardTrees;
-        private CxBillboard _cxBillboardSigns;
+        private StaticBillboard _cxBillboardSigns;
 
         public Vector3 SignPosition;
 
@@ -85,13 +85,16 @@ namespace Larv
             var normals = GroundMap.CreateNormalsMap(ref World);
             initialize(GroundMap, weights, normals);
 
+            SignPosition = Vector3.TransformCoordinate(new Vector3(Right - 10, 20, 10), World);
+            SignPosition.Z = playingField.PlayerWhereaboutsStart.Location.Y - 10;
+
             disposeBillboards();
             _cxBillboardGrass = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f);
             _cxBillboardTrees = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f);
             for (var i = 0; i < 150000; i++)
             {
-                var gx = rnd.Next(Left+8, Right-8) + (float)rnd.NextDouble();
-                var gy = rnd.Next(Top+8, Bottom-8) + (float)rnd.NextDouble();
+                var gx = rnd.Next(Left + 8, Right - 8) + (float) rnd.NextDouble();
+                var gy = rnd.Next(Top + 8, Bottom - 8) + (float) rnd.NextDouble();
                 var position = Vector3.TransformCoordinate(new Vector3(gx, GroundMap.GetExactHeight(gx, gy), gy), World);
                 if (position.Y < 0.7f)
                     continue;
@@ -99,16 +102,14 @@ namespace Larv
                 var normal = normals.GetExact(gx, gy).ToVector3();
                 if (normal.Y < 0.5f)
                     continue;
-                if (rnd.NextDouble() < 0.996)
+                if (rnd.NextDouble() < 0.996 || Vector3.DistanceSquared(position, SignPosition) < 5)
                     _cxBillboardGrass.Add(position, normal);
                 else
                     _cxBillboardTrees.Add(position, Vector3.Up);
             }
 
-            _cxBillboardSigns = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/woodensign"), 3.5f, 1.5f);
-            SignPosition = Vector3.TransformCoordinate(new Vector3(Right - 10, 20, 10), World);
-            SignPosition.Z = playingField.PlayerWhereaboutsStart.Location.Y - 10;
-            _cxBillboardSigns.Add(SignPosition, Vector3.Up);
+            _cxBillboardSigns = new StaticBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/woodensign"), 3.5f, 1.5f);
+            _cxBillboardSigns.Add(SignPosition, Vector3.Up, Vector3.Left);
 
             _cxBillboardGrass.CreateBillboardVertices();
             _cxBillboardSigns.CreateBillboardVertices();

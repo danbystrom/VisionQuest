@@ -1,5 +1,6 @@
 ﻿using factor10.VisionThing;
 using Larv.Serpent;
+using Larv.Util;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -33,9 +34,9 @@ namespace Larv.GameStates
                 toPosition,
                 Vector3.Right,
                 SerpentCamera.CameraDistanceToHeadXz);
-            _moveCamera = MoveCamera.TotalTime(
+            _moveCamera = new MoveCamera(
                 serpents.Camera,
-                4,
+                4f.Time(),
                 toLookAt,
                 x.Points);
         }

@@ -8,27 +8,25 @@ using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class CxBillboard : ClipDrawable
+    public class StaticBillboard : ClipDrawable
     {
         private readonly Matrix _world;
-        private Buffer<CxBillboardVertex> _vertexBuffer;
+        private Buffer<StaticBillboardVertex> _vertexBuffer;
         private VertexInputLayout _vertexInputLayout;
 
         private readonly Texture2D _texture;
         private readonly float _billboardWidth;
         private readonly float _billboardHeight;
 
-        private float _time;
+        private List<Tuple<Vector3, Vector3, Vector3>> _items = new List<Tuple<Vector3, Vector3, Vector3>>();
 
-        private List<Tuple<Vector3, Vector3>> _items = new List<Tuple<Vector3, Vector3>>();
-
-        public CxBillboard(
+        public StaticBillboard(
             VisionContent vContent,
             Matrix world,
             Texture2D texture,
             float width,
             float height)
-            : base(vContent.LoadPlainEffect("Billboards/CxBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
+            : base(vContent.LoadPlainEffect("Billboards/StaticBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
         {
             _world = world;
             _texture = texture;
@@ -36,27 +34,9 @@ namespace factor10.VisionThing.Terrain
             _billboardHeight = height;
         }
 
-        public void GenerateTreePositions(GroundMap groundMap, ColorSurface normals)
+        public void Add(Vector3 position, Vector3 normal, Vector3 front)
         {
-            generateTreePositions(groundMap, normals);
-            CreateBillboardVertices();
-        }
-
-        public void Add(Vector3 position, Vector3 normal)
-        {
-            _items.Add(new Tuple<Vector3, Vector3>(position, normal));
-        }
-
-        public void AddPositionsAndNormals(params Vector3[] positionsAndNormals)
-        {
-            for (var i = 0; i < positionsAndNormals.Length/2; i++)
-                Add(positionsAndNormals[i], positionsAndNormals[i + 1]);
-        }
-
-        public void AddPositionsWithSameNormal(Vector3 normal, params Vector3[] positions)
-        {
-            foreach (var position in positions)
-                Add(position, normal);
+            _items.Add(new Tuple<Vector3, Vector3, Vector3>(position, normal, front));
         }
 
         public void CreateBillboardVertices()
@@ -64,7 +44,7 @@ namespace factor10.VisionThing.Terrain
             if (_items==null || !_items.Any())
                 return;
 
-            var billboardVertices = new CxBillboardVertex[_items.Count * 6];
+            var billboardVertices = new StaticBillboardVertex[_items.Count * 6];
             var i = 0;
             var random = new Random();
             foreach (var t in _items)
@@ -73,7 +53,7 @@ namespace factor10.VisionThing.Terrain
                     billboardVertices,
                     t.Item1 + _world.TranslationVector,
                     t.Item2,
-                    0.0001f + (float) random.NextDouble());
+                    t.Item3);
             _items = null;
 
             _vertexBuffer = Buffer.Vertex.New(Effect.GraphicsDevice, billboardVertices);
@@ -82,48 +62,19 @@ namespace factor10.VisionThing.Terrain
 
         private void createOne(
             ref int i,
-            CxBillboardVertex[] bv,
+            StaticBillboardVertex[] bv,
             Vector3 p,
             Vector3 n,
-            float rnd)
+            Vector3 front)
         {
             n.Normalize();
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 1), rnd);
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(0, 0));
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(1, 0));
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(1, 1));
 
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 1), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 1), rnd);
-        }
-
-        private void generateTreePositions(GroundMap groundMap, ColorSurface normals)
-        {
-            var random = new Random();
-
-            for (var y = normals.Height - 2; y > 0; y--)
-                for (var x = normals.Width - 2; x > 0; x--)
-                {
-                    var height = groundMap[x, y];
-                    if ( height <3 || height > 5)
-                        continue;
-                    for (var currDetail = 0; currDetail < 5; currDetail++)
-                    {
-                        var rand1 = (float) random.NextDouble();
-                        var rand2 = (float) random.NextDouble();
-                        _items.Add(new Tuple<Vector3, Vector3>(
-                                         new Vector3(
-                                             x + rand1,
-                                             groundMap.GetExactHeight(x, y, rand1, rand2),
-                                             y + rand2),
-                                         normals.AsVector3(x, y)));
-                    }
-                }
-        }
-
-        public override void Update(Camera camera, GameTime gameTime)
-        {
-            _time += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(0, 0));
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(1, 1));
+            bv[i++] = new StaticBillboardVertex(p, n, front, new Vector2(0, 1));
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
@@ -138,7 +89,6 @@ namespace factor10.VisionThing.Terrain
             Effect.GraphicsDevice.SetVertexBuffer(_vertexBuffer);
             Effect.GraphicsDevice.SetVertexInputLayout(_vertexInputLayout);
 
-            Effect.Parameters["WindTime"].SetValue(_time);
             Effect.Parameters["BillboardWidth"].SetValue(_billboardWidth);
             Effect.Parameters["BillboardHeight"].SetValue(_billboardHeight);
 
@@ -165,4 +115,3 @@ namespace factor10.VisionThing.Terrain
     }
 
 }
-

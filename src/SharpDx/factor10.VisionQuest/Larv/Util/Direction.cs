@@ -1,6 +1,6 @@
 ﻿using SharpDX;
 
-namespace Serpent
+namespace Larv.Util
 {
     public enum RelativeDirection
     {

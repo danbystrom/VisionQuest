@@ -6,7 +6,7 @@ using SharpDX.Toolkit.Graphics;
 namespace factor10.VisionThing.Terrain
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct BillboardVertex : IEquatable<BillboardVertex>
+    public struct CxBillboardVertex : IEquatable<CxBillboardVertex>
     {
         public static readonly int Size = sizeof (float)*(3 + 3 + 2 + 2);
 
@@ -22,7 +22,7 @@ namespace factor10.VisionThing.Terrain
         [VertexElement("TEXCOORD1")]
         public readonly Vector2 Random;
 
-        public BillboardVertex(Vector3 position, Vector3 normal, Vector2 texCoord, float random)
+        public CxBillboardVertex(Vector3 position, Vector3 normal, Vector2 texCoord, float random)
         {
             normal.Normalize();
             Position = position;
@@ -31,7 +31,7 @@ namespace factor10.VisionThing.Terrain
             Random = new Vector2(random, 0);
         }
 
-        public bool Equals(BillboardVertex other)
+        public bool Equals(CxBillboardVertex other)
         {
             return Position.Equals(other.Position) && Normal.Equals(other.Normal) && TexCoord.Equals(other.TexCoord) &&
                    Random.Equals(other.Random);
@@ -41,7 +41,7 @@ namespace factor10.VisionThing.Terrain
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is BillboardVertex && Equals((BillboardVertex) obj);
+            return obj is CxBillboardVertex && Equals((CxBillboardVertex) obj);
         }
 
         public override int GetHashCode()
@@ -56,12 +56,12 @@ namespace factor10.VisionThing.Terrain
             }
         }
 
-        public static bool operator ==(BillboardVertex left, BillboardVertex right)
+        public static bool operator ==(CxBillboardVertex left, CxBillboardVertex right)
         {
             return left.Equals(right);
         }
 
-        public static bool operator !=(BillboardVertex left, BillboardVertex right)
+        public static bool operator !=(CxBillboardVertex left, CxBillboardVertex right)
         {
             return !left.Equals(right);
         }

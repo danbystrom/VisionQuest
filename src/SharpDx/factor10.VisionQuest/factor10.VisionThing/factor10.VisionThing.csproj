@@ -88,9 +88,12 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="MoveCameraBase.cs" />
     <Compile Include="MoveCamera.cs" />
     <Compile Include="Primitives\VertexPositionNormalTangentTexture.cs" />
     <Compile Include="Terrain\ColorSurface.cs" />
+    <Compile Include="Terrain\StaticBillboardVertex.cs" />
+    <Compile Include="Terrain\StaticBillboard.cs" />
     <Compile Include="Util\DoubleSin.cs" />
     <Compile Include="Effects\EffectHelpers.cs" />
     <Compile Include="Effects\IVEffect.cs" />
@@ -114,7 +117,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShadowMap.cs" />
     <Compile Include="SkySphere.cs" />
-    <Compile Include="Terrain\BillboardVertex.cs" />
+    <Compile Include="Terrain\CxBillboardVertex.cs" />
     <Compile Include="Terrain\GroundMap.cs" />
     <Compile Include="Terrain\CxBillboard.cs" />
     <Compile Include="Terrain\ReimersBillboards.cs" />
@@ -170,6 +173,7 @@
     <ToolkitFxc Include="Content\Billboards\CxBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\wheat_billboard.dds" />
     <ToolkitFxc Include="Content\ShadowEffects\Blur.fx" />
+    <ToolkitFxc Include="Content\Billboards\StaticBillboard.fx" />
     <Content Include="Content\ShadowEffects\LightingEffect.fx" />
     <Content Include="Content\ShadowEffects\MultiLightingEffect.fx" />
     <Content Include="Content\ShadowEffects\PointLightEffect.fx" />

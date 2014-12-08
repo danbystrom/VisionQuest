@@ -1,5 +1,6 @@
 ﻿using factor10.VisionThing;
 using Larv.Serpent;
+using Larv.Util;
 using Serpent;
 using SharpDX.Toolkit;
 
@@ -18,9 +19,9 @@ namespace Larv.GameStates
             // zoom out while ghost goes up and enemies goes home
             var forward = _serpents.PlayerSerpent.LookAtPosition - _serpents.Camera.Position;
             forward.Normalize();
-            _moveCamera = MoveCamera.TotalTime(
+            _moveCamera = new MoveCamera(
                 _serpents.Camera,
-                5,  // time to look at death scene
+                5f.Time(),  // time to look at death scene
                 _serpents.PlayerSerpent.LookAtPosition,
                 _serpents.Camera.Position - forward * 8);
 
@@ -34,7 +35,7 @@ namespace Larv.GameStates
             _serpents.Update(camera, gameTime);
             if (_moveCamera.Move(gameTime))
                 return;
-            _serpents.Restart(_serpents.Scene);
+            //_serpents.Restart(_serpents.Scene);
             gameState = new StartSerpentState(_serpents);
         }
 

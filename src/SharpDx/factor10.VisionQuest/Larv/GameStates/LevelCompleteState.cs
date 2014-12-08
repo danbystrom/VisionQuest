@@ -36,9 +36,9 @@ namespace Larv.GameStates
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            _moveCamera = MoveCamera.UnitsPerSecond(
+            _moveCamera =new MoveCamera(
                 _serpents.Camera,
-                4,
+                4f.UnitsPerSecond(),
                 () => _serpents.PlayerSerpent.LookAtPosition,
                 toPosition);
 
@@ -75,7 +75,7 @@ namespace Larv.GameStates
                     return;
                 }
                 _serpents.PlayerSerpent.DirectionTaker = null;
-                _moveCamera = MoveCamera.TotalTime(_serpents.Camera, 2, _serpents.PlayerEgg.Position, toPosition);
+                _moveCamera = new MoveCamera(_serpents.Camera, 2f.Time(), _serpents.PlayerEgg.Position, toPosition);
                 // wait two sec (for camera) and then drive the baby home
                 _actions.InsertFirst(
                     time => time < 2,
@@ -93,12 +93,11 @@ namespace Larv.GameStates
             // make sure the camera aims at a serpent (the original or the new born baby)
             _actions.Add(() =>
             {
-                _moveCamera = MoveCamera.TotalTime(_serpents.Camera, 1, () => _serpents.PlayerSerpent.LookAtPosition, toPosition);
+                _moveCamera = new MoveCamera(_serpents.Camera, 1f.Time(), () => _serpents.PlayerSerpent.LookAtPosition, toPosition);
                 _moveCamera.NeverComplete = true;
             });
 
             _actions.Add(time => !_serpentIsHome || _floatingTexts.Items.Any());
-            _actions.Add(2);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
@@ -118,23 +117,16 @@ namespace Larv.GameStates
             if (!_haltSerpents)
                 _serpents.Update(camera, gameTime);
             _floatingTexts.Update(camera, gameTime);
-            if (_moveCamera != null && !_moveCamera.Move(gameTime))
-                _moveCamera = null;
+            _moveCamera.Move(gameTime);
             if (_actions.Do(gameTime))
                 return;
-            _serpents.Restart(_serpents.Scene + 1);
-            gameState = new StartSerpentState(_serpents);
+            gameState = new GotoBoardState(_serpents, _serpents.Scene + 1);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera,drawingReason,shadowMap);
             _floatingTexts.Draw(camera, drawingReason, shadowMap);
-        }
-
-        private class PositionHolder : IPosition
-        {
-            public Vector3 Position { get; set; }
         }
 
     }

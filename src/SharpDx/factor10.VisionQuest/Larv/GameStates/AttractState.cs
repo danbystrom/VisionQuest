@@ -3,6 +3,7 @@ using System.Linq;
 using factor10.VisionThing;
 using Larv.FloatingText;
 using Larv.Serpent;
+using Larv.Util;
 using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -20,16 +21,12 @@ namespace Larv.GameStates
 
         private readonly Random _random = new Random();
 
-        private readonly FloatingTexts _floatingTexts;
-
         public AttractState(Serpents serpents)
         {
-            _floatingTexts = new FloatingTexts(serpents.VContent);
-
             _serpents = serpents;
-            _moveCamera = MoveCamera.UnitsPerSecond(
+            _moveCamera = new MoveCamera(
                 _serpents.Camera,
-                10,
+                10f.UnitsPerSecond(),
                 CameraLookAt,
                 CameraPosition);
             _serpents.PlayerSerpent.DirectionTaker = this;
@@ -37,7 +34,6 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _floatingTexts.Update(camera, gameTime);
             addExplanationText();
 
             if(_moveCamera!=null)
@@ -53,13 +49,15 @@ namespace Larv.GameStates
             }
 
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
-                gameState = new BeginGameState(_serpents);
+            {
+                // TODO: reset score and number of lives
+                gameState = new GotoBoardState(_serpents, 0);
+            }
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
-            _floatingTexts.Draw(camera, drawingReason, shadowMap);
         }
 
         private void addExplanationText()
@@ -91,7 +89,7 @@ namespace Larv.GameStates
                     break;
             }
             if (newItem != null)
-                _floatingTexts.Items.Add(newItem);
+                _serpents.FloatingTexts.Items.Add(newItem);
         }
 
         private FloatingTextItem createExplanationText(IPosition target, string text)
