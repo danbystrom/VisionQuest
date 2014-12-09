@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
 using Larv.FloatingText;
+using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -23,6 +24,9 @@ namespace Larv.Serpent
         public readonly FloatingTexts FloatingTexts;
         public readonly SpriteBatch SpriteBatch;
         public readonly SpriteFont SpriteFont;
+
+        public readonly CaveModel PlayerCave;
+        public readonly CaveModel EnemyCave;
 
         public PlayingField PlayingField { get; private set; }
 
@@ -58,6 +62,8 @@ namespace Larv.Serpent
             SpriteFont = lContent.Content.Load<SpriteFont>("fonts/blackcastle");
             FloatingTexts = new FloatingTexts(LContent);
 
+            PlayerCave = new CaveModel(Data.LContent);
+            EnemyCave = new CaveModel(Data.LContent);
 
             Camera = camera;
 
@@ -72,6 +78,9 @@ namespace Larv.Serpent
                 LContent,
                 LContent.Content.Load<Texture2D>(@"Textures\woodfloor"),
                 scene);
+
+            PlayerCave.SetPosition(PlayingField.PlayerWhereaboutsStart, PlayingField);
+            EnemyCave.SetPosition(PlayingField.EnemyWhereaboutsStart, PlayingField);
 
             if(Scene!=scene)
                 Data.Ground.GeneratePlayingField(PlayingField);
@@ -139,7 +148,7 @@ namespace Larv.Serpent
                 if (PlayerEgg == null && (Rnd.NextDouble() < 0.03 || Camera.KeyboardState.IsKeyPressed(Keys.D3)))
                     PlayerSerpent.IsPregnant = true;
 
-                if (Rnd.NextDouble() < 0.03 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
+                if (Rnd.NextDouble() < 0.02 && !Enemies.Any(_ => _.IsPregnant) && Enemies.Any())
                     Enemies[Rnd.Next(Enemies.Count)].IsPregnant = true;
             }
 
@@ -220,6 +229,8 @@ namespace Larv.Serpent
         {
             PlayingField.Draw(camera, drawingReason, shadowMap);
             Data.Ground.Draw(camera, drawingReason, shadowMap);
+            PlayerCave.Draw(camera, drawingReason, shadowMap);
+            EnemyCave.Draw(camera, drawingReason, shadowMap);
             Data.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)

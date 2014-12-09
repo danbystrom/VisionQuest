@@ -10,21 +10,22 @@ namespace Larv.GameStates
     class PlayingState : IGameState, ITakeDirection
     {
         private readonly Serpents _serpents;
-        private float _delayAfterLevelComplete = 0;
+        private float _delayAfterLevelComplete;
 
-        public SerpentCamera SerpentCamera = new SerpentCamera();
+        public SerpentCamera SerpentCamera;
 
         public PlayingState(Serpents serpents)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
+            SerpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent);
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
             _turnAround ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.Down);
 
-            SerpentCamera.Update(gameTime, camera, _serpents.PlayerSerpent.LookAtPosition, _serpents.PlayerSerpent.HeadDirection);
+            SerpentCamera.Move(gameTime);
             _serpents.Update(camera, gameTime);
             //camera.UpdateFreeFlyingCamera(gameTime);
 

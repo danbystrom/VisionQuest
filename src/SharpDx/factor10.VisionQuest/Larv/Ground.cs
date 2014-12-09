@@ -64,9 +64,8 @@ namespace Larv
             GroundMap.Soften(2);
 
             carvePlayingField(GroundMap, playingField, (TotalWidth - pfW * 3) / 2, (TotalHeight - pfH * 3) / 2, 0);
-            var nx = (TotalWidth - pfW * 3) / 2 + playingField.PlayerWhereaboutsStart.Location.X * 3 - 2;
-            var ny = (TotalHeight - pfH * 3) / 2 + playingField.PlayerWhereaboutsStart.Location.Y * 3 - 2;
-            GroundMap.AlterValues(nx, ny, 7, 7, (a, b, c) => 30);
+            createHillForCave(playingField.PlayerWhereaboutsStart.Location, pfW, pfH);
+            createHillForCave(playingField.EnemyWhereaboutsStart.Location, pfW, pfH);
 
             var weights = GroundMap.CreateWeigthsMap(new[] { 0, 0.40f, 0.60f, 0.9f });
 
@@ -114,6 +113,14 @@ namespace Larv
             _cxBillboardGrass.CreateBillboardVertices();
             _cxBillboardSigns.CreateBillboardVertices();
             _cxBillboardTrees.CreateBillboardVertices();
+        }
+
+        private void createHillForCave(Point location, int pfW, int pfH)
+        {
+            var nx = (TotalWidth - pfW*3)/2 + location.X*3 - 3;
+            var ny = (TotalHeight - pfH*3)/2 + location.Y*3 - 3;
+            GroundMap.AlterValues(nx, ny, 9, 9, (a, b, c) => 35);
+            GroundMap.AlterValues(nx + 2, ny + 2, 5, 5, (a, b, c) => 40);
         }
 
         private static void carvePlayingField<T>(Sculptable<T> ground, PlayingField playingField, int offx, int offy, T value)

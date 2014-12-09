@@ -6,7 +6,6 @@ using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 
 namespace Larv.GameStates
@@ -17,7 +16,6 @@ namespace Larv.GameStates
         public static readonly Vector3 CameraLookAt = new Vector3(12, 2, 12);
 
         private readonly Serpents _serpents;
-        private MoveCamera _moveCamera;
 
         private readonly Random _random = new Random();
 
@@ -26,11 +24,16 @@ namespace Larv.GameStates
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
-            _moveCamera = new MoveCamera(
-                _serpents.Camera,
-                10f.UnitsPerSecond(),
-                CameraLookAt,
-                CameraPosition);
+            _seqCamera.Add(() =>
+            {
+                var moveCamera = new MoveCamera(
+                    _serpents.Camera,
+                    10f.UnitsPerSecond(),
+                    CameraLookAt,
+                    CameraPosition);
+                _seqCamera.InsertNext(moveCamera.Move);
+            });
+            _seqCamera.Add(0);
             _serpents.PlayerSerpent.DirectionTaker = this;
         }
 
@@ -38,9 +41,8 @@ namespace Larv.GameStates
         {
             addExplanationText();
 
-            if(_moveCamera!=null)
-                if (!_moveCamera.Move(gameTime))
-                    _moveCamera = null;
+            //if(!_seqCamera.Do(gameTime))
+            //    addCameraActions();
 
             _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
             _serpents.Update(camera, gameTime);
@@ -69,8 +71,8 @@ namespace Larv.GameStates
 
             var sb = lcontent.SpriteBatch;
             sb.Begin();
-            sb.DrawString(_serpents.LContent.Font, text, (ssize - fsize*lcontent.Font.MeasureString(text))/2, Color.White, 0, Vector2.Zero, fsize,
-                SpriteEffects.None, 0);
+            //sb.DrawString(_serpents.LContent.Font, text, (ssize - fsize*lcontent.Font.MeasureString(text))/2, Color.White, 0, Vector2.Zero, fsize,
+            //    SpriteEffects.None, 0);
             sb.End();
         }
 
@@ -119,36 +121,71 @@ namespace Larv.GameStates
 
         private void addCameraActions()
         {
+            _seqCamera.Add(_random.NextFloat(2, 10));
             switch (_random.Next(10))
             {
-                case 0:
-                    _seqCamera.Add(() => _moveCamera = new MoveCamera(
+                case 0:  // go to random position
+                {
+                    var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
+                    var dx = _random.NextFloat(5, 15);
+                    var dz = _random.NextFloat(5, 15);
+                    if (_random.Next() < 0.5)
+                        dx = -dx;
+                    if (_random.Next() < 0.5)
+                        dz = -dz;
+                    var moveCamera = new MoveCameraYaw(
                         _serpents.Camera,
-                        10f.UnitsPerSecond(),
-                        new Vector3(_random.NextFloat(-2,25),0,_random.NextFloat(-2,25)),
-                        new Vector3(_random.NextFloat(-2, 25), _random.NextFloat(3,6), _random.NextFloat(-2, 25)),
-                        CameraPosition));
-                    _seqCamera.Add(_random.NextFloat(0, 3));
+                        2f.UnitsPerSecond(),
+                        newPosition + Vector3.Up*5,
+                        newPosition + new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
+                    _seqCamera.Add(moveCamera.Move);
                     break;
-
-                case 1:
-                    _seqCamera.Add(() => _moveCamera = new MoveCamera(
+                }
+                case 2:  // pan in random direction
+                {
+                    _seqCamera.Add(() =>
+                    {
+                        var direction = new Vector3(_random.NextFloat(-5, 5), 0, _random.NextFloat(-5, 5));
+                        var moveCamera = new MoveCamera(
+                            _serpents.Camera,
+                            2f.UnitsPerSecond(),
+                            _serpents.Camera.Target + direction,
+                            _serpents.Camera.Position + direction);
+                        _seqCamera.InsertNext(moveCamera.Move);
+                    });
+                    break;
+                }
+                case 3:
+                case 4:  // follow a serpent around
+                {
+                    var serpent = _random.NextDouble() > 0.4 || !_serpents.Enemies.Any()
+                        ? (BaseSerpent) _serpents.PlayerSerpent
+                        : _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
+                    var moveCamera = new MoveCamera(
                         _serpents.Camera,
-                        10f.UnitsPerSecond(),
-                        new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25)),
-                        new Vector3(_random.NextFloat(-2, 25), _random.NextFloat(3, 6), _random.NextFloat(-2, 25)),
-                        CameraPosition));
-                    _seqCamera.Add(_random.NextFloat(0, 3));
+                        3f.Time(),
+                        () => serpent.Position,
+                        serpent.Position + new Vector3(0, SerpentCamera.CameraDistanceToHeadY, 0));
+                    var serpentCamera = new SerpentCamera(_serpents.Camera, serpent);
+                    _seqCamera.Add(moveCamera.Move);
+                    _seqCamera.Add(time =>
+                    {
+                        serpentCamera.Move(time);
+                        return time < 5 && serpent.SerpentStatus == SerpentStatus.Alive;
+                    });
                     break;
-
+                }
                 default:
-                    _seqCamera.Add(() => _moveCamera = new MoveCamera(
+                {
+                    var moveCamera = new MoveCameraYaw(
                         _serpents.Camera,
                         10f.UnitsPerSecond(),
-                        CameraLookAt,
-                        CameraPosition));
-                    _seqCamera.Add(_random.NextFloat(5, 20));
+                        CameraPosition,
+                        CameraLookAt);
+                    _seqCamera.Add(moveCamera.Move);
+//                    _seqCamera.Add(10);
                     break;
+                }
             }
         }
 

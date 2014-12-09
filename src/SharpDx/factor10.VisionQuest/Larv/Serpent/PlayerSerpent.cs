@@ -40,18 +40,6 @@ namespace Larv.Serpent
             return base.modifySpeed()*Speed;
         }
 
-        public Vector3 LookAtPosition
-        {
-            get
-            {
-                var d = _whereabouts.Direction.DirectionAsPoint();
-                return new Vector3(
-                    _whereabouts.Location.X + d.X*(float) _fractionAngle,
-                    PlayingField.GetElevation(_whereabouts),
-                    _whereabouts.Location.Y + d.Y*(float) _fractionAngle);
-            }
-        }
-
         protected override void takeDirection()
         {
             if (TakeDirection())

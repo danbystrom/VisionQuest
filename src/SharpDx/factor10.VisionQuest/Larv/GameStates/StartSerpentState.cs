@@ -18,11 +18,11 @@ namespace Larv.GameStates
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            var moveCamera = new MoveCamera(
+            var moveCamera = new MoveCameraYaw(
                 serpents.Camera,
                 5f.UnitsPerSecond(),
-                toLookAt,
-                toPosition);
+                toPosition,
+                toLookAt);
 
             _actions.Add(moveCamera.Move);
             _actions.Add(() =>

@@ -32,7 +32,6 @@ namespace Larv
         private SpriteFont _blackCastleFont;
 
         private Windmill _windmill;
-        private CaveModel _caveModel;
 
         public Data Data;
 
@@ -103,7 +102,6 @@ namespace Larv
             _arial16Font = Content.Load<SpriteFont>("Arial16");
 
             _windmill = new Windmill(Data.LContent, Vector3.Zero);
-            _caveModel = new CaveModel(Data.LContent, Vector3.Zero);
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {
@@ -122,7 +120,6 @@ namespace Larv
             _gameState = new AttractState(Data.Serpents);
 
             Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
-            Data.ShadowMap.ShadowCastingObjects.Add(_caveModel);
 
             base.LoadContent();
         }
@@ -156,7 +153,6 @@ namespace Larv
             //GraphicsDevice.SetRasterizerState(_rasterizerState);
 
             _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
-            _caveModel.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
             _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
 
             _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*

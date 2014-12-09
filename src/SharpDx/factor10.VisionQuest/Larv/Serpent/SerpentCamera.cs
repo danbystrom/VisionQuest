@@ -1,62 +1,60 @@
 ﻿using System;
 using factor10.VisionThing;
-using Larv.Util;
 using SharpDX;
-using SharpDX.Toolkit;
 
 namespace Larv.Serpent
 {
-    public class SerpentCamera
+    public class SerpentCamera : MoveCameraBase
     {
         public const float CameraDistanceToHeadXz = 9;
         public const float CameraDistanceToHeadY = 5;
 
         private float _acc;
+        private float _lastTime;
 
-        private float _staticTimeMovement;
-        private readonly Vector3 _staticDestinationPosition = new Vector3(12, 20, 25);
-        private readonly Vector3 _staticDestinationTarget = new Vector3(12, 0, 12);
-        private Vector3 _staticFromPosition;
-        private Vector3 _staticFromTarget;
+        private readonly BaseSerpent _serpent;
 
-        public SerpentCamera()
+        public SerpentCamera(Camera camera, BaseSerpent serpent)
+            : base(camera)
         {
+            _serpent = serpent;
         }
 
-        public void Update(
-            GameTime gameTime,
-            Camera camera,
-            Vector3 target,
-            Direction direction)
+        protected override bool MoveAround()
         {
+            var dt = ElapsedTime - _lastTime;
+            _lastTime = ElapsedTime;
+
+            var target = _serpent.LookAtPosition;
+            var direction = _serpent.HeadDirection;
 
             var target2D = new Vector2(target.X, target.Z);
             var position2D = moveTo(
-                new Vector2(camera.Position.X, camera.Position.Z),
+                new Vector2(Camera.Position.X, Camera.Position.Z),
                 target2D,
                 target2D - direction.DirectionAsVector2()*CameraDistanceToHeadXz,
-                gameTime.ElapsedGameTime.TotalMilliseconds);
+                dt);
 
             var newPosition = new Vector3(
                 position2D.X,
                 target.Y + CameraDistanceToHeadY,
                 position2D.Y);
 
-            _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, camera.Position))*
-                    (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, Camera.Position))*dt;
             _acc *= 0.4f;
             var v = MathUtil.Clamp(_acc, 0.1f, 0.3f);
-            camera.Update(
-                Vector3.Lerp(camera.Position, newPosition, v),
-                Vector3.Lerp(camera.Target, target, v));
+            Camera.Update(
+                Vector3.Lerp(Camera.Position, newPosition, v),
+                Vector3.Lerp(Camera.Target, target, v));
 
+            return true;
         }
 
         private static Vector2 moveTo(
             Vector2 camera,
             Vector2 target,
             Vector2 desired,
-            double elapsedTime)
+            double xelapsedTime)
         {
             var d2TargetDesired = Vector2.DistanceSquared(target, desired);
             var d2CameraDesired = Vector2.DistanceSquared(camera, desired);
@@ -80,7 +78,7 @@ namespace Larv.Serpent
             if (v1.X*v2.Y - v2.X*v1.Y > 0)
                 angle = -angle;
 
-            var angleFraction = angle*elapsedTime/100;
+            var angleFraction = angle*xelapsedTime*10;
 
             var cosA = (float) Math.Cos(angleFraction);
             var sinA = (float) Math.Sin(angleFraction);

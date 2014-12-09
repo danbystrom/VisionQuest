@@ -368,6 +368,18 @@ namespace Larv.Serpent
                 : new Egg(Effect, _sphere, _eggSkin, EnemySerpent.ColorWhenLonger, _eggWorld, segment.Whereabouts, 20);
         }
 
+        public Vector3 LookAtPosition
+        {
+            get
+            {
+                var d = _whereabouts.Direction.DirectionAsPoint();
+                return new Vector3(
+                    _whereabouts.Location.X + d.X * (float)_fractionAngle,
+                    PlayingField.GetElevation(_whereabouts),
+                    _whereabouts.Location.Y + d.Y * (float)_fractionAngle);
+            }
+        }
+
         public bool IsPregnant
         {
             get { return _layingEgg >= 0; }
