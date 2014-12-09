@@ -14,7 +14,7 @@ namespace Larv.FloatingText
         private readonly SpriteFont _spriteFont;
 
         public FloatingTexts(VisionContent vContent)
-            : base(vContent.LoadPlainEffect("effects/signtexteffect"))
+            : base(vContent.LoadEffect("effects/signtexteffect"))
         {
             _spriteBatch = new SpriteBatch(vContent.GraphicsDevice);
             _spriteFont = vContent.Load<SpriteFont>("fonts/BlackCastle");
@@ -36,7 +36,7 @@ namespace Larv.FloatingText
             camera.UpdateEffect(Effect);
             foreach (var item in Items)
             {
-                Effect.World = Matrix.BillboardLH(item.Target.Position + item.GetOffset(item), camera.Position, -camera.Up, camera.Front);
+                Effect.World = Matrix.BillboardRH(item.Target.Position + item.GetOffset(item), camera.Position, -camera.Up, camera.Front);
                 Effect.DiffuseColor = item.GetColor(item);
                 _spriteBatch.Begin(SpriteSortMode.Deferred, Effect.GraphicsDevice.BlendStates.NonPremultiplied, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, Effect.Effect);
                 _spriteBatch.DrawString(_spriteFont, item.Text, Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString(item.Text) / 2, item.GetSize(item), 0, 0);

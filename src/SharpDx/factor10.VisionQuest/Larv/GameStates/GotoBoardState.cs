@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
-using Larv.FloatingText;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
@@ -25,15 +24,15 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
             _scene = scene;
-            _spriteBatch = new SpriteBatch(_serpents.VContent.GraphicsDevice);
-            _signEffect = _serpents.VContent.LoadPlainEffect("effects/signtexteffect");
-            _spriteFont = _serpents.VContent.Load<SpriteFont>("fonts/BlackCastle");
+            _spriteBatch = new SpriteBatch(_serpents.LContent.GraphicsDevice);
+            _signEffect = _serpents.LContent.LoadEffect("effects/signtexteffect");
+            _spriteFont = _serpents.LContent.Load<SpriteFont>("fonts/BlackCastle");
 
             HomingDevice.Attach(serpents);
 
             _signPosition = Data.Ground.SignPosition + Vector3.Up*1.5f;
             var direction = Vector3.Left;
-            var toCameraPosition = _signPosition + direction*2.3f;
+            var toCameraPosition = _signPosition + direction*2.4f;
             var cp = serpents.Camera.Position;
 
             var distanceToCamera = Vector3.Distance(cp, toCameraPosition);
@@ -53,26 +52,29 @@ namespace Larv.GameStates
             for (var i = 1; i <= missingPoints; i++)
                 points.Add(Vector3.Lerp(arcEndPoint, toCameraPosition, i/(float) missingPoints));
 
-            var moveCamera1 = new MoveCamera(_serpents.Camera, 8f.UnitsPerSecond(), _signPosition, points.ToArray());
 
-            _actions.Add(moveCamera1.Move);
-            _actions.Add(2);
+            // move to the board n an arc
             _actions.Add(() =>
+            {
+                var moveCamera = new MoveCameraArc(_serpents.Camera, 2.5f.UnitsPerSecond(), toCameraPosition, Vector3.Right, 5);
+                _actions.InsertNext(moveCamera.Move);
+            });
+
+            // look at the board for two seconds, while resetting the playing field
+            _actions.Add(2, () =>
             {
                 _serpents.Restart(_scene);
                 HomingDevice.Attach(_serpents);
             });
 
+            Vector3 toPosition, toLookAt;
+            _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
+
+            // turn around the camera to look at the cave 
             _actions.Add(() =>
             {
-                Vector3 toPosition, toLookAt;
-                _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
-                var moveCamera2 = new MoveCamera(
-                    _serpents.Camera,
-                    3f.Time(),
-                    toLookAt,
-                    toPosition);
-                _actions.Add(moveCamera2.Move);
+                var moveCamera = new MoveCameraYaw(_serpents.Camera, 2f.Time(), toPosition, toLookAt);
+                _actions.InsertNext(moveCamera.Move);
             });
         }
 
@@ -92,8 +94,8 @@ namespace Larv.GameStates
 
             camera.UpdateEffect(_signEffect);
 
-            _signEffect.World = Matrix.BillboardLH(_signPosition + Vector3.Left * 0.1f, _signPosition + Vector3.Left, -camera.Up, Vector3.Right);
-            _signEffect.DiffuseColor = new Vector4(0.1f, 0.5f, 0.3f, 1);
+            _signEffect.World = Matrix.BillboardRH(_signPosition + Vector3.Left * 0.1f, _signPosition + Vector3.Left, -camera.Up, Vector3.Right);
+            _signEffect.DiffuseColor = new Vector4(0.5f, 0.4f, 0.3f, 1);
             _spriteBatch.Begin(SpriteSortMode.Deferred, _signEffect.GraphicsDevice.BlendStates.NonPremultiplied, null, _signEffect.GraphicsDevice.DepthStencilStates.DepthRead, null, _signEffect.Effect);
             _spriteBatch.DrawString(_spriteFont, "Entering scene 1", Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString("Entering scene 1") / 2, 0.015f, 0, 0);
             _spriteBatch.End();

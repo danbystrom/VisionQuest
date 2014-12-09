@@ -30,7 +30,7 @@ namespace Larv
         public readonly float MiddleY;
 
         public PlayingField(VisionContent vContent, Texture2D texture, int level)
-            : base(vContent.LoadPlainEffect("effects/simpletextureeffect"))
+            : base(vContent.LoadEffect("effects/simpletextureeffect"))
         {
             _texture = texture;
 

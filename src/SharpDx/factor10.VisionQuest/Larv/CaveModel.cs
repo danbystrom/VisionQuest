@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using factor10.VisionThing;
+﻿using factor10.VisionThing;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -8,9 +7,10 @@ namespace Larv
 {
     class CaveModel : ClipDrawable
     {
-        private readonly Model _model;
+        private readonly Model _caveModel;
+        private readonly Model _gratingModel;
 
-        public Matrix World;
+        public Matrix PlayerCaveWorld;
 
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
@@ -18,12 +18,13 @@ namespace Larv
         private float _angle;
 
         public CaveModel(VisionContent vContent, Vector3 location)
-            : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
+            : base(vContent.LoadEffect("effects/SimpleBumpEffect"))
         {
-            World = Matrix.Scaling(0.5f, 0.4f, 0.3f)*Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.RotationX(MathUtil.Pi)*Matrix.Translation(24, 0.3f, 15);
-            _model = vContent.Load<Model>("models/mycave");
-            _texture = vContent.Load<Texture2D>("textures/bigstone");
-            //_bumpMap = vContent.Load<Texture2D>("textures/windmill_normal");
+            PlayerCaveWorld = Matrix.Scaling(0.7f, 0.7f, 0.5f)*Matrix.RotationY(MathUtil.PiOverTwo)*Matrix.Translation(23.3f, 0.3f, 15);
+            _caveModel = vContent.Load<Model>("models/cave");
+            _gratingModel = vContent.Load<Model>("models/grating");
+            _texture = vContent.Load<Texture2D>("textures/cave");
+            _bumpMap = vContent.Load<Texture2D>("textures/rocknormal");
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -34,7 +35,9 @@ namespace Larv
         {
             camera.UpdateEffect(Effect);
             Effect.Texture = _texture;
-            _model.Draw(Effect.GraphicsDevice, World, camera.View, camera.Projection, Effect.Effect);
+            Effect.Parameters["BumpMap"].SetResource(_bumpMap);
+            _caveModel.Draw(Effect.GraphicsDevice, PlayerCaveWorld, camera.View, camera.Projection, Effect.Effect);
+            //_gratingModel.Draw(Effect.GraphicsDevice, Matrix.Scaling(4) * PlayerCaveWorld, camera.View, camera.Projection, Effect.Effect);
             return true;
         }
         

@@ -30,7 +30,7 @@ namespace Larv.Util
 
         public abstract bool Do(GameTime gameTime);
 
-        public void InsertFirst(params Func<float, bool>[] actions)
+        public void InsertNext(params Func<float, bool>[] actions)
         {
             Actions.InsertRange(0, actions.Select(_ => new TimedAction(this, _)));
         }

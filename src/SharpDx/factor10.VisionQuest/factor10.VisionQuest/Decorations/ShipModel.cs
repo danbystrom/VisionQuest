@@ -19,7 +19,7 @@ namespace factor10.VisionQuest
         private BoundingSphere _boundingSphere;
 
         public ShipModel(VisionContent vContent)
-            : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
+            : base(vContent.LoadEffect("effects/SimpleTextureEffect"))
         {
             _model = vContent.Load<Model>(@"Models/galleonmodel");
             BasicEffect.EnableDefaultLighting(_model, true);

@@ -28,6 +28,8 @@ namespace Larv.GameStates
             _actions.Add(() =>
             {
                 _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
+                while (_serpents.Enemies.Count > 4 + _serpents.Scene)
+                    _serpents.Enemies.RemoveAt(0);
                 foreach (var enemy in _serpents.Enemies)
                     enemy.DirectionTaker = null;
             });

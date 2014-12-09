@@ -35,7 +35,6 @@ namespace Larv.GameStates
             _serpents.Update(camera, gameTime);
             if (_moveCamera.Move(gameTime))
                 return;
-            //_serpents.Restart(_serpents.Scene);
             gameState = new StartSerpentState(_serpents);
         }
 

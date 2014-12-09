@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Effects
 {
-    public class VisionEffect : IVEffect
+    public class VisionEffect : IVEffect, IDisposable
     {
         public GraphicsDevice GraphicsDevice { get; private set; }
         public Effect Effect { get; private set; }
@@ -195,6 +195,12 @@ namespace factor10.VisionThing.Effects
                     break;
             }
         }
+
+        public void Dispose()
+        {
+            Effect.Dispose();
+        }
+
     }
 
 }

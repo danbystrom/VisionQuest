@@ -27,7 +27,7 @@ namespace factor10.VisionQuest
         public Arcs(
             VisionContent vContent,
             Archipelag archipelag)
-            : base(vContent.LoadPlainEffect("Effects/ArcsEffect"))
+            : base(vContent.LoadEffect("Effects/ArcsEffect"))
         {
             Archipelag = archipelag;
             Effect.World = Matrix.Identity;

@@ -27,7 +27,7 @@ namespace factor10.VisionQuest
             float height)
             : base(vContent, world, texture, vclasses.Select(vc => vc.Position).ToList(), width, height)
         {
-            _signTextEffect = vContent.LoadPlainEffect("effects/signtexteffect");
+            _signTextEffect = vContent.LoadEffect("effects/signtexteffect");
             _spriteBatch = new SpriteBatch(Effect.GraphicsDevice);
             _spriteFont = vContent.Load<SpriteFont>("fonts/BlackCastle");
             _vclasses = vclasses;

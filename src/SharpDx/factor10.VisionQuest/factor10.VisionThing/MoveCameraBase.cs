@@ -15,6 +15,13 @@ namespace factor10.VisionThing
             Time = time;
             UnitsPerSecond = unitsPerSecond;
         }
+
+        public float GetTotalTime(float units)
+        {
+            return !UnitsPerSecond
+                ? Time
+                : units / Time;
+        }
     }
 
     public static class MovementTimeExtensionMethods

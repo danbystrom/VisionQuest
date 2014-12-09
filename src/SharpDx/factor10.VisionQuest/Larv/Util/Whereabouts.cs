@@ -1,8 +1,6 @@
-﻿using Larv;
-using Larv.Util;
-using SharpDX;
+﻿using SharpDX;
 
-namespace Serpent
+namespace Larv.Util
 {
     public struct Whereabouts
     {

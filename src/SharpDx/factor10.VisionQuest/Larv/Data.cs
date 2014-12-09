@@ -12,7 +12,7 @@ namespace Larv
 {
     public class Data : IDisposable
     {
-        public static VisionContent VContent;
+        public static LContent LContent;
 
         public static Data Instance;
 
@@ -41,30 +41,30 @@ namespace Larv
                 Instance.Dispose();
             Instance = this;
 
-            VContent = new VisionContent(game1.GraphicsDevice, game1.Content);
+            LContent = new LContent(game1.GraphicsDevice, game1.Content);
 
-            Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
+            Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(LContent.GraphicsDevice,
                 (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
-            Cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(VContent.GraphicsDevice,
+            Cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(LContent.GraphicsDevice,
                 (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2, 1, 10);
 
             //TODO
             if (Sky == null)
-                Sky = new SkySphere(VContent, VContent.Load<TextureCube>(@"Textures\clouds"));
+                Sky = new SkySphere(LContent, LContent.Load<TextureCube>(@"Textures\clouds"));
 
             Camera = new Camera(
-                VContent.ClientSize,
+                LContent.ClientSize,
                 keyboardManager,
                 mouseManager,
                 pointerManager,
                 AttractState.CameraPosition,
                 AttractState.CameraLookAt) { MovingSpeed = 8 };
-            Ground = new Ground(VContent);
-            Serpents = new Serpents(VContent, Camera, Sphere, 0);
+            Ground = new Ground(LContent);
+            Serpents = new Serpents(LContent, Camera, Sphere, 0);
 
             Ground.GeneratePlayingField(Serpents.PlayingField);
 
-            ShadowMap = new ShadowMap(VContent, Camera, 768, 768, 1, 50);
+            ShadowMap = new ShadowMap(LContent, Camera, 768, 768, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             ShadowMap.ShadowCastingObjects.Add(Serpents);
         }

@@ -102,8 +102,8 @@ namespace Larv
 
             _arial16Font = Content.Load<SpriteFont>("Arial16");
 
-            _windmill = new Windmill(Data.VContent, Vector3.Zero);
-            _caveModel = new CaveModel(Data.VContent, Vector3.Zero);
+            _windmill = new Windmill(Data.LContent, Vector3.Zero);
+            _caveModel = new CaveModel(Data.LContent, Vector3.Zero);
 
             _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
             {

@@ -29,7 +29,7 @@ namespace factor10.VisionQuest
         public const float HeightAboveOcean = 50;
  
         public BannerSign(VisionContent vContent, IEnumerable<CodeIsland> islands)
-            : base(vContent.LoadPlainEffect("effects/signtexteffect"))
+            : base(vContent.LoadEffect("effects/signtexteffect"))
         {
             _spriteBatch = new SpriteBatch(Effect.GraphicsDevice);
             _spriteFont = vContent.Load<SpriteFont>("fonts/BlackCastle");
@@ -78,7 +78,7 @@ namespace factor10.VisionQuest
                 if (tpd.DistanceSquared < 5000 || tpd.DotProduct < 0)  // too close or facing away
                     continue;
 
-                Effect.World = Matrix.BillboardLH(tpd.Pos, camera.Position, -camera.Up, camera.Front);
+                Effect.World = Matrix.BillboardRH(tpd.Pos, camera.Position, -camera.Up, camera.Front);
                 Effect.DiffuseColor = tpd.BoundingBox.Intersects(ref ray)
                     ? Color.Yellow.ToVector4()
                     : Color.White.ToVector4();

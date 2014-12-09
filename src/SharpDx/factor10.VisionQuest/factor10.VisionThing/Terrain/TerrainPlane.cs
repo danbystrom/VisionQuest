@@ -13,7 +13,7 @@ namespace factor10.VisionThing.Terrain
 
         public TerrainPlane(VisionContent vContent)
         {
-            Effect = vContent.LoadPlainEffect("Effects/TerrainEffects");
+            Effect = vContent.LoadEffect("Effects/TerrainEffects");
             _loPlane = new PlanePrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
                 (x, y, w, h) => new TerrainVertex(

@@ -23,7 +23,7 @@ namespace factor10.VisionThing.Terrain
             List<Vector3> positions, 
             float width,
             float height)
-            : base(vContent.LoadPlainEffect("Effects/BillboardEffect"))
+            : base(vContent.LoadEffect("Effects/BillboardEffect"))
         {
             World = world;
             _treeTexture = texture;

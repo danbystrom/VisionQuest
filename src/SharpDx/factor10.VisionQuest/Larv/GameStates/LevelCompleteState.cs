@@ -19,7 +19,6 @@ namespace Larv.GameStates
         private MoveCamera _moveCamera;
 
         private readonly SequentialToDoQue _actions = new SequentialToDoQue();
-        private readonly FloatingTexts _floatingTexts;
 
         private bool _serpentIsHome;
         private bool _haltSerpents;
@@ -28,7 +27,6 @@ namespace Larv.GameStates
         public LevelCompleteState(Serpents serpents)
         {
             _serpents = serpents;
-            _floatingTexts = new FloatingTexts(_serpents.VContent);
 
             _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
             _serpents.PlayerSerpent.DirectionTaker = this;
@@ -38,27 +36,28 @@ namespace Larv.GameStates
 
             _moveCamera =new MoveCamera(
                 _serpents.Camera,
-                4f.UnitsPerSecond(),
+                4.5f.UnitsPerSecond(),
                 () => _serpents.PlayerSerpent.LookAtPosition,
                 toPosition);
 
             // wait until serpent is in cave, then give length bonus
             _actions.Add(() => _homeIsNearCaveEntrance = true);
             _actions.Add(time => !_serpentIsHome);
-            _actions.Add(() => _haltSerpents = true);
+            _actions.Add(() =>
+            {
+                _serpents.PlayerSerpent.IsPregnant = false;
+                _haltSerpents = true;
+            });
             for (var i = 0; i < _serpents.PlayerSerpent.Length; i++)
                 _actions.Add(1, () =>
                 {
                     var tailSegement = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
                     if (tailSegement != null)
-                        _floatingTexts.Items.Add(new FloatingTextItem(
-                            tailSegement,
-                            "+500",
-                            3).SetAlphaAnimation(Color.WhiteSmoke, 0.1f, 0.2f).SetOffsetMovement(Vector3.Up, Vector3.Up*3));
+                        _serpents.AddAndShowScore(500, tailSegement.Position);
                 });
 
             // wait until all bonus texts gone
-            _actions.Add(time => _floatingTexts.Items.Any());
+            _actions.Add(time => _serpents.FloatingTexts.Items.Any());
             _actions.Add(() =>
             {
                 _serpentIsHome = false;
@@ -77,7 +76,7 @@ namespace Larv.GameStates
                 _serpents.PlayerSerpent.DirectionTaker = null;
                 _moveCamera = new MoveCamera(_serpents.Camera, 2f.Time(), _serpents.PlayerEgg.Position, toPosition);
                 // wait two sec (for camera) and then drive the baby home
-                _actions.InsertFirst(
+                _actions.InsertNext(
                     time => time < 2,
                     time =>
                     {
@@ -97,7 +96,7 @@ namespace Larv.GameStates
                 _moveCamera.NeverComplete = true;
             });
 
-            _actions.Add(time => !_serpentIsHome || _floatingTexts.Items.Any());
+            _actions.Add(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
@@ -114,9 +113,10 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            if (!_haltSerpents)
+            if (_haltSerpents)
+                _serpents.FloatingTexts.Update(camera, gameTime);
+            else
                 _serpents.Update(camera, gameTime);
-            _floatingTexts.Update(camera, gameTime);
             _moveCamera.Move(gameTime);
             if (_actions.Do(gameTime))
                 return;
@@ -126,7 +126,6 @@ namespace Larv.GameStates
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera,drawingReason,shadowMap);
-            _floatingTexts.Draw(camera, drawingReason, shadowMap);
         }
 
     }

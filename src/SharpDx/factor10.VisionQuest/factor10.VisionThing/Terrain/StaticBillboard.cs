@@ -26,7 +26,7 @@ namespace factor10.VisionThing.Terrain
             Texture2D texture,
             float width,
             float height)
-            : base(vContent.LoadPlainEffect("Billboards/StaticBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
+            : base(vContent.LoadEffect("Billboards/StaticBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
         {
             _world = world;
             _texture = texture;

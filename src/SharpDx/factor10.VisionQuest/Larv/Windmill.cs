@@ -22,7 +22,7 @@ namespace Larv
         private float _angle;
 
         public Windmill(VisionContent vContent, Vector3 location)
-            : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
+            : base(vContent.LoadEffect("effects/SimpleTextureEffect"))
         {
             World = Matrix.Scaling(0.004f)*Matrix.RotationY(0.9f)*Matrix.Translation(-2, 0, 1);
             _model = vContent.Load<Model>("models/windmillf");

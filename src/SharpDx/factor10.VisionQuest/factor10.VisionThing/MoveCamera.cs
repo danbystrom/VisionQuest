@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SharpDX;
+using System;
 using System.Linq;
-using SharpDX;
-using SharpDX.Toolkit;
 
 namespace factor10.VisionThing
 {

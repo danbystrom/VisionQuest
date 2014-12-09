@@ -6,7 +6,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionQuest
 {
-    class Windmill : ClipDrawable
+    internal class Windmill : ClipDrawable
     {
         private readonly Model _model;
         private readonly Matrix[] _bones;
@@ -17,19 +17,19 @@ namespace factor10.VisionQuest
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public Windmill(VisionContent vContent, Vector3 location )
-            : base(vContent.LoadPlainEffect("effects/SimpleBumpEffect"))
+        public Windmill(VisionContent vContent, Vector3 location)
+            : base(vContent.LoadEffect("effects/SimpleBumpEffect"))
         {
-            World = Matrix.RotationY(-MathUtil.PiOverTwo) * Matrix.Scaling(0.005f) * Matrix.Translation(location);
+            World = Matrix.RotationY(-MathUtil.PiOverTwo)*Matrix.Scaling(0.005f)*Matrix.Translation(location);
             _model = vContent.Load<Model>("models/windmill");
             _texture = vContent.Load<Texture2D>("textures/windmill_diffuse");
             _bumpMap = vContent.Load<Texture2D>("textures/windmill_normal");
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 
-            foreach (var mesh in _model.Meshes)
-                foreach (var part in mesh.MeshParts)
-                    part.Effect = Effect.Effect;
+            //foreach (var mesh in _model.Meshes)
+            //    foreach (var part in mesh.MeshParts)
+            //        part.Effect = Effect.Effect;
 
             _animation = new ObjectAnimation(new Vector3(0, 875, 0), new Vector3(0, 875, 0),
                 Vector3.Zero, new Vector3(0, 0, MathUtil.TwoPi),
@@ -57,16 +57,14 @@ namespace factor10.VisionQuest
 
             foreach (var mesh in _model.Meshes)
             {
-                Effect.World =
-                    _bones[mesh.ParentBone.Index] *
-                    World;
-                Effect.Apply();
-                 mesh.Draw(Effect.GraphicsDevice);
+                Effect.World = _bones[mesh.ParentBone.Index]*World;
+                //Effect.Apply();
+                mesh.Draw(Effect.GraphicsDevice, null, Effect.Effect);
             }
 
             return true;
         }
-        
+
     }
 
 }

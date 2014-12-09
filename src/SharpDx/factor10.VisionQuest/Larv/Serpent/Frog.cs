@@ -20,6 +20,8 @@ namespace Larv.Serpent
         private readonly Ground _ground;
 
         private Vector3 _position;
+        public Vector3 Position { get { return _position; } }
+
         private Matrix _rotation;
         private float _currentAngle;
 
@@ -35,8 +37,8 @@ namespace Larv.Serpent
             : base(effect)
         {
             _model = vContent.Load<Model>(@"Models/frog");
-            _modelRotation = Matrix.RotationX(MathUtil.Pi)*Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.1f);
-            
+            _modelRotation = Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.1f);
+
             _texture = vContent.Load<Texture2D>(@"textures/frogskin");
             _serpents = serpents;
             _ground = ground;
@@ -60,12 +62,7 @@ namespace Larv.Serpent
                     _position = new Vector3(_serpents.PlayingField.Width + 1, 0, _serpents.PlayingField.MiddleY);
                     break;
             }
-            _actions.Add(0);  // start the state machine
-        }
-
-        public Vector3 Position
-        {
-            get { return _position; }
+            _actions.Add(0); // start the state machine
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -75,7 +72,7 @@ namespace Larv.Serpent
             if (_actions.Do(gameTime))
                 return;
 
-            // out of actions - create new commands
+            // has run out of actions - create new commands
 
             Vector3 toPosition, normal;
             float angle;
@@ -176,7 +173,7 @@ namespace Larv.Serpent
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             camera.UpdateEffect(Effect);
-            var t = _modelRotation * _rotation * Matrix.Translation(_position + new Vector3(0, 0, 0));
+            var t = _modelRotation*_rotation*Matrix.Translation(_position);
 
             Effect.World = t;
             Effect.Texture = _texture;

@@ -74,7 +74,7 @@ namespace factor10.VisionQuest
             _basicEffect.EnableDefaultLighting();
 
             _ball = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx), 1);
-            var x = _vContent.LoadPlainEffect("effects/simpletextureeffect");
+            var x = _vContent.LoadEffect("effects/simpletextureeffect");
             x.Texture = _vContent.Load<Texture2D>("textures/sand");
             _ballInstance = new ClipDrawableInstance(x, _ball, Matrix.Translation(10, 2, 10));
 

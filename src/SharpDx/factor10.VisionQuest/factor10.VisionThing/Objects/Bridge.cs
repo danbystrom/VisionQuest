@@ -12,7 +12,7 @@ namespace factor10.VisionThing.Objects
         private readonly Texture2D _texture;
 
         public Bridge(VisionContent vContent, Matrix world)
-            : base(vContent.LoadPlainEffect("effects/SimpleTextureEffect"))
+            : base(vContent.LoadEffect("effects/SimpleTextureEffect"))
         {
             _model = vContent.Load<Model>(@"Models/bridge");
             _texture = vContent.Load<Texture2D>("textures/bigstone");
@@ -28,16 +28,16 @@ namespace factor10.VisionThing.Objects
             camera.UpdateEffect(Effect);
             Effect.World = World;
 
-            if (drawingReason != DrawingReason.ShadowDepthMap)
-                Effect.Texture = _texture;
+            //if (drawingReason != DrawingReason.ShadowDepthMap)
+            //    Effect.Texture = _texture;
 
-            Effect.Apply();
-            foreach (var mesh in _model.Meshes)
-                mesh.Draw(Effect.GraphicsDevice);
+            //Effect.Apply();
+            //foreach (var mesh in _model.Meshes)
+            //    mesh.Draw(Effect.GraphicsDevice);
 
-            Effect.World = World*Matrix.Translation(21.68f, 0, 0);
-            foreach (var mesh in _model.Meshes)
-                mesh.Draw(Effect.GraphicsDevice);
+            //Effect.World = World*Matrix.Translation(21.68f, 0, 0);
+            //foreach (var mesh in _model.Meshes)
+            //    mesh.Draw(Effect.GraphicsDevice);
 
             return true;
         }

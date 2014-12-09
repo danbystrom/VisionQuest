@@ -38,7 +38,7 @@ namespace factor10.VisionThing
             ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             _spriteBatch = new SpriteBatch(_graphicsDevice);
-            _shadowBlurEffect = vContent.LoadPlainEffect("ShadowEffects/Blur");
+            _shadowBlurEffect = vContent.LoadEffect("ShadowEffects/Blur");
             _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             ShadowNearPlane = nearPlane;

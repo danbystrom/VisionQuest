@@ -41,7 +41,7 @@ uniform extern float   FogStart = 50;
 uniform extern float   FogRange = 2000;
 uniform extern float4  FogColor = float4(0, 0, 0, 1);
 
-bool DoShadowMapping = false;
+//bool DoShadowMapping = false;
 float4x4 ShadowViewProjection;
 float ShadowMult = 0.95f;
 float ShadowBias = 0.01;

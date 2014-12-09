@@ -71,7 +71,7 @@ namespace Larv.Serpent
             Texture2D serpentHeadSkin,
             Texture2D serpentBump,
             Texture2D eggSkin)
-            : base(vContent.LoadPlainEffect("Effects/SimpleBumpEffect"))
+            : base(vContent.LoadEffect("Effects/SimpleBumpEffect"))
         {
             Restart(playingField, playingField.EnemyWhereaboutsStart);
             _sphere = sphere;
@@ -276,28 +276,34 @@ namespace Larv.Serpent
             _pendingEatenSegments %= SegmentEatTreshold;
         }
 
-        public bool EatAt(BaseSerpent other)
+        public bool EatAt(BaseSerpent other, out int eatenSegments)
         {
+            eatenSegments = 0;
             if (SerpentStatus != SerpentStatus.Alive || other.SerpentStatus != SerpentStatus.Alive)
                 return false;
             IsLonger = _serpentLength >= other._serpentLength;
             if (SerpentStatus != SerpentStatus.Alive)
                 return false;
+
             if (Vector3.DistanceSquared(Position, other.Position) < 0.8f)
             {
                 if (other._serpentLength > _serpentLength)
                     return false;
                 grow(other._serpentLength + 1);
+                eatenSegments = other._serpentLength;
                 return true;
             }
+
             for (var tail = other._tail; tail != null; tail = tail.Next)
                 if (this.DistanceSquared(tail) < 0.2f)
                 {
                     if (tail == other._tail)
                     {
                         grow(other._serpentLength + 1);
+                        eatenSegments = other._serpentLength;
                         return true;
                     }
+                    eatenSegments++;
                     grow(other.removeTail(tail));
                     return false;
                 }
@@ -362,15 +368,19 @@ namespace Larv.Serpent
                 : new Egg(Effect, _sphere, _eggSkin, EnemySerpent.ColorWhenLonger, _eggWorld, segment.Whereabouts, 20);
         }
 
-        public void Fertilize()
-        {
-            if (_layingEgg < 0)
-                _layingEgg = 0;
-        }
-
         public bool IsPregnant
         {
             get { return _layingEgg >= 0; }
+            set
+            {
+                if (value)
+                {
+                    if (_layingEgg < 0)
+                        _layingEgg = 0;
+                }
+                else
+                    _layingEgg = -1;
+            }
         }
 
         public int Length

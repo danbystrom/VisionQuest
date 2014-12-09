@@ -12,14 +12,12 @@ namespace Larv.GameStates
         private readonly Serpents _serpents;
         private float _delayAfterLevelComplete = 0;
 
-        public SerpentCamera SerpentCamera = new SerpentCamera(
-            CameraBehavior.FollowTarget);
+        public SerpentCamera SerpentCamera = new SerpentCamera();
 
         public PlayingState(Serpents serpents)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
-            SerpentCamera.SetCameraBehavior(_serpents.Camera, CameraBehavior.FollowTarget);
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
