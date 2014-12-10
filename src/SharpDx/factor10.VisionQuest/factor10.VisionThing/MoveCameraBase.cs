@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using SharpDX;
 using SharpDX.Toolkit;
 
@@ -18,9 +16,8 @@ namespace factor10.VisionThing
 
         public float GetTotalTime(float units)
         {
-            return !UnitsPerSecond
-                ? Time
-                : units / Time;
+            // never return zero, since that may lead to division by zero later
+            return Math.Max(!UnitsPerSecond ? Time : units/Time, 0.0000001f);
         }
     }
 
@@ -36,7 +33,7 @@ namespace factor10.VisionThing
         }
     }
 
-    public abstract class MoveCameraBase
+    public abstract class MoveCameraBase : IVMoveable
     {
         protected readonly Camera Camera;
 

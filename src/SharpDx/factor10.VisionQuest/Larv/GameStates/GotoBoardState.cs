@@ -30,7 +30,7 @@ namespace Larv.GameStates
 
             HomingDevice.Attach(serpents);
 
-            _signPosition = Data.Ground.SignPosition + Vector3.Up*1.5f;
+            _signPosition = _serpents.LContent.Ground.SignPosition + Vector3.Up*1.5f;
             var direction = Vector3.Left;
             var toCameraPosition = _signPosition + direction*2.4f;
             var cp = serpents.Camera.Position;
@@ -53,15 +53,18 @@ namespace Larv.GameStates
                 points.Add(Vector3.Lerp(arcEndPoint, toCameraPosition, i/(float) missingPoints));
 
 
+#if DEBUG
+            const float time1 = 10f;
+            const float time2 = 0.25f;
+#else
+            var time1 = 2.5f;
+            var time2 = 2f;
+#endif
             // move to the board n an arc
-            _actions.Add(() =>
-            {
-                var moveCamera = new MoveCameraArc(_serpents.Camera, 2.5f.UnitsPerSecond(), toCameraPosition, Vector3.Right, 5);
-                _actions.InsertNext(moveCamera.Move);
-            });
+            _actions.Add(() => new MoveCameraArc(_serpents.Camera, time1.UnitsPerSecond(), toCameraPosition, Vector3.Right, 5));
 
             // look at the board for two seconds, while resetting the playing field
-            _actions.Add(2, () =>
+            _actions.Add(time2, () =>
             {
                 _serpents.Restart(_scene);
                 HomingDevice.Attach(_serpents);
@@ -71,11 +74,7 @@ namespace Larv.GameStates
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
             // turn around the camera to look at the cave 
-            _actions.Add(() =>
-            {
-                var moveCamera = new MoveCameraYaw(_serpents.Camera, 2f.Time(), toPosition, toLookAt);
-                _actions.InsertNext(moveCamera.Move);
-            });
+            _actions.Add(() => new MoveCameraYaw(_serpents.Camera, 2f.Time(), toPosition, toLookAt));
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)

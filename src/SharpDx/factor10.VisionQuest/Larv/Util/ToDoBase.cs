@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using factor10.VisionThing;
 using SharpDX.Toolkit;
 
 namespace Larv.Util
@@ -69,6 +70,15 @@ namespace Larv.Util
         {
             Add(timeToWait);
             Add(action);
+        }
+
+        public void AddMoveable(Func<IVMoveable> getMoveable)
+        {
+            Add(() =>
+            {
+                var moveable = getMoveable();
+                InsertNext(moveable.Move);
+            });
         }
 
     }

@@ -1,9 +1,10 @@
-﻿using factor10.VisionThing.Effects;
+﻿using System;
+using factor10.VisionThing.Effects;
 using SharpDX;
 
 namespace factor10.VisionThing
 {
-    public interface IVDrawable
+    public interface IVDrawable : IDisposable
     {
         void Draw(IVEffect effect, int lod = 0);
     }
@@ -11,6 +12,11 @@ namespace factor10.VisionThing
     public interface IPosition
     {
         Vector3 Position { get; }
+    }
+
+    public interface IVMoveable
+    {
+        bool Move(float time);
     }
 
     public struct PositionHolder : IPosition

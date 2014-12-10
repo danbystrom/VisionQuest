@@ -119,7 +119,7 @@ namespace Larv
 
             _gameState = new AttractState(Data.Serpents);
 
-            Data.ShadowMap.ShadowCastingObjects.Add(_windmill);
+            Data.LContent.ShadowMap.ShadowCastingObjects.Add(_windmill);
 
             base.LoadContent();
         }
@@ -134,7 +134,7 @@ namespace Larv
             _gameState.Update(Data.Serpents.Camera, gameTime, ref _gameState);
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
-            Data.ShadowMap.Camera.Update(
+            Data.LContent.ShadowMap.Camera.Update(
                 shadowCameraPos,
                 shadowCameraPos + VisionContent.SunlightDirection);
 
@@ -144,7 +144,7 @@ namespace Larv
 
         protected override void Draw(GameTime gameTime)
         {
-            Data.ShadowMap.Draw();
+            Data.LContent.ShadowMap.Draw(Data.Serpents.Camera);
 
             // Use time in seconds directly
             var time = (float) gameTime.TotalGameTime.TotalSeconds;
@@ -152,61 +152,8 @@ namespace Larv
             GraphicsDevice.Clear(Color.CornflowerBlue);
             //GraphicsDevice.SetRasterizerState(_rasterizerState);
 
-            _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
-            _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.ShadowMap);
-
-            _myBumpEffect.World = Matrix.Scaling(2.0f, 2.0f, 2.0f)*
-                                  Matrix.RotationX(0.8f*(float) Math.Sin(time*1.45))*
-                                  Matrix.RotationY(time*2.0f)*
-                                  Matrix.RotationZ(0)*
-                                  Matrix.Translation(Data.ShadowMap.Camera.Position);
-            _myBumpEffect.View = Data.Serpents.Camera.View;
-            _myBumpEffect.Projection = Data.Serpents.Camera.Projection;
-            _myBumpEffect.Texture = _image1;
-            _myBumpEffect.Parameters["BumpMap"].SetResource(_snakeBump);
-            _myBumpEffect.DiffuseColor = new Vector4(1, 1, 1, 0.9f);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.AlphaBlend);
-            _sphere.Draw(_myBumpEffect);
-            GraphicsDevice.SetBlendState(GraphicsDevice.BlendStates.Default);
-
-            _myBumpEffect.World = Matrix.Scaling(0.5f, 0.5f, 0.5f) *
-                      Matrix.Translation(Data.ShadowMap.Camera.Position + VisionContent.SunlightDirection * 3);
-            _sphere.Draw(_myBumpEffect);
-
-            _angleXZ += 0; // time/800;
-            _angleY += 0; //time/700;
-            var dy = (float) Math.Sin(_angleY);
-            var dxz = (float) Math.Cos(_angleY);
-            var dx = (float) Math.Cos(_angleXZ)*dxz;
-            var dz = (float) Math.Sin(_angleXZ)*dxz;
-            var n = new Vector3(dx, dy, dz);
-            _myBumpEffect.World = Matrix.Scaling(0.5f, 0.5f, 0.5f)*
-                                  Matrix.Translation(Data.ShadowMap.Camera.Position)*
-                                  Matrix.Translation(n*3);
-            _sphere.Draw(_myBumpEffect);
-
-            var default0 = Matrix.RotationZ(0)*Matrix.Translation(0, 0.5f, 0);
-
-            var rotation = Matrix.RotationY(0);
-            rotation.Up = n;
-            rotation.Right = Vector3.Normalize(Vector3.Cross(rotation.Forward, rotation.Up));
-            rotation.Forward = Vector3.Normalize(Vector3.Cross(rotation.Up, rotation.Right));
-
-            _myBumpEffect.World =
-                default0*
-                rotation *
-                Matrix.Translation(n * 2) *
-                Matrix.Translation(Data.ShadowMap.Camera.Position);
-            _cylinder.Draw(_myBumpEffect);
-
-
-            rotation = Matrix.RotationY(0);
-            rotation.Up = Data.PickedNormal;
-            rotation.Right = Vector3.Normalize(Vector3.Cross(rotation.Forward, rotation.Up));
-            rotation.Forward = Vector3.Normalize(Vector3.Cross(rotation.Up, rotation.Right));
-            _myEffect.World = Matrix.Scaling(0.2f,1,0.2f) * rotation * Data.WorldPicked;
-            _cylinder.Draw(_myEffect);
-
+            _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.LContent.ShadowMap);
+            _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.LContent.ShadowMap);
 
             // ------------------------------------------------------------------------
             // Draw the some 2d text

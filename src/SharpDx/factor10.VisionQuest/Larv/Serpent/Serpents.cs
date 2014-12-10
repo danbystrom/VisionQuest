@@ -83,7 +83,7 @@ namespace Larv.Serpent
             EnemyCave.SetPosition(PlayingField.EnemyWhereaboutsStart, PlayingField);
 
             if(Scene!=scene)
-                Data.Ground.GeneratePlayingField(PlayingField);
+                LContent.Ground.GeneratePlayingField(PlayingField);
             Scene = scene;
 
             PlayerSerpent = new PlayerSerpent(
@@ -112,7 +112,7 @@ namespace Larv.Serpent
                     Data.LContent,
                     LContent.LoadEffect(@"Effects\SimpleTextureEffect"),
                     this,
-                    Data.Ground));
+                    LContent.Ground));
         }
 
         public Result GameStatus()
@@ -228,10 +228,10 @@ namespace Larv.Serpent
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             PlayingField.Draw(camera, drawingReason, shadowMap);
-            Data.Ground.Draw(camera, drawingReason, shadowMap);
+            LContent.Ground.Draw(camera, drawingReason, shadowMap);
             PlayerCave.Draw(camera, drawingReason, shadowMap);
             EnemyCave.Draw(camera, drawingReason, shadowMap);
-            Data.Sky.Draw(camera, drawingReason, shadowMap);
+            LContent.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)
                 PlayerEgg.Draw(camera, drawingReason, shadowMap);

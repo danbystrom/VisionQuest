@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using factor10.VisionThing.Effects;
 using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing
 {
-    public class ShadowMap
+    public class ShadowMap : IDisposable
     {
         private readonly GraphicsDevice _graphicsDevice;
 
         public readonly List<ClipDrawable> ShadowCastingObjects = new List<ClipDrawable>();
         public readonly Camera Camera;
-        public readonly Camera RealCamera;
+        public Camera RealCamera { get; private set; }
 
         public readonly RenderTarget2D ShadowDepthTarget;
 
@@ -26,14 +27,12 @@ namespace factor10.VisionThing
 
         public ShadowMap(
             VisionContent vContent,
-            Camera camera,
             int width,
             int height,
             int nearPlane = 1,
             int farPlane = 200)
         {
             _graphicsDevice = vContent.GraphicsDevice;
-            RealCamera = camera;
 
             ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
@@ -61,8 +60,10 @@ namespace factor10.VisionThing
                 far > 0 ? far : ShadowFarPlane);
         }
 
-        public void Draw()
+        public void Draw(Camera camera)
         {
+            RealCamera = camera;
+
             _graphicsDevice.SetRenderTargets(ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
@@ -85,6 +86,14 @@ namespace factor10.VisionThing
             _spriteBatch.End();
             _shadowBlurEffect.Texture = null;
             //_graphicsDevice.ResetTargets();
+        }
+
+        public void Dispose()
+        {
+            ShadowDepthTarget.Dispose();
+            _spriteBatch.Dispose();
+            _shadowBlurTarg.Dispose();
+            _shadowBlurEffect.Dispose();
         }
 
     }

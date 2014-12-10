@@ -24,25 +24,22 @@ namespace Larv.GameStates
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
-            _seqCamera.Add(() =>
-            {
-                var moveCamera = new MoveCamera(
-                    _serpents.Camera,
-                    10f.UnitsPerSecond(),
-                    CameraLookAt,
-                    CameraPosition);
-                _seqCamera.InsertNext(moveCamera.Move);
-            });
-            _seqCamera.Add(0);
             _serpents.PlayerSerpent.DirectionTaker = this;
+
+            //_seqCamera.AddMoveable(() ) => new MoveCameraYaw(
+            //    _serpents.Camera,
+            //    10f.UnitsPerSecond(),
+            //    CameraPosition,
+            //    CameraLookAt));
+            _seqCamera.Add(0);
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
             addExplanationText();
 
-            //if(!_seqCamera.Do(gameTime))
-            //    addCameraActions();
+            if (!_seqCamera.Do(gameTime))
+                addCameraActions();
 
             _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
             _serpents.Update(camera, gameTime);
@@ -121,68 +118,62 @@ namespace Larv.GameStates
 
         private void addCameraActions()
         {
-            _seqCamera.Add(_random.NextFloat(2, 10));
+            //_seqCamera.Add(_random.NextFloat(2, 10));
             switch (_random.Next(10))
             {
                 case 0:  // go to random position
-                {
-                    var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
-                    var dx = _random.NextFloat(5, 15);
-                    var dz = _random.NextFloat(5, 15);
-                    if (_random.Next() < 0.5)
-                        dx = -dx;
-                    if (_random.Next() < 0.5)
-                        dz = -dz;
-                    var moveCamera = new MoveCameraYaw(
-                        _serpents.Camera,
-                        2f.UnitsPerSecond(),
-                        newPosition + Vector3.Up*5,
-                        newPosition + new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
-                    _seqCamera.Add(moveCamera.Move);
-                    break;
-                }
-                case 2:  // pan in random direction
-                {
-                    _seqCamera.Add(() =>
                     {
-                        var direction = new Vector3(_random.NextFloat(-5, 5), 0, _random.NextFloat(-5, 5));
-                        var moveCamera = new MoveCamera(
+                        var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
+                        var dx = _random.NextFloat(5, 15);
+                        var dz = _random.NextFloat(5, 15);
+                        if (_random.Next() < 0.5)
+                            dx = -dx;
+                        if (_random.Next() < 0.5)
+                            dz = -dz;
+                        var moveCamera = new MoveCameraYaw(
                             _serpents.Camera,
                             2f.UnitsPerSecond(),
-                            _serpents.Camera.Target + direction,
-                            _serpents.Camera.Position + direction);
-                        _seqCamera.InsertNext(moveCamera.Move);
-                    });
+                            newPosition + Vector3.Up * 5,
+                            newPosition + new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
+                        _seqCamera.Add(moveCamera.Move);
+                        break;
+                    }
+                case 2:  // pan in random direction
+                {
+                    var direction = _serpents.Camera.Left*_random.NextFloat(-10, 10);
+                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
+                        _serpents.Camera,
+                        2f.UnitsPerSecond(),
+                        _serpents.Camera.Position + direction,
+                        _serpents.Camera.Target + direction));
                     break;
                 }
                 case 3:
-                case 4:  // follow a serpent around
+                case 4:  // follow a serpent around awhile
                 {
                     var serpent = _random.NextDouble() > 0.4 || !_serpents.Enemies.Any()
-                        ? (BaseSerpent) _serpents.PlayerSerpent
+                        ? (BaseSerpent)_serpents.PlayerSerpent
                         : _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
-                    var moveCamera = new MoveCamera(
+                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
                         _serpents.Camera,
-                        3f.Time(),
-                        () => serpent.Position,
-                        serpent.Position + new Vector3(0, SerpentCamera.CameraDistanceToHeadY, 0));
+                        4f.Time(),
+                        serpent.Position + serpent.HeadDirection.DirectionAsVector3()*5 + new Vector3(0, SerpentCamera.CameraDistanceToHeadY, 0),
+                        serpent.Position));
                     var serpentCamera = new SerpentCamera(_serpents.Camera, serpent);
-                    _seqCamera.Add(moveCamera.Move);
                     _seqCamera.Add(time =>
                     {
                         serpentCamera.Move(time);
-                        return time < 5 && serpent.SerpentStatus == SerpentStatus.Alive;
+                        return time < 4 && serpent.SerpentStatus == SerpentStatus.Alive;
                     });
                     break;
                 }
                 default:
                 {
-                    var moveCamera = new MoveCameraYaw(
+                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
                         _serpents.Camera,
                         10f.UnitsPerSecond(),
                         CameraPosition,
-                        CameraLookAt);
-                    _seqCamera.Add(moveCamera.Move);
+                        CameraLookAt));
 //                    _seqCamera.Add(10);
                     break;
                 }

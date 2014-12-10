@@ -1,9 +1,10 @@
-﻿using SharpDX;
+﻿using System;
+using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Effects
 {
-    public interface IVEffect
+    public interface IVEffect : IDisposable
     {
         GraphicsDevice GraphicsDevice { get; }
         Matrix World { get; set; }

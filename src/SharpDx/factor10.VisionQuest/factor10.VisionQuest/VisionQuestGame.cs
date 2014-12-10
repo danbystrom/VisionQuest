@@ -108,7 +108,7 @@ namespace factor10.VisionQuest
                 IsAntialiasedLineEnabled = false
             });
 
-            _shadow = new ShadowMap(_vContent, _camera, 1024, 1024);
+            _shadow = new ShadowMap(_vContent, 1024, 1024);
             //_shadow.ShadowCastingObjects.Add(_sailingShip);
             //_shadow.ShadowCastingObjects.Add(reimersTerrain);
             //_shadow.ShadowCastingObjects.Add(generatedTerrain);

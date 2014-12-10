@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using factor10.VisionThing;
+using factor10.VisionThing.Tests;
 using SharpDX;
 
 namespace CircleMasterApp
@@ -21,6 +22,8 @@ namespace CircleMasterApp
 
         public FCameraMovement()
         {
+            new Class1().Z();
+
             InitializeComponent();
 
             _pts[1] = new PointF(300, 200);
