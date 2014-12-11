@@ -417,7 +417,7 @@ namespace Larv.Serpent
         {
             //if (debug)
             //    System.Diagnostics.Debug.Print("{0}", Vector3.DistanceSquared(GetPosition(), frog.Position));
-            if (Vector3.DistanceSquared(Position, frog.Position) > 0.3f)
+            if (Vector3.DistanceSquared(Position, frog.Position) > 0.35f)
                 return false;
             grow(2);
             return true;

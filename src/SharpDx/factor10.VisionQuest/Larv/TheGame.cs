@@ -52,9 +52,6 @@ namespace Larv
         /// </summary>
         public TheGame()
         {
-            //VisionContent.SunlightDirection = new Vector3(11f, -7f, 2f);
-
-            // Creates a graphics manager. This is mandatory.
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
             _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
             _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;            
@@ -73,14 +70,8 @@ namespace Larv
             Content.RootDirectory = "Content";
         }
 
-        private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override void Initialize()
         {
-            // Modify the title of the window
             Window.Title = "Larv! by Dan Byström - factor10 Solutions";
             IsMouseVisible = true;
             base.Initialize();
@@ -88,18 +79,6 @@ namespace Larv
 
         protected override void LoadContent()
         {
-            // Instantiate a SpriteBatch
-            //_spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
-
-            //_sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
-            //_cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 1, 1, 10);
-            //_myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
-            //_myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
-            //_image1 = Content.Load<Texture2D>("textures/rocknormal");
-            //_snakeBump = Content.Load<Texture2D>("textures/snakeskinmap");
-
-            //Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
-
             _lcontent = new LContent(GraphicsDevice, Content);
 
             var camera = new Camera(
@@ -128,10 +107,9 @@ namespace Larv
         {
             base.Update(gameTime);
 
+            _fps.Update(gameTime);
             _serpents.Camera.UpdateInputDevices();
             _lcontent.Ground.Update(_serpents.Camera, gameTime);
-
-            _fps.Update(gameTime);
             _windmill.Update(_serpents.Camera, gameTime);
             _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
 
@@ -148,11 +126,7 @@ namespace Larv
         {
             _lcontent.ShadowMap.Draw(_serpents.Camera);
 
-            // Use time in seconds directly
-            var time = (float) gameTime.TotalGameTime.TotalSeconds;
-
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            //GraphicsDevice.SetRasterizerState(_rasterizerState);
 
             _windmill.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);

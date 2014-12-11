@@ -1,5 +1,6 @@
 ﻿using System;
 using factor10.VisionThing;
+using factor10.VisionThing.Terrain;
 using SharpDX;
 
 namespace Larv.Serpent
@@ -14,23 +15,27 @@ namespace Larv.Serpent
 
         private readonly BaseSerpent _serpent;
 
-        public float Tension = DefaultTension;
+        public float MaxTension;
+        public float Tension;
+        public float TensionIncreaseFactor;
 
-        public SerpentCamera(Camera camera, BaseSerpent serpent)
+        public SerpentCamera(Camera camera, BaseSerpent serpent, float tension = DefaultTension, float tensionIncreaseFactor = 1, float maxTension = DefaultTension)
             : base(camera)
         {
             _serpent = serpent;
+            Tension = tension;
+            TensionIncreaseFactor = tensionIncreaseFactor;
+            MaxTension = maxTension;
         }
 
-        public void IncreaseTensionUntilMax(float delta, float max = DefaultTension)
-        {
-            Tension = Math.Min(max, Tension + delta);
-        }
 
         protected override bool MoveAround()
         {
             var dt = ElapsedTime - _lastTime;
             _lastTime = ElapsedTime;
+
+            if (Tension < MaxTension)
+                Tension = Math.Min(MaxTension, Tension + dt*TensionIncreaseFactor);
 
             var target = _serpent.LookAtPosition;
             var direction = _serpent.HeadDirection;

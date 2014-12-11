@@ -36,9 +36,9 @@ namespace Larv
             ShadowMap.UpdateProjection(50, 30);
         }
 
-        public float ViewportRatio
+        public float FontScaleRatio
         {
-            get { return GraphicsDevice.Viewport.Bounds.Width/GraphicsDevice.BackBuffer.Width; }
+            get { return GraphicsDevice.BackBuffer.Width/1920f; }
         }
 
         public void Dispose()

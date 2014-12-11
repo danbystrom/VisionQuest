@@ -142,11 +142,6 @@
     <ToolkitTexture Include="Content\Textures\brick_normal_map.jpg" />
     <ToolkitTexture Include="Content\Textures\brick_texture_map.jpg" />
     <ToolkitTexture Include="Content\Textures\clouds.dds" />
-    <ToolkitTexture Include="Content\Textures\sand.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ToolkitTexture Include="Content\Textures\windmill_diffuse.tga" />
-    <ToolkitTexture Include="Content\Textures\windmill_normal.tga" />
   </ItemGroup>
   <ItemGroup>
     <ToolkitTexture Include="Content\Water\waterbump.dds" />
@@ -155,6 +150,7 @@
     <ToolkitTexture Include="Content\Water\wave1.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ToolkitTexture Include="Content\Textures\windmill_diffuse.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\wheatfield.dds" />
     <ToolkitTexture Include="Content\Billboards\woodensign.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />

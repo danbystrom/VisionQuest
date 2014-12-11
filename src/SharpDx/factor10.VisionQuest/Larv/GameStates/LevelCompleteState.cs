@@ -18,6 +18,7 @@ namespace Larv.GameStates
         private bool _serpentIsHome;
         private bool _haltSerpents;
         private bool _homeIsNearCaveEntrance;
+        private int _bonusLives;
 
         public LevelCompleteState(Serpents serpents)
         {
@@ -68,6 +69,7 @@ namespace Larv.GameStates
                     _haltSerpents = false;
                     return;
                 }
+                _bonusLives = 1;
                 _serpents.PlayerSerpent.DirectionTaker = null;
                 _moveCamera = new MoveCamera(_serpents.Camera, 2f.Time(), _serpents.PlayerEgg.Position, toPosition);
                 // wait two sec (for camera) and then drive the baby home
@@ -108,6 +110,7 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
+            _serpents.UpdateScore();
             if (_haltSerpents)
                 _serpents.FloatingTexts.Update(camera, gameTime);
             else
@@ -116,6 +119,7 @@ namespace Larv.GameStates
             if (_todo.Do(gameTime))
                 return;
 
+            _serpents.LivesLeft += _bonusLives;
             gameState = new GotoBoardState(_serpents, _serpents.Scene + 1);
         }
 

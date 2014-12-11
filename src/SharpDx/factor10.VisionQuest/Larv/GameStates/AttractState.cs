@@ -61,6 +61,11 @@ namespace Larv.GameStates
                 _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
                 _serpents.PlayerSerpent.DirectionTaker = this;
             }
+            if (!_serpents.Enemies.Any())
+            {
+                _serpents.Restart(_serpents.Scene);
+                _serpents.PlayerSerpent.DirectionTaker = this;
+            }
 
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
             {
@@ -78,7 +83,7 @@ namespace Larv.GameStates
             var font = _serpents.LContent.Font;
 
             const string text = "LARV!";
-            const float fsize = 20;
+            var fsize = _serpents.LContent.FontScaleRatio * 20;
             var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
 
             var factor = 0f;
@@ -187,10 +192,9 @@ namespace Larv.GameStates
                     var serpent = _random.NextDouble() > 0.4 || !_serpents.Enemies.Any()
                         ? (BaseSerpent) _serpents.PlayerSerpent
                         : _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
-                    var serpentCamera = new SerpentCamera(_serpents.Camera, serpent) {Tension = 1};
+                    var serpentCamera = new SerpentCamera(_serpents.Camera, serpent, 0, 1, 5);
                     _todo.Add(time =>
                     {
-                        serpentCamera.IncreaseTensionUntilMax(time*0.01f, 5);
                         serpentCamera.Move(time);
                         return time < 8 && serpent.SerpentStatus == SerpentStatus.Alive;
                     });
@@ -206,8 +210,6 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            if (_random.NextDouble() < 0.001)
-                return RelativeDirection.Backward;
             return _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;
         }
 

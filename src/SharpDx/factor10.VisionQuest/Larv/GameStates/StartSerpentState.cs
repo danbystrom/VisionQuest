@@ -34,7 +34,7 @@ namespace Larv.GameStates
                     enemy.DirectionTaker = null;
             });
 
-            _serpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent) {Tension = 1f};
+            _serpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent, 0, 3, 9);
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
@@ -45,13 +45,12 @@ namespace Larv.GameStates
             if (_actions.Do(gameTime))
                 return;
 
-            _serpentCamera.IncreaseTensionUntilMax(14.3f*(float) gameTime.ElapsedGameTime.TotalSeconds);
             _serpentCamera.Move(gameTime);
 
             _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
             // farligt - skulle det ske ett "hopp" här så skulle vi inte märka att rutan passerades...
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents);
+                gameState = new PlayingState(_serpents, _serpentCamera);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

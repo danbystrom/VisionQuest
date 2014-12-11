@@ -142,7 +142,12 @@ namespace Larv.Serpent
                     if (normal.Y < 0.5f)
                         continue;
 
-                    gspaceTo.Y = _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
+                    var pos0 = _ground.GroundMap.GetExactHeight(gspaceTo.X - 0.3f, gspaceTo.Z - 0.3f);
+                    var pos1 = _ground.GroundMap.GetExactHeight(gspaceTo.X - 0.3f, gspaceTo.Z + 0.3f);
+                    var pos2 = _ground.GroundMap.GetExactHeight(gspaceTo.X + 0.3f, gspaceTo.Z - 0.3f);
+                    var pos3 = _ground.GroundMap.GetExactHeight(gspaceTo.X + 0.3f, gspaceTo.Z + 0.3f);
+                    gspaceTo.Y = Math.Min(Math.Min(pos0, pos1), Math.Min(pos2, pos3));
+                        // _ground.GroundMap.GetExactHeight(gspaceTo.X, gspaceTo.Z);
 
                     // now we have a new position for the frog
                     Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out position);

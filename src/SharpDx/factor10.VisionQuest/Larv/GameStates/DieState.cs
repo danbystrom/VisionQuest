@@ -32,7 +32,7 @@ namespace Larv.GameStates
             if (_todo.Do(gameTime))
                 return;
 
-            if (_serpents.LivesLeft >= 10)
+            if (_serpents.LivesLeft >= 1)
             {
                 _serpents.LivesLeft--;
                 gameState = new StartSerpentState(_serpents);

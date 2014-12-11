@@ -14,11 +14,11 @@ namespace Larv.GameStates
 
         public SerpentCamera SerpentCamera;
 
-        public PlayingState(Serpents serpents)
+        public PlayingState(Serpents serpents, SerpentCamera serpentCamera)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
-            SerpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent);
+            SerpentCamera = serpentCamera;
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)

@@ -26,12 +26,14 @@ namespace Larv
         public Ground(VisionContent vContent)
             : base(vContent)
         {
+            GroundMap = new GroundMap(TotalWidth, TotalHeight, 15);
+        }
+
+        public void GeneratePlayingField(PlayingField playingField)
+        {
             var rnd = new Random();
 
-            GroundMap = new GroundMap(TotalWidth, TotalHeight, 15);
-
             // generate mountains
-
             GroundMap.DrawLine(Left, Top, Right, Top, 2, (a, b) => rnd.Next(50, 300));
             GroundMap.DrawLine(Left, Top, Left, Bottom, 2, (a, b) => rnd.Next(50, 300));
             GroundMap.DrawLine(Right, Bottom, Right, Top, 2, (a, b) => rnd.Next(50, 300));
@@ -41,19 +43,14 @@ namespace Larv
             GroundMap.DrawLine(Left + 3, Top + 2, Left + 3, Bottom - 3, 2, (a, b) => rnd.Next(50, 200));
             GroundMap.DrawLine(Right - 3, Bottom - 2, Right - 3, Top + 3, 2, (a, b) => rnd.Next(50, 200));
             GroundMap.DrawLine(Right - 3, Bottom - 2, Left + 3, Bottom - 3, 2, (a, b) => rnd.Next(50, 200));
-        }
 
-        public void GeneratePlayingField(PlayingField playingField)
-        {
             var pfW = playingField.Width;
             var pfH = playingField.Height;
 
             var qx = -((TotalWidth - pfW * 3) / 2f + 0.5f) / 3;  // -9f;  // 128 - 75 = 53 / 2 = (26.5+0.5) / 3 = 9 
             var qy = -((TotalHeight - pfH * 3) / 2f + 0.5f) / 3; // -11f;  // 128 - 63 = 65 / 2 = (32.5+0.5) / 3 = 11
 
-            var rnd = new Random();
-
-            World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(qx - 0.3f, -0.5f, qy - 0.3f);
+            World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(qx - 0.1f, -0.5f, qy - 0.1f);
 
             //reset everything but the mountains
             GroundMap.AlterValues(Left + 4, Top + 4, Right - Left - 8, Bottom - Top - 8, (a, b, c) => 15);
