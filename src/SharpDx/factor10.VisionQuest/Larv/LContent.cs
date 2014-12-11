@@ -36,6 +36,11 @@ namespace Larv
             ShadowMap.UpdateProjection(50, 30);
         }
 
+        public float ViewportRatio
+        {
+            get { return GraphicsDevice.Viewport.Bounds.Width/GraphicsDevice.BackBuffer.Width; }
+        }
+
         public void Dispose()
         {
             SpriteBatch.Dispose();

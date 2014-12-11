@@ -31,7 +31,14 @@ namespace Larv.GameStates
             _serpents.Update(camera, gameTime);
             if (_todo.Do(gameTime))
                 return;
-            gameState = new StartSerpentState(_serpents);
+
+            if (_serpents.LivesLeft >= 10)
+            {
+                _serpents.LivesLeft--;
+                gameState = new StartSerpentState(_serpents);
+            }
+            else
+                gameState = new GameOverState(_serpents);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

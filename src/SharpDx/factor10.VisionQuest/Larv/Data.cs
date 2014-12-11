@@ -26,6 +26,7 @@ namespace Larv
         public Camera Camera;
 
         public Data(
+            int x,
             Game game1,
             KeyboardManager keyboardManager,
             MouseManager mouseManager,

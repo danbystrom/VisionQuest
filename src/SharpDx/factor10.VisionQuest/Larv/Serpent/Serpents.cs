@@ -48,19 +48,19 @@ namespace Larv.Serpent
         private int _pendingScore;
 
         public Serpents(
-            LContent lContent,
+            LContent lcontent,
             Camera camera,
             IVDrawable sphere,
             int scene)
-            : base(lContent.LoadEffect("effects/simplebumpeffect"))
+            : base(lcontent.LoadEffect("effects/simplebumpeffect"))
         {
-            LContent = lContent;
+            LContent = lcontent;
             Sphere = sphere;
 
             FloatingTexts = new FloatingTexts(LContent);
 
-            PlayerCave = new CaveModel(Data.LContent);
-            EnemyCave = new CaveModel(Data.LContent);
+            PlayerCave = new CaveModel(lcontent);
+            EnemyCave = new CaveModel(lcontent);
 
             Camera = camera;
 
@@ -106,7 +106,7 @@ namespace Larv.Serpent
 
             for (var i = 0; i < 3; i++)
                 Frogs.Add(new Frog(
-                    Data.LContent,
+                    LContent,
                     LContent.LoadEffect(@"Effects\SimpleTextureEffect"),
                     this,
                     LContent.Ground));
@@ -250,7 +250,7 @@ namespace Larv.Serpent
             foreach (var frog in Frogs)
                 frog.Draw(camera, drawingReason, shadowMap);
 
-            var allSerpents = new List<BaseSerpent> { PlayerSerpent };
+            var allSerpents = new List<BaseSerpent> {PlayerSerpent};
             allSerpents.AddRange(Enemies);
 
             foreach (var serpent in allSerpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
@@ -267,13 +267,14 @@ namespace Larv.Serpent
             var sb = LContent.SpriteBatch;
             var font = LContent.Font;
             var w = LContent.GraphicsDevice.BackBuffer.Width;
+            var fsize = LContent.ViewportRatio*2.1f;
             var text1 = string.Format("Score: {0:000 000}", Score);
             var text2 = string.Format("Scene: {0}", Scene + 1);
             var text3 = string.Format("Lives left: {0}", LivesLeft);
             sb.Begin();
-            sb.DrawString(font, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            sb.DrawString(font, text2, new Vector2((w - font.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            sb.DrawString(font, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+            sb.DrawString(font, text2, new Vector2((w - font.MeasureString(text2).X*fsize)/2, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X*fsize, 5) - 10, Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
             sb.End();
 
             FloatingTexts.Draw(camera, drawingReason, shadowMap);

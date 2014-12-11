@@ -13,10 +13,8 @@ namespace Larv.GameStates
     {
         private readonly Serpents _serpents;
         private readonly int _scene;
-        private readonly SpriteBatch _spriteBatch;
         private readonly IVEffect _signEffect;
         private readonly Vector3 _signPosition;
-        private readonly SpriteFont _spriteFont;
 
         private readonly SequentialToDoQue _actions = new SequentialToDoQue();
 
@@ -24,9 +22,7 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
             _scene = scene;
-            _spriteBatch = new SpriteBatch(_serpents.LContent.GraphicsDevice);
             _signEffect = _serpents.LContent.LoadEffect("effects/signtexteffect");
-            _spriteFont = _serpents.LContent.Load<SpriteFont>("fonts/BlackCastle");
 
             HomingDevice.Attach(serpents);
 
@@ -94,11 +90,14 @@ namespace Larv.GameStates
 
             camera.UpdateEffect(_signEffect);
 
+            var sb = _serpents.LContent.SpriteBatch;
+            var font = _serpents.LContent.Font;
+            var text = string.Format("Entering scene {0}", 1 + _scene);
             _signEffect.World = Matrix.BillboardRH(_signPosition + Vector3.Left * 0.1f, _signPosition + Vector3.Left, -camera.Up, Vector3.Right);
             _signEffect.DiffuseColor = new Vector4(0.5f, 0.4f, 0.3f, 1);
-            _spriteBatch.Begin(SpriteSortMode.Deferred, _signEffect.GraphicsDevice.BlendStates.NonPremultiplied, null, _signEffect.GraphicsDevice.DepthStencilStates.DepthRead, null, _signEffect.Effect);
-            _spriteBatch.DrawString(_spriteFont, "Entering scene 1", Vector2.Zero, Color.Black, 0, _spriteFont.MeasureString("Entering scene 1") / 2, 0.015f, 0, 0);
-            _spriteBatch.End();
+            sb.Begin(SpriteSortMode.Deferred, _signEffect.GraphicsDevice.BlendStates.NonPremultiplied, null, _signEffect.GraphicsDevice.DepthStencilStates.DepthRead, null, _signEffect.Effect);
+            sb.DrawString(font, text, Vector2.Zero, Color.Black, 0, font.MeasureString(text) / 2, 0.015f, 0, 0);
+            sb.End();
         }
 
     }

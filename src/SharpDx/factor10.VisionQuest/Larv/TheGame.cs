@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using factor10.VisionThing;
-using factor10.VisionThing.Effects;
-using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Util;
 using Larv.GameStates;
+using Larv.Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
+using System.Text;
 using Keys = SharpDX.Toolkit.Input.Keys;
-using RasterizerState = SharpDX.Toolkit.Graphics.RasterizerState;
-using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
 namespace Larv
 {
@@ -27,27 +24,26 @@ namespace Larv
     public class TheGame : Game
     {
         private GraphicsDeviceManager _graphicsDeviceManager;
-        private SpriteBatch _spriteBatch;
-        private SpriteFont _arial16Font;
-        private SpriteFont _blackCastleFont;
 
         private Windmill _windmill;
 
-        public Data Data;
+        //public Data Data;
 
-        private float _angleXZ = 0;
-        private float _angleY = 0;
+        //private float _angleXZ = 0;
+        //private float _angleY = 0;
 
-        public IGeometricPrimitive _sphere;
-        public IGeometricPrimitive _cylinder;
-        public VisionEffect _myEffect;
-        public VisionEffect _myBumpEffect;
-        private RasterizerState _rasterizerState;
+        //public IGeometricPrimitive _sphere;
+        //public IGeometricPrimitive _cylinder;
+        //public VisionEffect _myEffect;
+        //public VisionEffect _myBumpEffect;
+        //private RasterizerState _rasterizerState;
 
-        private Texture2D _snakeBump;
-        private Texture2D _image1;
+        //private Texture2D _snakeBump;
+        //private Texture2D _image1;
 
         private IGameState _gameState;
+        private LContent _lcontent;
+        private Serpents _serpents;
 
         private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
 
@@ -77,10 +73,15 @@ namespace Larv
             Content.RootDirectory = "Content";
         }
 
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void Initialize()
         {
             // Modify the title of the window
-            Window.Title = "Larv by Dan Byström - factor10 Solutions";
+            Window.Title = "Larv! by Dan Byström - factor10 Solutions";
             IsMouseVisible = true;
             base.Initialize();
         }
@@ -88,63 +89,64 @@ namespace Larv
         protected override void LoadContent()
         {
             // Instantiate a SpriteBatch
-            _spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
+            //_spriteBatch = ToDisposeContent(new SpriteBatch(GraphicsDevice));
 
-            _sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
-            _cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 1, 1, 10);
-            _myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
-            _myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
-            _image1 = Content.Load<Texture2D>("textures/rocknormal");
-            _snakeBump = Content.Load<Texture2D>("textures/snakeskinmap");
+            //_sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
+            //_cylinder = new CylinderPrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 1, 1, 10);
+            //_myEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleTextureEffect"));
+            //_myBumpEffect = new VisionEffect(Content.Load<Effect>(@"Effects\SimpleBumpEffect"));
+            //_image1 = Content.Load<Texture2D>("textures/rocknormal");
+            //_snakeBump = Content.Load<Texture2D>("textures/snakeskinmap");
 
-            Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
+            //Data = new Data(this, new KeyboardManager(this), new MouseManager(this), new PointerManager(this));
 
-            _arial16Font = Content.Load<SpriteFont>("Arial16");
+            _lcontent = new LContent(GraphicsDevice, Content);
 
-            _windmill = new Windmill(Data.LContent, Vector3.Zero);
+            var camera = new Camera(
+                _lcontent.ClientSize,
+                new KeyboardManager(this),
+                new MouseManager(this),
+                new PointerManager(this),
+                AttractState.CameraPosition,
+                AttractState.CameraLookAt) { MovingSpeed = 8 };
+            _serpents = new Serpents(_lcontent, camera, _lcontent.Sphere, 0);
 
-            _rasterizerState = RasterizerState.New(GraphicsDevice, new RasterizerStateDescription
-            {
-                FillMode = FillMode.Wireframe,
-                CullMode = CullMode.Back,
-                IsFrontCounterClockwise = false,
-                DepthBias = 0,
-                SlopeScaledDepthBias = 0.0f,
-                DepthBiasClamp = 0.0f,
-                IsDepthClipEnabled = true,
-                IsScissorEnabled = false,
-                IsMultisampleEnabled = false,
-                IsAntialiasedLineEnabled = false
-            });
+            _lcontent.Ground.GeneratePlayingField(_serpents.PlayingField);
+            _lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents);
 
-            _gameState = new AttractState(Data.Serpents);
+            _windmill = new Windmill(_lcontent, Vector3.Zero);
 
-            Data.LContent.ShadowMap.ShadowCastingObjects.Add(_windmill);
+            _gameState = new AttractState(_serpents);
+
+            _lcontent.ShadowMap.ShadowCastingObjects.Add(_windmill);
 
             base.LoadContent();
         }
+
 
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
+            _serpents.Camera.UpdateInputDevices();
+            _lcontent.Ground.Update(_serpents.Camera, gameTime);
+
             _fps.Update(gameTime);
-            _windmill.Update(Data.Serpents.Camera, gameTime);
-            Data.Update(gameTime);
-            _gameState.Update(Data.Serpents.Camera, gameTime, ref _gameState);
+            _windmill.Update(_serpents.Camera, gameTime);
+            _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
-            Data.LContent.ShadowMap.Camera.Update(
+            _lcontent.ShadowMap.Camera.Update(
                 shadowCameraPos,
                 shadowCameraPos + VisionContent.SunlightDirection);
 
-            if (Data.Serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
+            if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            Data.LContent.ShadowMap.Draw(Data.Serpents.Camera);
+            _lcontent.ShadowMap.Draw(_serpents.Camera);
 
             // Use time in seconds directly
             var time = (float) gameTime.TotalGameTime.TotalSeconds;
@@ -152,51 +154,18 @@ namespace Larv
             GraphicsDevice.Clear(Color.CornflowerBlue);
             //GraphicsDevice.SetRasterizerState(_rasterizerState);
 
-            _windmill.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.LContent.ShadowMap);
-            _gameState.Draw(Data.Serpents.Camera, DrawingReason.Normal, Data.LContent.ShadowMap);
+            _windmill.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
+            _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
 
             // ------------------------------------------------------------------------
             // Draw the some 2d text
             // ------------------------------------------------------------------------
-            _spriteBatch.Begin();
 
-            var text = new StringBuilder("This text is displayed with SpriteBatch").AppendLine();
-
+            var text = new StringBuilder();
             text.AppendFormat("FPS: {0}  GameState: {1}", _fps.FrameRate, _gameState.GetType()).AppendLine();
-
-            {
-                var w = Data.Serpents.PlayerSerpent._whereabouts;
-                var cl = w.Location;
-                var nl = w.NextLocation;
-                text.AppendFormat("Whereabouts: ({0},{1}) ({2}/{3}) {4:0.00}",
-                    cl.X, cl.Y, nl.X, nl.Y, w.Fraction).AppendLine();
-            }
-
-            //{
-            //    text.AppendFormat("Frog + B: ({0})  ({1})  ({2})  ({3})",
-            //        _frog.Position, Data.WorldPicked.TranslationVector, Data.PickedQueriedGroundHeight1, Data.PickedQueriedGroundHeight2).AppendLine();
-            //}
-
-            // Display pressed keys
-            var pressedKeys = new List<Keys>();
-            Data.Serpents.Camera.KeyboardState.GetDownKeys(pressedKeys);
-            text.Append("Key Pressed: [");
-            foreach (var key in pressedKeys)
-                text.Append(key).Append(" ");
-            text.Append("]").AppendLine();
-
-            var mouseState = Data.Serpents.Camera.MouseState;
-            // Display mouse coordinates and mouse button status
-            text.AppendFormat("Mouse ({0},{1}) Left: {2}, Right {3}", mouseState.X, mouseState.Y, mouseState.LeftButton, mouseState.RightButton).AppendLine();
-
-            var pointerState = Data.Serpents.Camera.PointerManager.GetState();
-            var points = pointerState.Points;
-            foreach (var point in points)
-                text.AppendFormat("Pointer event: [{0}] {1} {2} ({3}, {4})", point.PointerId, point.DeviceType, point.EventType, point.Position.X,
-                    point.Position.Y).AppendLine();
-
-            _spriteBatch.DrawString(_arial16Font, text.ToString(), new Vector2(16, 50), Color.White);
-            _spriteBatch.End();
+            _lcontent.SpriteBatch.Begin();
+            _lcontent.SpriteBatch.DrawString(_lcontent.Font, text.ToString(), Vector2.Zero, Color.White);
+            _lcontent.SpriteBatch.End();
 
             //_spriteBatch.Begin(SpriteSortMode.Deferred, GraphicsDevice.BlendStates.Default);
             //var shx = GraphicsDevice.BackBuffer.Width - Data.ShadowMap.ShadowDepthTarget.Width*0.25f - 4;

@@ -88,6 +88,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="FloatingText\FloatingTextItem.cs" />
     <Compile Include="GameStates\AttractState.cs" />
+    <Compile Include="GameStates\GameOverState.cs" />
     <Compile Include="GameStates\HomingDevice.cs" />
     <Compile Include="GameStates\DieState.cs" />
     <Compile Include="FloatingText\FloatingTexts.cs" />

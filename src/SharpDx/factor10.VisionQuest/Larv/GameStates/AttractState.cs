@@ -12,7 +12,7 @@ using SharpDX.X3DAudio;
 
 namespace Larv.GameStates
 {
-    class AttractState : IGameState, ITakeDirection
+    internal class AttractState : IGameState, ITakeDirection
     {
         public static readonly Vector3 CameraPosition = new Vector3(12, 12, 35);
         public static readonly Vector3 CameraLookAt = new Vector3(12, 2, 12);
@@ -26,21 +26,28 @@ namespace Larv.GameStates
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
-            _serpents.PlayerSerpent.DirectionTaker = this;
 
-            _todo.AddMoveable(new MoveCameraYaw(
-                _serpents.Camera,
-                10f.UnitsPerSecond(),
-                CameraPosition,
-                CameraLookAt));
-            _todo.Add(0);
+            _serpents.PlayerSerpent.DirectionTaker = this;
+            _serpents.Enemies.ForEach(_ => _.DirectionTaker = null);
+
+            _todo.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
+            _todo.Add(10);
         }
 
         private float _x;
 
+        public static MoveCameraBase GetOverviewMoveCamera(Camera camera)
+        {
+            return new MoveCameraYaw(
+                camera,
+                10f.UnitsPerSecond(),
+                CameraPosition,
+                CameraLookAt);
+        }
+
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _x += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _x += (float) gameTime.ElapsedGameTime.TotalSeconds;
 
             addExplanationText();
 
@@ -75,7 +82,7 @@ namespace Larv.GameStates
             var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
 
             var factor = 0f;
-            switch ((int)_x)
+            switch ((int) _x)
             {
                 case 1:
                     factor = _x - 1;
@@ -90,14 +97,14 @@ namespace Larv.GameStates
                     factor = _x = 0;
                     break;
             }
-            var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor) * Color.LightYellow;
+            var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor)*Color.LightYellow;
             sb.Begin(SpriteSortMode.Deferred, gd.BlendStates.NonPremultiplied);
-            sb.DrawString(font, text, (ssize - fsize * font.MeasureString(text)) / 2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+            sb.DrawString(font, text, (ssize - fsize*font.MeasureString(text))/2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
             sb.End();
 
             gd.SetDepthStencilState(gd.DepthStencilStates.Default);
             gd.SetBlendState(gd.BlendStates.Opaque);
-}
+        }
 
         private void addExplanationText()
         {
@@ -191,11 +198,7 @@ namespace Larv.GameStates
                 }
                 default:
                 {
-                    _todo.AddMoveable(new MoveCameraYaw(
-                        _serpents.Camera,
-                        10f.UnitsPerSecond(),
-                        CameraPosition,
-                        CameraLookAt));
+                    _todo.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
                     break;
                 }
             }
@@ -203,6 +206,8 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
+            if (_random.NextDouble() < 0.001)
+                return RelativeDirection.Backward;
             return _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;
         }
 

@@ -115,6 +115,7 @@ namespace Larv.GameStates
             _moveCamera.Move(gameTime);
             if (_todo.Do(gameTime))
                 return;
+
             gameState = new GotoBoardState(_serpents, _serpents.Scene + 1);
         }
 

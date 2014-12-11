@@ -16,13 +16,13 @@ namespace Larv
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
 
-        public CaveModel(VisionContent vContent)
-            : base(vContent.LoadEffect("effects/SimpleBumpEffect"))
+        public CaveModel(LContent lcontent)
+            : base(lcontent.LoadEffect("effects/SimpleBumpEffect"))
         {
-            _caveModel = vContent.Load<Model>("models/cave");
-            _gratingModel = vContent.Load<Model>("models/grating");
-            _texture = vContent.Load<Texture2D>("textures/cave");
-            _bumpMap = vContent.Load<Texture2D>("textures/rocknormal");
+            _caveModel = lcontent.Load<Model>("models/cave");
+            _gratingModel = lcontent.Load<Model>("models/grating");
+            _texture = lcontent.Load<Texture2D>("textures/cave");
+            _bumpMap = lcontent.Load<Texture2D>("textures/rocknormal");
         }
 
         public void SetPosition(Whereabouts whereabouts, PlayingField playingField)
