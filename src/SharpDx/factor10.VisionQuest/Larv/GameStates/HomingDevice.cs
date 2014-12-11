@@ -8,12 +8,13 @@ namespace Larv.GameStates
         private readonly PathFinder _playerPathFinder;
         private readonly PathFinder _enemyPathFinder;
 
-        public static void Attach(Serpents serpents)
+        public static void Attach(Serpents serpents, bool player = true, bool enemies = true)
         {
             var hd = new HomingDevice(serpents);
-            serpents.PlayerSerpent.DirectionTaker = hd;
-            foreach (var enemy in serpents.Enemies)
-                enemy.DirectionTaker = hd;
+            if (player)
+                serpents.PlayerSerpent.DirectionTaker = hd;
+            if (enemies)
+                serpents.Enemies.ForEach(_ => _.DirectionTaker = hd);
         }
 
         public HomingDevice(Serpents serpents)

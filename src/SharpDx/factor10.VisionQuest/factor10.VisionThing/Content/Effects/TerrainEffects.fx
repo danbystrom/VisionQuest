@@ -70,7 +70,7 @@ MTVertexToPixel MultiTexturedVS(float4 inPos : SV_Position, float2 inTexCoords: 
 float2 sampleShadowMap(float2 UV)
 {
 	if (UV.x < 0 || UV.x > 1 || UV.y < 0 || UV.y > 1)
-		return float2(0, 0);
+		return float2(1, 1);
 	return ShadowMap.Sample(TextureSampler, UV).rg;
 }
 

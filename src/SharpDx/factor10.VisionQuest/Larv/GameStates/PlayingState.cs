@@ -27,6 +27,7 @@ namespace Larv.GameStates
 
             SerpentCamera.Move(gameTime);
             _serpents.Update(camera, gameTime);
+            _serpents.UpdateScore();
             //camera.UpdateFreeFlyingCamera(gameTime);
 
             switch (_serpents.GameStatus())

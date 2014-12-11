@@ -89,7 +89,6 @@
     <Compile Include="FloatingText\FloatingTextItem.cs" />
     <Compile Include="GameStates\AttractState.cs" />
     <Compile Include="GameStates\HomingDevice.cs" />
-    <Compile Include="GameStates\BeginGameState.cs" />
     <Compile Include="GameStates\DieState.cs" />
     <Compile Include="FloatingText\FloatingTexts.cs" />
     <Compile Include="GameStates\IGameState.cs" />
@@ -119,7 +118,6 @@
     <Compile Include="Serpent\SerpentTailSegment.cs" />
     <Compile Include="Util\Direction.cs" />
     <Compile Include="Util\ToDoBase.cs" />
-    <Compile Include="Util\SinBump.cs" />
     <Compile Include="Util\SequentialToDoQue.cs" />
     <Compile Include="Util\Whereabouts.cs" />
     <Compile Include="CaveModel.cs" />

@@ -72,6 +72,11 @@ namespace Larv.Util
             Add(action);
         }
 
+        public void AddMoveable(IVMoveable moveable)
+        {
+            Add(moveable.Move);
+        }
+
         public void AddMoveable(Func<IVMoveable> getMoveable)
         {
             Add(() =>

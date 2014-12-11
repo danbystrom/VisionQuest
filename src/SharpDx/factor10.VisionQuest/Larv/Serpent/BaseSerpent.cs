@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
 using Larv.Util;
-using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;

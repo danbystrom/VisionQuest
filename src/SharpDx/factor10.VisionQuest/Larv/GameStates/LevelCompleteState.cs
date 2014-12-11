@@ -1,14 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
-using factor10.VisionThing;
-using Larv.FloatingText;
+﻿using factor10.VisionThing;
 using Larv.Serpent;
 using Larv.Util;
-using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
+using System.Linq;
 
 namespace Larv.GameStates
 {
@@ -18,7 +13,7 @@ namespace Larv.GameStates
         private readonly PathFinder _pathFinder;
         private MoveCamera _moveCamera;
 
-        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
+        private readonly SequentialToDoQue _todo = new SequentialToDoQue();
 
         private bool _serpentIsHome;
         private bool _haltSerpents;
@@ -34,22 +29,22 @@ namespace Larv.GameStates
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            _moveCamera =new MoveCamera(
+            _moveCamera = new MoveCamera(
                 _serpents.Camera,
                 4.5f.UnitsPerSecond(),
                 () => _serpents.PlayerSerpent.LookAtPosition,
                 toPosition);
 
             // wait until serpent is in cave, then give length bonus
-            _actions.Add(() => _homeIsNearCaveEntrance = true);
-            _actions.Add(time => !_serpentIsHome);
-            _actions.Add(() =>
+            _todo.Add(() => _homeIsNearCaveEntrance = true);
+            _todo.Add(time => !_serpentIsHome);
+            _todo.Add(() =>
             {
                 _serpents.PlayerSerpent.IsPregnant = false;
                 _haltSerpents = true;
             });
             for (var i = 0; i < _serpents.PlayerSerpent.Length; i++)
-                _actions.Add(1, () =>
+                _todo.Add(1, () =>
                 {
                     var tailSegement = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
                     if (tailSegement != null)
@@ -57,16 +52,16 @@ namespace Larv.GameStates
                 });
 
             // wait until all bonus texts gone
-            _actions.Add(time => _serpents.FloatingTexts.Items.Any());
-            _actions.Add(() =>
+            _todo.Add(time => _serpents.FloatingTexts.Items.Any());
+            _todo.Add(() =>
             {
                 _serpentIsHome = false;
                 _haltSerpents = false;
                 _homeIsNearCaveEntrance = false;
             });
-            _actions.Add(time => !_serpentIsHome);
+            _todo.Add(time => !_serpentIsHome);
 
-            _actions.Add(() =>
+            _todo.Add(() =>
             {
                 if (_serpents.PlayerEgg == null)
                 {
@@ -76,7 +71,7 @@ namespace Larv.GameStates
                 _serpents.PlayerSerpent.DirectionTaker = null;
                 _moveCamera = new MoveCamera(_serpents.Camera, 2f.Time(), _serpents.PlayerEgg.Position, toPosition);
                 // wait two sec (for camera) and then drive the baby home
-                _actions.InsertNext(
+                _todo.InsertNext(
                     time => time < 2,
                     time =>
                     {
@@ -90,13 +85,13 @@ namespace Larv.GameStates
             });
 
             // make sure the camera aims at a serpent (the original or the new born baby)
-            _actions.Add(() =>
+            _todo.Add(() =>
             {
                 _moveCamera = new MoveCamera(_serpents.Camera, 1f.Time(), () => _serpents.PlayerSerpent.LookAtPosition, toPosition);
-                _moveCamera.NeverComplete = true;
+                //_moveCamera.NeverComplete = true;
             });
 
-            _actions.Add(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
+            _todo.Add(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
@@ -118,7 +113,7 @@ namespace Larv.GameStates
             else
                 _serpents.Update(camera, gameTime);
             _moveCamera.Move(gameTime);
-            if (_actions.Do(gameTime))
+            if (_todo.Do(gameTime))
                 return;
             gameState = new GotoBoardState(_serpents, _serpents.Scene + 1);
         }

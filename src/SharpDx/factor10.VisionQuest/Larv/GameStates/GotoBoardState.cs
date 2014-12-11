@@ -60,8 +60,8 @@ namespace Larv.GameStates
             var time1 = 2.5f;
             var time2 = 2f;
 #endif
-            // move to the board n an arc
-            _actions.Add(() => new MoveCameraArc(_serpents.Camera, time1.UnitsPerSecond(), toCameraPosition, Vector3.Right, 5));
+            // move to the board in an arc
+            _actions.AddMoveable(() => new MoveCameraArc(_serpents.Camera, time1.UnitsPerSecond(), toCameraPosition, Vector3.Right, 5));
 
             // look at the board for two seconds, while resetting the playing field
             _actions.Add(time2, () =>
@@ -74,7 +74,8 @@ namespace Larv.GameStates
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
             // turn around the camera to look at the cave 
-            _actions.Add(() => new MoveCameraYaw(_serpents.Camera, 2f.Time(), toPosition, toLookAt));
+            _actions.AddMoveable(
+                () => new MoveCameraYaw(_serpents.Camera, 2f.Time(), toPosition, StartSerpentState.GetPlayerInitialLookAt(_serpents.PlayingField)));
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)

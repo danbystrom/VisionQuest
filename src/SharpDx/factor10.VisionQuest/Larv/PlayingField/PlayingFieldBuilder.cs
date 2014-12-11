@@ -1,6 +1,5 @@
 ﻿using System;
 using Larv.Util;
-using Serpent;
 using SharpDX;
 
 namespace Larv

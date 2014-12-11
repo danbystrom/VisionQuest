@@ -8,16 +8,17 @@ namespace factor10.VisionThing
     {
         public readonly bool UnitsPerSecond;
         public readonly float Time;
-        public MovementTime(float time, bool unitsPerSecond = false)
+        public readonly float MinimumTime;
+        public MovementTime(float time, bool unitsPerSecond = false, float minimumTime = 0.5f)
         {
             Time = time;
             UnitsPerSecond = unitsPerSecond;
+            MinimumTime = minimumTime;
         }
 
         public float GetTotalTime(float units)
         {
-            // never return zero, since that may lead to division by zero later
-            return Math.Max(!UnitsPerSecond ? Time : units/Time, 0.0000001f);
+            return Math.Max(!UnitsPerSecond ? Time : units/Time, MinimumTime);
         }
     }
 
@@ -27,9 +28,9 @@ namespace factor10.VisionThing
         {
             return new MovementTime(time);
         }
-        public static MovementTime UnitsPerSecond(this float time)
+        public static MovementTime UnitsPerSecond(this float time, float minimumTime = 0.5f)
         {
-            return new MovementTime(time, true);
+            return new MovementTime(time, true, minimumTime);
         }
     }
 

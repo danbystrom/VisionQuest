@@ -1,4 +1,5 @@
-﻿using factor10.VisionThing;
+﻿using System;
+using factor10.VisionThing;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
@@ -10,6 +11,7 @@ namespace Larv.GameStates
     {
         private readonly Serpents _serpents;
         private readonly SequentialToDoQue _actions = new SequentialToDoQue();
+        private readonly SerpentCamera _serpentCamera;
 
         public StartSerpentState(Serpents serpents)
         {
@@ -18,13 +20,11 @@ namespace Larv.GameStates
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            var moveCamera = new MoveCameraYaw(
+            _actions.AddMoveable(new MoveCameraYaw(
                 serpents.Camera,
                 5f.UnitsPerSecond(),
                 toPosition,
-                toLookAt);
-
-            _actions.Add(moveCamera.Move);
+                GetPlayerInitialLookAt(_serpents.PlayingField)));
             _actions.Add(() =>
             {
                 _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
@@ -33,6 +33,8 @@ namespace Larv.GameStates
                 foreach (var enemy in _serpents.Enemies)
                     enemy.DirectionTaker = null;
             });
+
+            _serpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent) {Tension = 1f};
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
@@ -43,6 +45,9 @@ namespace Larv.GameStates
             if (_actions.Do(gameTime))
                 return;
 
+            _serpentCamera.IncreaseTensionUntilMax(14.3f*(float) gameTime.ElapsedGameTime.TotalSeconds);
+            _serpentCamera.Move(gameTime);
+
             _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
             // farligt - skulle det ske ett "hopp" här så skulle vi inte märka att rutan passerades...
             if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
@@ -52,6 +57,12 @@ namespace Larv.GameStates
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
+        }
+
+        public static Vector3 GetPlayerInitialLookAt(PlayingField pf)
+        {
+            return pf.PlayerWhereaboutsStart.GetPosition(pf);
+            ;
         }
 
     }

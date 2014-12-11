@@ -22,8 +22,6 @@ namespace Larv.Serpent
 
         public readonly LContent LContent;
         public readonly FloatingTexts FloatingTexts;
-        public readonly SpriteBatch SpriteBatch;
-        public readonly SpriteFont SpriteFont;
 
         public readonly CaveModel PlayerCave;
         public readonly CaveModel EnemyCave;
@@ -45,8 +43,9 @@ namespace Larv.Serpent
         public readonly Camera Camera;
 
         public int Scene { get; private set; }
-
-        public int Score;
+        public int Score { get; private set; }
+        public int LivesLeft;
+        private int _pendingScore;
 
         public Serpents(
             LContent lContent,
@@ -58,8 +57,6 @@ namespace Larv.Serpent
             LContent = lContent;
             Sphere = sphere;
 
-            SpriteBatch = new SpriteBatch(lContent.GraphicsDevice);
-            SpriteFont = lContent.Content.Load<SpriteFont>("fonts/blackcastle");
             FloatingTexts = new FloatingTexts(LContent);
 
             PlayerCave = new CaveModel(Data.LContent);
@@ -113,6 +110,19 @@ namespace Larv.Serpent
                     LContent.LoadEffect(@"Effects\SimpleTextureEffect"),
                     this,
                     LContent.Ground));
+        }
+
+        public void ResetScoreAndLives()
+        {
+            Score = 0;
+            _pendingScore = 0;
+            LivesLeft = 2;
+        }
+
+        public void UpdateScore()
+        {
+            Score += _pendingScore;
+            _pendingScore = 0;
         }
 
         public Result GameStatus()
@@ -254,15 +264,17 @@ namespace Larv.Serpent
                 LContent.GraphicsDevice.SetBlendState(LContent.GraphicsDevice.BlendStates.Default);
             }
 
+            var sb = LContent.SpriteBatch;
+            var font = LContent.Font;
             var w = LContent.GraphicsDevice.BackBuffer.Width;
-            var text1 = string.Format("Score: {0:000 000}", 0);
+            var text1 = string.Format("Score: {0:000 000}", Score);
             var text2 = string.Format("Scene: {0}", Scene + 1);
-            var text3 = string.Format("Lives left: {0}", 1);
-            SpriteBatch.Begin();
-            SpriteBatch.DrawString(SpriteFont, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            SpriteBatch.DrawString(SpriteFont, text2, new Vector2((w - SpriteFont.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            SpriteBatch.DrawString(SpriteFont, text3, new Vector2(w - SpriteFont.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
-            SpriteBatch.End();
+            var text3 = string.Format("Lives left: {0}", LivesLeft);
+            sb.Begin();
+            sb.DrawString(font, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            sb.DrawString(font, text2, new Vector2((w - font.MeasureString(text2).X * 2.1f) / 2, 5), Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X * 2.1f, 5) - 10, Color.LightYellow, 0, Vector2.Zero, 2.1f, SpriteEffects.None, 0);
+            sb.End();
 
             FloatingTexts.Draw(camera, drawingReason, shadowMap);
 
@@ -274,6 +286,7 @@ namespace Larv.Serpent
 
         public void AddAndShowScore(int score, Vector3 position)
         {
+            _pendingScore += score;
             FloatingTexts.Items.Add(new FloatingTextItem(
                 new PositionHolder(position),
                 "+" + score,

@@ -6,7 +6,9 @@ using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
+using SharpDX.X3DAudio;
 
 namespace Larv.GameStates
 {
@@ -19,26 +21,30 @@ namespace Larv.GameStates
 
         private readonly Random _random = new Random();
 
-        private readonly SequentialToDoQue _seqCamera = new SequentialToDoQue();
+        private readonly SequentialToDoQue _todo = new SequentialToDoQue();
 
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
 
-            //_seqCamera.AddMoveable(() ) => new MoveCameraYaw(
-            //    _serpents.Camera,
-            //    10f.UnitsPerSecond(),
-            //    CameraPosition,
-            //    CameraLookAt));
-            _seqCamera.Add(0);
+            _todo.AddMoveable(new MoveCameraYaw(
+                _serpents.Camera,
+                10f.UnitsPerSecond(),
+                CameraPosition,
+                CameraLookAt));
+            _todo.Add(0);
         }
+
+        private float _x;
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
+            _x += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             addExplanationText();
 
-            if (!_seqCamera.Do(gameTime))
+            if (!_todo.Do(gameTime))
                 addCameraActions();
 
             _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
@@ -51,7 +57,7 @@ namespace Larv.GameStates
 
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
             {
-                // TODO: reset score and number of lives
+                _serpents.ResetScoreAndLives();
                 gameState = new GotoBoardState(_serpents, 0);
             }
         }
@@ -60,18 +66,38 @@ namespace Larv.GameStates
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
 
-            var lcontent = _serpents.LContent;
+            var gd = _serpents.LContent.GraphicsDevice;
+            var sb = _serpents.LContent.SpriteBatch;
+            var font = _serpents.LContent.Font;
 
             const string text = "LARV!";
             const float fsize = 20;
-            var ssize = new Vector2(lcontent.GraphicsDevice.BackBuffer.Width, lcontent.GraphicsDevice.BackBuffer.Height);
+            var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
 
-            var sb = lcontent.SpriteBatch;
-            sb.Begin();
-            //sb.DrawString(_serpents.LContent.Font, text, (ssize - fsize*lcontent.Font.MeasureString(text))/2, Color.White, 0, Vector2.Zero, fsize,
-            //    SpriteEffects.None, 0);
+            var factor = 0f;
+            switch ((int)_x)
+            {
+                case 1:
+                    factor = _x - 1;
+                    break;
+                case 2:
+                    factor = 1;
+                    break;
+                case 3:
+                    factor = 4 - _x;
+                    break;
+                case 10:
+                    factor = _x = 0;
+                    break;
+            }
+            var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor) * Color.LightYellow;
+            sb.Begin(SpriteSortMode.Deferred, gd.BlendStates.NonPremultiplied);
+            sb.DrawString(font, text, (ssize - fsize * font.MeasureString(text)) / 2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
             sb.End();
-        }
+
+            gd.SetDepthStencilState(gd.DepthStencilStates.Default);
+            gd.SetBlendState(gd.BlendStates.Opaque);
+}
 
         private void addExplanationText()
         {
@@ -118,30 +144,30 @@ namespace Larv.GameStates
 
         private void addCameraActions()
         {
-            //_seqCamera.Add(_random.NextFloat(2, 10));
-            switch (_random.Next(10))
+            _todo.Add(_random.NextFloat(2, 8));
+            switch (_random.Next(8))
             {
-                case 0:  // go to random position
-                    {
-                        var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
-                        var dx = _random.NextFloat(5, 15);
-                        var dz = _random.NextFloat(5, 15);
-                        if (_random.Next() < 0.5)
-                            dx = -dx;
-                        if (_random.Next() < 0.5)
-                            dz = -dz;
-                        var moveCamera = new MoveCameraYaw(
-                            _serpents.Camera,
-                            2f.UnitsPerSecond(),
-                            newPosition + Vector3.Up * 5,
-                            newPosition + new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
-                        _seqCamera.Add(moveCamera.Move);
-                        break;
-                    }
-                case 2:  // pan in random direction
+                case 0: // go to random position
                 {
-                    var direction = _serpents.Camera.Left*_random.NextFloat(-10, 10);
-                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
+                    var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
+                    var dx = _random.NextFloat(5, 15);
+                    var dz = _random.NextFloat(5, 15);
+                    if (_random.Next() < 0.5)
+                        dx = -dx;
+                    if (_random.Next() < 0.5)
+                        dz = -dz;
+                    var moveCamera = new MoveCameraYaw(
+                        _serpents.Camera,
+                        2f.UnitsPerSecond(),
+                        newPosition + Vector3.Up*5,
+                        new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
+                    _todo.Add(moveCamera.Move);
+                    break;
+                }
+                case 2: // pan in random direction
+                {
+                    var direction = _serpents.Camera.Left*_random.NextFloat(5, 10)*(_random.NextDouble() < 0.5 ? 1 : -1);
+                    _todo.AddMoveable(() => new MoveCameraYaw(
                         _serpents.Camera,
                         2f.UnitsPerSecond(),
                         _serpents.Camera.Position + direction,
@@ -149,32 +175,27 @@ namespace Larv.GameStates
                     break;
                 }
                 case 3:
-                case 4:  // follow a serpent around awhile
+                case 4: // follow a serpent around awhile
                 {
                     var serpent = _random.NextDouble() > 0.4 || !_serpents.Enemies.Any()
-                        ? (BaseSerpent)_serpents.PlayerSerpent
+                        ? (BaseSerpent) _serpents.PlayerSerpent
                         : _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
-                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
-                        _serpents.Camera,
-                        4f.Time(),
-                        serpent.Position + serpent.HeadDirection.DirectionAsVector3()*5 + new Vector3(0, SerpentCamera.CameraDistanceToHeadY, 0),
-                        serpent.Position));
-                    var serpentCamera = new SerpentCamera(_serpents.Camera, serpent);
-                    _seqCamera.Add(time =>
+                    var serpentCamera = new SerpentCamera(_serpents.Camera, serpent) {Tension = 1};
+                    _todo.Add(time =>
                     {
+                        serpentCamera.IncreaseTensionUntilMax(time*0.01f, 5);
                         serpentCamera.Move(time);
-                        return time < 4 && serpent.SerpentStatus == SerpentStatus.Alive;
+                        return time < 8 && serpent.SerpentStatus == SerpentStatus.Alive;
                     });
                     break;
                 }
                 default:
                 {
-                    _seqCamera.AddMoveable(() => new MoveCameraYaw(
+                    _todo.AddMoveable(new MoveCameraYaw(
                         _serpents.Camera,
                         10f.UnitsPerSecond(),
                         CameraPosition,
                         CameraLookAt));
-//                    _seqCamera.Add(10);
                     break;
                 }
             }

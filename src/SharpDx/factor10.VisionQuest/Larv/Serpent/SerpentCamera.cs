@@ -8,16 +8,23 @@ namespace Larv.Serpent
     {
         public const float CameraDistanceToHeadXz = 9;
         public const float CameraDistanceToHeadY = 5;
+        public const float DefaultTension = 10;
 
-        private float _acc;
         private float _lastTime;
 
         private readonly BaseSerpent _serpent;
+
+        public float Tension = DefaultTension;
 
         public SerpentCamera(Camera camera, BaseSerpent serpent)
             : base(camera)
         {
             _serpent = serpent;
+        }
+
+        public void IncreaseTensionUntilMax(float delta, float max = DefaultTension)
+        {
+            Tension = Math.Min(max, Tension + delta);
         }
 
         protected override bool MoveAround()
@@ -40,9 +47,12 @@ namespace Larv.Serpent
                 target.Y + CameraDistanceToHeadY,
                 position2D.Y);
 
-            _acc += (float) Math.Sqrt(Vector3.Distance(newPosition, Camera.Position))*dt;
-            _acc *= 0.4f;
-            var v = MathUtil.Clamp(_acc, 0.1f, 0.3f);
+            var v = dt * Tension;
+
+            //System.Diagnostics.Debug.Print("{0:0.000} {1:0.000} / {2:0.000} {3:0.000}",
+            //    Vector3.Distance(Camera.Position,Vector3.Lerp(Camera.Position, newPosition, v)),
+            //    Vector3.Distance(Camera.Target, Vector3.Lerp(Camera.Target, target, v)),
+            //    dt, v);
             Camera.Update(
                 Vector3.Lerp(Camera.Position, newPosition, v),
                 Vector3.Lerp(Camera.Target, target, v));

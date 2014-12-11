@@ -1,7 +1,6 @@
 ﻿using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using Larv.Util;
-using Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
