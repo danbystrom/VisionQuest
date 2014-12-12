@@ -1,8 +1,7 @@
 ﻿using System;
-using factor10.VisionThing;
 using SharpDX;
 
-namespace Larv.FloatingText
+namespace factor10.VisionThing.FloatingText
 {
     public class FloatingTextItem
     {

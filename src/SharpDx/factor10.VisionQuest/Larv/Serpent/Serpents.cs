@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
-using Larv.FloatingText;
-using Larv.Util;
+using factor10.VisionThing.FloatingText;
+using Larv.Field;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -25,6 +25,7 @@ namespace Larv.Serpent
 
         public readonly CaveModel PlayerCave;
         public readonly CaveModel EnemyCave;
+        public readonly Windmill Windmill;
 
         public PlayingField PlayingField { get; private set; }
 
@@ -57,19 +58,21 @@ namespace Larv.Serpent
             LContent = lcontent;
             Sphere = sphere;
 
-            FloatingTexts = new FloatingTexts(LContent);
+            FloatingTexts = new FloatingTexts(LContent, LContent.SpriteBatch, LContent.Font);
 
             PlayerCave = new CaveModel(lcontent);
             EnemyCave = new CaveModel(lcontent);
+            Windmill = new Windmill(lcontent, Vector3.Zero);
 
             Camera = camera;
 
+            Scene = -1;
             Restart(scene);
         }
 
         public void Restart(int scene)
         {
-            if(PlayingField!=null)
+            if (PlayingField != null)
                 PlayingField.Dispose();
             PlayingField = new PlayingField(
                 LContent,
@@ -79,7 +82,7 @@ namespace Larv.Serpent
             PlayerCave.SetPosition(PlayingField.PlayerWhereaboutsStart, PlayingField);
             EnemyCave.SetPosition(PlayingField.EnemyWhereaboutsStart, PlayingField);
 
-            if(Scene!=scene)
+            if (Scene != scene)
                 LContent.Ground.GeneratePlayingField(PlayingField);
             Scene = scene;
 
@@ -94,15 +97,12 @@ namespace Larv.Serpent
             PlayerEgg = null;
 
             for (var i = 0; i < 5; i++)
-            {
-                var enemy = new EnemySerpent(
+                Enemies.Add(new EnemySerpent(
                     LContent,
                     PlayingField,
                     Sphere,
-                    i * 1.5f,
-                    2);
-                Enemies.Add(enemy);
-            }
+                    i*1.5f,
+                    2));
 
             for (var i = 0; i < 3; i++)
                 Frogs.Add(new Frog(
@@ -137,6 +137,9 @@ namespace Larv.Serpent
         public override void Update(Camera camera, GameTime gameTime)
         {
             FloatingTexts.Update(camera, gameTime);
+            Windmill.Update(camera, gameTime);
+            PlayerCave.Update(camera, gameTime);
+            EnemyCave.Update(camera,gameTime);
 
             _paused ^= Camera.KeyboardState.IsKeyPressed(Keys.P);
             if (_paused)
@@ -145,10 +148,10 @@ namespace Larv.Serpent
             if (Camera.KeyboardState.IsKeyPressed(Keys.Z))
                 foreach (var enemy in Enemies)
                     enemy.SerpentStatus = SerpentStatus.Ghost;
-            if (Camera.KeyboardState.IsKeyPressed(Keys.X))
-                PlayerSerpent.AddTail();
-            if (Camera.KeyboardState.IsKeyPressed(Keys.Q))
-                PlayerSerpent.IsPregnant = true;
+            //if (Camera.KeyboardState.IsKeyPressed(Keys.X))
+            //    PlayerSerpent.AddTail();
+            //if (Camera.KeyboardState.IsKeyPressed(Keys.Q))
+            //    PlayerSerpent.IsPregnant = true;
 
             _onceASecond += gameTime.ElapsedGameTime.TotalSeconds;
             if (_onceASecond >= 1)
@@ -184,7 +187,7 @@ namespace Larv.Serpent
                         AddAndShowScore(eatenSegments*50, PlayerSerpent.Position);
                 }
 
-                if (enemy.EatEgg(PlayerEgg))
+                if (enemy.EatFrogOrEgg(PlayerEgg))
                     PlayerEgg = null;
 
                 var egg = enemy.TimeToLayEgg();
@@ -197,7 +200,7 @@ namespace Larv.Serpent
             {
                 EnemyEggs[i].Update(gameTime);
 
-                if (PlayerSerpent.EatEgg(EnemyEggs[i]))
+                if (PlayerSerpent.EatFrogOrEgg(EnemyEggs[i]))
                 {
                     AddAndShowScore(100, EnemyEggs[i].Position);
                     EnemyEggs.RemoveAt(i);
@@ -225,12 +228,12 @@ namespace Larv.Serpent
                     PlayerEgg = null;
                 EnemyEggs.RemoveAll(_ => frog.DistanceSquared(_) < 0.4f);
 
-                if (PlayerSerpent.EatFrog(frog, true))
+                if (PlayerSerpent.EatFrogOrEgg(frog))
                 {
                     AddAndShowScore(100, frog.Position);
                     frog.Restart();
                 }
-                else if (Enemies.Any(enemy => enemy.EatFrog(frog)))
+                else if (Enemies.Any(enemy => enemy.EatFrogOrEgg(frog)))
                     frog.Restart();
             }
         }
@@ -241,6 +244,7 @@ namespace Larv.Serpent
             LContent.Ground.Draw(camera, drawingReason, shadowMap);
             PlayerCave.Draw(camera, drawingReason, shadowMap);
             EnemyCave.Draw(camera, drawingReason, shadowMap);
+            Windmill.Draw(camera, DrawingReason.Normal, shadowMap);
             LContent.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)
@@ -267,7 +271,7 @@ namespace Larv.Serpent
             var sb = LContent.SpriteBatch;
             var font = LContent.Font;
             var w = LContent.GraphicsDevice.BackBuffer.Width;
-            var fsize = LContent.FontScaleRatio*2.1f;
+            var fsize = LContent.FontScaleRatio*1.2f;
             var text1 = string.Format("Score: {0:000 000}", Score);
             var text2 = string.Format("Scene: {0}", Scene + 1);
             var text3 = string.Format("Lives left: {0}", LivesLeft);

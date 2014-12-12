@@ -1,20 +1,23 @@
 ﻿using System.Collections.Generic;
-using factor10.VisionThing;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
-namespace Larv.FloatingText
+namespace factor10.VisionThing.FloatingText
 {
     public class FloatingTexts : ClipDrawable
     {
-        public readonly LContent LContent;
+        public readonly VisionContent VContent;
+        public readonly SpriteBatch SpriteBatch;
+        public readonly SpriteFont Font;
         public readonly List<FloatingTextItem> Items = new List<FloatingTextItem>();
 
-        public FloatingTexts(LContent lContent)
-            : base(lContent.LoadEffect("effects/signtexteffect"))
+        public FloatingTexts(VisionContent vcontent, SpriteBatch spriteBatch, SpriteFont font)
+            : base(vcontent.LoadEffect("effects/signtexteffect"))
         {
-            LContent = lContent;
+            VContent = vcontent;
+            SpriteBatch = spriteBatch;
+            Font = font;
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -30,17 +33,14 @@ namespace Larv.FloatingText
             if (drawingReason != DrawingReason.Normal)
                 return true;
 
-            var sb = LContent.SpriteBatch;
-            var font = LContent.Font;
-
             camera.UpdateEffect(Effect);
             foreach (var item in Items)
             {
                 Effect.World = Matrix.BillboardRH(item.Target.Position + item.GetOffset(item), camera.Position, -camera.Up, camera.Front);
                 Effect.DiffuseColor = item.GetColor(item);
-                sb.Begin(SpriteSortMode.Deferred, Effect.GraphicsDevice.BlendStates.NonPremultiplied, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, Effect.Effect);
-                sb.DrawString(font, item.Text, Vector2.Zero, Color.Black, 0, font.MeasureString(item.Text) / 2, item.GetSize(item), 0, 0);
-                sb.End();
+                SpriteBatch.Begin(SpriteSortMode.Deferred, Effect.GraphicsDevice.BlendStates.NonPremultiplied, null, Effect.GraphicsDevice.DepthStencilStates.DepthRead, null, Effect.Effect);
+                SpriteBatch.DrawString(Font, item.Text, Vector2.Zero, Color.Black, 0, Font.MeasureString(item.Text) / 2, item.GetSize(item), 0, 0);
+                SpriteBatch.End();
             }
 
             Effect.GraphicsDevice.SetDepthStencilState(Effect.GraphicsDevice.DepthStencilStates.Default);

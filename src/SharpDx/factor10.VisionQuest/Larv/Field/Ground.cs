@@ -5,7 +5,7 @@ using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
-namespace Larv
+namespace Larv.Field
 {
     public class Ground : TerrainBase
     {
@@ -26,12 +26,14 @@ namespace Larv
         public Ground(VisionContent vContent)
             : base(vContent)
         {
-            GroundMap = new GroundMap(TotalWidth, TotalHeight, 15);
+            GroundMap = new GroundMap(TotalWidth, TotalHeight);
         }
 
         public void GeneratePlayingField(PlayingField playingField)
         {
             var rnd = new Random();
+
+            GroundMap.AlterValues(Left, Top, Right - Left, Bottom - Top, (a, b, c) => 15);
 
             // generate mountains
             GroundMap.DrawLine(Left, Top, Right, Top, 2, (a, b) => rnd.Next(50, 300));
@@ -47,13 +49,10 @@ namespace Larv
             var pfW = playingField.Width;
             var pfH = playingField.Height;
 
-            var qx = -((TotalWidth - pfW * 3) / 2f + 0.5f) / 3;  // -9f;  // 128 - 75 = 53 / 2 = (26.5+0.5) / 3 = 9 
-            var qy = -((TotalHeight - pfH * 3) / 2f + 0.5f) / 3; // -11f;  // 128 - 63 = 65 / 2 = (32.5+0.5) / 3 = 11
+            var qx = -((TotalWidth - pfW * 3) / 2f + 0.5f) / 3;
+            var qy = -((TotalHeight - pfH * 3) / 2f + 0.5f) / 3;
 
             World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(qx - 0.1f, -0.5f, qy - 0.1f);
-
-            //reset everything but the mountains
-            GroundMap.AlterValues(Left + 4, Top + 4, Right - Left - 8, Bottom - Top - 8, (a, b, c) => 15);
 
             for (var i = 0; i < 5000; i++)
                 GroundMap[rnd.Next(Left + 4, Right - 4), rnd.Next(Top + 8, Bottom - 8)] += 20;

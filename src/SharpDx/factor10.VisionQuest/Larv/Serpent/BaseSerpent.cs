@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
+using Larv.Field;
 using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
@@ -405,19 +406,9 @@ namespace Larv.Serpent
             }
         }
 
-        public bool EatEgg(Egg egg)
+        public bool EatFrogOrEgg(IPosition thing)
         {
-            if (egg == null || Vector3.DistanceSquared(Position, egg.Position) > 0.4f)
-                return false;
-            grow(2);
-            return true;
-        }
-
-        public bool EatFrog(Frog frog, bool debug = false)
-        {
-            //if (debug)
-            //    System.Diagnostics.Debug.Print("{0}", Vector3.DistanceSquared(GetPosition(), frog.Position));
-            if (Vector3.DistanceSquared(Position, frog.Position) > 0.35f)
+            if (thing == null || Vector3.DistanceSquared(Position, thing.Position) > 0.4f)
                 return false;
             grow(2);
             return true;

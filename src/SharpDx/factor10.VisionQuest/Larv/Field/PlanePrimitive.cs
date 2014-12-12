@@ -1,8 +1,7 @@
 ﻿using System;
-using SharpDX;
 using SharpDX.Toolkit.Graphics;
 
-namespace Larv
+namespace Larv.Field
 {
 
     public class PlanePrimitive<T> : factor10.VisionThing.Primitives.GeometricPrimitive<T> where T : struct, IEquatable<T>
@@ -35,16 +34,6 @@ namespace Larv
                 }
 
             initializePrimitive(graphicsDevice);
-        }
-
-        private static Vector2[] getCirclArc(int tessellation)
-        {
-            var result = new Vector2[tessellation + 1];
-            var angle = 0f;
-            var angleStep = MathUtil.TwoPi/tessellation;
-            for (var i = 0; i <= tessellation; i++,angle += angleStep)
-                result[i] = new Vector2((float) Math.Cos(angle), (float) Math.Sin(angle));
-            return result;
         }
 
     }

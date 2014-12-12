@@ -89,6 +89,8 @@
     <Compile Include="Camera.cs" />
     <Compile Include="ClipDrawable.cs" />
     <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="FloatingText\FloatingTextItem.cs" />
+    <Compile Include="FloatingText\FloatingTexts.cs" />
     <Compile Include="MoveCameraYaw.cs" />
     <Compile Include="MoveCameraArc.cs" />
     <Compile Include="MoveCameraBase.cs" />
@@ -154,14 +156,12 @@
     <ToolkitTexture Include="Content\TerrainTextures\wheatfield.dds" />
     <ToolkitTexture Include="Content\Billboards\woodensign.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />
-    <ToolkitFxc Include="Content\ShadowEffects\GaussianBlur.fx" />
     <ToolkitFxc Include="Content\Billboards\MSBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\grass.dds" />
     <ToolkitTexture Include="Content\Billboards\tree.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\grass.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\path.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Canyon.dds" />
-    <ToolkitFont Include="Content\Fonts\Arial16.xml" />
     <ToolkitTexture Include="Content\TerrainTextures\sand.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\stones.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\dirtground.dds" />

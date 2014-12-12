@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
+using Larv.Field;
 using Larv.Serpent;
 using SharpDX.Toolkit.Content;
 using SharpDX.Toolkit.Graphics;

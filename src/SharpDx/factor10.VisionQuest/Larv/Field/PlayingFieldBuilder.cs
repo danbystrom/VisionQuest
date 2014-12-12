@@ -2,7 +2,7 @@
 using Larv.Util;
 using SharpDX;
 
-namespace Larv
+namespace Larv.Field
 {
     public class PlayingFieldBuilder
     {

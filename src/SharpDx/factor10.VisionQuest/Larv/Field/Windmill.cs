@@ -4,9 +4,9 @@ using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
-namespace Larv
+namespace Larv.Field
 {
-    internal class Windmill : ClipDrawable
+    public class Windmill : ClipDrawable
     {
         private readonly Model _model;
 

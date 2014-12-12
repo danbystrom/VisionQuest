@@ -22,7 +22,7 @@ namespace factor10.VisionThing
         public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
-        private readonly RenderTarget2D _shadowBlurTarg;
+        public readonly RenderTarget2D _shadowBlurTarg;
         private readonly IVEffect _shadowBlurEffect;
 
         public ShadowMap(
@@ -38,6 +38,8 @@ namespace factor10.VisionThing
 
             _spriteBatch = new SpriteBatch(_graphicsDevice);
             _shadowBlurEffect = vContent.LoadEffect("ShadowEffects/Blur");
+            _shadowBlurEffect.Parameters["dx"].SetValue(1f/width);
+            _shadowBlurEffect.Parameters["dy"].SetValue(1f/height);
             _shadowBlurTarg = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
 
             ShadowNearPlane = nearPlane;
@@ -51,13 +53,13 @@ namespace factor10.VisionThing
             UpdateProjection(60, 60);
         }
 
-        public void UpdateProjection(int width, int height, int near = 0, int far = 0)
+        public void UpdateProjection(int width, int height, int? near = null, int? far = null)
         {
             Camera.Projection = Matrix.OrthoRH(
                 width,
                 height,
-                near > 0 ? near : ShadowNearPlane,
-                far > 0 ? far : ShadowFarPlane);
+                near.GetValueOrDefault(ShadowNearPlane),
+                far.GetValueOrDefault(ShadowFarPlane));
         }
 
         public void Draw(Camera camera)
@@ -68,24 +70,34 @@ namespace factor10.VisionThing
             _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
+            //_graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
 
-            blurShadow(_shadowBlurTarg, ShadowDepthTarget, 0);
-            blurShadow(ShadowDepthTarget, _shadowBlurTarg, 0);
+            blurShadow(_shadowBlurTarg, ShadowDepthTarget);
+            blurShadow(ShadowDepthTarget, _shadowBlurTarg);
 
             _graphicsDevice.SetDepthStencilState(_graphicsDevice.DepthStencilStates.Default);
             _graphicsDevice.SetBlendState(_graphicsDevice.BlendStates.Opaque);
             _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
         }
 
-        private void blurShadow(RenderTarget2D to, RenderTarget2D from, int dir)
+        public void nisse()
+        {
+            _shadowBlurEffect.Apply();
+            _spriteBatch.Begin(SpriteSortMode.Deferred, _shadowBlurEffect.Effect);
+            _spriteBatch.Draw(ShadowDepthTarget, Vector2.Zero, Color.White);
+            _spriteBatch.End();
+            _shadowBlurEffect.Texture = null;
+        }
+
+        private void blurShadow(RenderTarget2D to, RenderTarget2D from)
         {
             _graphicsDevice.SetRenderTargets(to);
+            _graphicsDevice.Clear(Color.Black);
             _shadowBlurEffect.Apply();
-            _spriteBatch.Begin(SpriteSortMode.Immediate,  _shadowBlurEffect.Effect);
+            _spriteBatch.Begin(SpriteSortMode.Deferred,  _shadowBlurEffect.Effect);
             _spriteBatch.Draw(from, Vector2.Zero, Color.White);
             _spriteBatch.End();
             _shadowBlurEffect.Texture = null;
-            //_graphicsDevice.ResetTargets();
         }
 
         public void Dispose()

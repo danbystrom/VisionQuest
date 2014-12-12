@@ -162,6 +162,11 @@ namespace factor10.VisionThing.Terrain
             return true;
         }
 
+        public override void Dispose()
+        {
+            _vertexBuffer.Dispose();
+        }
+
     }
 
 }

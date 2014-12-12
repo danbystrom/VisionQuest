@@ -1,7 +1,7 @@
 ﻿using Larv.Util;
 using SharpDX;
 
-namespace Larv
+namespace Larv.Field
 {
     public class PathFinder
     {
@@ -13,16 +13,6 @@ namespace Larv
             PlayingField = pf;
             Distance = new int[pf.TheField.GetUpperBound(0)+1, pf.TheField.GetUpperBound(1)+1, pf.TheField.GetUpperBound(2)+1];
             Explore(home.Floor, home.Location, 1, Direction.None);
-
-            //for (var y = 0; y < pf.TheField.GetUpperBound(1) + 1; y++)
-            //{
-            //    var s = "";
-            //    for (var x = 0; x < pf.TheField.GetUpperBound(2) + 1; x++)
-            //    {
-            //        s += string.Format("{0,4}", Distance[0, y, x]);
-            //    }
-            //    System.Diagnostics.Debug.Print(s);
-            //}
         }
 
         public void Explore(int floor, Point fromLoc, int distance, Direction direction)

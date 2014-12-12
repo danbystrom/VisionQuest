@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Larv
+namespace Larv.Field
 {
     public static class PlayingFields
     {

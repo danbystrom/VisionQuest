@@ -7,7 +7,7 @@ using SharpDX;
 using SharpDX.Toolkit.Graphics;
 using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
-namespace Larv
+namespace Larv.Field
 {
     public class PlayingField : ClipDrawable
     {

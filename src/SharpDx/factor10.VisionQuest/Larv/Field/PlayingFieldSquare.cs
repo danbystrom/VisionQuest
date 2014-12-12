@@ -1,6 +1,6 @@
 ﻿using Larv.Util;
 
-namespace Larv
+namespace Larv.Field
 {
     public enum PlayingFieldSquareType
     {

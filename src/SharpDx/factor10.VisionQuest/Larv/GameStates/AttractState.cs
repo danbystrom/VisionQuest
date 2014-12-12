@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using factor10.VisionThing;
-using Larv.FloatingText;
+using factor10.VisionThing.FloatingText;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
@@ -21,7 +21,9 @@ namespace Larv.GameStates
 
         private readonly Random _random = new Random();
 
-        private readonly SequentialToDoQue _todo = new SequentialToDoQue();
+        private readonly SequentialToDoQue _cameraMovements = new SequentialToDoQue();
+
+        private bool _freeCamera;
 
         public AttractState(Serpents serpents)
         {
@@ -30,8 +32,8 @@ namespace Larv.GameStates
             _serpents.PlayerSerpent.DirectionTaker = this;
             _serpents.Enemies.ForEach(_ => _.DirectionTaker = null);
 
-            _todo.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
-            _todo.Add(10);
+            _cameraMovements.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
+            _cameraMovements.Add(10);
         }
 
         private float _x;
@@ -51,20 +53,23 @@ namespace Larv.GameStates
 
             addExplanationText();
 
-            if (!_todo.Do(gameTime))
+            _freeCamera ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.C);
+            if(_freeCamera)
+                _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
+            else if (!_cameraMovements.Do(gameTime))
                 addCameraActions();
 
-            _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
             _serpents.Update(camera, gameTime);
-            if (_serpents.GameStatus() != Serpents.Result.GameOn)
+            switch (_serpents.GameStatus())
             {
-                _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
-                _serpents.PlayerSerpent.DirectionTaker = this;
-            }
-            if (!_serpents.Enemies.Any())
-            {
-                _serpents.Restart(_serpents.Scene);
-                _serpents.PlayerSerpent.DirectionTaker = this;
+                case Serpents.Result.PlayerDied:
+                    _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
+                    _serpents.PlayerSerpent.DirectionTaker = this;
+                    break;
+                case Serpents.Result.LevelComplete:
+                    _serpents.Restart(_serpents.Scene);
+                    _serpents.PlayerSerpent.DirectionTaker = this;
+                    break;
             }
 
             if (_serpents.Camera.KeyboardState.IsKeyPressed(Keys.Space))
@@ -83,7 +88,7 @@ namespace Larv.GameStates
             var font = _serpents.LContent.Font;
 
             const string text = "LARV!";
-            var fsize = _serpents.LContent.FontScaleRatio * 20;
+            var fsize = _serpents.LContent.FontScaleRatio * 15;
             var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
 
             var factor = 0f;
@@ -156,7 +161,7 @@ namespace Larv.GameStates
 
         private void addCameraActions()
         {
-            _todo.Add(_random.NextFloat(2, 8));
+            _cameraMovements.Add(_random.NextFloat(2, 8));
             switch (_random.Next(8))
             {
                 case 0: // go to random position
@@ -173,13 +178,13 @@ namespace Larv.GameStates
                         2f.UnitsPerSecond(),
                         newPosition + Vector3.Up*5,
                         new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20)));
-                    _todo.Add(moveCamera.Move);
+                    _cameraMovements.Add(moveCamera.Move);
                     break;
                 }
                 case 2: // pan in random direction
                 {
                     var direction = _serpents.Camera.Left*_random.NextFloat(5, 10)*(_random.NextDouble() < 0.5 ? 1 : -1);
-                    _todo.AddMoveable(() => new MoveCameraYaw(
+                    _cameraMovements.AddMoveable(() => new MoveCameraYaw(
                         _serpents.Camera,
                         2f.UnitsPerSecond(),
                         _serpents.Camera.Position + direction,
@@ -193,7 +198,7 @@ namespace Larv.GameStates
                         ? (BaseSerpent) _serpents.PlayerSerpent
                         : _serpents.Enemies[_random.Next(0, _serpents.Enemies.Count)];
                     var serpentCamera = new SerpentCamera(_serpents.Camera, serpent, 0, 1, 5);
-                    _todo.Add(time =>
+                    _cameraMovements.Add(time =>
                     {
                         serpentCamera.Move(time);
                         return time < 8 && serpent.SerpentStatus == SerpentStatus.Alive;
@@ -202,7 +207,7 @@ namespace Larv.GameStates
                 }
                 default:
                 {
-                    _todo.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
+                    _cameraMovements.AddMoveable(GetOverviewMoveCamera(_serpents.Camera));
                     break;
                 }
             }

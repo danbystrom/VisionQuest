@@ -7,20 +7,21 @@ sampler TextureSampler : register(s0);
 // SpriteBatch expects that default vertex transform parameter will have name 'MatrixTransform'
 row_major float4x4 MatrixTransform;
 
-void SpriteVertexShader(inout float4 color    : COLOR0,
+float dx;
+float dy;
+
+void SpriteVertexShader(
+	inout float4 color    : COLOR0,
 	inout float2 texCoord : TEXCOORD0,
 	inout float4 position : SV_Position)
 {
 	position = mul(position, MatrixTransform);
 }
 
-float4 SpritePixelShader(float4 color : COLOR0,
+float4 SpritePixelShader(
+	float4 color : COLOR0,
 	float2 texCoord : TEXCOORD0) : SV_Target0
 {
-	// simulate a simplest grayscale effect
-
-	float dx = 2 / 500;
-	float dy = 2 / 500;
 	float4 output =
 		Texture.Sample(TextureSampler, texCoord + float2(-dx, -dy)) +
 		Texture.Sample(TextureSampler, texCoord + float2(0, -dy)) +
@@ -31,7 +32,7 @@ float4 SpritePixelShader(float4 color : COLOR0,
 		Texture.Sample(TextureSampler, texCoord + float2(-dx, dy)) +
 		Texture.Sample(TextureSampler, texCoord + float2(0, dy)) +
 		Texture.Sample(TextureSampler, texCoord + float2(dx, dy));
-	return output / 9 * color;
+	return output/9 * color;
 }
 
 technique SpriteBatch
