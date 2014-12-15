@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Larv.Util
+namespace factor10.VisionThing.Util
 {
     public class ParallelToDo : ToDoBase
     {

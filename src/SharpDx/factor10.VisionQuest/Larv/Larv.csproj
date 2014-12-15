@@ -114,9 +114,6 @@
     <Compile Include="Serpent\Serpents.cs" />
     <Compile Include="Serpent\SerpentTailSegment.cs" />
     <Compile Include="Util\Direction.cs" />
-    <Compile Include="Util\ParallelToDo.cs" />
-    <Compile Include="Util\ToDoBase.cs" />
-    <Compile Include="Util\SequentialToDo.cs" />
     <Compile Include="Util\Whereabouts.cs" />
     <Compile Include="Field\CaveModel.cs" />
     <Compile Include="Field\Windmill.cs" />

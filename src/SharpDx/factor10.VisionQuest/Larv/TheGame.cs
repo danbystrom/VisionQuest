@@ -10,6 +10,7 @@ using Larv.Serpent;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.Toolkit;
+using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 using System.Text;
 using Keys = SharpDX.Toolkit.Input.Keys;
@@ -47,13 +48,17 @@ namespace Larv
         protected override void Initialize()
         {
             Window.Title = "Larv! by Dan Byström - factor10 Solutions";
-            IsMouseVisible = true;
+            //IsMouseVisible = true;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _lcontent = new LContent(GraphicsDevice, Content);
+
+            var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection * 32;
+            var shadowCameraLookAt = shadowCameraPos + VisionContent.SunlightDirection;
+            _lcontent.ShadowMap.Camera.Update(shadowCameraPos, shadowCameraLookAt);
 
             var camera = new Camera(
                 _lcontent.ClientSize,
@@ -63,14 +68,7 @@ namespace Larv
                 AttractState.CameraPosition,
                 AttractState.CameraLookAt) { MovingSpeed = 8 };
             _serpents = new Serpents(_lcontent, camera, 0);
-
             _lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents);
-            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_lcontent.Ground);
-            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.PlayerCave);
-            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.EnemyCave);
-            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.Windmill);
-            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_lcontent.Sky);
-
             _gameState = new AttractState(_serpents);
 
             base.LoadContent();
@@ -84,11 +82,6 @@ namespace Larv
             _serpents.Camera.UpdateInputDevices();
             _lcontent.Ground.Update(_serpents.Camera, gameTime);
             _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
-
-            var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
-            _lcontent.ShadowMap.Camera.Update(
-                shadowCameraPos,
-                shadowCameraPos + VisionContent.SunlightDirection);
 
             if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
                 Exit();
@@ -105,9 +98,9 @@ namespace Larv
             // ------------------------------------------------------------------------
 
             var text = new StringBuilder();
-            text.AppendFormat("FPS: {0}  GameState: {1}", _fps.FrameRate, _gameState.GetType()).AppendLine();
+            text.AppendFormat("FPS: {0}", _fps.FrameRate);
             _lcontent.SpriteBatch.Begin();
-            _lcontent.SpriteBatch.DrawString(_lcontent.Font, text.ToString(), Vector2.Zero, Color.White);
+            _lcontent.SpriteBatch.DrawString(_lcontent.Font, text.ToString(), Vector2.Zero, Color.White, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
             _lcontent.SpriteBatch.End();
 
             base.Draw(gameTime);

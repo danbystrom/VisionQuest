@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms.VisualStyles;
-using factor10.VisionThing;
 using SharpDX.Toolkit;
 
-namespace Larv.Util
+namespace factor10.VisionThing.Util
 {
     public abstract class ToDoBase : IDurable
     {

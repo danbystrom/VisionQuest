@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.FloatingText;
+using factor10.VisionThing.Util;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
-using SharpDX.X3DAudio;
+using Color = SharpDX.Color;
 
 namespace Larv.GameStates
 {
@@ -18,12 +20,12 @@ namespace Larv.GameStates
         public static readonly Vector3 CameraLookAt = new Vector3(12, 2, 12);
 
         private readonly Serpents _serpents;
-
         private readonly Random _random = new Random();
-
         private readonly SequentialToDo _cameraMovements = new SequentialToDo();
 
         private bool _freeCamera;
+        private float _scrollingTextAngle;
+        private float _larvText;
 
         public AttractState(Serpents serpents)
         {
@@ -36,8 +38,6 @@ namespace Larv.GameStates
             _cameraMovements.AddWait(10);
         }
 
-        private float _x;
-
         public static MoveCameraBase GetOverviewMoveCamera(Camera camera)
         {
             return new MoveCameraYaw(
@@ -49,7 +49,8 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _x += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _larvText += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            _scrollingTextAngle = MathUtil.Mod2PI(_scrollingTextAngle + 1.2f*(float) gameTime.ElapsedGameTime.TotalSeconds);
 
             addExplanationText();
 
@@ -87,29 +88,37 @@ namespace Larv.GameStates
             var sb = _serpents.LContent.SpriteBatch;
             var font = _serpents.LContent.Font;
 
-            const string text = "LARV!";
-            var fsize = _serpents.LContent.FontScaleRatio * 15;
+            var text = "LARV!";
+            var fsize = _serpents.LContent.FontScaleRatio*15;
             var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
 
             var factor = 0f;
-            switch ((int) _x)
+            switch ((int) _larvText)
             {
                 case 1:
-                    factor = _x - 1;
+                    factor = _larvText - 1;
                     break;
                 case 2:
                     factor = 1;
                     break;
                 case 3:
-                    factor = 4 - _x;
+                    factor = 4 - _larvText;
                     break;
                 case 10:
-                    factor = _x = 0;
+                    factor = _larvText = 0;
                     break;
             }
             var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor)*Color.LightYellow;
             sb.Begin(SpriteSortMode.Deferred, gd.BlendStates.NonPremultiplied);
             sb.DrawString(font, text, (ssize - fsize*font.MeasureString(text))/2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+
+            fsize *= 0.1f;
+            text = "HIT [SPACE] TO PLAY";
+            var measureString = fsize*font.MeasureString(text);
+            var halfWidth = (ssize.X - measureString.X) / 2;
+            var pos = new Vector2(halfWidth + (float) Math.Sin(_scrollingTextAngle)*halfWidth, ssize.Y - measureString.Y);
+            sb.DrawString(font, text, pos, Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+
             sb.End();
 
             gd.SetDepthStencilState(gd.DepthStencilStates.Default);
@@ -141,7 +150,7 @@ namespace Larv.GameStates
                     break;
                 case 4:
                     if (_serpents.Frogs.Any())
-                        newItem = createExplanationText(_serpents.Frogs[_random.Next(0, _serpents.Frogs.Count)], "Frog is food and eats eggs");
+                        newItem = createExplanationText(_serpents.Frogs[_random.Next(0, _serpents.Frogs.Count)], "Frog is food but eats eggs");
                     break;
             }
             if (newItem != null)

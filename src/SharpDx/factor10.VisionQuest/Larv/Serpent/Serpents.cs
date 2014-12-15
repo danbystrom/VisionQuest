@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.FloatingText;
+using factor10.VisionThing.Util;
 using Larv.Field;
 using Larv.Util;
 using SharpDX;
@@ -280,7 +281,7 @@ namespace Larv.Serpent
             sb.Begin();
             sb.DrawString(font, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
             sb.DrawString(font, text2, new Vector2((w - font.MeasureString(text2).X*fsize)/2, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X*fsize, 5) - 10, Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X*fsize - 10, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
             sb.End();
 
             FloatingTexts.Draw(camera, drawingReason, shadowMap);

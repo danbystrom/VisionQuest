@@ -10,7 +10,7 @@ namespace Larv.Serpent
     public class EnemySerpent : BaseSerpent
     {
         public static readonly Vector4 ColorWhenLonger = new Vector4(1.2f, 0.7f, 0.7f, 1);
-        public static readonly Vector4 ColorWhenShorter = new Vector4(0.7f, 1.2f, 0.7f, 1);
+        public static readonly Vector4 ColorWhenShorter = new Vector4(0.8f, 1.4f, 0.8f, 1);
 
         private static readonly Random Rnd = new Random();
         private float _delayBeforeStart;

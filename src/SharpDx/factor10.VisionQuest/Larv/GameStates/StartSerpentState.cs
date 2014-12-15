@@ -1,5 +1,6 @@
 ﻿using System;
 using factor10.VisionThing;
+using factor10.VisionThing.Util;
 using Larv.Field;
 using Larv.Serpent;
 using Larv.Util;
@@ -40,14 +41,9 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            foreach (var enemy in _serpents.Enemies)
-                enemy.Update(camera, gameTime);
-
+            _serpents.Update(camera, gameTime);
             if (_serpentCamera != null)
-            {
-                _serpents.PlayerSerpent.Update(camera, gameTime);
                 _serpentCamera.Move(gameTime);
-            }
 
             if (_actions.Do(gameTime))
                 return;
