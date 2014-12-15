@@ -14,9 +14,9 @@ namespace factor10.VisionThing
         Vector3 Position { get; }
     }
 
-    public interface IVMoveable
+    public interface IDurable
     {
-        bool Move(float time);
+        bool Do(float time);
     }
 
     public struct PositionHolder : IPosition

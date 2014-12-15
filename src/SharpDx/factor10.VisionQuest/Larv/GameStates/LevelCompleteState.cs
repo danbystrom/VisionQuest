@@ -14,7 +14,7 @@ namespace Larv.GameStates
         private readonly PathFinder _pathFinder;
         private MoveCamera _moveCamera;
 
-        private readonly SequentialToDoQue _todo = new SequentialToDoQue();
+        private readonly SequentialToDo _todo = new SequentialToDo();
 
         private bool _serpentIsHome;
         private bool _haltSerpents;
@@ -37,16 +37,18 @@ namespace Larv.GameStates
                 () => _serpents.PlayerSerpent.LookAtPosition,
                 toPosition);
 
+            _serpents.PlayerCave.OpenDoor = true;
+
             // wait until serpent is in cave, then give length bonus
-            _todo.Add(() => _homeIsNearCaveEntrance = true);
-            _todo.Add(time => !_serpentIsHome);
-            _todo.Add(() =>
+            _todo.AddOneShot(() => _homeIsNearCaveEntrance = true);
+            _todo.AddWhile(time => !_serpentIsHome);
+            _todo.AddOneShot(() =>
             {
                 _serpents.PlayerSerpent.IsPregnant = false;
                 _haltSerpents = true;
             });
             for (var i = 0; i < _serpents.PlayerSerpent.Length; i++)
-                _todo.Add(1, () =>
+                _todo.AddOneShot(1, () =>
                 {
                     var tailSegement = _serpents.PlayerSerpent.RemoveTailWhenLevelComplete();
                     if (tailSegement != null)
@@ -54,16 +56,16 @@ namespace Larv.GameStates
                 });
 
             // wait until all bonus texts gone
-            _todo.Add(time => _serpents.FloatingTexts.Items.Any());
-            _todo.Add(() =>
+            _todo.AddWhile(time => _serpents.FloatingTexts.Items.Any());
+            _todo.AddOneShot(() =>
             {
                 _serpentIsHome = false;
                 _haltSerpents = false;
                 _homeIsNearCaveEntrance = false;
             });
-            _todo.Add(time => !_serpentIsHome);
+            _todo.AddWhile(time => !_serpentIsHome);
 
-            _todo.Add(() =>
+            _todo.AddOneShot(() =>
             {
                 if (_serpents.PlayerEgg == null)
                 {
@@ -88,13 +90,13 @@ namespace Larv.GameStates
             });
 
             // make sure the camera aims at a serpent (the original or the new born baby)
-            _todo.Add(() =>
+            _todo.AddOneShot(() =>
             {
                 _moveCamera = new MoveCamera(_serpents.Camera, 1f.Time(), () => _serpents.PlayerSerpent.LookAtPosition, toPosition);
                 //_moveCamera.NeverComplete = true;
             });
 
-            _todo.Add(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
+            _todo.AddWhile(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
         }
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)

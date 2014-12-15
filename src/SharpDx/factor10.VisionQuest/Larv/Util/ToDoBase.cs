@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Forms.VisualStyles;
 using factor10.VisionThing;
 using SharpDX.Toolkit;
 
 namespace Larv.Util
 {
-    public abstract class ToDoBase
+    public abstract class ToDoBase : IDurable
     {
         public class TimedAction
         {
@@ -28,61 +29,71 @@ namespace Larv.Util
         }
 
         protected readonly List<TimedAction> Actions = new List<TimedAction>();
+        protected float ElapsedTime;
 
-        public abstract bool Do(GameTime gameTime);
+        protected abstract bool Execute(float delta);
+
+        public bool Do(GameTime gameTime)
+        {
+            var delta = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            ElapsedTime += delta;
+            return Execute(delta);
+        }
+
+        public bool Do(float elapsedTime)
+        {
+            var delta = elapsedTime - ElapsedTime;
+            ElapsedTime += elapsedTime;
+            return Execute(delta);
+        }
 
         public void InsertNext(params Func<float, bool>[] actions)
         {
             Actions.InsertRange(0, actions.Select(_ => new TimedAction(this, _)));
         }
 
-        public void Add(TimedAction timedAction)
+        public void AddWhile(TimedAction timedAction)
         {
             Actions.Add(timedAction);
         }
 
-        public void Add(Func<float, bool> action)
+        public void AddWhile(Func<float, bool> action)
         {
-            Add(new TimedAction(this, action));
+            AddWhile(new TimedAction(this, action));
         }
 
-        public void Add(float timeToWait, Func<float, bool> action)
+        public void AddWait(float timeToWait)
         {
-            Add(timeToWait);
-            Add(action);
+            AddWhile(time => time <= timeToWait);
         }
 
-        public void Add(float timeToWait)
+        public void AddOneShot(Action action)
         {
-            Add(time => time <= timeToWait);
+            AddOneShot(0, action);
         }
 
-        public void Add(Action action)
+        public void AddOneShot(float timeToWait, Action action)
         {
-            Add(time =>
+            AddWhile(time =>
             {
+                if (time < timeToWait)
+                    return true;
                 action();
                 return false;
             });
         }
 
-        public void Add(float timeToWait, Action action)
+        public void AddDurable(IDurable durable)
         {
-            Add(timeToWait);
-            Add(action);
+            AddWhile(durable.Do);
         }
 
-        public void AddMoveable(IVMoveable moveable)
+        public void AddDurable(Func<IDurable> getDurable)
         {
-            Add(moveable.Move);
-        }
-
-        public void AddMoveable(Func<IVMoveable> getMoveable)
-        {
-            Add(() =>
+            AddOneShot(() =>
             {
-                var moveable = getMoveable();
-                InsertNext(moveable.Move);
+                var durable = getDurable();
+                InsertNext(durable.Do);
             });
         }
 

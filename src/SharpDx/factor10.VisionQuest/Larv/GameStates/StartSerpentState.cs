@@ -11,8 +11,8 @@ namespace Larv.GameStates
     internal class StartSerpentState : IGameState
     {
         private readonly Serpents _serpents;
-        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
-        private readonly SerpentCamera _serpentCamera;
+        private readonly SequentialToDo _actions = new SequentialToDo();
+        private SerpentCamera _serpentCamera;
 
         public StartSerpentState(Serpents serpents)
         {
@@ -21,12 +21,12 @@ namespace Larv.GameStates
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);
 
-            _actions.AddMoveable(new MoveCameraYaw(
+            _actions.AddDurable(new MoveCameraYaw(
                 serpents.Camera,
                 5f.UnitsPerSecond(),
                 toPosition,
                 GetPlayerInitialLookAt(_serpents.PlayingField)));
-            _actions.Add(() =>
+            _actions.AddOneShot(() =>
             {
                 _serpents.PlayerSerpent.Restart(_serpents.PlayingField, 1);
                 while (_serpents.Enemies.Count > 4 + _serpents.Scene)
@@ -34,8 +34,8 @@ namespace Larv.GameStates
                 foreach (var enemy in _serpents.Enemies)
                     enemy.DirectionTaker = null;
             });
-
-            _serpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent, 0, 3, 9);
+            _actions.AddWhile(time => _serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None);
+            _actions.AddOneShot(() => _serpentCamera = new SerpentCamera(_serpents.Camera, _serpents.PlayerSerpent, 0, 3, 9));
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
@@ -43,15 +43,16 @@ namespace Larv.GameStates
             foreach (var enemy in _serpents.Enemies)
                 enemy.Update(camera, gameTime);
 
+            if (_serpentCamera != null)
+            {
+                _serpents.PlayerSerpent.Update(camera, gameTime);
+                _serpentCamera.Move(gameTime);
+            }
+
             if (_actions.Do(gameTime))
                 return;
 
-            _serpentCamera.Move(gameTime);
-
-            _serpents.PlayerSerpent.Update(_serpents.Camera, gameTime);
-            // farligt - skulle det ske ett "hopp" här så skulle vi inte märka att rutan passerades...
-            if (_serpents.PlayingField.FieldValue(_serpents.PlayerSerpent.Whereabouts).Restricted != Direction.None)
-                gameState = new PlayingState(_serpents, _serpentCamera);
+            gameState = new PlayingState(_serpents, _serpentCamera);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

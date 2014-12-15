@@ -15,11 +15,15 @@ namespace Larv.Field
         public Matrix CaveWorld;
         public Matrix GratingWorld;
 
+        public bool OpenDoor = false;
+        private float _angle = MathUtil.Pi * 3/4;
+
         private readonly Texture2D _texture;
         private readonly Texture2D _bumpMap;
         private readonly Texture2D _gratingTexture;
-        private float _angle;
-        private Matrix _translation;
+
+        private readonly Matrix _gratingPart1;
+        private Matrix _gratingPart3;
 
         public CaveModel(LContent lcontent)
             : base(lcontent.LoadEffect("effects/SimpleBumpEffect"))
@@ -29,6 +33,7 @@ namespace Larv.Field
             _bumpMap = lcontent.Load<Texture2D>("textures/rocknormal");
             _gratingModel = lcontent.Load<Model>("models/grating");
             _gratingTexture = lcontent.Load<Texture2D>("textures/black");
+            _gratingPart1 = Matrix.Translation(0.08f, 0, -0.02f)*Matrix.Scaling(0.5f, 0.7f, 0.4f);
         }
 
         public void SetPosition(Whereabouts whereabouts, PlayingField playingField)
@@ -43,31 +48,23 @@ namespace Larv.Field
                         *Matrix.Translation(5, 0.3f, -0.5f)
                         *Matrix.RotationY(MathUtil.PiOverTwo)
                         *Matrix.Translation(position);
-            GratingWorld = Matrix.RotationY(MathUtil.PiOverFour)
-                           *Matrix.Scaling(0.5f, 0.7f, 0.5f)
-                //*Matrix.Translation(5, 0.3f, -0.5f)
-                           *Matrix.Translation(position);
-            _translation = 
-                           Matrix.Translation(0.5f, 0.3f, -5)
-                           *Matrix.Translation(position);
+            _gratingPart3 = Matrix.Translation(0.41f, 0.2f, -4.7f) * Matrix.Translation(position);
         }
 
-        private float _x = 0.3f;
-        private float _z = -0.3f;
+        private void updateGratingWorld(float dangle)
+        {
+            _angle = MathUtil.Clamp(_angle + dangle, MathUtil.Pi, MathUtil.Pi*3/2);
+            GratingWorld = _gratingPart1*Matrix.RotationY(_angle)*_gratingPart3;
+        }
 
         public override void Update(Camera camera, GameTime gameTime)
         {
-            var dx = camera.KeyboardState.IsKeyPressed(Keys.X) ? 0.02f : 0;
-            var dz = camera.KeyboardState.IsKeyPressed(Keys.Z) ? 0.02f : 0;
-            if (camera.KeyboardState.IsKeyDown(Keys.Shift))
-            {
-                dx = -dx;
-                dz = -dz;
-            }
-            _x += dx;
-            _z += dz;
-            _angle += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            GratingWorld = Matrix.Translation(_x, 0, _z)*Matrix.Scaling(0.5f, 0.7f, 0.4f)*Matrix.RotationY(_angle)*_translation;
+            if (OpenDoor && _angle > MathUtil.Pi)
+                updateGratingWorld(-(float) gameTime.ElapsedGameTime.TotalSeconds);
+            if (!OpenDoor && _angle < MathUtil.Pi*3/2)
+                updateGratingWorld((float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            OpenDoor ^= camera.KeyboardState.IsKeyPressed(Keys.G);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

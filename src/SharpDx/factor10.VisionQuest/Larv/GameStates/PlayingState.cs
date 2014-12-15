@@ -16,9 +16,11 @@ namespace Larv.GameStates
 
         public PlayingState(Serpents serpents, SerpentCamera serpentCamera)
         {
+            SerpentCamera = serpentCamera;
             _serpents = serpents;
             _serpents.PlayerSerpent.DirectionTaker = this;
-            SerpentCamera = serpentCamera;
+            _serpents.ParallelToDos.AddOneShot(0.9f, () => _serpents.PlayerCave.OpenDoor = false);
+            _serpents.EnemyCave.OpenDoor = false;
         }
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
@@ -53,7 +55,8 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ => _.EventType == PointerEventType.Pressed).ToArray();
+            var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ =>
+                _.DeviceType == PointerDeviceType.Touch && _.EventType == PointerEventType.Moved).ToArray();
             var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
             var pointerRight = pointerPoints.Any(_ => _.Position.X > 0.5f);
             if (pointerLeft && pointerRight)

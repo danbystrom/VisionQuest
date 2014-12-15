@@ -28,7 +28,7 @@ namespace Larv.Serpent
 
         private static readonly Random Rnd = new Random();
 
-        private readonly SequentialToDoQue _actions = new SequentialToDoQue();
+        private readonly SequentialToDo _actions = new SequentialToDo();
 
         public Frog(
             VisionContent vContent,
@@ -63,7 +63,7 @@ namespace Larv.Serpent
                     _position = new Vector3(_serpents.PlayingField.Width + 1, 0, _serpents.PlayingField.MiddleY);
                     break;
             }
-            _actions.Add(0); // start the state machine
+            _actions.AddWait(0); // start the state machine
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -84,10 +84,11 @@ namespace Larv.Serpent
 
             var currentNormal = _rotation.Up;
             var shortDelay = Rnd.NextFloat(0.3f, 1.1f);
-            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal));
-            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal));
-            _actions.Add(shortDelay, () => _rotation = alignObjectToNorma(_currentAngle = angle, currentNormal));
-            _actions.Add(shortDelay, time =>
+            _actions.AddOneShot(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.33f), currentNormal));
+            _actions.AddOneShot(shortDelay, () => _rotation = alignObjectToNorma(MathUtil.Lerp(_currentAngle, angle, 0.66f), currentNormal));
+            _actions.AddOneShot(shortDelay, () => _rotation = alignObjectToNorma(_currentAngle = angle, currentNormal));
+            _actions.AddWait(shortDelay);
+            _actions.AddWhile(time =>
             {
                 var factor = Math.Min(time/0.2f, 0.5f);
                 _position = Vector3.Lerp(fromPosition, toPosition, factor);
@@ -97,14 +98,14 @@ namespace Larv.Serpent
                 _rotation = alignObjectToNorma(angle, normal);
                 return false;
             });
-            _actions.Add(time =>
+            _actions.AddWhile(time =>
             {
                 var factor = Math.Min(0.5f + time/0.2f, 1);
                 _position = Vector3.Lerp(fromPosition, toPosition, factor);
                 _position.Y -= (1 - factor);
                 return factor < 1;
             });
-            _actions.Add(Rnd.NextFloat(3, 6));
+            _actions.AddWait(Rnd.NextFloat(3, 6));
         }
 
         private bool findNewPosition(out Vector3 position, out Vector3 normal, out float angle)

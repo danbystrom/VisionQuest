@@ -70,7 +70,6 @@ namespace factor10.VisionThing
             _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
-            //_graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
 
             blurShadow(_shadowBlurTarg, ShadowDepthTarget);
             blurShadow(ShadowDepthTarget, _shadowBlurTarg);
@@ -78,15 +77,6 @@ namespace factor10.VisionThing
             _graphicsDevice.SetDepthStencilState(_graphicsDevice.DepthStencilStates.Default);
             _graphicsDevice.SetBlendState(_graphicsDevice.BlendStates.Opaque);
             _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, _graphicsDevice.BackBuffer);
-        }
-
-        public void nisse()
-        {
-            _shadowBlurEffect.Apply();
-            _spriteBatch.Begin(SpriteSortMode.Deferred, _shadowBlurEffect.Effect);
-            _spriteBatch.Draw(ShadowDepthTarget, Vector2.Zero, Color.White);
-            _spriteBatch.End();
-            _shadowBlurEffect.Texture = null;
         }
 
         private void blurShadow(RenderTarget2D to, RenderTarget2D from)

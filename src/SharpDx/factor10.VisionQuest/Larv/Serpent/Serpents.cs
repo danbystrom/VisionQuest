@@ -4,6 +4,7 @@ using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.FloatingText;
 using Larv.Field;
+using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -22,6 +23,7 @@ namespace Larv.Serpent
 
         public readonly LContent LContent;
         public readonly FloatingTexts FloatingTexts;
+        public readonly ParallelToDo ParallelToDos = new ParallelToDo();
 
         public readonly CaveModel PlayerCave;
         public readonly CaveModel EnemyCave;
@@ -36,8 +38,6 @@ namespace Larv.Serpent
         public readonly List<Egg> EnemyEggs = new List<Egg>();
         public readonly List<Frog> Frogs = new List<Frog>();
 
-        public readonly IVDrawable Sphere;
-
         public readonly Random Rnd = new Random();
         private double _onceASecond;
 
@@ -51,12 +51,10 @@ namespace Larv.Serpent
         public Serpents(
             LContent lcontent,
             Camera camera,
-            IVDrawable sphere,
             int scene)
             : base(lcontent.LoadEffect("effects/simplebumpeffect"))
         {
             LContent = lcontent;
-            Sphere = sphere;
 
             FloatingTexts = new FloatingTexts(LContent, LContent.SpriteBatch, LContent.Font);
 
@@ -88,8 +86,7 @@ namespace Larv.Serpent
 
             PlayerSerpent = new PlayerSerpent(
                 LContent,
-                PlayingField,
-                Sphere);
+                PlayingField);
 
             Enemies.Clear();
             EnemyEggs.Clear();
@@ -100,7 +97,6 @@ namespace Larv.Serpent
                 Enemies.Add(new EnemySerpent(
                     LContent,
                     PlayingField,
-                    Sphere,
                     i*1.5f,
                     2));
 
@@ -132,7 +128,7 @@ namespace Larv.Serpent
             return PlayerSerpent.SerpentStatus != SerpentStatus.Finished ? Result.GameOn : Result.PlayerDied;
         }
 
-        private bool _paused;
+        private bool _paused, _pausedEnemy;
 
         public override void Update(Camera camera, GameTime gameTime)
         {
@@ -141,7 +137,10 @@ namespace Larv.Serpent
             PlayerCave.Update(camera, gameTime);
             EnemyCave.Update(camera,gameTime);
 
+            ParallelToDos.Do(gameTime);
+
             _paused ^= Camera.KeyboardState.IsKeyPressed(Keys.P);
+            _pausedEnemy ^= Camera.KeyboardState.IsKeyPressed(Keys.E);
             if (_paused)
                 return;
 
@@ -169,31 +168,32 @@ namespace Larv.Serpent
             if (PlayerEgg == null)
                 PlayerEgg = PlayerSerpent.TimeToLayEgg();
 
-            foreach (var enemy in Enemies)
-            {
-                int eatenSegments;
-
-                enemy.Update(Camera, gameTime);
-                if (enemy.EatAt(PlayerSerpent, out eatenSegments))
-                    PlayerSerpent.SerpentStatus = SerpentStatus.Ghost;
-                if (enemy.SerpentStatus == SerpentStatus.Alive)
+            if(!_pausedEnemy)
+                foreach (var enemy in Enemies)
                 {
-                    if (PlayerSerpent.EatAt(enemy, out eatenSegments))
+                    int eatenSegments;
+
+                    enemy.Update(Camera, gameTime);
+                    if (enemy.EatAt(PlayerSerpent, out eatenSegments))
+                        PlayerSerpent.SerpentStatus = SerpentStatus.Ghost;
+                    if (enemy.SerpentStatus == SerpentStatus.Alive)
                     {
-                        enemy.SerpentStatus = SerpentStatus.Ghost;
-                        eatenSegments += 10;
+                        if (PlayerSerpent.EatAt(enemy, out eatenSegments))
+                        {
+                            enemy.SerpentStatus = SerpentStatus.Ghost;
+                            eatenSegments += 10;
+                        }
+                        if (eatenSegments != 0)
+                            AddAndShowScore(eatenSegments*50, PlayerSerpent.Position);
                     }
-                    if (eatenSegments != 0)
-                        AddAndShowScore(eatenSegments*50, PlayerSerpent.Position);
+
+                    if (enemy.EatFrogOrEgg(PlayerEgg))
+                        PlayerEgg = null;
+
+                    var egg = enemy.TimeToLayEgg();
+                    if (egg != null)
+                        EnemyEggs.Add(egg);
                 }
-
-                if (enemy.EatFrogOrEgg(PlayerEgg))
-                    PlayerEgg = null;
-
-                var egg = enemy.TimeToLayEgg();
-                if (egg != null)
-                    EnemyEggs.Add(egg);
-            }
             Enemies.RemoveAll(e => e.SerpentStatus == SerpentStatus.Finished);
 
             for (var i = EnemyEggs.Count - 1; i >= 0; i--)
@@ -209,10 +209,9 @@ namespace Larv.Serpent
 
                 if (!EnemyEggs[i].TimeToHatch())
                     continue;
-                var newSerpent= new  EnemySerpent(
+                var newSerpent = new  EnemySerpent(
                     LContent,
                     PlayingField,
-                    Sphere,
                     0,
                     0);
                 newSerpent.Restart(PlayingField, EnemyEggs[i].Whereabouts);
@@ -244,7 +243,7 @@ namespace Larv.Serpent
             LContent.Ground.Draw(camera, drawingReason, shadowMap);
             PlayerCave.Draw(camera, drawingReason, shadowMap);
             EnemyCave.Draw(camera, drawingReason, shadowMap);
-            Windmill.Draw(camera, DrawingReason.Normal, shadowMap);
+            Windmill.Draw(camera, drawingReason, shadowMap);
             LContent.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)
@@ -260,7 +259,10 @@ namespace Larv.Serpent
             foreach (var serpent in allSerpents.Where(_ => _.SerpentStatus == SerpentStatus.Alive))
                 serpent.Draw(camera, drawingReason, shadowMap);
 
-            if (drawingReason != DrawingReason.ShadowDepthMap && allSerpents.Any(_ => _.SerpentStatus == SerpentStatus.Ghost))
+            if (drawingReason != DrawingReason.Normal)
+                return true;
+
+            if (allSerpents.Any(_ => _.SerpentStatus == SerpentStatus.Ghost))
             {
                 LContent.GraphicsDevice.SetBlendState(LContent.GraphicsDevice.BlendStates.AlphaBlend);
                 foreach (var serpent in allSerpents.Where(_ => _.SerpentStatus == SerpentStatus.Ghost))

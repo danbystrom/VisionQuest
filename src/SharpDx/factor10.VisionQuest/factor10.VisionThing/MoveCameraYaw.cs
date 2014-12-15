@@ -1,6 +1,5 @@
 ﻿using SharpDX;
 using System;
-using System.Linq;
 
 namespace factor10.VisionThing
 {
@@ -33,19 +32,24 @@ namespace factor10.VisionThing
             EndTime = time.GetTotalTime(Vector3.Distance(_fromPosition, _toPosition));
         }
 
+        protected Vector3 GetLookAtDirection(float factor)
+        {
+            var rotation = Matrix.RotationYawPitchRoll(
+                MathUtil.Lerp(_fromYaw, _toYaw, factor),
+                MathUtil.Lerp(_fromPitch, _toPitch, factor),
+                0);
+            return Vector3.TransformCoordinate(Vector3.ForwardRH, rotation);
+        }
+
         protected override bool MoveAround()
         {
             var factor = MathUtil.SmoothStep(Math.Min(1, ElapsedTime/EndTime));
 
             var pos = Vector3.Lerp(_fromPosition, _toPosition, factor);
 
-            var rotation = Matrix.RotationYawPitchRoll(
-                MathUtil.Lerp(_fromYaw, _toYaw, factor),
-                MathUtil.Lerp(_fromPitch, _toPitch, factor),
-                0);
             Camera.Update(
                 pos,
-                pos + Vector3.TransformCoordinate(Vector3.ForwardRH, rotation));
+                pos + GetLookAtDirection(factor));
 
             return ElapsedTime < EndTime;
         }

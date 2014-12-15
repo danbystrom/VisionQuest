@@ -64,17 +64,16 @@ namespace Larv.Serpent
         public bool IsLonger { get; protected set; }
 
         protected BaseSerpent(
-            VisionContent vContent,
+            LContent lcontent,
             PlayingField playingField,
-            IVDrawable sphere,
             Texture2D serpentSkin,
             Texture2D serpentHeadSkin,
             Texture2D serpentBump,
             Texture2D eggSkin)
-            : base(vContent.LoadEffect("Effects/SimpleBumpEffect"))
+            : base(lcontent.LoadEffect("Effects/SimpleBumpEffect"))
         {
             Restart(playingField, playingField.EnemyWhereaboutsStart);
-            _sphere = sphere;
+            _sphere = lcontent.Sphere;
             _serpentSkin = serpentSkin;
             _serpentHeadSkin = serpentHeadSkin;
             _serpentBump = serpentBump;

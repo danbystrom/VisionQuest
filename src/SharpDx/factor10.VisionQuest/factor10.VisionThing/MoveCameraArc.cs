@@ -4,7 +4,7 @@ using System;
 
 namespace factor10.VisionThing
 {
-    public class MoveCameraArc : MoveCameraBase
+    public class MoveCameraArc : MoveCameraYaw
     {
         public readonly Vector3 _endPoint;
         public readonly Vector3 _incomingDirection;
@@ -19,7 +19,7 @@ namespace factor10.VisionThing
         public readonly float _diameter;
         public readonly float _arcFactor;
 
-        private Func<Vector3> _toLookAt;
+        private Vector3 _finalLookAt;
 
         public MoveCameraArc(
             Camera camera,
@@ -28,7 +28,7 @@ namespace factor10.VisionThing
             Vector3 incomingDirection,
             float incomingLength,
             Func<Vector3> toLookAt = null)
-            : base(camera)
+            : base(camera, time, endPoint, endPoint + incomingDirection)
         {
             _startPoint = camera.Position;
             incomingDirection.Normalize();
@@ -36,7 +36,7 @@ namespace factor10.VisionThing
             _incomingDirection = incomingDirection;
             _incomingLength = incomingLength;
             _endPoint = endPoint;
-            _toLookAt = toLookAt ?? (() => _endPoint + _incomingDirection);
+            _finalLookAt = _endPoint + _incomingDirection;
 
             var v = _startPoint - _turningPoint;
             if (!v.IsZero)
@@ -74,11 +74,16 @@ namespace factor10.VisionThing
             var timeFactor = Math.Min(1, ElapsedTime/EndTime);
 
             var posFactor = MathUtil.SmootherStep(timeFactor);
-            var lookFactor = Math.Min(1, timeFactor*2f);  // zoom in on "look at" faster
+            var lookFactor = Math.Min(1, timeFactor*1.5f); // zoom in on "look at" faster
+
+            var pos = getPointOnPath(posFactor);
+            var yawLookAtDirection = GetLookAtDirection(lookFactor);
+            var lookAtRealTarget = _finalLookAt - pos;
+            lookAtRealTarget.Normalize();
 
             Camera.Update(
-                getPointOnPath(posFactor),
-                Vector3.Lerp(FromLookAt, _toLookAt(), lookFactor));
+                pos,
+                pos + Vector3.Lerp(yawLookAtDirection, lookAtRealTarget, lookFactor));
 
             Debug.Assert(!float.IsNaN(Camera.Position.X));
 

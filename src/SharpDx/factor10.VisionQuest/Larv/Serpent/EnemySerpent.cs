@@ -16,19 +16,17 @@ namespace Larv.Serpent
         private float _delayBeforeStart;
 
         public EnemySerpent(
-            VisionContent vContent,
+            LContent lcontent,
             PlayingField playingField,
-            IVDrawable sphere,
             float delayBeforeStart,
             int length)
             : base(
-                vContent,
+                lcontent,
                 playingField,
-                sphere,
-                vContent.Load<Texture2D>(@"Textures\snakeskin"),
-                vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
-                vContent.Load<Texture2D>(@"Textures\snakeskinmap"),
-                vContent.Load<Texture2D>(@"Textures\eggshell"))
+                lcontent.Load<Texture2D>(@"Textures\snakeskin"),
+                lcontent.Load<Texture2D>(@"Textures\snakeskinhead"),
+                lcontent.Load<Texture2D>(@"Textures\snakeskinmap"),
+                lcontent.Load<Texture2D>(@"Textures\eggshell"))
         {
             _delayBeforeStart = delayBeforeStart;
             for (var i = 0; i < length; i++)

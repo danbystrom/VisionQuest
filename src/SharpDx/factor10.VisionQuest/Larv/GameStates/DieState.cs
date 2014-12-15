@@ -8,18 +8,20 @@ namespace Larv.GameStates
     class DieState : IGameState
     {
         private readonly Serpents _serpents;
-        private readonly SequentialToDoQue _todo  = new SequentialToDoQue();
+        private readonly SequentialToDo _todo  = new SequentialToDo();
 
         public DieState(Serpents serpents)
         {
             _serpents = serpents;
 
             HomingDevice.Attach(_serpents, false);
+            _serpents.PlayerCave.OpenDoor = true;
+            _serpents.EnemyCave.OpenDoor = true;
 
             // zoom out while ghost goes up and enemies goes home
             var forward = _serpents.PlayerSerpent.LookAtPosition - _serpents.Camera.Position;
             forward.Normalize();
-            _todo.AddMoveable(new MoveCamera(
+            _todo.AddDurable(new MoveCamera(
                 _serpents.Camera,
                 5f.Time(),  // time to look at death scene
                 _serpents.PlayerSerpent.LookAtPosition,

@@ -75,7 +75,7 @@ namespace CircleMasterApp
                 e.Graphics.DrawLine(Pens.Blue, m._startPoint.X, m._startPoint.Z, t.X, t.Z);
                 e.Graphics.DrawLine(Pens.Blue, m._endPoint.X, m._endPoint.Z, t.X, t.Z);
 
-                m.Move(dt);
+                m.Do(dt);
                 e.Graphics.FillRectangle(Brushes.Blue, _camera.Position.X, _camera.Position.Z, 3, 3);
 
                 var mx2 = Matrix.RotationAxis(m._outVector, 0);

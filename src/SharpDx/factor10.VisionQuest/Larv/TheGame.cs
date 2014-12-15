@@ -62,15 +62,19 @@ namespace Larv
                 new PointerManager(this),
                 AttractState.CameraPosition,
                 AttractState.CameraLookAt) { MovingSpeed = 8 };
-            _serpents = new Serpents(_lcontent, camera, _lcontent.Sphere, 0);
+            _serpents = new Serpents(_lcontent, camera, 0);
 
             _lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents);
+            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_lcontent.Ground);
+            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.PlayerCave);
+            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.EnemyCave);
+            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents.Windmill);
+            //_lcontent.ShadowMap.ShadowCastingObjects.Add(_lcontent.Sky);
 
             _gameState = new AttractState(_serpents);
 
             base.LoadContent();
         }
-
 
         protected override void Update(GameTime gameTime)
         {

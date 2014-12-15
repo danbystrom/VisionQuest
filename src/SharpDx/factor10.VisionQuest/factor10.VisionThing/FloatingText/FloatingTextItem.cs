@@ -11,7 +11,7 @@ namespace factor10.VisionThing.FloatingText
         public float TimeToLive;
         public Func<FloatingTextItem, Vector4> GetColor = _ => Vector4.One;
         public Func<FloatingTextItem, Vector3> GetOffset = _ => Vector3.Zero;
-        public Func<FloatingTextItem, float> GetSize = _ => 0.025f;
+        public Func<FloatingTextItem, float> GetSize = _ => 0.015f;
 
         public FloatingTextItem(IPosition target, string text, float timeToLive)
         {

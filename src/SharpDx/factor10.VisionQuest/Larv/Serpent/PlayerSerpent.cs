@@ -11,17 +11,15 @@ namespace Larv.Serpent
         public float Speed = 1.4f;
 
         public PlayerSerpent(
-            VisionContent vContent,
-            PlayingField playingField,
-            IVDrawable sphere)
+            LContent lcontent,
+            PlayingField playingField)
             : base(
-                vContent,
+                lcontent,
                 playingField,
-                sphere,
-                vContent.Load<Texture2D>(@"Textures\snakeskin"),
-                vContent.Load<Texture2D>(@"Textures\snakeskinhead"),
-                vContent.Load<Texture2D>(@"Textures\snakeskinmap"), 
-                vContent.Load<Texture2D>(@"Textures\eggshell"))
+                lcontent.Load<Texture2D>(@"Textures\snakeskin"),
+                lcontent.Load<Texture2D>(@"Textures\snakeskinhead"),
+                lcontent.Load<Texture2D>(@"Textures\snakeskinmap"), 
+                lcontent.Load<Texture2D>(@"Textures\eggshell"))
         {
             Restart(playingField, 1);
         }

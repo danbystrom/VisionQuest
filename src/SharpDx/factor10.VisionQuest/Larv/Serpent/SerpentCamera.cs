@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using factor10.VisionThing;
 using factor10.VisionThing.Terrain;
 using SharpDX;
+using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
@@ -58,18 +60,34 @@ namespace Larv.Serpent
             //    Vector3.Distance(Camera.Position,Vector3.Lerp(Camera.Position, newPosition, v)),
             //    Vector3.Distance(Camera.Target, Vector3.Lerp(Camera.Target, target, v)),
             //    dt, v);
-            Camera.Update(
-                Vector3.Lerp(Camera.Position, newPosition, v),
-                Vector3.Lerp(Camera.Target, target, v));
+            var nextPosition = Vector3.Lerp(Camera.Position, newPosition, v);
+            var nextTarget = Vector3.Lerp(Camera.Target, target, v);
+
+           _log.Insert(0,string.Format("{0} {1} {2} {3} {4} {5} {6} {7}", dt, v, Camera.Position, newPosition, nextPosition, Camera.Target, target, nextTarget));
+            while (_log.Count > 500)
+                _log.RemoveAt(_log.Count - 1);
+
+            Camera.Update(nextPosition, nextTarget);
+
+            if (Camera.KeyboardState.IsKeyPressed(Keys.M))
+            {
+                var s = string.Join("\r\n", _log);
+                s = s.Replace("X:", "");
+                s = s.Replace("Y:", "");
+                s = s.Replace("Z:", "");
+                System.Diagnostics.Debug.Print(s);    
+            }
 
             return true;
         }
+
+        private static List<string> _log = new List<string>();
 
         private static Vector2 moveTo(
             Vector2 camera,
             Vector2 target,
             Vector2 desired,
-            double xelapsedTime)
+            double elapsedTime)
         {
             var d2TargetDesired = Vector2.DistanceSquared(target, desired);
             var d2CameraDesired = Vector2.DistanceSquared(camera, desired);
@@ -81,11 +99,14 @@ namespace Larv.Serpent
             var d1 = d2TargetDesired + d2TargetCamera - d2CameraDesired;
             var d2 = Math.Sqrt(4*d2TargetDesired*d2TargetCamera);
             var div = d1/d2;
+
+            float angle;
             if (div < -1f)
-                div += 2;
+                angle = MathUtil.Pi - (float)Math.Acos(div + 2);
             else if (div > 1)
-                div -= 2;
-            var angle = (float) Math.Acos(div);
+                angle = (float) Math.Acos(div - 2) - MathUtil.Pi;
+            else
+                angle = (float) Math.Acos(div);
 
             var v1 = camera - target;
             var v2 = desired - target;
@@ -93,13 +114,16 @@ namespace Larv.Serpent
             if (v1.X*v2.Y - v2.X*v1.Y > 0)
                 angle = -angle;
 
-            var angleFraction = angle*xelapsedTime*10;
+            var angleFraction = angle*elapsedTime*10;
+            if (angleFraction > 0.8f)
+            {
+                
+            }
+            _log.Insert(0,string.Format("{0}", angleFraction));
 
             var cosA = (float) Math.Cos(angleFraction);
             var sinA = (float) Math.Sin(angleFraction);
-            var direction = new Vector2(
-                v1.X*cosA + v1.Y*sinA,
-                -v1.X*sinA + v1.Y*cosA);
+            var direction = new Vector2(v1.X*cosA + v1.Y*sinA, -v1.X*sinA + v1.Y*cosA);
             direction.Normalize();
             return target + direction*v2.Length();
         }

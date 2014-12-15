@@ -1,13 +1,12 @@
 ﻿using System.Linq;
-using SharpDX.Toolkit;
 
 namespace Larv.Util
 {
-    public class SequentialToDoQue : ToDoBase
+    public class SequentialToDo : ToDoBase
     {
         private TimedAction _current;
 
-        public override bool Do(GameTime gameTime)
+        protected override bool Execute(float delta)
         {
             if(_current==null)
                 if (Actions.Any())
@@ -18,7 +17,7 @@ namespace Larv.Util
                 else
                     return false;
 
-            _current.Time += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _current.Time += delta;
             if (_current.Action(_current.Time))
                 return true;
             _current = null;

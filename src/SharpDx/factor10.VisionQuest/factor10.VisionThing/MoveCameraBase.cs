@@ -34,7 +34,7 @@ namespace factor10.VisionThing
         }
     }
 
-    public abstract class MoveCameraBase : IVMoveable
+    public abstract class MoveCameraBase : IDurable
     {
         protected readonly Camera Camera;
 
@@ -56,7 +56,7 @@ namespace factor10.VisionThing
             return MoveAround();
         }
 
-        public bool Move(float absolutTime)
+        public bool Do(float absolutTime)
         {
             ElapsedTime = absolutTime;
             return MoveAround();
