@@ -21,6 +21,8 @@ namespace factor10.VisionQuest
         public readonly VAssembly VAssembly;
         public readonly Dictionary<string, VisionClass> Classes = new Dictionary<string, VisionClass>();
 
+        public DrawableBox DrawableBox;
+
         public CodeIsland(
             VisionContent vContent,
             Archipelag archipelag,

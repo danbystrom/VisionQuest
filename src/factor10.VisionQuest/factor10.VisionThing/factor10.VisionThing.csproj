@@ -158,7 +158,6 @@
     <ToolkitTexture Include="Content\TerrainTextures\wheatfield.dds" />
     <ToolkitTexture Include="Content\Billboards\woodensign.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\Sahara.dds" />
-    <ToolkitFxc Include="Content\Billboards\MSBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\grass.dds" />
     <ToolkitTexture Include="Content\Billboards\tree.dds" />
     <ToolkitTexture Include="Content\TerrainTextures\grass.dds" />
@@ -173,40 +172,19 @@
     <ToolkitTexture Include="Content\TerrainTextures\tree.dds" />
     <ToolkitFxc Include="Content\Billboards\CxBillboard.fx" />
     <ToolkitTexture Include="Content\Billboards\wheat_billboard.dds" />
-    <ToolkitFxc Include="Content\ShadowEffects\Blur.fx" />
+    <ToolkitFxc Include="Content\Effects\Blur.fx" />
     <ToolkitFxc Include="Content\Billboards\StaticBillboard.fx" />
-    <Content Include="Content\ShadowEffects\LightingEffect.fx" />
-    <Content Include="Content\ShadowEffects\MultiLightingEffect.fx" />
-    <Content Include="Content\ShadowEffects\PointLightEffect.fx" />
-    <Content Include="Content\ShadowEffects\PPDepthNormal.fx" />
-    <Content Include="Content\ShadowEffects\PPLight.fx" />
-    <Content Include="Content\ShadowEffects\PPModel.fx" />
-    <Content Include="Content\ShadowEffects\ProjectedTexture.fx" />
-    <Content Include="Content\ShadowEffects\ShadowDepthEffect.fx" />
-    <Content Include="Content\ShadowEffects\ShadowMapping.fx" />
-    <Content Include="Content\ShadowEffects\SimpleEffect.fx" />
-    <Content Include="Content\ShadowEffects\SpotLightEffect.fx" />
-    <Content Include="Content\ShadowEffects\VSM.fx" />
-    <Content Include="Content\ShadowEffects\VSM2.fx" />
     <ToolkitFxc Include="Content\Effects\SimpleTextureEffect.fx" />
     <ToolkitFxc Include="Content\Effects\ArcsEffect.fx" />
     <ToolkitFxc Include="Content\Effects\BillboardEffect.fx" />
-    <Content Include="Content\Effects\LightingEffect.fx" />
-    <ToolkitFxc Include="Content\Effects\ReflectedWater2.fx" />
-    <ToolkitFxc Include="Content\Effects\ReflectedWater.hlsl" />
-    <Content Include="Content\Effects\Series4Effects.fx" />
+    <ToolkitFxc Include="Content\Effects\ReflectedWater.fx" />
     <ToolkitFxc Include="Content\Effects\SignTextEffect.fx" />
     <ToolkitFxc Include="Content\Effects\SimpleBumpEffect.fx" />
     <ToolkitFxc Include="Content\Effects\Skysphere.fx" />
-    <ToolkitFxc Include="Content\Effects\TerrainEffects.fx" />
+    <ToolkitFxc Include="Content\Effects\Terrain.fx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Content\Effects\Common.fxh" />
-    <None Include="Content\Effects\Lighting.fxh" />
-    <None Include="Content\Effects\Macros.fxh" />
-    <None Include="Content\Effects\Structures.fxh" />
-    <None Include="Content\ShadowEffects\PPShared.vsi" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

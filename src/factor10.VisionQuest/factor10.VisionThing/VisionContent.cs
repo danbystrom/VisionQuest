@@ -1,4 +1,5 @@
 ﻿using factor10.VisionThing.Effects;
+using factor10.VisionThing.Terrain;
 using SharpDX;
 using SharpDX.Toolkit.Content;
 using SharpDX.Toolkit.Graphics;
@@ -15,6 +16,8 @@ namespace factor10.VisionThing
         public readonly ContentManager Content;
         public readonly GraphicsDevice GraphicsDevice;
 
+        public readonly TerrainPlane TerrainPlane;
+
         static VisionContent()
         {
             SunlightDirectionReflectedWater = new Vector3(11f, -2f, -6f);
@@ -25,6 +28,7 @@ namespace factor10.VisionThing
         {
             GraphicsDevice = graphicsDevice;
             Content = content;
+            TerrainPlane = new TerrainPlane(this);
         }
 
         public static Vector3 SunlightDirectionReflectedWater

@@ -9,50 +9,52 @@ namespace factor10.VisionaryHeads
 {
     public class GenerateMetrics
     {
-        public const string MetricsExe = @"C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\metrics.exe";
+        //public const string MetricsExe = @"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Team Tools\Static Analysis Tools\FxCop\metrics.exe";
 
         private readonly SimpleXmlReader _x = new SimpleXmlReader();
 
         private readonly static Dictionary<string, string> TypeTranslator =
-            new Dictionary<string, string>()
+            new Dictionary<string, string>
                 {
                     {"Boolean", "bool"},
                     {"String", "string"},
                     {"Int32", "int"},
                     {"Int64", "long"},
-                    {"Object", "object"}
+                    {"Object", "object"},
+                    {"Single", "float"}
                 };
  
         private GenerateMetrics()
         {
         }
 
-        private GenerateMetrics( string xmlFile)
+        private GenerateMetrics(string xmlFile)
         {
-            _x.LoadFile(xmlFile);
-            _x.descend("CodeMetricsReport");
+            try
+            {
+                _x.LoadFile(xmlFile);
+                _x.descend("FxCopReport");
+            }
+            catch (Exception ex)
+            {
+                Debug.Print("Failed to load file " + xmlFile);
+            }
         }
 
-        public static GenerateMetrics FromCode(string[] assemblies)
+        public static void RunFxCopMetrics(string metricsExe, string assembly, string destination)
         {
-            var filenames = string.Join(" ", assemblies.Select(a => "/f:" + a));
-
-            var destination = Path.GetTempFileName();
-            var arguments = string.Format("{0} /d:{1} /o:{2}",
-                                          filenames, Path.GetDirectoryName(assemblies[0]), destination);
+            var arguments = string.Format("/f:{0} /d:{1} /o:{2}",
+                                          assembly, Path.GetDirectoryName(assembly), destination);
             var p = new Process
             {
-                StartInfo = new ProcessStartInfo(MetricsExe)
+                StartInfo = new ProcessStartInfo(metricsExe)
                 {
-                    Arguments = arguments
+                    Arguments = arguments,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
             p.Start();
             p.WaitForExit();
-
-            var result = new GenerateMetrics(destination);
-            File.Delete(destination);
-            return result;
         }
 
         public static GenerateMetrics FromPregeneratedFile(string xmlFile)
@@ -175,6 +177,8 @@ namespace factor10.VisionaryHeads
                     string tn2;
                     if (TypeTranslator.TryGetValue(tn, out tn2))
                         tn = tn2;
+                    //else
+                    //    Debug.Print(tn);
                     if (parameters.Length != 0)
                         parameters += ", ";
                     parameters += prefix + tn;

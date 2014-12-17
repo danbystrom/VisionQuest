@@ -12,7 +12,7 @@ namespace Larv.Serpent
     {
         public const float CameraDistanceToHeadXz = 9;
         public const float CameraDistanceToHeadY = 5;
-        public const float DefaultTension = 10;
+        public const float DefaultTension = 9;
 
         private float _lastTime;
 

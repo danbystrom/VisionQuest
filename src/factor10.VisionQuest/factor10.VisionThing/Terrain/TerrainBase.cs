@@ -13,9 +13,6 @@ namespace factor10.VisionThing.Terrain
         public const int Side = TerrainPlane.SquareSize;
         public const int HalfSide = Side/2;
 
-        public static TerrainPlane TerrainPlane { get; private set; }
-        public static DrawableBox DrawableBox { get; protected set; }
-
         public readonly VisionContent VContent;
 
         public GroundMap GroundMap { get; protected set; }
@@ -35,20 +32,10 @@ namespace factor10.VisionThing.Terrain
         public int GroundExtentZ { get; private set; }
 
         public TerrainBase(VisionContent vContent)
-            : base(createTerrainPlaneSingleton(vContent).Effect)
+            : base(vContent.TerrainPlane.Effect)
         {
             VContent = vContent;
-            Effect.Parameters["Ambient"].SetValue(0.6f);
-        }
-
-        private static TerrainPlane createTerrainPlaneSingleton(VisionContent vContent)
-        {
-            if (TerrainPlane == null)
-            {
-                TerrainPlane = new TerrainPlane(vContent);
-                DrawableBox = new DrawableBox(vContent, Matrix.Identity, new Vector3(1, 50, 1));
-            }
-            return TerrainPlane;
+            Effect.Parameters["Ambient"].SetValue(1.0f);
         }
 
         protected void initialize(GroundMap groundMap)
@@ -84,7 +71,10 @@ namespace factor10.VisionThing.Terrain
             var sliceFracX = 1f/slicesW;
             var sliceFracY = 1f/slicesH;
             _slices = new terrainSlice[slicesW*slicesH];
-            var raduis = HalfSide*(float) Math.Sqrt(2);
+
+            var gurka = Vector3.TransformNormal(new Vector3(HalfSide, 0, HalfSide), World);
+            var radius = Math.Max(gurka.X, gurka.Z) * (float)Math.Sqrt(2);
+
             var i = 0;
             for (var y = 0; y < slicesH; y++)
                 for (var x = 0; x < slicesW; x++)
@@ -94,7 +84,7 @@ namespace factor10.VisionThing.Terrain
                     {
                         TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
                         World = world,
-                        BoundingSphere = new BoundingSphere(world.TranslationVector + new Vector3(HalfSide, 0, HalfSide), raduis)
+                        BoundingSphere = new BoundingSphere(world.TranslationVector + gurka, radius)
                     };
                 }
             BoundingSphere = new BoundingSphere(
@@ -107,8 +97,6 @@ namespace factor10.VisionThing.Terrain
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            //if (camera.BoundingFrustum.Intersects(ref _boundingSphere))
-            //    return false;
             var anyPartIsVisible = _slices.Aggregate(false,
                 (current, slice) => current | (slice.Visible = camera.BoundingFrustum.Contains(slice.BoundingSphere) != ContainmentType.Disjoint));
 
@@ -116,7 +104,11 @@ namespace factor10.VisionThing.Terrain
                 return false;
 
             for (var i = 0; i < 9; i++)
-                Effect.Parameters["Texture" + (char) (48 + i)].SetResource(Textures[i]);
+            {
+                var ep = Effect.Parameters["Texture" + (char)(48 + i)];
+                if (ep != null)
+                    ep.SetResource(Textures[i]);
+            }
 
             Effect.Parameters["HeightsMap"].SetResource(HeightsMap);
             Effect.Parameters["NormalsMap"].SetResource(NormalsMap);
@@ -127,9 +119,7 @@ namespace factor10.VisionThing.Terrain
             foreach (var slice in _slices.Where(slice => slice.Visible))
             {
                 Effect.Parameters["TexOffsetAndScale"].SetValue(slice.TexOffsetAndScale);
-                TerrainPlane.Draw(camera, slice.World, drawingReason);
-                //DrawableBox.World = slice.World * Matrix.Translation(0,10,0);
-                //DrawableBox.Draw(camera, drawingReason, shadowMap);
+                VContent.TerrainPlane.Draw(camera, slice.World, drawingReason);
             }
 
             return true;

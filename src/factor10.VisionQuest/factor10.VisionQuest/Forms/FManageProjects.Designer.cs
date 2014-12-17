@@ -1,4 +1,4 @@
-﻿namespace factor10.VisionQuest
+﻿namespace factor10.VisionQuest.Forms
 {
     partial class FManageProjects
     {

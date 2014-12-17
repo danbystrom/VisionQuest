@@ -1,9 +1,9 @@
 ﻿using System.IO;
-using factor10.VisionaryHeads;
 using System.Linq;
 using System.Windows.Forms;
+using factor10.VisionaryHeads;
 
-namespace factor10.VisionQuest
+namespace factor10.VisionQuest.Forms
 {
     public partial class FProject : BaseForm
     {

@@ -9,7 +9,7 @@ using factor10.VisionQuest.Commands;
 using factor10.VisionThing;
 using SharpDX.Windows;
 
-namespace factor10.VisionQuest
+namespace factor10.VisionQuest.Forms
 {
 
     internal partial class FMain : BaseForm

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using factor10.VisionQuest.Forms;
 
 namespace factor10.VisionQuest
 {

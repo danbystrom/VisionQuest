@@ -1,11 +1,12 @@
-﻿using factor10.VisionThing.CameraStuff;
+﻿using System;
+using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using SharpDX;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class TerrainPlane
+    public class TerrainPlane : IDisposable
     {
         private readonly PlanePrimitive<TerrainVertex> _loPlane;
 
@@ -14,7 +15,7 @@ namespace factor10.VisionThing.Terrain
 
         public TerrainPlane(VisionContent vContent)
         {
-            Effect = vContent.LoadEffect("Effects/TerrainEffects");
+            Effect = vContent.LoadEffect("Effects/Terrain");
             _loPlane = new PlanePrimitive<TerrainVertex>(
                 Effect.GraphicsDevice,
                 (x, y, w, h) => new TerrainVertex(
@@ -42,6 +43,10 @@ namespace factor10.VisionThing.Terrain
             _loPlane.Draw(Effect, lod);
         }
 
+        public void Dispose()
+        {
+            _loPlane.Dispose();
+        }
     }
 
 }

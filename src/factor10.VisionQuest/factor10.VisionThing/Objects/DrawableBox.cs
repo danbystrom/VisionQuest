@@ -27,16 +27,16 @@ namespace factor10.VisionThing.Objects
 
         private VertexPositionNormalTexture createVertex(Vector3 position, Vector3 normal, Vector2 textureCoordinate, Vector3 size, float texScale)
         {
-            if ( normal.X != 0 )
+            if (normal.X != 0)
                 textureCoordinate *= new Vector2(size.Z, size.Y);
             else if (normal.Y != 0)
                 textureCoordinate *= new Vector2(size.X, size.Z);
             else if (normal.Z != 0)
                 textureCoordinate *= new Vector2(size.Y, size.X);
             return new VertexPositionNormalTexture(
-                position * size,
+                position*size,
                 normal,
-                textureCoordinate * texScale);
+                textureCoordinate*texScale);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

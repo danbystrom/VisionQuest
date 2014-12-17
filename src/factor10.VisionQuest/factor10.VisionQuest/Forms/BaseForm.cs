@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Windows.Forms;
 
-namespace factor10.VisionQuest
+namespace factor10.VisionQuest.Forms
 {
     public partial class BaseForm : Form, IMessageFilter
     {
