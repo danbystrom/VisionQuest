@@ -87,6 +87,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hof\HallOfFame.cs" />
+    <Compile Include="Hof\PaintHof.cs" />
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="GameStates\AttractState.cs" />
     <Compile Include="GameStates\GameOverState.cs" />

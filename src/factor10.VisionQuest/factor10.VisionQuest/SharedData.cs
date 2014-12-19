@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using factor10.VisionQuest.Actions;
 using factor10.VisionQuest.Commands;
+using factor10.VisionQuest.Unsorted;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Water;

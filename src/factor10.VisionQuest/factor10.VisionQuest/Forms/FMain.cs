@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using factor10.VisionaryHeads;
 using factor10.VisionQuest.Commands;
+using factor10.VisionQuest.Unsorted;
 using factor10.VisionThing;
 using SharpDX.Windows;
 
@@ -83,20 +84,24 @@ namespace factor10.VisionQuest.Forms
         private void button1_Click(object sender, EventArgs e)
         {
             var project = FManageProjects.DoDialog(this, _data.Storage);
-            if (project != null)
-            {
-                project.Save(_data.Storage.ProjectFolder);
-                _vprogram = new VProgram(project.Assemblies.First().FullFilename);
-                _data.Commands.Enqueue(new LoadProgramCommand(_vprogram));                
-            }
+            if (project == null)
+                return;
+
+            project.Save(_data.Storage.ProjectFolder);
+            _vprogram = LoadProgram.Run(this, project, _data.Storage.ProjectFolder);
+            _data.Commands.Enqueue(new LoadProgramCommand(_vprogram));
         }
 
         private void btnProperties_Click(object sender, EventArgs e)
         {
-            _vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
-            foreach (var fil in Directory.GetFiles(@"C:\Users\Dan\Documents\VisionQuest\Plåta\", "*.metrics.txt"))
-                GenerateMetrics.FromPregeneratedFile(fil).UpdateProgramWithMetrics(_vprogram);
-            _data.Commands.Enqueue(new LoadProgramCommand(_vprogram));
+            //_vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
+            //foreach (var assembly in _vprogram.VAssemblies)
+            //{
+            //    if(File.Exists(Path.Combine(_data.)))
+            //}
+            //foreach (var fil in Directory.GetFiles(@"C:\Users\Dan\Documents\VisionQuest\Plåta\", "*.metrics.txt"))
+            //    GenerateMetrics.FromPregeneratedFile(fil).UpdateProgramWithMetrics(_vprogram);
+            //_data.Commands.Enqueue(new LoadProgramCommand(_vprogram));
         }
 
         private void chkHiddenVater_CheckedChanged(object sender, EventArgs e)

@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Drawing;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.FloatingText;
 using factor10.VisionThing.Util;
+using Larv.Hof;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
@@ -23,6 +23,7 @@ namespace Larv.GameStates
         private readonly Serpents _serpents;
         private readonly Random _random = new Random();
         private readonly SequentialToDo _cameraMovements = new SequentialToDo();
+        private readonly Hof.PaintHof _hofPainter;
 
         private bool _freeCamera;
         private float _scrollingTextAngle;
@@ -31,6 +32,7 @@ namespace Larv.GameStates
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
+            _hofPainter = new PaintHof(_serpents.LContent, new HallOfFame());
 
             _serpents.PlayerSerpent.DirectionTaker = this;
             _serpents.Enemies.ForEach(_ => _.DirectionTaker = null);
@@ -97,21 +99,31 @@ namespace Larv.GameStates
             switch ((int) _larvText)
             {
                 case 1:
+                case 10:
                     factor = _larvText - 1;
                     break;
                 case 2:
+                case 12:
                     factor = 1;
                     break;
                 case 3:
+                case 11:
                     factor = 4 - _larvText;
                     break;
-                case 10:
-                    factor = _larvText = 0;
+                case 20:
+                    _larvText = 0;
                     break;
             }
-            var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor)*Color.LightYellow;
             sb.Begin(SpriteSortMode.Deferred, gd.BlendStates.NonPremultiplied);
-            sb.DrawString(font, text, (ssize - fsize*font.MeasureString(text))/2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+
+            if (factor > 0)
+            {
+                var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor)*Color.LightYellow;
+                if (_larvText < 10)
+                    sb.DrawString(font, text, (ssize - fsize*font.MeasureString(text))/2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
+                else
+                    _hofPainter.Paint(color);
+            }
 
             fsize *= 0.1f;
             text = "HIT [SPACE] TO PLAY";

@@ -28,6 +28,8 @@ namespace factor10.VisionQuest.Forms
 
         public static DialogResult DoDialog(Form parent, List<Tuple<string, string>> list)
         {
+            if (!list.Any())
+                return DialogResult.OK;
             using (var dlg = new FGenerateMetrics())
             {
                 foreach (var itm in list)
@@ -38,7 +40,7 @@ namespace factor10.VisionQuest.Forms
                         MetricsFile = itm.Item2,
                         ListViewItem = dlg.lvProjects.Items.Add("Queued")
                     };
-                    item.ListViewItem.SubItems[1].Text = item.Assembly;
+                    item.ListViewItem.SubItems.Add(item.Assembly);
                     dlg._que.Enqueue(item);
                 }
                 return dlg.ShowDialog(parent);
@@ -117,13 +119,13 @@ namespace factor10.VisionQuest.Forms
                 try
                 {
                     GenerateMetrics.RunFxCopMetrics(_metricsExe, itm.Assembly, itm.MetricsFile);
-                    doNext(itm, null);
+                    doNext(itm);
                 }
                 catch (Exception ex)
                 {
                     doNext(itm, ex.ToString());
                 }
-            });
+            }).Start();
         }
 
     }

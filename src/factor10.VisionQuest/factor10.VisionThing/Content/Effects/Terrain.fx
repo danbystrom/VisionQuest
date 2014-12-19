@@ -124,7 +124,7 @@ float4 MultiTexturedPS(MTVertexToPixel input) : SV_Target
 	color += Texture2.Sample(TextureSampler, textureCoords)*weight2;
 	color += Texture3.Sample(TextureSampler, textureCoords)*weight3;
 	color += Texture4.Sample(TextureSampler, textureCoords)*weight4;
-	textureCoords *= 40;
+	textureCoords *= 20;
 	color += Texture5.Sample(TextureSampler, textureCoords)*weight5;
 	color += Texture6.Sample(TextureSampler, textureCoords)*weight6;
 	color += Texture7.Sample(TextureSampler, textureCoords)*weight7;

@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace factor10.VisionaryHeads
 {
     public class GenerateMetrics
     {
-        //public const string MetricsExe = @"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Team Tools\Static Analysis Tools\FxCop\metrics.exe";
-
         private readonly SimpleXmlReader _x = new SimpleXmlReader();
 
         private readonly static Dictionary<string, string> TypeTranslator =
@@ -33,7 +29,7 @@ namespace factor10.VisionaryHeads
             try
             {
                 _x.LoadFile(xmlFile);
-                _x.descend("FxCopReport");
+                _x.descend("CodeMetricsReport");
             }
             catch (Exception ex)
             {

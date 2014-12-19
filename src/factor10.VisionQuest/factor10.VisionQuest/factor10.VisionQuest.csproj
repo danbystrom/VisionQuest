@@ -131,6 +131,7 @@
     <Compile Include="Unsorted\Signs.cs" />
     <Compile Include="Unsorted\BannerSign.cs" />
     <Compile Include="Unsorted\Storage.cs" />
+    <Compile Include="Unsorted\LoadProgram.cs" />
     <Compile Include="VisionQuestGame.cs" />
     <Compile Include="SharedData.cs" />
     <Compile Include="Unsorted\VisionClass.cs" />

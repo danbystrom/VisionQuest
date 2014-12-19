@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using factor10.VisionThing;
 
-namespace factor10.VisionQuest
+namespace factor10.VisionQuest.Unsorted
 {
     public class Storage
     {

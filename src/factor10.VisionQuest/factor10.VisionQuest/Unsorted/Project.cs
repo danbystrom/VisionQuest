@@ -30,8 +30,6 @@ namespace factor10.VisionQuest
         public DateTime Created;
         public DateTime Accessed;
 
-        public string MainAssemblyName;
-
         public List<ProjectAssembly> Assemblies;
         public List<ProjectAssembly> ThirdPartyAssemblies;
         public List<ProjectAssembly> IgnoredAssemblies;
