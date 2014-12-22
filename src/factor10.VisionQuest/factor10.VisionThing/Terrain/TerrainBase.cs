@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class TerrainBase : ClipDrawable
+    public class TerrainBase : VDrawable
     {
         public const int Side = TerrainPlane.SquareSize;
         public const int HalfSide = Side/2;

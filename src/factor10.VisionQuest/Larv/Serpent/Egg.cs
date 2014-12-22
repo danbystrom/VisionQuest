@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
 {
-    public class Egg : ClipDrawable, IPosition
+    public class Egg : VDrawable, IPosition
     {
         private static readonly Matrix NorthSouthScale = Matrix.Scaling(0.6f, 0.6f, 0.8f);
         private static readonly Matrix EastWestScale = Matrix.Scaling(0.8f, 0.6f, 0.6f);

@@ -90,29 +90,30 @@ namespace factor10.VisionThing.Terrain
                 fracx);
 
             return MathUtil.Lerp(topHeight, bottomHeight, fracy);
+
+            //if (fracx + fracy < 1)
+            //{
+            //    var xy = this[x, y];
+            //    var dy = this[x, y + 1] - xy;
+            //    var dx = this[x + 1, y] - xy;
+            //    return xy + fracx*dx + fracy*dy;
+            //}
+            //else
+            //{
+            //    var xy = this[x + 1, y + 1];
+            //    var dy = this[x, y + 1] - xy;
+            //    var dx = this[x + 1, y] - xy;
+            //    return xy + (1 - fracx)*dx + (1 - fracy)*dy;
+            //}
         }
 
         public float GetExactHeight(float x, float y)
         {
+            x -= 0.5f;
+            y -= 0.5f;
             var ix = (int)x;
             var iy = (int)y;
             return GetExactHeight(ix, iy, x - ix, y - iy);
-        }
-
-        public float GetExactHeight2(float x, float y)
-        {
-            var ray = new Ray(new Vector3(x, 1000, y), Vector3.Down);
-
-            var ix = (int) x;
-            var iy = (int) y;
-
-            var p1 = new Vector3(ix, this[ix, iy], iy);
-            var p2 = new Vector3(ix + 1, this[ix + 1, iy], iy);
-            var p3 = new Vector3(ix, this[ix, iy + 1], iy + 1);
-            var plane = new Plane(p1, p2, p3);
-            Vector3 result;
-            plane.Intersects(ref ray, out result);
-            return result.Y;
         }
 
         public void ApplyNormalBellShape()

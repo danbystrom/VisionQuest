@@ -13,7 +13,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.Serpent
 {
-    public class Serpents : ClipDrawable
+    public class Serpents : VDrawable
     {
         public enum Result
         {
@@ -105,8 +105,7 @@ namespace Larv.Serpent
                 Frogs.Add(new Frog(
                     LContent,
                     LContent.LoadEffect(@"Effects\SimpleTextureEffect"),
-                    this,
-                    LContent.Ground));
+                    this));
         }
 
         public void ResetScoreAndLives()
@@ -133,6 +132,8 @@ namespace Larv.Serpent
 
         public override void Update(Camera camera, GameTime gameTime)
         {
+            base.Update(camera, gameTime);
+
             FloatingTexts.Update(camera, gameTime);
             Windmill.Update(camera, gameTime);
             PlayerCave.Update(camera, gameTime);
@@ -232,11 +233,11 @@ namespace Larv.Serpent
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
-            PlayingField.Draw(camera, drawingReason, shadowMap);
-            LContent.Ground.Draw(camera, drawingReason, shadowMap);
             PlayerCave.Draw(camera, drawingReason, shadowMap);
             EnemyCave.Draw(camera, drawingReason, shadowMap);
             Windmill.Draw(camera, drawingReason, shadowMap);
+            LContent.Ground.Draw(camera, drawingReason, shadowMap);
+            PlayingField.Draw(camera, drawingReason, shadowMap);
             LContent.Sky.Draw(camera, drawingReason, shadowMap);
 
             if (PlayerEgg != null)

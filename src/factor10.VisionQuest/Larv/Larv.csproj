@@ -28,6 +28,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>app.ico</ApplicationIcon>
@@ -89,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Hof\HallOfFame.cs" />
     <Compile Include="Hof\PaintHof.cs" />
+    <Compile Include="Serpent\TerrainWalker.cs" />
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="GameStates\AttractState.cs" />
     <Compile Include="GameStates\GameOverState.cs" />
@@ -103,7 +106,7 @@
     <Compile Include="LContent.cs" />
     <Compile Include="Field\PlanePrimitive.cs" />
     <Compile Include="Serpent\Frog.cs" />
-    <Compile Include="TheGame.cs" />
+    <Compile Include="LarvGame.cs" />
     <Compile Include="Field\PathFinder.cs" />
     <Compile Include="Field\PlayingField.cs" />
     <Compile Include="Field\PlayingFieldBuilder.cs" />

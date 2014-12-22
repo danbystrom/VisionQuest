@@ -5,7 +5,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Objects
 {
-    public class DrawableBox : ClipDrawable
+    public class DrawableBox : VDrawable
     {
         public Matrix World;
 

@@ -7,7 +7,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Field
 {
-    public class Windmill : ClipDrawable
+    public class Windmill : VDrawable
     {
         private readonly Model _model;
 

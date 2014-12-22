@@ -7,7 +7,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionQuest.Decorations
 {
-    internal class ShipModel : ClipDrawable
+    internal class ShipModel : VDrawable
     {
         private readonly Model _model;
 

@@ -18,7 +18,7 @@ using Keys = SharpDX.Toolkit.Input.Keys;
 
 namespace Larv
 {
-    public class TheGame : Game
+    public class LarvGame : Game
     {
         private GraphicsDeviceManager _graphicsDeviceManager;
 
@@ -28,7 +28,7 @@ namespace Larv
 
         private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
 
-        public TheGame()
+        public LarvGame()
         {
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
             _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
@@ -94,6 +94,8 @@ namespace Larv
         {
             _lcontent.ShadowMap.Draw(_serpents.Camera);
             GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.CullNone);
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
 
             // ------------------------------------------------------------------------

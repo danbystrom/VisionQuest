@@ -5,7 +5,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.Objects
 {
-    public class Bridge : ClipDrawable
+    public class Bridge : VDrawable
     {
         public Matrix World;
 

@@ -38,7 +38,7 @@ namespace factor10.VisionQuest
         private RasterizerState _rasterizerState;
         private MovingShip _movingShip;
         private SpriteBatch _spriteBatch;
-        private ClipDrawableInstance _ballInstance;
+        private VDrawableInstance _ballInstance;
 
         private Camera _camera;
 
@@ -75,7 +75,7 @@ namespace factor10.VisionQuest
             _ball = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (p, n, t, tx) => new VertexPositionNormalTexture(p, n, tx), 1);
             var x = _vContent.LoadEffect("effects/simpletextureeffect");
             x.Texture = _vContent.Load<Texture2D>("terraintextures/sand");
-            _ballInstance = new ClipDrawableInstance(x, _ball, Matrix.Translation(10, 2, 10));
+            _ballInstance = new VDrawableInstance(x, _ball, Matrix.Translation(10, 2, 10));
 
             Sky = new SkySphere(_vContent, _vContent.Load<TextureCube>(@"Textures\clouds"));
             _movingShip = new MovingShip(new ShipModel(_vContent));

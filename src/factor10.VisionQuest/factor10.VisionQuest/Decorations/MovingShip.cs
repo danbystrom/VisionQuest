@@ -6,7 +6,7 @@ using SharpDX.Toolkit;
 
 namespace factor10.VisionQuest
 {
-    class MovingShip : ClipDrawable
+    class MovingShip : VDrawable
     {
         public readonly ShipModel _shipModel;
 

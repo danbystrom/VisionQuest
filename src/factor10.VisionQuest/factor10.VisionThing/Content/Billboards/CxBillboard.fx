@@ -32,8 +32,8 @@ float BillboardHeight = 10;
 struct VertexToPixel
 {
     float4 Position : SV_Position;
+	float4 Color	: COLOR0;
     float2 TexCoord : TEXCOORD0;
-    float4 Color : COLOR0;
 	float4 WorldPosition: TEXCOORD1;
 	float4 PositionCopy : TEXCOORD2;
 };

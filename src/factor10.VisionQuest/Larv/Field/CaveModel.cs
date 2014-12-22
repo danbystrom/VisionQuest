@@ -8,7 +8,7 @@ using SharpDX.Toolkit.Input;
 
 namespace Larv.Field
 {
-    public class CaveModel : ClipDrawable
+    public class CaveModel : VDrawable
     {
         private readonly Model _caveModel;
         private readonly Model _gratingModel;

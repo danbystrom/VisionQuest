@@ -9,7 +9,7 @@ using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class StaticBillboard : ClipDrawable
+    public class StaticBillboard : VDrawable
     {
         private readonly Matrix _world;
         private Buffer<StaticBillboardVertex> _vertexBuffer;

@@ -9,7 +9,7 @@ using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace factor10.VisionThing.Terrain
 {
-    public class CxBillboard : ClipDrawable
+    public class CxBillboard : VDrawable
     {
         public Matrix World;
 
@@ -32,7 +32,7 @@ namespace factor10.VisionThing.Terrain
             float width,
             float height,
             float windAmount)
-            : base(vContent.LoadEffect("Billboards/CxBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
+            : base(vContent.LoadEffect("Billboards/CxBillboard2", vContent.GraphicsDevice.SamplerStates.LinearClamp))
         {
             World = world;
             _texture = texture;
@@ -97,14 +97,7 @@ namespace factor10.VisionThing.Terrain
             Vector3 n,
             float rnd)
         {
-            n.Normalize();
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 1), rnd);
-
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 0), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(1, 1), rnd);
-            bv[i++] = new CxBillboardVertex(p, n, new Vector2(0, 1), rnd);
+            bv[i++] = new CxBillboardVertex(p, Vector3.Normalize(n), rnd);
         }
 
         private void generateTreePositions(GroundMap groundMap, ColorSurface normals)

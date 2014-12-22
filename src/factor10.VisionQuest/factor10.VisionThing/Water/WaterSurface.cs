@@ -49,7 +49,7 @@ namespace factor10.VisionThing.Water
 
         public readonly RenderTarget2D _reflectionTarget;
 
-        public readonly List<ClipDrawable> ReflectedObjects = new List<ClipDrawable>();
+        public readonly List<VDrawable> ReflectedObjects = new List<VDrawable>();
         private readonly Camera _reflectionCamera;
 
         public IVEffect Effect;

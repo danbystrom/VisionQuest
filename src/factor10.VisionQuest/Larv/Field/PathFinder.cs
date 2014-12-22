@@ -58,10 +58,11 @@ namespace Larv.Field
             if (getDistance(whereabouts.Floor, whereabouts.Location, Direction.None) <= 2)
                 return Direction.None; // is home!
 
-            var bestDirection = whereabouts.Direction.Turn(RelativeDirection.Backward);
+            var backward = whereabouts.Direction.Turn(RelativeDirection.Backward);
+            var bestDirection = backward;
             var bestDistance = int.MaxValue;
             foreach (var direction in Direction.AllDirections)
-                if (canTurnAround || direction != bestDirection)
+                if (canTurnAround || direction != backward)
                     testDistance(whereabouts.Floor, whereabouts.Location, ref bestDirection, ref bestDistance, direction);
             return bestDirection;
         }

@@ -87,8 +87,8 @@
     <Compile Include="ArcGenerator.cs" />
     <Compile Include="ArcVertex.cs" />
     <Compile Include="CameraStuff\Camera.cs" />
-    <Compile Include="ClipDrawable.cs" />
-    <Compile Include="ClipDrawableInstance.cs" />
+    <Compile Include="VDrawable.cs" />
+    <Compile Include="VDrawableInstance.cs" />
     <Compile Include="FloatingText\FloatingTextItem.cs" />
     <Compile Include="FloatingText\FloatingTexts.cs" />
     <Compile Include="CameraStuff\MoveCameraYaw.cs" />
@@ -187,7 +187,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ToolkitFxc Include="Content\Billboards\CxBillboard2.fx" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

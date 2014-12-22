@@ -6,7 +6,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing.FloatingText
 {
-    public class FloatingTexts : ClipDrawable
+    public class FloatingTexts : VDrawable
     {
         public readonly VisionContent VContent;
         public readonly SpriteBatch SpriteBatch;

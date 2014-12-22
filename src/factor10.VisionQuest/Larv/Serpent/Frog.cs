@@ -4,7 +4,6 @@ using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Util;
 using Larv.Field;
-using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -12,7 +11,7 @@ using System;
 
 namespace Larv.Serpent
 {
-    public class Frog : ClipDrawable, IPosition
+    public class Frog : VDrawable, IPosition
     {
         private readonly Model _model;
         private readonly Matrix _modelRotation;
@@ -33,18 +32,17 @@ namespace Larv.Serpent
         private readonly SequentialToDo _actions = new SequentialToDo();
 
         public Frog(
-            VisionContent vContent,
+            LContent lcontent,
             IVEffect effect,
-            Serpents serpents,
-            Ground ground)
+            Serpents serpents)
             : base(effect)
         {
-            _model = vContent.Load<Model>(@"Models/frog");
+            _model = lcontent.Load<Model>(@"Models/frog");
             _modelRotation = Matrix.RotationY(MathUtil.Pi)*Matrix.Scaling(0.1f);
 
-            _texture = vContent.Load<Texture2D>(@"models/frogskin");
+            _texture = lcontent.Load<Texture2D>(@"models/frogskin");
             _serpents = serpents;
-            _ground = ground;
+            _ground = lcontent.Ground;
             Restart();
         }
 
@@ -111,7 +109,7 @@ namespace Larv.Serpent
 
         private bool findNewPosition(out Vector3 position, out Vector3 normal, out float angle)
         {
-            // this is not even called once a second - performance is not a issue here
+            // this is not even called once a second - performance is not an issue here
 
             try
             {
@@ -122,8 +120,7 @@ namespace Larv.Serpent
                 var closeToEgg = eggs.Any() && Vector3.DistanceSquared(_position, eggs.First()) < 4;
 
                 eggs.Add(new Vector3(_serpents.PlayingField.MiddleX, 0, _serpents.PlayingField.MiddleY));
-                var goodDirection = eggs.FirstOrDefault() - _position;
-                goodDirection.Normalize();
+                var goodDirection = Vector3.Normalize(eggs.FirstOrDefault() - _position);
 
                 var winv = _ground.World;
                 winv.Invert();
@@ -137,7 +134,7 @@ namespace Larv.Serpent
 
                     var toPosition = closeToEgg
                         ? eggs.First()
-                        : Position + new Vector3(dx, 0, dz) + goodDirection*Rnd.NextFloat(0.5f, 1);
+                        : Position + new Vector3(dx, 0, dz) + goodDirection*Rnd.NextFloat(0.9f, 1.5f);
 
                     Vector3 gspaceTo;
                     Vector3.TransformCoordinate(ref toPosition, ref winv, out gspaceTo);

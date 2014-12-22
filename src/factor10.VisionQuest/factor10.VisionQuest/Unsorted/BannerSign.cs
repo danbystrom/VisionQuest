@@ -9,7 +9,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionQuest
 {
-    public class BannerSign : ClipDrawable
+    public class BannerSign : VDrawable
     {
         private class TextAndPosAndDistance
         {

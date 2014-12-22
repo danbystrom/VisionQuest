@@ -17,7 +17,7 @@ namespace Larv
 #endif
         static void Main()
         {
-            using (var program = new TheGame())
+            using (var program = new LarvGame())
                 program.Run();
 
         }

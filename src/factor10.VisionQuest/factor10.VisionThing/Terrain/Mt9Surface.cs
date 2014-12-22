@@ -135,6 +135,21 @@ namespace factor10.VisionThing.Terrain
                 Values.Select(_ => _.ToArgb()).ToArray());
         }
 
+        public void Soften(int rounds = 1)
+        {
+            var end = Values.Length - Width - 1;
+            while (rounds-- > 0)
+            {
+                var old = (Mt9[]) Values.Clone();
+                for (var i = Width + 1; i < end; i++)
+                    for (var j = 0; j < 9; j++)
+                        Values[i][j] =
+                            (old[i - Width - 1][j] + old[i - Width][j] + old[i - Width + 1][j] +
+                             old[i - 1][j] + old[i][j] + old[i + 1][j] +
+                             old[i + Width - 1][j] + old[i + Width][j] + old[i + Width + 1][j])/9;
+            }
+        }
+
     }
 
 }

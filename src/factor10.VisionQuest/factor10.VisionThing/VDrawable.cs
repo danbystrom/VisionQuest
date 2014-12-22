@@ -14,19 +14,19 @@ namespace factor10.VisionThing
         ShadowDepthMap
     }
 
-    public abstract class ClipDrawable : IDisposable
+    public abstract class VDrawable : IDisposable
     {
-        public readonly List<ClipDrawable> Children = new List<ClipDrawable>();
+        public readonly List<VDrawable> Children = new List<VDrawable>();
         public readonly IVEffect Effect;
 
         public BoundingSphere BoundingSphere { get; protected set; }
 
-        protected ClipDrawable(IVEffect effect)
+        protected VDrawable(IVEffect effect)
         {
             Effect = effect;
         }
 
-        protected ClipDrawable(ClipDrawable cd)
+        protected VDrawable(VDrawable cd)
             : this(cd.Effect)
         {
         }

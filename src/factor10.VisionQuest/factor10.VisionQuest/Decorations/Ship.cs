@@ -7,7 +7,7 @@ using TestBed;
 
 namespace factor10.VisionQuest
 {
-    class Ship : ClipDrawable
+    class Ship : VDrawable
     {
         private readonly ShipModel _shipModel;
 

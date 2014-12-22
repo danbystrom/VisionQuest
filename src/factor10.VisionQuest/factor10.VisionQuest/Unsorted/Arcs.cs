@@ -18,7 +18,7 @@ namespace factor10.VisionQuest
         public int Count;
     }
 
-    public class Arcs : ClipDrawable
+    public class Arcs : VDrawable
     {
         public readonly Archipelag Archipelag;
 

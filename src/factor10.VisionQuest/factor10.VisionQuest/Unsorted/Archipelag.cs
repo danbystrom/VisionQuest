@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace factor10.VisionQuest
 {
-    public class Archipelag : ClipDrawable
+    public class Archipelag : VDrawable
     {
         private readonly BannerSign _bannerSign;
         private readonly Arcs _arcs;

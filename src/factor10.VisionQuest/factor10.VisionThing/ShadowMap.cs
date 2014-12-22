@@ -11,7 +11,7 @@ namespace factor10.VisionThing
     {
         private readonly GraphicsDevice _graphicsDevice;
 
-        public readonly List<ClipDrawable> ShadowCastingObjects = new List<ClipDrawable>();
+        public readonly List<VDrawable> ShadowCastingObjects = new List<VDrawable>();
         public readonly Camera Camera;
         public Camera RealCamera { get; private set; }
 
@@ -67,7 +67,7 @@ namespace factor10.VisionThing
         {
             RealCamera = camera;
 
-            _graphicsDevice.SetRenderTargets(ShadowDepthTarget);
+            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);

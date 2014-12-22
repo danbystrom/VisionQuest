@@ -7,7 +7,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionQuest
 {
-    internal class Windmill : ClipDrawable
+    internal class Windmill : VDrawable
     {
         private readonly Model _model;
         private readonly Matrix[] _bones;

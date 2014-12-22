@@ -6,8 +6,8 @@ namespace Larv.GameStates
 {
     internal class HomingDevice : ITakeDirection
     {
-        private readonly PathFinder _playerPathFinder;
-        private readonly PathFinder _enemyPathFinder;
+        public PathFinder PlayerPathFinder;
+        public PathFinder EnemyPathFinder;
 
         public static void Attach(Serpents serpents, bool player = true, bool enemies = true)
         {
@@ -20,18 +20,20 @@ namespace Larv.GameStates
 
         public HomingDevice(Serpents serpents)
         {
-            _playerPathFinder = new PathFinder(serpents.PlayingField, serpents.PlayingField.PlayerWhereaboutsStart);
-            _enemyPathFinder = new PathFinder(serpents.PlayingField, serpents.PlayingField.EnemyWhereaboutsStart);
+            PlayerPathFinder = new PathFinder(serpents.PlayingField, serpents.PlayingField.PlayerWhereaboutsStart);
+            EnemyPathFinder = new PathFinder(serpents.PlayingField, serpents.PlayingField.EnemyWhereaboutsStart);
         }
 
-        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
+        public RelativeDirection TakeDirection(BaseSerpent serpent)
         {
-            var pathFinder = serpent is PlayerSerpent ? _playerPathFinder : _enemyPathFinder;
-            var direction = pathFinder.WayHome(serpent.Whereabouts, false);
+            var pathFinder = serpent is PlayerSerpent ? PlayerPathFinder : EnemyPathFinder;
+            var whereabouts = serpent.Whereabouts;
+            whereabouts.Direction = serpent.HeadDirection;
+            var direction = pathFinder.WayHome(whereabouts, false);
             return serpent.HeadDirection.GetRelativeDirection(direction);
         }
 
-        bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
+        public bool CanOverrideRestrictedDirections(BaseSerpent serpent)
         {
             return true;
         }

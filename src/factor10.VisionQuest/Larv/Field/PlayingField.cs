@@ -10,14 +10,12 @@ using Buffer = SharpDX.Toolkit.Graphics.Buffer;
 
 namespace Larv.Field
 {
-    public class PlayingField : ClipDrawable
+    public class PlayingField : VDrawable
     {
         public readonly int Floors, Width, Height;
         public readonly Buffer<VertexPositionNormalTexture> VertexBuffer;
         public readonly Buffer<VertexPositionColor> VertexBufferShadow;
         public readonly VertexInputLayout VertexInputLayout;
-
-        public readonly IVDrawable _plane;
 
         public readonly PlayingFieldSquare[, ,] TheField;
 
@@ -35,10 +33,6 @@ namespace Larv.Field
             _texture = texture;
 
             var field = PlayingFields.GetLevel(level);
-
-            _plane = new PlanePrimitive<VertexPositionNormalTexture>(vContent.GraphicsDevice, (x, y, w, h) => new VertexPositionNormalTexture(
-                new Vector3(x, 0, y), Vector3.Up, new Vector2(x/w, y/h)),
-                10, 10);
 
             Floors = field.Count;
             Height = field[0].Length;
@@ -58,7 +52,7 @@ namespace Larv.Field
 
             var verts = new List<VertexPositionNormalTexture>();
             var vertsShadow = new List<VertexPositionColor>();
-            for (var z = 0; z < Floors; z++)
+            for (var z = 1; z < Floors; z++)
                 for (var y = 0; y < Height; y++ )
                      for (var x = 0; x < Width; x++)
                          if (!TheField[z, y, x].IsNone)
@@ -70,7 +64,7 @@ namespace Larv.Field
                          }
 
 
-            verts.Clear();
+           // verts.Clear();
             verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, -1), Vector3.Up, new Vector2(0, 0)));
             verts.Add(new VertexPositionNormalTexture(new Vector3(Width + 1, 0, -1), Vector3.Up, new Vector2(Width*0.25f, 0)));
             verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, Height + 1), Vector3.Up, new Vector2(0, Height * 0.25f)));
@@ -82,7 +76,7 @@ namespace Larv.Field
             //verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, -1), Vector3.Up, new Vector2(0, 0)));
 
             VertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, verts.ToArray());
-            VertexBufferShadow = Buffer.Vertex.New(vContent.GraphicsDevice, vertsShadow.ToArray());
+            //VertexBufferShadow = Buffer.Vertex.New(vContent.GraphicsDevice, vertsShadow.ToArray());
             VertexInputLayout = VertexInputLayout.FromBuffer(0, VertexBuffer);
         }
 
@@ -154,8 +148,6 @@ namespace Larv.Field
                     PrimitiveType.TriangleList,
                     VertexBuffer.ElementCount);
             }
-
-            //_plane.Draw(_effect);
 
             return true;
         }

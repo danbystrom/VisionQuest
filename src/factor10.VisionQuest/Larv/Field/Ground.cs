@@ -57,6 +57,8 @@ namespace Larv.Field
 
             for (var i = 0; i < 5000; i++)
                 GroundMap[rnd.Next(Left + 4, Right - 4), rnd.Next(Top + 8, Bottom - 8)] += 20;
+            for (var i = 0; i < 20; i++)
+                GroundMap[rnd.Next(Left + 4, Right - 4), rnd.Next(Top + 8, Bottom - 8)] += 250;
 
             GroundMap.Soften(2);
 
@@ -78,17 +80,19 @@ namespace Larv.Field
 
             carvePlayingField(weights, playingField, (TotalWidth - pfW * 3) / 2, (TotalHeight - pfH * 3) / 2, new Mt9Surface.Mt9 { H = 2 });
 
+            weights.Soften();
+
             var normals = GroundMap.CreateNormalsMap(ref World);
             initialize(GroundMap, weights, normals);
 
             SignPosition = Vector3.TransformCoordinate(new Vector3(Right - 10, 20, 10), World);
             SignPosition.Z = playingField.PlayerWhereaboutsStart.Location.Y - 10;
 
-            const float WindAmount = 0.05f;
+            const float windAmount = 0.05f;
 
             disposeBillboards();
-            _cxBillboardGrass = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f, WindAmount);
-            _cxBillboardTrees = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f, WindAmount);
+            _cxBillboardGrass = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/grass"), 0.3f, 0.3f, windAmount);
+            _cxBillboardTrees = new CxBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/tree"), 1.5f, 1.5f, windAmount);
             for (var i = 0; i < 150000; i++)
             {
                 var gx = rnd.Next(Left + 8, Right - 8) + (float) rnd.NextDouble();

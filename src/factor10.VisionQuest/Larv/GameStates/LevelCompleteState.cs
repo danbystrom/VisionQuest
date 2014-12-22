@@ -13,7 +13,7 @@ namespace Larv.GameStates
     class LevelCompleteState : IGameState, ITakeDirection
     {
         private readonly Serpents _serpents;
-        private readonly PathFinder _pathFinder;
+        private readonly HomingDevice _homingDevice;
         private MoveCamera _moveCamera;
 
         private readonly SequentialToDo _todo = new SequentialToDo();
@@ -27,7 +27,7 @@ namespace Larv.GameStates
         {
             _serpents = serpents;
 
-            _pathFinder = new PathFinder(_serpents.PlayingField, _serpents.PlayingField.PlayerWhereaboutsStart);
+            _homingDevice = new HomingDevice(_serpents);
             _serpents.PlayerSerpent.DirectionTaker = this;
 
             Vector3 toPosition, toLookAt;
@@ -103,9 +103,9 @@ namespace Larv.GameStates
 
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
-            _serpentIsHome = _pathFinder.GetDistance(_serpents.PlayerSerpent.Whereabouts) < (_homeIsNearCaveEntrance ? 6 : 3);
+            _serpentIsHome = _homingDevice.PlayerPathFinder.GetDistance(_serpents.PlayerSerpent.Whereabouts) < (_homeIsNearCaveEntrance ? 6 : 3);
             _haltSerpents |= _serpentIsHome;
-            return serpent.HeadDirection.GetRelativeDirection(_pathFinder.WayHome(serpent.Whereabouts, false));
+            return _homingDevice.TakeDirection(serpent);
         }
 
         bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)

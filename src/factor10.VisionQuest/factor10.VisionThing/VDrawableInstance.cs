@@ -4,12 +4,12 @@ using SharpDX;
 
 namespace factor10.VisionThing
 {
-    public class ClipDrawableInstance : ClipDrawable
+    public class VDrawableInstance : VDrawable
     {
         public readonly IVDrawable Thing;
         public Matrix World;
 
-        public ClipDrawableInstance(IVEffect effect, IVDrawable thing, Matrix world )
+        public VDrawableInstance(IVEffect effect, IVDrawable thing, Matrix world )
             : base(effect)
         {
             Thing = thing;

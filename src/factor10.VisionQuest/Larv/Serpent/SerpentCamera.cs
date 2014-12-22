@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
-using factor10.VisionThing.Terrain;
 using SharpDX;
 using SharpDX.Toolkit.Input;
 

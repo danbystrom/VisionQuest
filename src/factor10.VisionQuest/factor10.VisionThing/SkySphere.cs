@@ -6,7 +6,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing
 {
-    public class SkySphere : ClipDrawable
+    public class SkySphere : VDrawable
     {
         private readonly IGeometricPrimitive _sphere;
 

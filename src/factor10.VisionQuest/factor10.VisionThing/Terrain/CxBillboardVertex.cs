@@ -8,34 +8,26 @@ namespace factor10.VisionThing.Terrain
     [StructLayout(LayoutKind.Sequential)]
     public struct CxBillboardVertex : IEquatable<CxBillboardVertex>
     {
-        public static readonly int Size = sizeof (float)*(3 + 3 + 2 + 2);
-
         [VertexElement("SV_Position")]
         public readonly Vector3 Position;
 
-        [VertexElement("NORMAL")]
+        [VertexElement("NORMAL0")]
         public readonly Vector3 Normal;
 
         [VertexElement("TEXCOORD0")]
-        public readonly Vector2 TexCoord;
-
-        [VertexElement("TEXCOORD1")]
         public readonly Vector2 Random;
 
-        public CxBillboardVertex(Vector3 position, Vector3 normal, Vector2 texCoord, float random)
+        public CxBillboardVertex(Vector3 position, Vector3 normal, float random)
         {
             normal.Normalize();
             Position = position;
             Normal = normal;
-            TexCoord = texCoord;
             Random = new Vector2(random, 0);
         }
 
         public bool Equals(CxBillboardVertex other)
         {
-            return Position.Equals(other.Position) && Normal.Equals(other.Normal) && TexCoord.Equals(other.TexCoord) &&
-                   Random.Equals(other.Random);
-            ;
+            return Position.Equals(other.Position) && Normal.Equals(other.Normal) && Random.Equals(other.Random);
         }
 
         public override bool Equals(object obj)
@@ -50,7 +42,6 @@ namespace factor10.VisionThing.Terrain
             {
                 var hashCode = Position.GetHashCode();
                 hashCode = (hashCode*397) ^ Normal.GetHashCode();
-                hashCode = (hashCode*397) ^ TexCoord.GetHashCode();
                 hashCode = (hashCode*397) ^ Random.GetHashCode();
                 return hashCode;
             }
@@ -68,8 +59,7 @@ namespace factor10.VisionThing.Terrain
 
         public override string ToString()
         {
-            return string.Format("Position: {0}, Normal: {1}, TexCoord: {2}, Random: {3}", Position, Normal,
-                TexCoord, Random);
+            return string.Format("Position: {0}, Normal: {1}, Random: {2}", Position, Normal, Random);
         }
 
     }

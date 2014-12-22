@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
+using factor10.VisionThing.Effects;
 using Larv.Field;
 using Larv.Util;
 using SharpDX;
@@ -25,7 +26,7 @@ namespace Larv.Serpent
         bool CanOverrideRestrictedDirections(BaseSerpent serpent);
     }
 
-    public abstract class BaseSerpent : ClipDrawable, IPosition
+    public abstract class BaseSerpent : VDrawable, IPosition
     {
         public const float HeadSize = 0.5f;
         public const float SegmentSize = 0.4f;
@@ -35,7 +36,7 @@ namespace Larv.Serpent
 
         protected PlayingField PlayingField;
 
-        public Whereabouts _whereabouts = new Whereabouts();
+        protected Whereabouts _whereabouts = new Whereabouts();
         public Direction HeadDirection { get; protected set; }
 
         protected double _fractionAngle;
@@ -64,6 +65,8 @@ namespace Larv.Serpent
 
         public bool IsLonger { get; protected set; }
 
+        private readonly IVEffect _textureEffect;
+
         protected BaseSerpent(
             LContent lcontent,
             PlayingField playingField,
@@ -79,6 +82,8 @@ namespace Larv.Serpent
             _serpentHeadSkin = serpentHeadSkin;
             _serpentBump = serpentBump;
             _eggSkin = eggSkin;
+
+            _textureEffect = lcontent.LoadEffect("Effects/simpletextureeffect");
 
             _headRotation.Add(Direction.East, Matrix.RotationY(MathUtil.Pi));
             _headRotation.Add(Direction.West, Matrix.Identity);
@@ -364,8 +369,8 @@ namespace Larv.Serpent
             else
                 SerpentStatus = SerpentStatus.Ghost;
             return this is PlayerSerpent
-                ? new Egg(Effect, _sphere, _eggSkin, TintColor(), _eggWorld, segment.Whereabouts, float.MaxValue)
-                : new Egg(Effect, _sphere, _eggSkin, EnemySerpent.ColorWhenLonger, _eggWorld, segment.Whereabouts, 20);
+                ? new Egg(_textureEffect, _sphere, _eggSkin, TintColor(), _eggWorld, segment.Whereabouts, float.MaxValue)
+                : new Egg(_textureEffect, _sphere, _eggSkin, EnemySerpent.ColorWhenLonger, _eggWorld, segment.Whereabouts, 20);
         }
 
         public Vector3 LookAtPosition

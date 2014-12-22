@@ -1,5 +1,4 @@
 ﻿using System;
-using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using Larv.Field;
 using SharpDX;
