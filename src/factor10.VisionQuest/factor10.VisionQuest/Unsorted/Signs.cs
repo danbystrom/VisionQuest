@@ -43,7 +43,7 @@ namespace factor10.VisionQuest
                     2);
             }
             AddPositionsWithSameNormal(Vector3.Up, vclasses.Select(vc => vc.Position - world.TranslationVector + Vector3.Down).ToArray());
-            CreateBillboardVertices(false);
+            CreateVertices(false);
         }
 
         protected override bool draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

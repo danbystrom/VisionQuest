@@ -82,7 +82,7 @@ void GS(
     // shorter and fatter while others are taller and thinner.
     float squishFactor = 0.75 + gin[0].Random.x / 2;
 
-    float halfWidth = BillboardWidth * squishFactor;
+    float halfWidth = 0.5 * BillboardWidth * squishFactor;
     float height = BillboardHeight / squishFactor;
 
     // Flip half of the billboards from left to right. This gives visual variety
@@ -103,10 +103,10 @@ void GS(
 	float wind = sin(WindTime * WindSpeed + waveOffset) * WindAmount;
 
 	float4 v[4];
-	v[0] = float4(gin[0].Position - halfWidth*sideVector + windDirection*wind, 1.0f);
-	v[1] = float4(gin[0].Position - halfWidth*sideVector + height*gin[0].Up, 1.0f);
-	v[2] = float4(gin[0].Position + halfWidth*sideVector + windDirection*wind, 1.0f);
-	v[3] = float4(gin[0].Position + halfWidth*sideVector + height*gin[0].Up, 1.0f);
+	v[0] = float4(center - halfWidth*sideVector, 1.0f);
+	v[1] = float4(center - halfWidth*sideVector + height*gin[0].Up + windDirection*wind, 1.0f);
+	v[2] = float4(center + halfWidth*sideVector, 1.0f);
+	v[3] = float4(center + halfWidth*sideVector + height*gin[0].Up + windDirection*wind, 1.0f);
 
 	float4x4 preViewProjection = mul(View, Projection);
 

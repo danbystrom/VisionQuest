@@ -63,6 +63,7 @@ namespace Larv.Serpent
                     _position = new Vector3(_serpents.PlayingField.Width + 1, 0, _serpents.PlayingField.MiddleY);
                     break;
             }
+            _actions.Clear();
         }
 
         public override void Update(Camera camera, GameTime gameTime)

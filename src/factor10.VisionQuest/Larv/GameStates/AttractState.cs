@@ -4,12 +4,10 @@ using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.FloatingText;
 using factor10.VisionThing.Util;
-using Larv.Hof;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Graphics;
 using SharpDX.Toolkit.Input;
 using Color = SharpDX.Color;
 
@@ -23,16 +21,15 @@ namespace Larv.GameStates
         private readonly Serpents _serpents;
         private readonly Random _random = new Random();
         private readonly SequentialToDo _cameraMovements = new SequentialToDo();
-        private readonly Hof.PaintHof _hofPainter;
 
         private bool _freeCamera;
-        private float _scrollingTextAngle;
-        private float _larvText;
+
+        private readonly AttractBigTexts _attractBigTexts;
 
         public AttractState(Serpents serpents)
         {
             _serpents = serpents;
-            _hofPainter = new PaintHof(_serpents.LContent, new HallOfFame());
+            _attractBigTexts = new AttractBigTexts(serpents.LContent);
 
             _serpents.PlayerSerpent.DirectionTaker = this;
             _serpents.Enemies.ForEach(_ => _.DirectionTaker = null);
@@ -52,9 +49,6 @@ namespace Larv.GameStates
 
         public void Update(Camera camera, GameTime gameTime, ref IGameState gameState)
         {
-            _larvText += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            _scrollingTextAngle = MathUtil.Mod2PI(_scrollingTextAngle + 1.2f*(float) gameTime.ElapsedGameTime.TotalSeconds);
-
             addExplanationText();
 
             _freeCamera ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.C);
@@ -64,6 +58,7 @@ namespace Larv.GameStates
                 addCameraActions();
 
             _serpents.Update(camera, gameTime);
+            _attractBigTexts.Update(gameTime);
             switch (_serpents.GameStatus())
             {
                 case Serpents.Result.PlayerDied:
@@ -86,56 +81,7 @@ namespace Larv.GameStates
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
         {
             _serpents.Draw(camera, drawingReason, shadowMap);
-
-            var gd = _serpents.LContent.GraphicsDevice;
-            var sb = _serpents.LContent.SpriteBatch;
-            var font = _serpents.LContent.Font;
-
-            var text = "LARV!";
-            var fsize = _serpents.LContent.FontScaleRatio*15;
-            var ssize = new Vector2(gd.BackBuffer.Width, gd.BackBuffer.Height);
-
-            var factor = 0f;
-            switch ((int) _larvText)
-            {
-                case 1:
-                case 10:
-                    factor = _larvText - 1;
-                    break;
-                case 2:
-                case 12:
-                    factor = 1;
-                    break;
-                case 3:
-                case 11:
-                    factor = 4 - _larvText;
-                    break;
-                case 20:
-                    _larvText = 0;
-                    break;
-            }
-            sb.Begin(SpriteSortMode.Deferred, gd.BlendStates.NonPremultiplied);
-
-            if (factor > 0)
-            {
-                var color = new Color(_random.NextFloat(factor, 1), _random.NextFloat(factor, 1), _random.NextFloat(factor, 1), factor)*Color.LightYellow;
-                if (_larvText < 10)
-                    sb.DrawString(font, text, (ssize - fsize*font.MeasureString(text))/2, color, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-                else
-                    _hofPainter.Paint(color);
-            }
-
-            fsize *= 0.1f;
-            text = "HIT [SPACE] TO PLAY";
-            var measureString = fsize*font.MeasureString(text);
-            var halfWidth = (ssize.X - measureString.X) / 2;
-            var pos = new Vector2(halfWidth + (float) Math.Sin(_scrollingTextAngle)*halfWidth, ssize.Y - measureString.Y);
-            sb.DrawString(font, text, pos, Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-
-            sb.End();
-
-            gd.SetDepthStencilState(gd.DepthStencilStates.Default);
-            gd.SetBlendState(gd.BlendStates.Opaque);
+            _attractBigTexts.Draw();
         }
 
         private void addExplanationText()

@@ -95,6 +95,11 @@ namespace factor10.VisionThing.Util
             });
         }
 
+        public void Clear()
+        {
+            Actions.Clear();
+        }
+
     }
 
 }

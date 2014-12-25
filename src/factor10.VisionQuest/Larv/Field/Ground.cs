@@ -97,14 +97,15 @@ namespace Larv.Field
             {
                 var gx = rnd.Next(Left + 8, Right - 8) + (float) rnd.NextDouble();
                 var gy = rnd.Next(Top + 8, Bottom - 8) + (float) rnd.NextDouble();
-                var position = Vector3.TransformCoordinate(new Vector3(gx, GroundMap.GetExactHeight(gx, gy), gy), World);
+                var position = Vector3.TransformCoordinate(new Vector3(gx, getSurroundingHeight(gx, gy), gy), World);
                 if (position.Y < 0.7f)
                     continue;
                 position.Y -= 0.05f;
                 var normal = normals.GetExact(gx, gy).ToVector3();
                 if (normal.Y < 0.5f)
-                    continue;
-                if (rnd.NextDouble() < 0.996 || Vector3.DistanceSquared(position, SignPosition) < 5)
+                    continue;  // too much slope
+                normal.Y *= 2;  // straighten it up a bit
+                if (rnd.NextDouble() < 0.995 || Vector3.DistanceSquared(position, SignPosition) < 5)
                     _cxBillboardGrass.Add(position, normal);
                 else
                     _cxBillboardTrees.Add(position, Vector3.Up);
@@ -113,9 +114,17 @@ namespace Larv.Field
             _cxBillboardSigns = new StaticBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/woodensign"), 3.5f, 1.5f);
             _cxBillboardSigns.Add(SignPosition, Vector3.Up, Vector3.Left);
 
-            _cxBillboardGrass.CreateBillboardVertices();
+            _cxBillboardGrass.CreateVertices();
             _cxBillboardSigns.CreateBillboardVertices();
-            _cxBillboardTrees.CreateBillboardVertices();
+            _cxBillboardTrees.CreateVertices();
+        }
+
+        private float getSurroundingHeight(float gx, float gy)
+        {
+            const float d = 0.05f;
+            return Math.Min(
+                Math.Min(GroundMap.GetExactHeight(gx - d, gy - d), GroundMap.GetExactHeight(gx + d, gy - d)),
+                Math.Min(GroundMap.GetExactHeight(gx + d, gy + d), GroundMap.GetExactHeight(gx - d, gy + d)));
         }
 
         private void createHillForCave(Point location, int pfW, int pfH)

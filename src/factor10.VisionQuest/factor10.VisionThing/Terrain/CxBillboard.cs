@@ -44,7 +44,7 @@ namespace factor10.VisionThing.Terrain
         public void GenerateTreePositions(GroundMap groundMap, ColorSurface normals)
         {
             generateTreePositions(groundMap, normals);
-            CreateBillboardVertices();
+            CreateVertices();
         }
 
         public CxBillboard Add(Vector3 position, Vector3 normal)
@@ -67,12 +67,12 @@ namespace factor10.VisionThing.Terrain
             return this;
         }
 
-        public CxBillboard CreateBillboardVertices(bool randomize = true)
+        public CxBillboard CreateVertices(bool randomize = true)
         {
             if (_items==null || !_items.Any())
                 return this;
 
-            var billboardVertices = new CxBillboardVertex[_items.Count * 6];
+            var billboardVertices = new CxBillboardVertex[_items.Count];
             var i = 0;
             var random = new Random();
             foreach (var t in _items)

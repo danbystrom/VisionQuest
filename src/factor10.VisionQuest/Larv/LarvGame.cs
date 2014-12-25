@@ -31,8 +31,8 @@ namespace Larv
         public LarvGame()
         {
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
-            _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
-            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;            
+            //_graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
+            //_graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;            
 #if false
             var screen = Screen.AllScreens.First(_ => !_.Primary);
             _graphicsDeviceManager.IsFullScreen = true;

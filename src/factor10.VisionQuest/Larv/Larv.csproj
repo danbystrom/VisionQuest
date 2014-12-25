@@ -89,6 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameStates\AttractBigTexts.cs" />
     <Compile Include="Hof\HallOfFame.cs" />
     <Compile Include="Hof\PaintHof.cs" />
     <Compile Include="Serpent\TerrainWalker.cs" />

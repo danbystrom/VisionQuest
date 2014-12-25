@@ -151,7 +151,7 @@ namespace factor10.VisionQuest
                         normals.AsVector3(vc.X, vc.Y));
                 }
             }
-            ms.CreateBillboardVertices();
+            ms.CreateVertices();
             Children.Add(ms);
 
             var weights = ground.CreateWeigthsMap(new[] {0, 0.40f, 0.60f, 0.9f});

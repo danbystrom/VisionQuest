@@ -127,7 +127,7 @@ namespace factor10.VisionQuest
                 Vector3.Right*10.4f, Vector3.Up,
                 Vector3.ForwardRH*3.45f, Vector3.Up,
                 Vector3.BackwardRH*2.9f, Vector3.Up);
-            _q.CreateBillboardVertices();
+            _q.CreateVertices();
         }
 
         private CxBillboard _q;
