@@ -32,7 +32,7 @@ namespace Larv.Serpent
         private readonly SequentialToDo _actions = new SequentialToDo();
 
         public Frog(
-            LContent lcontent,
+            LarvContent lcontent,
             IVEffect effect,
             Serpents serpents)
             : base(effect)
@@ -48,6 +48,7 @@ namespace Larv.Serpent
 
         public void Restart()
         {
+            _actions.Clear();
             switch (Rnd.Next(4))
             {
                 case 0:
@@ -63,7 +64,6 @@ namespace Larv.Serpent
                     _position = new Vector3(_serpents.PlayingField.Width + 1, 0, _serpents.PlayingField.MiddleY);
                     break;
             }
-            _actions.Clear();
         }
 
         public override void Update(Camera camera, GameTime gameTime)

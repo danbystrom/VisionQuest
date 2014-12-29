@@ -16,7 +16,7 @@ namespace Larv.Serpent
         private float _delayBeforeStart;
 
         public EnemySerpent(
-            LContent lcontent,
+            LarvContent lcontent,
             PlayingField playingField,
             float delayBeforeStart,
             int length)

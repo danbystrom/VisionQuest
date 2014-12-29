@@ -3,7 +3,6 @@ using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Util;
 using Larv.Serpent;
-using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
@@ -14,8 +13,6 @@ namespace Larv.GameStates
     {
         private readonly Serpents _serpents;
         private readonly SequentialToDo _todo  = new SequentialToDo();
-
-        private readonly Random _random = new Random();
 
         public GameOverState(Serpents serpents)
         {
@@ -29,7 +26,9 @@ namespace Larv.GameStates
             _serpents.Update(camera, gameTime);
             if (_todo.Do(gameTime))
                 return;
-            gameState = new AttractState(_serpents);
+            gameState = _serpents.LContent.HallOfFame.HasMadeIt(_serpents.Score)
+                ? (IGameState) new HallOfameState(_serpents)
+                : new AttractState(_serpents);
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)

@@ -10,7 +10,7 @@ namespace Larv.Serpent
         public float Speed = 1.4f;
 
         public PlayerSerpent(
-            LContent lcontent,
+            LarvContent lcontent,
             PlayingField playingField)
             : base(
                 lcontent,

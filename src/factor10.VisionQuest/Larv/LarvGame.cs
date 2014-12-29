@@ -23,7 +23,7 @@ namespace Larv
         private GraphicsDeviceManager _graphicsDeviceManager;
 
         private IGameState _gameState;
-        private LContent _lcontent;
+        private LarvContent _lcontent;
         private Serpents _serpents;
 
         private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
@@ -49,15 +49,17 @@ namespace Larv
         protected override void Initialize()
         {
             Window.Title = "Larv! by Dan Byström - factor10 Solutions";
+            var nativeWindow = (Form) Window.NativeWindow;
+            nativeWindow.WindowState = FormWindowState.Maximized;
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Larv.app.ico"))
-                ((Form)Window.NativeWindow).Icon = new Icon(stream);
+                nativeWindow.Icon = new Icon(stream);
             IsMouseVisible = true;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            _lcontent = new LContent(GraphicsDevice, Content);
+            _lcontent = new LarvContent(GraphicsDevice, Content);
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection * 32;
             var shadowCameraLookAt = shadowCameraPos + VisionContent.SunlightDirection;
@@ -103,10 +105,9 @@ namespace Larv
             // ------------------------------------------------------------------------
 
             var text = new StringBuilder();
-            text.AppendFormat("FPS: {0}", _fps.FrameRate);
-            _lcontent.SpriteBatch.Begin();
-            _lcontent.SpriteBatch.DrawString(_lcontent.Font, text.ToString(), Vector2.Zero, Color.White, 0, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
-            _lcontent.SpriteBatch.End();
+            text.AppendFormat("FPS: {0}  {1}", _fps.FrameRate, _gameState);
+            using(_lcontent.UsingSpriteBatch())
+                _lcontent.DrawString(text.ToString(), Vector2.Zero, 0.5f, 0, Color.White);
 
             base.Draw(gameTime);
         }

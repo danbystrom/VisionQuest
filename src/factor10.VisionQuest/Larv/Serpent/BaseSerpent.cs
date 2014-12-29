@@ -68,7 +68,7 @@ namespace Larv.Serpent
         private readonly IVEffect _textureEffect;
 
         protected BaseSerpent(
-            LContent lcontent,
+            LarvContent lcontent,
             PlayingField playingField,
             Texture2D serpentSkin,
             Texture2D serpentHeadSkin,

@@ -1,7 +1,6 @@
 ﻿using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Util;
-using Larv.Field;
 using Larv.Serpent;
 using Larv.Util;
 using SharpDX;
@@ -65,7 +64,7 @@ namespace Larv.GameStates
                 _haltSerpents = false;
                 _homeIsNearCaveEntrance = false;
             });
-            _todo.AddWhile(time => !_serpentIsHome);
+            //_todo.AddWhile(time => !_serpentIsHome);
 
             _todo.AddOneShot(() =>
             {

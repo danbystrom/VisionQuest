@@ -4,7 +4,6 @@ using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Util;
 using Larv.Serpent;
-using Larv.Util;
 using SharpDX;
 using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;

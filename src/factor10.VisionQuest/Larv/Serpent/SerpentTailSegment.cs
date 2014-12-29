@@ -49,7 +49,7 @@ namespace Larv.Serpent
                 PathToWalk[0] = w;
             }
 
-            return Next != null && (Next.Update(speed, PathToWalk.First()) || this.DistanceSquared(Next) > 1.9);
+            return Next != null && (Next.Update(speed, PathToWalk.First()) || this.DistanceSquared(Next) > 1.5);
         }
 
         public Vector3 Position

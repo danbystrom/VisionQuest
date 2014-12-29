@@ -22,7 +22,7 @@ namespace Larv.Serpent
             LevelComplete
         }
 
-        public readonly LContent LContent;
+        public readonly LarvContent LContent;
         public readonly FloatingTexts FloatingTexts;
         public readonly ParallelToDo ParallelToDos = new ParallelToDo();
 
@@ -50,7 +50,7 @@ namespace Larv.Serpent
         private int _pendingScore;
 
         public Serpents(
-            LContent lcontent,
+            LarvContent lcontent,
             Camera camera,
             int scene)
             : base(lcontent.LoadEffect("effects/simplebumpeffect"))
@@ -264,18 +264,13 @@ namespace Larv.Serpent
                 LContent.GraphicsDevice.SetBlendState(LContent.GraphicsDevice.BlendStates.Default);
             }
 
-            var sb = LContent.SpriteBatch;
-            var font = LContent.Font;
             var w = LContent.GraphicsDevice.BackBuffer.Width;
             var fsize = LContent.FontScaleRatio*1.2f;
-            var text1 = string.Format("Score: {0:000 000}", Score);
-            var text2 = string.Format("Scene: {0}", Scene + 1);
-            var text3 = string.Format("Lives left: {0}", LivesLeft);
-            sb.Begin();
-            sb.DrawString(font, text1, new Vector2(10, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-            sb.DrawString(font, text2, new Vector2((w - font.MeasureString(text2).X*fsize)/2, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-            sb.DrawString(font, text3, new Vector2(w - font.MeasureString(text3).X*fsize - 10, 5), Color.LightYellow, 0, Vector2.Zero, fsize, SpriteEffects.None, 0);
-            sb.End();
+            LContent.SpriteBatch.Begin();
+            LContent.DrawString("Score: {0:000 000}".Fmt(Score), new Vector2(10, 5), fsize);
+            LContent.DrawString("Scene: {0}".Fmt(Scene + 1), new Vector2(w/2f, 5), fsize, 0.5f);
+            LContent.DrawString("Lives left: {0}".Fmt(LivesLeft), new Vector2(w - 10, 5), fsize, 1);
+            LContent.SpriteBatch.End();
 
             FloatingTexts.Draw(camera, drawingReason, shadowMap);
 

@@ -26,7 +26,7 @@ namespace Larv.Field
         private readonly Matrix _gratingPart1;
         private Matrix _gratingPart3;
 
-        public CaveModel(LContent lcontent)
+        public CaveModel(LarvContent lcontent)
             : base(lcontent.LoadEffect("effects/SimpleBumpEffect"))
         {
             _caveModel = lcontent.Load<Model>("models/cave");

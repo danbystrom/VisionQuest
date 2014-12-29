@@ -31,7 +31,7 @@ namespace Larv.Serpent
         private static readonly Random Rnd = new Random();
 
         public TerrainWalker(
-            LContent lcontent,
+            LarvContent lcontent,
             IVEffect effect,
             Ground ground)
             : base(effect)

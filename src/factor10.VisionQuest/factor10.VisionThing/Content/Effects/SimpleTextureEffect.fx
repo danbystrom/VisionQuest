@@ -121,11 +121,7 @@ float4 PixelShaderFunctionClipPlane(VertexShaderOutput input) : SV_Target
 
 float4 PixelShaderFunctionDepthMap(VertexShaderOutput input) : SV_Target
 {
-	// Determine the depth of this vertex / by the far plane distance,
-	// limited to [0, 1]
     float depth = clamp(input.PositionCopy.z / input.PositionCopy.w, 0, 1);
-    
-	// Return only the depth value
     return float4(depth, depth * depth, 0, 1);
 }
 
