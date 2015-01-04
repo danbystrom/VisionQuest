@@ -45,27 +45,27 @@ namespace Larv.Serpent
         {
             if (SerpentStatus != SerpentStatus.Alive)
             {
-                TryMove(_whereabouts.Direction);
+                TryMove(HeadDirection);
                 return;
             }
 
             if (TakeDirection())
                 return;
 
-            if (Rnd.NextDouble() < 0.33 && TryMove(_whereabouts.Direction.Left))
+            if (Rnd.NextDouble() < 0.33 && TryMove(HeadDirection.Left))
                 return;
-            if (Rnd.NextDouble() < 0.66 && TryMove(_whereabouts.Direction.Right))
+            if (Rnd.NextDouble() < 0.66 && TryMove(HeadDirection.Right))
                 return;
-            if (TryMove(_whereabouts.Direction))
+            if (TryMove(HeadDirection))
                 return;
 
-            if (Rnd.NextDouble() < 0.5 && TryMove(_whereabouts.Direction.Left))
+            if (Rnd.NextDouble() < 0.5 && TryMove(HeadDirection.Left))
                 return;
-            if (TryMove(_whereabouts.Direction.Right))
+            if (TryMove(HeadDirection.Right))
                 return;
-            if (TryMove(_whereabouts.Direction.Left))
+            if (TryMove(HeadDirection.Left))
                 return;
-            TryMove(_whereabouts.Direction.Backward);
+            TryMove(HeadDirection.Backward);
         }
 
         protected override Vector4 TintColor()

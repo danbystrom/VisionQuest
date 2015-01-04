@@ -157,7 +157,10 @@ namespace Larv.Serpent
         protected bool TryMove(Direction dir, bool ignoreRestriction = false)
         {
             if (dir == Direction.None)
-                return false;
+            {
+                _whereabouts.Direction = Direction.None;
+                return true;
+            }
             var possibleLocationTo = _whereabouts.Location.Add(dir);
             if (!PlayingField.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo, ignoreRestriction))
                 return false;

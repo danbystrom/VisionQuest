@@ -141,21 +141,26 @@ namespace Larv.GameStates
             switch (_random.Next(8))
             {
                 case 0: // go to random position
-                {
-                    var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
-                    var dx = _random.NextFloat(5, 15);
-                    var dz = _random.NextFloat(5, 15);
-                    if (_random.Next() < 0.5)
-                        dx = -dx;
-                    if (_random.Next() < 0.5)
-                        dz = -dz;
-                    _cameraMovements.AddDurable(new MoveCameraYaw(
-                        _serpents.Camera,
-                        2f.UnitsPerSecond(),
-                        newPosition + Vector3.Up*5,
-                        new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20))));
+                    while (true)
+                    {
+                        var newPosition = new Vector3(_random.NextFloat(-2, 25), 0, _random.NextFloat(-2, 25));
+                        var dx = _random.NextFloat(5, 10);
+                        var dz = _random.NextFloat(5, 10);
+                        if (_random.Next() < 0.5)
+                            dx = -dx;
+                        if (_random.Next() < 0.5)
+                            dz = -dz;
+                        var newLookAt = new Vector3(MathUtil.Clamp(newPosition.X + dx, 5, 20), 0, MathUtil.Clamp(newPosition.Z + dz, 5, 20));
+                        if (Vector3.DistanceSquared(newPosition, newLookAt) < 30)
+                            continue;
+                        _cameraMovements.AddDurable(new MoveCameraYaw(
+                            _serpents.Camera,
+                            2f.UnitsPerSecond(),
+                            newPosition + Vector3.Up*5,
+                            newLookAt));
+                        break;
+                    }
                     break;
-                }
                 case 2: // pan in random direction
                 {
                     var direction = _serpents.Camera.Left*_random.NextFloat(5, 10)*(_random.NextDouble() < 0.5 ? 1 : -1);

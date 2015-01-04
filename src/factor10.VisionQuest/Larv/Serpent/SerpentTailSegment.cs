@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using factor10.VisionThing;
 using Larv.Field;
@@ -26,20 +27,21 @@ namespace Larv.Serpent
             get { return PathToWalk[0]; }
         }
 
-        public bool Update(float speed, Whereabouts previous)
+        public void Update(float speed, Whereabouts previous)
         {
             var last = PathToWalk.Last();
-            if (previous.LocationDistanceSquared(last) >= 2)
+            if (Math.Abs(last.Location.X - previous.Location.X) >= 2 || Math.Abs(last.Location.Y - previous.Location.Y) >= 2)
             {
+                //bugfix...
                 var p = new Point((previous.Location.X + last.Location.X)/2, (previous.Location.Y + last.Location.Y)/2);
-                PathToWalk[PathToWalk.Count - 1] = new Whereabouts(last.Floor, p, last.Direction);
+                PathToWalk[PathToWalk.Count - 1] = new Whereabouts(last.Floor, p, last.Direction) {Fraction = previous.Fraction};
             }
 
             if (PathToWalk.Count >= 2)
             {
                 var w = PathToWalk[0];
                 w.Fraction += speed;
-                if (w.Fraction > 0.9999)
+                if (w.Fraction >= 1)
                 {
                     PathToWalk.RemoveAt(0);
                     var f = w.Fraction;
@@ -49,7 +51,8 @@ namespace Larv.Serpent
                 PathToWalk[0] = w;
             }
 
-            return Next != null && (Next.Update(speed, PathToWalk.First()) || this.DistanceSquared(Next) > 1.5);
+            if (Next != null)
+                Next.Update(speed, PathToWalk.First());
         }
 
         public Vector3 Position

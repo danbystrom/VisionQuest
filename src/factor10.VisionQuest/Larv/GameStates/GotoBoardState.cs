@@ -25,31 +25,12 @@ namespace Larv.GameStates
             _scene = scene;
             _signEffect = _serpents.LContent.LoadEffect("effects/signtexteffect");
 
-            HomingDevice.Attach(serpents);
+            HomingDevice.Attach(serpents).CanTurnAround = true;
             _serpents.PlayerCave.OpenDoor = true;
 
             _signPosition = _serpents.LContent.Ground.SignPosition + Vector3.Up*1.5f;
             var direction = Vector3.Left;
             var toCameraPosition = _signPosition + direction*2.4f;
-            var cp = serpents.Camera.Position;
-
-            var distanceToCamera = Vector3.Distance(cp, toCameraPosition);
-            var straightLineLength = distanceToCamera/3;
-            var arcEndPoint = toCameraPosition + direction*straightLineLength;
-
-            var x = new ArcGenerator(4);
-            x.CreateArc(
-                cp,
-                arcEndPoint,
-                direction,
-                SerpentCamera.CameraDistanceToHeadXz);
-            var points = x.Points.ToList();
-
-            var segmentLength = Vector3.Distance(x.Points[0], x.Points[1]);
-            var missingPoints = 1 + (int) (straightLineLength/segmentLength);
-            for (var i = 1; i <= missingPoints; i++)
-                points.Add(Vector3.Lerp(arcEndPoint, toCameraPosition, i/(float) missingPoints));
-
 
 #if !DEBUG
             const float time1 = 10f;

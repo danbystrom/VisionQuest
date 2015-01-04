@@ -21,16 +21,16 @@ namespace Larv.Hof
 
         public readonly Entry[] Entries =
         {
-            new Entry("LARV! by Dan Byström", 15000),
-            new Entry("", 10000),
-            new Entry("Use [Left], [Right] abd [Down]", 9000),
-            new Entry("", 8000),
-            new Entry("", 7000),
-            new Entry("And when we fell together", 6000),
-            new Entry("all our flesh was like a veil", 5000),
-            new Entry("that I had to draw aside to see", 4000),
-            new Entry("the serpent eat its tail", 3000),
-            new Entry("-- Last Year's Man, Leonard Cohen", 2000)
+            new Entry("LARV! by Dan Byström", 10000),
+            new Entry("", 5000),
+            new Entry("Play with [Left], [Right] and [Down]", 4500),
+            new Entry("", 4000),
+            new Entry("LARV! is Open Source Software, press", 3500),
+            new Entry("[I] to visit web site and learn more.", 3000),
+            new Entry("", 2500),
+            new Entry("LARV! is a remake of the classic game", 2000),
+            new Entry("Serpentine from 1982 by David Snider,", 1500),
+            new Entry("published by Brøderbund.", 1000)
         };
 
         public bool HasMadeIt(int score)
@@ -43,8 +43,8 @@ namespace Larv.Hof
             if (!HasMadeIt(entry.Score))
                 return -1;
             var index = Entries.Length - 1;
-            for (; index > 0 && Entries[index].Score < entry.Score; index--)
-                Entries[index] = Entries[index - 1];
+            for (; index >= 1 && Entries[index - 1].Score < entry.Score; index--)
+                Entries[index ] = Entries[index - 1];
             Entries[index] = entry;
             return index;
         }

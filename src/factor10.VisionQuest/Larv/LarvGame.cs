@@ -28,11 +28,13 @@ namespace Larv
 
         private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
 
+        private bool _paused;
+
         public LarvGame()
         {
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
-            //_graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
-            //_graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;            
+            _graphicsDeviceManager.DeviceCreationFlags = DeviceCreationFlags.Debug;
+            _graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
 #if false
             var screen = Screen.AllScreens.First(_ => !_.Primary);
             _graphicsDeviceManager.IsFullScreen = true;
@@ -43,7 +45,7 @@ namespace Larv
             _graphicsDeviceManager.PreferredBackBufferHeight = 1080;
 #endif
 
-             Content.RootDirectory = "Content";
+            Content.RootDirectory = "Content";
         }
 
         protected override void Initialize()
@@ -61,7 +63,7 @@ namespace Larv
         {
             _lcontent = new LarvContent(GraphicsDevice, Content);
 
-            var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection * 32;
+            var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
             var shadowCameraLookAt = shadowCameraPos + VisionContent.SunlightDirection;
             _lcontent.ShadowMap.Camera.Update(shadowCameraPos, shadowCameraLookAt);
 
@@ -71,7 +73,7 @@ namespace Larv
                 new MouseManager(this),
                 new PointerManager(this),
                 AttractState.CameraPosition,
-                AttractState.CameraLookAt) { MovingSpeed = 8 };
+                AttractState.CameraLookAt) {MovingSpeed = 8};
             _serpents = new Serpents(_lcontent, camera, 0);
             _lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents);
             _gameState = new AttractState(_serpents);
@@ -86,10 +88,17 @@ namespace Larv
             _fps.Update(gameTime);
             _serpents.Camera.UpdateInputDevices();
             _lcontent.Ground.Update(_serpents.Camera, gameTime);
-            _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
+            _paused ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.P);
+            if (_paused)
+                _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
+            else
+                _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
 
             if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
+            {
+                _lcontent.Dispose();
                 Exit();
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -97,17 +106,11 @@ namespace Larv
             _lcontent.ShadowMap.Draw(_serpents.Camera);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.CullNone);
+            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
 
-            // ------------------------------------------------------------------------
-            // Draw the some 2d text
-            // ------------------------------------------------------------------------
-
-            var text = new StringBuilder();
-            text.AppendFormat("FPS: {0}  {1}", _fps.FrameRate, _gameState);
-            using(_lcontent.UsingSpriteBatch())
-                _lcontent.DrawString(text.ToString(), Vector2.Zero, 0.5f, 0, Color.White);
+            using (_lcontent.UsingSpriteBatch())
+                _lcontent.DrawString("FPS: {0}  {1}".Fmt(_fps.FrameRate, _gameState), Vector2.Zero, 0.5f, 0, Color.White);
 
             base.Draw(gameTime);
         }

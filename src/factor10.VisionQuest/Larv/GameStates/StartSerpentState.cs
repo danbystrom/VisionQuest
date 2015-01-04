@@ -18,7 +18,7 @@ namespace Larv.GameStates
         public StartSerpentState(Serpents serpents)
         {
             _serpents = serpents;
-            HomingDevice.Attach(_serpents);
+            HomingDevice.Attach(_serpents).CanTurnAround = true;
 
             Vector3 toPosition, toLookAt;
             _serpents.PlayingField.GetCameraPositionForLookingAtPlayerCave(out toPosition, out toLookAt);

@@ -129,9 +129,6 @@
     <Compile Include="Field\Windmill.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ToolkitFont Include="Content\Arial16.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <ToolkitFxc Include="Content\Effects\MicroEffect.fx" />
   </ItemGroup>
   <ItemGroup>

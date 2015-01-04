@@ -6,16 +6,18 @@ namespace Larv.GameStates
 {
     internal class HomingDevice : ITakeDirection
     {
-        public PathFinder PlayerPathFinder;
-        public PathFinder EnemyPathFinder;
+        public PathFinder PlayerPathFinder { get; private set; }
+        public PathFinder EnemyPathFinder { get; private set; }
+        public bool CanTurnAround;
 
-        public static void Attach(Serpents serpents, bool player = true, bool enemies = true)
+        public static HomingDevice Attach(Serpents serpents, bool player = true, bool enemies = true)
         {
             var hd = new HomingDevice(serpents);
             if (player)
                 serpents.PlayerSerpent.DirectionTaker = hd;
             if (enemies)
                 serpents.Enemies.ForEach(_ => _.DirectionTaker = hd);
+            return hd;
         }
 
         public HomingDevice(Serpents serpents)
@@ -29,7 +31,7 @@ namespace Larv.GameStates
             var pathFinder = serpent is PlayerSerpent ? PlayerPathFinder : EnemyPathFinder;
             var whereabouts = serpent.Whereabouts;
             whereabouts.Direction = serpent.HeadDirection;
-            var direction = pathFinder.WayHome(whereabouts, false);
+            var direction = pathFinder.WayHome(whereabouts, CanTurnAround);
             return serpent.HeadDirection.GetRelativeDirection(direction);
         }
 

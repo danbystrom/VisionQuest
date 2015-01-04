@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using SharpDX;
 using SharpDX.Toolkit.Input;
+using Keys = SharpDX.Toolkit.Input.Keys;
 
 namespace factor10.VisionThing
 {
@@ -15,7 +17,7 @@ namespace factor10.VisionThing
             [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)] StringBuilder receivingBuffer,
             int bufferSize, uint flags);
 
-        public static string GetCharsFromKeys(this KeyboardState kbd)
+        public static char PressedCharacter(this KeyboardState kbd)
         {
             var buf = new StringBuilder(256);
             var keyboardState = new byte[256];
@@ -25,8 +27,13 @@ namespace factor10.VisionThing
             foreach (var key in keys)
                 keyboardState[(int)key] = 0xff;
             foreach (var key in keys.Where(kbd.IsKeyPressed))
-                ToUnicode((uint)key, 0, keyboardState, buf, 256, 0);
-            return buf.ToString();
+                if (ToUnicode((uint) key, 0, keyboardState, buf, 256, 0) == 1)
+                {
+                    if (Control.IsKeyLocked(System.Windows.Forms.Keys.CapsLock))
+                        return char.IsLower(buf[0]) ? char.ToUpper(buf[0]) : char.ToLower(buf[0]);
+                    return buf[0];
+                }
+            return default(char);
         }
 
         public static Matrix AlignObjectToNormal(this Vector3 normal, float angle)

@@ -69,14 +69,28 @@ namespace Larv
 
         public void DrawString(string text, Vector2 pos, float size, float align = 0, Color? color = null)
         {
+            var c = color.GetValueOrDefault(Color.LightYellow);
+            var valign = new Vector2(Font.MeasureString(text).X*align, 0);
+            SpriteBatch.DrawString(
+                Font,
+                text,
+                pos + Vector2.One,
+                Color.Black*(c.A/255f),
+                0,
+                valign,
+                size,
+                SpriteEffects.None,
+                0);
             SpriteBatch.DrawString(
                 Font,
                 text,
                 pos,
-                color.GetValueOrDefault(Color.LightYellow), 0,
-                new Vector2(Font.MeasureString(text).X*align, 0),
+                c,
+                0,
+                valign,
                 size,
-                SpriteEffects.None, 0);
+                SpriteEffects.None,
+                0);
         }
 
     }

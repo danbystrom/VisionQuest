@@ -59,7 +59,7 @@ namespace Larv.Util
 
         public Direction Turn(RelativeDirection rd)
         {
-            if (_dir == 0)
+            if (_dir == 0 || rd == RelativeDirection.None)
                 return None;
             var dir = 1 + (((int) _dir + (int) rd - 1) & 3);
             return new Direction((DirectionValue) dir);
@@ -116,6 +116,8 @@ namespace Larv.Util
 
         public RelativeDirection GetRelativeDirection(Direction goingTo)
         {
+            if(goingTo==None)
+                return RelativeDirection.None;
             if (this == goingTo)
                 return RelativeDirection.Forward;
             if (Turn(RelativeDirection.Left) == goingTo)

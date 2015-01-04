@@ -45,12 +45,9 @@ namespace Larv.GameStates
             if (kbd.IsKeyPressed(Keys.Back) && _entry.Name.Length >= 1)
                 _entry.Name = _entry.Name.Substring(0, _entry.Name.Length - 1);
 
-            var chr = camera.KeyboardState.GetCharsFromKeys().FirstOrDefault(_ => _ >= ' ');
-            if (chr == default(char))
-                return;
-
-            var shift = Control.IsKeyLocked(System.Windows.Forms.Keys.CapsLock) ^ kbd.IsKeyDown(Keys.Shift);
-            _entry.Name += shift ? char.ToUpper(chr) : chr;
+            var chr = camera.KeyboardState.PressedCharacter();
+            if (chr >= ' ')
+                _entry.Name += chr;
         }
 
         public void Draw(Camera camera, DrawingReason drawingReason, ShadowMap shadowMap)
