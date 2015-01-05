@@ -106,7 +106,7 @@ namespace Larv
             _lcontent.ShadowMap.Draw(_serpents.Camera);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
+            //GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
 
             using (_lcontent.UsingSpriteBatch())

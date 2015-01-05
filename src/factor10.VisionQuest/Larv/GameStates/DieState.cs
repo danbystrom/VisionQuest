@@ -24,7 +24,7 @@ namespace Larv.GameStates
             forward.Normalize();
             _todo.AddDurable(new MoveCamera(
                 _serpents.Camera,
-                15f.Time(), // time to look at death scene
+                7f.Time(), // time to look at death scene
                 _serpents.Camera.Position - forward*8,
                 () => _serpents.PlayerSerpent.LookAtPosition));
         }

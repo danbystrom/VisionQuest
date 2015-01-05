@@ -38,7 +38,7 @@ namespace factor10.VisionThing.Primitives
             // Create rings of vertices at progressively higher latitudes.
             for (var i = 1; i <= stackCount - 1; i++)
             {
-                var latitude = i*MathUtil.Pi/stackCount - MathUtil.PiOverTwo;
+                var latitude = q(i, stackCount)*MathUtil.Pi - MathUtil.PiOverTwo;
 
                 var dy = (float) Math.Sin(latitude);
                 var dxz = (float) Math.Cos(latitude);
@@ -95,6 +95,11 @@ namespace factor10.VisionThing.Primitives
                 addTriangle(CurrentVertex - 1, baseIndex + i, baseIndex + i + 1, swap);
 
             initializePrimitive(graphicsDevice);
+        }
+
+        private static float q(int i, int stackCount)
+        {
+            return i/(float) stackCount;
         }
 
     }

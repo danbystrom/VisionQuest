@@ -154,7 +154,7 @@ namespace Larv.Serpent
                     Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out position);
                     position.Y = Math.Max(0, position.Y);
 
-                    angle = (float) Math.Atan2(dx, dz);
+                    angle = (float)Math.Atan2(position.X - _position.X, position.Z - _position.Z);
                     return true;
                 }
             }
