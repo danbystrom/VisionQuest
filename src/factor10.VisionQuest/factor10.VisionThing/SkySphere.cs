@@ -12,7 +12,7 @@ namespace factor10.VisionThing
 
         public SkySphere(
             VisionContent vtContent,
-            TextureCube texture)
+            Texture2DBase texture)
             : base(new VisionEffect(vtContent.Load<Effect>("effects/skysphere")))
         {
             _sphere = new SpherePrimitive<VertexPosition>(vtContent.GraphicsDevice, (p, n, t, tx) => new VertexPosition(p), 20000, 10, false);

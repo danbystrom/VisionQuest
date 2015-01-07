@@ -10,7 +10,7 @@ namespace Larv.GameStates
     {
         private float _scrollingTextAngle;
         private float _larvText;
-        private readonly PaintHof _hofPainter;
+        private readonly HofPainter _hofPainter;
 
         private readonly LarvContent _lcontent;
 
@@ -19,7 +19,7 @@ namespace Larv.GameStates
         public AttractBigTexts(LarvContent lcontent)
         {
             _lcontent = lcontent;
-            _hofPainter = new PaintHof(lcontent);
+            _hofPainter = new HofPainter(lcontent);
         }
 
         public void Update(GameTime gameTime)

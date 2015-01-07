@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
-using factor10.VisionThing;
+﻿using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using Larv.Hof;
 using Larv.Serpent;
 using SharpDX;
 using SharpDX.Toolkit;
-using SharpDX.Toolkit.Input;
 using Keys = SharpDX.Toolkit.Input.Keys;
 
 namespace Larv.GameStates
@@ -17,7 +11,7 @@ namespace Larv.GameStates
     class HallOfameState : IGameState
     {
         private readonly Serpents _serpents;
-        private readonly PaintHof _hofPainter;
+        private readonly HofPainter _hofPainter;
         private readonly HallOfFame.Entry _entry;
         private readonly int _entryIndex;
 
@@ -26,7 +20,7 @@ namespace Larv.GameStates
         public HallOfameState(Serpents serpents)
         {
             _serpents = serpents;
-            _hofPainter = new PaintHof(serpents.LContent);
+            _hofPainter = new HofPainter(serpents.LContent);
             _entry = new HallOfFame.Entry("", _serpents.Score);
             _entryIndex = _serpents.LContent.HallOfFame.Insert(_entry);
         }
@@ -40,7 +34,11 @@ namespace Larv.GameStates
 
             var kbd = camera.KeyboardState;
             if (kbd.IsKeyPressed(Keys.Enter))
+            {
+                HofStorage.Save(_serpents.LContent.HallOfFame);
                 gameState = new AttractState(_serpents);
+                return;
+            }
 
             if (kbd.IsKeyPressed(Keys.Back) && _entry.Name.Length >= 1)
                 _entry.Name = _entry.Name.Substring(0, _entry.Name.Length - 1);

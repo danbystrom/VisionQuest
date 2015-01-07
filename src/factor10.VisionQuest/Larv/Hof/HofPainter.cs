@@ -3,18 +3,18 @@ using SharpDX;
 
 namespace Larv.Hof
 {
-    public class PaintHof
+    public class HofPainter
     {
         public readonly LarvContent LContent;
 
-        public PaintHof(LarvContent lcontent)
+        public HofPainter(LarvContent lcontent)
         {
             LContent = lcontent;
         }
 
         public void Paint(Color color, int highlightIndex = 0, bool cursor = false)
         {
-            var fsize = LContent.FontScaleRatio*1.4f;
+            float fsize = 1.4f;
             var w = LContent.GraphicsDevice.BackBuffer.Width;
             var u = w/60;
             LContent.DrawString("Hall of Fame", new Vector2(w*0.5f, u*2), fsize*2, 0.5f, color);
@@ -33,7 +33,7 @@ namespace Larv.Hof
                 if (i==highlightIndex && cursor)
                     name += "_";
                 LContent.DrawString("{0}.".Fmt(i + 1), new Vector2(u*5, y), sz, 1, color);
-                LContent.DrawString("{0:000 000}".Fmt(entry.Score), new Vector2(u*14, y), sz, 1, color);
+                LContent.DrawString("{0:0}".Fmt(entry.Score), new Vector2(u*14, y), sz, 1, color);
                 LContent.DrawString(name, new Vector2(u*17, y), sz, 0, color);
                 LContent.DrawString(entry.When.ToShortDateString(), new Vector2(u*57, y), sz, 1, color);
             }

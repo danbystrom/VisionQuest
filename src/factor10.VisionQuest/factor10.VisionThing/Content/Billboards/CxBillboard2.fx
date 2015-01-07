@@ -78,35 +78,38 @@ void GS(
 	inout TriangleStream<GeoToPixel> triStream
 )
 {
+	float rnd = gin[0].Random.x;
+	float3 up = gin[0].Up;
+
 	// Apply a scaling factor to make some of the billboards
     // shorter and fatter while others are taller and thinner.
-    float squishFactor = 0.75 + gin[0].Random.x / 2;
+	float squishFactor = 0.75 + rnd / 2;
 
     float halfWidth = 0.5 * BillboardWidth * squishFactor;
     float height = BillboardHeight / squishFactor;
 
     // Flip half of the billboards from left to right. This gives visual variety
     // even though we are actually just repeating the same texture over and over.
-	halfWidth *= sign(gin[0].Random.x);
+	halfWidth *= sign(rnd);
 
-	float4 center = mul(gin[0].Position, World);
+	float3 center = (float3)mul(gin[0].Position, World);
 	float3 eyeVector = center - CameraPosition;
 
-	float3 sideVector = cross(eyeVector, gin[0].Up);
+	float3 sideVector = cross(eyeVector, up );
 	sideVector = normalize(sideVector);
 
 	// Work out how this vertex should be affected by the wind effect.
-	float3 windDirection = sideVector + float3(gin[0].Random.x, frac(gin[0].Position.x), frac(gin[0].Position.y));
+	float3 windDirection = sideVector + float3(rnd, frac(gin[0].Position.x), frac(gin[0].Position.y));
 	float waveOffset = dot(center, windDirection) * WindWaveSize;
 
-	waveOffset += gin[0].Random.x * WindRandomness;
+	waveOffset += rnd * WindRandomness;
 	float wind = sin(WindTime * WindSpeed + waveOffset) * WindAmount;
 
 	float4 v[4];
 	v[0] = float4(center - halfWidth*sideVector, 1.0f);
-	v[1] = float4(center - halfWidth*sideVector + height*gin[0].Up + windDirection*wind, 1.0f);
+	v[1] = float4(center - halfWidth*sideVector + up + windDirection*wind, 1.0f);
 	v[2] = float4(center + halfWidth*sideVector, 1.0f);
-	v[3] = float4(center + halfWidth*sideVector + height*gin[0].Up + windDirection*wind, 1.0f);
+	v[3] = float4(center + halfWidth*sideVector + up + windDirection*wind, 1.0f);
 
 	float4x4 preViewProjection = mul(View, Projection);
 

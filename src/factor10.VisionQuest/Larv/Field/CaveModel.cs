@@ -20,18 +20,16 @@ namespace Larv.Field
         private float _angle = MathUtil.Pi * 3/4;
 
         private readonly Texture2D _texture;
-        private readonly Texture2D _bumpMap;
         private readonly Texture2D _gratingTexture;
 
         private readonly Matrix _gratingPart1;
         private Matrix _gratingPart3;
 
         public CaveModel(LarvContent lcontent)
-            : base(lcontent.LoadEffect("effects/SimpleTextureEffect"))
+            : base(lcontent.TextureEffect)
         {
             _caveModel = lcontent.Load<Model>("models/cave");
             _texture = lcontent.Load<Texture2D>("textures/cave");
-            _bumpMap = lcontent.Load<Texture2D>("textures/rocknormal");
             _gratingModel = lcontent.Load<Model>("models/grating");
             _gratingTexture = lcontent.Load<Texture2D>("textures/black");
             _gratingPart1 = Matrix.Translation(0.08f, 0, -0.02f)*Matrix.Scaling(0.5f, 0.7f, 0.4f);
@@ -73,7 +71,6 @@ namespace Larv.Field
             camera.UpdateEffect(Effect);
             Effect.DiffuseColor = new Vector4(0.6f, 0.6f, 0.6f, 1);
             Effect.Texture = _texture;
-            //Effect.Parameters["BumpMap"].SetResource(_bumpMap);
             _caveModel.Draw(Effect.GraphicsDevice, CaveWorld, camera.View, camera.Projection, Effect.Effect);
             Effect.Texture = _gratingTexture;
             _gratingModel.Draw(Effect.GraphicsDevice, GratingWorld, camera.View, camera.Projection, Effect.Effect);

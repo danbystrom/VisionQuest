@@ -53,7 +53,7 @@ namespace Larv.Serpent
             LarvContent lcontent,
             Camera camera,
             int scene)
-            : base(lcontent.LoadEffect("effects/simplebumpeffect"))
+            : base(lcontent.BumpEffect)
         {
             LContent = lcontent;
 
@@ -61,7 +61,7 @@ namespace Larv.Serpent
 
             PlayerCave = new CaveModel(lcontent);
             EnemyCave = new CaveModel(lcontent);
-            Windmill = new Windmill(lcontent, Vector3.Zero);
+            Windmill = new Windmill(lcontent, new Vector3(-2, 0.4f, 1));
 
             Camera = camera;
 
@@ -94,7 +94,8 @@ namespace Larv.Serpent
             Frogs.Clear();
             PlayerEgg = null;
 
-            for (var i = 0; i < 3+scene; i++)
+            var enemies = (7 + scene)/2;
+            for (var i = 0; i < enemies; i++)
                 Enemies.Add(new EnemySerpent(
                     LContent,
                     PlayingField,
@@ -265,7 +266,7 @@ namespace Larv.Serpent
             }
 
             var w = LContent.GraphicsDevice.BackBuffer.Width;
-            var fsize = LContent.FontScaleRatio*1.2f;
+            const float fsize = 1.2f;
             LContent.SpriteBatch.Begin();
             LContent.DrawString("Score: {0:000 000}".Fmt(Score), new Vector2(10, 5), fsize);
             LContent.DrawString("Scene: {0}".Fmt(Scene + 1), new Vector2(w/2f, 5), fsize, 0.5f);

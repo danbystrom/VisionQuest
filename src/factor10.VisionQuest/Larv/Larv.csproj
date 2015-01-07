@@ -92,7 +92,8 @@
     <Compile Include="GameStates\AttractBigTexts.cs" />
     <Compile Include="GameStates\HallOfFameState.cs" />
     <Compile Include="Hof\HallOfFame.cs" />
-    <Compile Include="Hof\PaintHof.cs" />
+    <Compile Include="Hof\HofPainter.cs" />
+    <Compile Include="Hof\HofStorage.cs" />
     <Compile Include="Serpent\TerrainWalker.cs" />
     <Compile Include="Util\ExtensionMethods.cs" />
     <Compile Include="GameStates\AttractState.cs" />

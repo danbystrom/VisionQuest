@@ -10,15 +10,18 @@ using System;
 
 namespace Larv
 {
-    public class LarvContent : VisionContent, IDisposable
+    public class LarvContent : VisionContent
     {
         public readonly SpriteBatch SpriteBatch;
         public readonly SpriteFont Font;
         public readonly VisionEffect SignTextEffect;
+        public readonly VisionEffect TextureEffect;
+        public readonly VisionEffect BumpEffect;
         public readonly SkySphere Sky;
-        public readonly Ground Ground;
         public readonly IVDrawable Sphere;
         public readonly ShadowMap ShadowMap;
+
+        public readonly Ground Ground;
         public readonly HallOfFame HallOfFame;
 
         public LarvContent(GraphicsDevice graphicsDevice, ContentManager content)
@@ -27,13 +30,15 @@ namespace Larv
             SpriteBatch = new SpriteBatch(graphicsDevice);
             Font = Load<SpriteFont>("fonts/BlackCastle");
             SignTextEffect = LoadEffect("effects/signtexteffect");
+            TextureEffect = LoadEffect("effects/simpletextureeffect");
+            BumpEffect = LoadEffect("effects/simplebumpeffect");
             Sphere = new SpherePrimitive<VertexPositionNormalTangentTexture>(GraphicsDevice,
                 (p, n, t, tx) => new VertexPositionNormalTangentTexture(p, n, t, tx), 2);
             Sky = new SkySphere(this, Load<TextureCube>(@"Textures\clouds"));
             Ground = new Ground(this);
             ShadowMap = new ShadowMap(this, 800, 800, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
-            HallOfFame = new HallOfFame();
+            HallOfFame = HofStorage.Load();
         }
 
         public float FontScaleRatio
@@ -41,14 +46,12 @@ namespace Larv
             get { return GraphicsDevice.BackBuffer.Width/1920f; }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             SpriteBatch.Dispose();
-            Font.Dispose();
-            SignTextEffect.Dispose();
             Sphere.Dispose();
             Ground.Dispose();
-            Sky.Dispose();
             ShadowMap.Dispose();
         }
 
@@ -71,6 +74,7 @@ namespace Larv
         {
             var c = color.GetValueOrDefault(Color.LightYellow);
             var valign = new Vector2(Font.MeasureString(text).X*align, 0);
+            size *= FontScaleRatio;
             SpriteBatch.DrawString(
                 Font,
                 text,

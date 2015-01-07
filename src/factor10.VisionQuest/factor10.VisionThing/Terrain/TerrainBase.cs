@@ -26,7 +26,7 @@ namespace factor10.VisionThing.Terrain
         protected Texture2D WeightsMap;
         protected Texture2D NormalsMap;
 
-        protected terrainSlice[] _slices;
+        protected TerrainSlice[] _slices;
 
         public int GroundExtentX { get; private set; }
         public int GroundExtentZ { get; private set; }
@@ -70,7 +70,7 @@ namespace factor10.VisionThing.Terrain
             //TODO - this is wrong - I guess...
             var sliceFracX = 1f/slicesW;
             var sliceFracY = 1f/slicesH;
-            _slices = new terrainSlice[slicesW*slicesH];
+            _slices = new TerrainSlice[slicesW*slicesH];
 
             var gurka = Vector3.TransformNormal(new Vector3(HalfSide, 0, HalfSide), World);
             var radius = Math.Max(gurka.X, gurka.Z) * (float)Math.Sqrt(2);
@@ -80,7 +80,7 @@ namespace factor10.VisionThing.Terrain
                 for (var x = 0; x < slicesW; x++)
                 {
                     var world = Matrix.Translation(Side*x, 0, Side*y)*World;
-                    _slices[i++] = new terrainSlice
+                    _slices[i++] = new TerrainSlice
                     {
                         TexOffsetAndScale = new Vector4(x*sliceFracX, y*sliceFracY, sliceFracX, sliceFracY),
                         World = world,
@@ -125,7 +125,7 @@ namespace factor10.VisionThing.Terrain
             return true;
         }
 
-        protected class terrainSlice
+        protected class TerrainSlice
         {
             public Vector4 TexOffsetAndScale;
             public Matrix World;

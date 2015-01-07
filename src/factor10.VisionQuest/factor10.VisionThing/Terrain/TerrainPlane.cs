@@ -30,14 +30,14 @@ namespace factor10.VisionThing.Terrain
             camera.UpdateEffect(Effect);
             Effect.World = world;
 
-            var distance = Vector3.Distance(camera.Position, world.TranslationVector);
+            var distance = Vector3.Distance(camera.Position, world.TranslationVector)/Math.Min(world.M11, world.M33);
             var lod = 3;
-            if (distance < 1800)
-                lod = 2;
-            if (distance < 600)
-                lod = 1;
             if (distance < 300)
                 lod = 0;
+            else if (distance < 600)
+                lod = 1;
+            else if (distance < 1800)
+                lod = 2;
             if (drawingReason != DrawingReason.Normal)
                 lod++;
             _loPlane.Draw(Effect, lod);

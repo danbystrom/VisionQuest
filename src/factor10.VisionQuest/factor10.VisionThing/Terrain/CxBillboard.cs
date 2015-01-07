@@ -32,7 +32,7 @@ namespace factor10.VisionThing.Terrain
             float width,
             float height,
             float windAmount)
-            : base(vContent.LoadEffect("Billboards/CxBillboard2", vContent.GraphicsDevice.SamplerStates.LinearClamp))
+            : base(vContent.LoadEffect("Billboards/CxBillboard", vContent.GraphicsDevice.SamplerStates.LinearClamp))
         {
             World = world;
             _texture = texture;
@@ -150,7 +150,7 @@ namespace factor10.VisionThing.Terrain
             //pass one
             Effect.Parameters["AlphaTestDirection"].SetValue(1f);
             Effect.Effect.CurrentTechnique.Passes[0].Apply();
-            gd.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
+            gd.Draw(PrimitiveType.PointList, _vertexBuffer.ElementCount);
 
             if (drawingReason == DrawingReason.Normal)
             {
@@ -159,7 +159,7 @@ namespace factor10.VisionThing.Terrain
                 gd.SetBlendState(gd.BlendStates.NonPremultiplied);
                 Effect.Parameters["AlphaTestDirection"].SetValue(-1f);
                 Effect.Effect.CurrentTechnique.Passes[0].Apply();
-                gd.Draw(PrimitiveType.TriangleList, _vertexBuffer.ElementCount);
+                gd.Draw(PrimitiveType.PointList, _vertexBuffer.ElementCount);
                 gd.SetDepthStencilState(gd.DepthStencilStates.Default);
                 gd.SetBlendState(gd.BlendStates.Default);
             }

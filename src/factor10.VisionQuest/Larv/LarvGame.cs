@@ -106,8 +106,11 @@ namespace Larv
             _lcontent.ShadowMap.Draw(_serpents.Camera);
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            //GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
+
+            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
+            _lcontent.TextureEffect.World = Matrix.Scaling(5) * Matrix.Translation(0, 20, 0);
+            _lcontent.Sphere.Draw(_lcontent.TextureEffect);
 
             using (_lcontent.UsingSpriteBatch())
                 _lcontent.DrawString("FPS: {0}  {1}".Fmt(_fps.FrameRate, _gameState), Vector2.Zero, 0.5f, 0, Color.White);

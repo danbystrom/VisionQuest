@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using factor10.VisionThing;
+﻿using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Effects;
 using Larv.Field;
@@ -24,11 +23,6 @@ namespace Larv.Serpent
         private Vector3 _position4;
         private Vector3 _position5;
         public Vector3 Position { get { return _position1; } }
-
-        private Matrix _rotation;
-        private float _currentAngle;
-
-        private static readonly Random Rnd = new Random();
 
         public TerrainWalker(
             LarvContent lcontent,

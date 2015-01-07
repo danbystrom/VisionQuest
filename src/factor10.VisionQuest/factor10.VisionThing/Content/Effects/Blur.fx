@@ -39,7 +39,8 @@ technique SpriteBatch
 {
 	pass
 	{
-		VertexShader = compile vs_2_0 SpriteVertexShader();
-		PixelShader = compile ps_2_0 SpritePixelShader();
+		SetGeometryShader(0);
+		SetVertexShader(CompileShader(vs_4_0, SpriteVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, SpritePixelShader()));
 	}
 }

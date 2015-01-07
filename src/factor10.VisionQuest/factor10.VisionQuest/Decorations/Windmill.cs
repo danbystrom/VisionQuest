@@ -16,15 +16,13 @@ namespace factor10.VisionQuest
 
         private readonly ObjectAnimation _animation;
         private readonly Texture2D _texture;
-        private readonly Texture2D _bumpMap;
 
         public Windmill(VisionContent vContent, Vector3 location)
-            : base(vContent.LoadEffect("effects/SimpleBumpEffect"))
+            : base(vContent.LoadEffect("effects/SimpleTextureEffect"))
         {
             World = Matrix.RotationY(-MathUtil.PiOverTwo)*Matrix.Scaling(0.005f)*Matrix.Translation(location);
             _model = vContent.Load<Model>("models/windmill");
             _texture = vContent.Load<Texture2D>("textures/windmill_diffuse");
-            _bumpMap = vContent.Load<Texture2D>("textures/windmill_normal");
             _bones = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(_bones);
 
@@ -51,10 +49,7 @@ namespace factor10.VisionQuest
             camera.UpdateEffect(Effect);
 
             if (drawingReason != DrawingReason.ShadowDepthMap)
-            {
                 Effect.Texture = _texture;
-                Effect.Parameters["BumpMap"].SetResource(_bumpMap);
-            }
 
             foreach (var mesh in _model.Meshes)
             {

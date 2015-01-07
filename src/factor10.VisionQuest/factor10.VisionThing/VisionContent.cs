@@ -1,4 +1,6 @@
-﻿using factor10.VisionThing.Effects;
+﻿using System;
+using System.Collections.Generic;
+using factor10.VisionThing.Effects;
 using factor10.VisionThing.Terrain;
 using SharpDX;
 using SharpDX.Toolkit.Content;
@@ -6,7 +8,7 @@ using SharpDX.Toolkit.Graphics;
 
 namespace factor10.VisionThing
 {
-    public class VisionContent
+    public class VisionContent : IDisposable
     {
         public static int RenderedTriangles;
 
@@ -18,6 +20,8 @@ namespace factor10.VisionThing
 
         public readonly TerrainPlane TerrainPlane;
 
+        public Dictionary<string, IDisposable> Disposables = new Dictionary<string, IDisposable>();
+ 
         static VisionContent()
         {
             SunlightDirectionReflectedWater = new Vector3(11f, -2f, -6f);
@@ -56,14 +60,24 @@ namespace factor10.VisionThing
             get { return new Vector2(GraphicsDevice.BackBuffer.Width, GraphicsDevice.BackBuffer.Height); }
         }
 
-        public T Load<T>(string name)
+        public T Load<T>(string name) where T: IDisposable
         {
-            return Content.Load<T>(name);
+            var contentObject = Content.Load<T>(name);
+            Disposables[name.ToLower()] = contentObject;
+            return contentObject;
         }
 
         public VisionEffect LoadEffect(string name, SamplerState samplerState = null)
         {
-            return new VisionEffect(Content.Load<Effect>(name), samplerState);
+            return new VisionEffect(Load<Effect>(name), samplerState);
+        }
+
+        public virtual void Dispose()
+        {
+            TerrainPlane.Dispose();
+            foreach (var d in Disposables.Values)
+                d.Dispose();
+            Disposables.Clear();
         }
 
     }

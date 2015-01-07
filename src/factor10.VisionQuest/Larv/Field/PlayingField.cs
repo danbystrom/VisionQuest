@@ -27,8 +27,8 @@ namespace Larv.Field
         public readonly float MiddleX;
         public readonly float MiddleY;
 
-        public PlayingField(VisionContent vContent, Texture2D texture, int level)
-            : base(vContent.LoadEffect("effects/simpletextureeffect"))
+        public PlayingField(LarvContent lContent, Texture2D texture, int level)
+            : base(lContent.TextureEffect)
         {
             _texture = texture;
 
@@ -52,11 +52,13 @@ namespace Larv.Field
 
             var verts = new List<VertexPositionNormalTexture>();
             var vertsShadow = new List<VertexPositionColor>();
-            for (var z = 1; z < Floors; z++)
+            for (var z = 0; z < Floors; z++)
                 for (var y = 0; y < Height; y++ )
                      for (var x = 0; x < Width; x++)
                          if (!TheField[z, y, x].IsNone)
                          {
+                             if (z == 0 && !TheField[z, y, x].IsSlope)
+                                 continue;
                              var start = x;
                              x++;
                              foobar(verts, vertsShadow, z, start, y, x - start, 1, TheField[z, y, x - 1].Corners);
@@ -75,7 +77,7 @@ namespace Larv.Field
 
             //verts.Add(new VertexPositionNormalTexture(new Vector3(-1, 0, -1), Vector3.Up, new Vector2(0, 0)));
 
-            VertexBuffer = Buffer.Vertex.New(vContent.GraphicsDevice, verts.ToArray());
+            VertexBuffer = Buffer.Vertex.New(lContent.GraphicsDevice, verts.ToArray());
             //VertexBufferShadow = Buffer.Vertex.New(vContent.GraphicsDevice, vertsShadow.ToArray());
             VertexInputLayout = VertexInputLayout.FromBuffer(0, VertexBuffer);
         }
@@ -136,14 +138,14 @@ namespace Larv.Field
 
             Effect.World = Matrix.Translation(-0.5f, 0, -0.5f);
             Effect.Texture = _texture;
+            Effect.DiffuseColor = Vector4.One;
+
+            Effect.GraphicsDevice.SetVertexInputLayout(VertexInputLayout);
+            Effect.GraphicsDevice.SetVertexBuffer(VertexBuffer);
 
             foreach (var effectPass in Effect.Effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
-
-                Effect.GraphicsDevice.SetVertexInputLayout(VertexInputLayout);
-                Effect.GraphicsDevice.SetVertexBuffer(VertexBuffer);
-
                 Effect.GraphicsDevice.Draw(
                     PrimitiveType.TriangleList,
                     VertexBuffer.ElementCount);

@@ -108,6 +108,63 @@ namespace Larv.Field
             return list;
         }
 
+        private static List<string[]> GetZ2()
+        {
+            var list = new List<string[]>();
+            list.Add(
+                new[]
+                    {
+"XXXXXXXXXXXXXXXXXXXXXXXXX",
+"X X       X   X   X     X",
+"X XXX XXX X XXXXX XXXXX X",
+"X   X X X X X   X X   X X",
+"X XXX X XXX XXX X XXX X X",
+"X X   X   X   X X   X X X",
+"XXX XXXXX XXXXX XXXXX XXX",
+"X X X X X X     X       X",
+"X X X X X XXXXXXXXXXXXX X",
+"X X X X X X     X     X X",
+"X XXX X XXXUUU  X  UUUXXX",
+"X X X X X X     X     X X",
+"X X X X X XXXXXXXXXXXXX X",
+"X X X X X X     X       X",
+"XXX XXXXX XXXXX XXXXX XXX",
+"S X   X   X   X X   X X S",
+"X XXX X XXX XXX X XXX X X",
+"X   X X X X X   X X   X X",
+"X XXX XXX X XXXXX XXXXX X",
+"b X       X   X   X     a",
+"B XXXXXXXXXXXXXXXXX     A",
+                    });
+
+            list.Add(
+                new[]
+                    {
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"              DXXXD      ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+"                         ",
+                    });
+            return list;
+        }
+
         private static List<string[]> GetQ1()
         {
             var list = new List<string[]>();
@@ -239,7 +296,7 @@ namespace Larv.Field
             switch (level)
             {
                 case 0:
-                    return GetQ1();
+                    return GetZ2();
                 case 1:
                     return GetQ2();
                 case 2:

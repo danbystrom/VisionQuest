@@ -20,12 +20,12 @@ namespace Larv.Field
 
         private float _angle;
 
-        public Windmill(VisionContent vContent, Vector3 location)
-            : base(vContent.LoadEffect("effects/SimpleTextureEffect"))
+        public Windmill(LarvContent lContent, Vector3 location)
+            : base(lContent.TextureEffect)
         {
-            World = Matrix.Scaling(0.004f)*Matrix.RotationY(1)*Matrix.Translation(-2, 0.4f, 1);
-            _model = vContent.Load<Model>("models/windmillf");
-            _texture = vContent.Load<Texture2D>("models/windmill_diffuse");
+            World = Matrix.Scaling(0.004f)*Matrix.RotationY(1)*Matrix.Translation(location);
+            _model = lContent.Load<Model>("models/windmillf");
+            _texture = lContent.Load<Texture2D>("models/windmill_diffuse");
 
             _animatedBone = _model.Meshes.Single(mesh => mesh.Name == "Fan").ParentBone;
             _originalBoneTransformation = Matrix.Translation(0, 850, 0);

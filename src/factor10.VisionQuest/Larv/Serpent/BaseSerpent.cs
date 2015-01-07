@@ -74,7 +74,7 @@ namespace Larv.Serpent
             Texture2D serpentHeadSkin,
             Texture2D serpentBump,
             Texture2D eggSkin)
-            : base(lcontent.LoadEffect("Effects/SimpleBumpEffect"))
+            : base(lcontent.BumpEffect)
         {
             Restart(playingField, playingField.EnemyWhereaboutsStart);
             _sphere = lcontent.Sphere;
@@ -128,7 +128,7 @@ namespace Larv.Serpent
             }
 
             var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
-            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*5.5f*lengthSpeed*modifySpeed();
+            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*5.0f*lengthSpeed*modifySpeed();
 
             if (_whereabouts.Direction != Direction.None)
             {

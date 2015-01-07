@@ -16,6 +16,7 @@ namespace factor10.VisionThing
         public Camera RealCamera { get; private set; }
 
         public readonly RenderTarget2D ShadowDepthTarget;
+        public readonly DepthStencilBuffer DepthStencilTarget;
 
         // Depth texture parameters
         public int ShadowNearPlane;
@@ -23,7 +24,7 @@ namespace factor10.VisionThing
         public float ShadowMult = 0.75f;
 
         private readonly SpriteBatch _spriteBatch;
-        public readonly RenderTarget2D _shadowBlurTarg;
+        private readonly RenderTarget2D _shadowBlurTarg;
         private readonly IVEffect _shadowBlurEffect;
 
         public ShadowMap(
@@ -36,6 +37,7 @@ namespace factor10.VisionThing
             _graphicsDevice = vContent.GraphicsDevice;
 
             ShadowDepthTarget = RenderTarget2D.New(_graphicsDevice, width, height, PixelFormat.R16G16.Float);
+            DepthStencilTarget = DepthStencilBuffer.New(_graphicsDevice, width, height, DepthFormat.Depth16);
 
             _spriteBatch = new SpriteBatch(_graphicsDevice);
             _shadowBlurEffect = vContent.LoadEffect("Effects/Blur");
@@ -67,7 +69,7 @@ namespace factor10.VisionThing
         {
             RealCamera = camera;
 
-            _graphicsDevice.SetRenderTargets(_graphicsDevice.DepthStencilBuffer, ShadowDepthTarget);
+            _graphicsDevice.SetRenderTargets(DepthStencilTarget, ShadowDepthTarget);
             _graphicsDevice.Clear(Color.White); // Clear the render target to 1 (infinite depth)
             foreach (var obj in ShadowCastingObjects)
                 obj.Draw(Camera, DrawingReason.ShadowDepthMap, this);
@@ -94,6 +96,7 @@ namespace factor10.VisionThing
         public void Dispose()
         {
             ShadowDepthTarget.Dispose();
+            DepthStencilTarget.Dispose();
             _spriteBatch.Dispose();
             _shadowBlurTarg.Dispose();
             _shadowBlurEffect.Dispose();
