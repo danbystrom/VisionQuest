@@ -36,7 +36,7 @@ namespace factor10.VisionThing.Primitives
             addVertex(createVertex(Vector3.Down*radius, Vector3.Down, Vector3.BackwardLH, new Vector2(0.5f, 1)));
 
             // Create rings of vertices at progressively higher latitudes.
-            for (var i = 1; i <= stackCount - 1; i++)
+            for (var i = 1; i < stackCount; i++)
             {
                 var latitude = q(i, stackCount)*MathUtil.Pi - MathUtil.PiOverTwo;
 
@@ -45,7 +45,7 @@ namespace factor10.VisionThing.Primitives
                 // Create a single ring of vertices at this latitude.
                 for (var j = 0; j <= sliceCount; j++)
                 {
-                    var longitude = j * MathUtil.TwoPi / sliceCount;
+                    var longitude = j*MathUtil.TwoPi/sliceCount;
                     var dx = (float) Math.Cos(longitude)*dxz;
                     var dz = (float) Math.Sin(longitude)*dxz;
                     var normal = new Vector3(dx, dy, dz);
@@ -53,8 +53,8 @@ namespace factor10.VisionThing.Primitives
                     //    0.5f + (float) Math.Atan2(dz, dx)/MathUtil.Pi,
                     //    txy);
                     var textureCoordinate = new Vector2(
-                        j/(float)sliceCount,
-                        1 - i/(float)stackCount);
+                        j/(float) sliceCount,
+                        1 - i/(float) stackCount);
                     var tangent = new Vector3(
                         -radius*(float) Math.Sin(longitude)*dxz,
                         0,
@@ -99,7 +99,17 @@ namespace factor10.VisionThing.Primitives
 
         private static float q(int i, int stackCount)
         {
-            return i/(float) stackCount;
+            var x = qq(i, stackCount);
+            System.Diagnostics.Debug.Print("{0} {1} {2}", i, stackCount, x);
+            return x;
+        }
+
+        private static float qq(int i, int stackCount)
+        {
+            var dx = 0.25f/stackCount;
+            if (i == stackCount - 1)
+                return 1 - dx;
+            return (i - 1)*(1 - 2*dx)/(stackCount - 2) + dx;
         }
 
     }

@@ -32,14 +32,14 @@ namespace Larv.Serpent
                 AddTail();
         }
 
-        protected override float modifySpeed()
+        protected override float ModifySpeed()
         {
-            return base.modifySpeed()*Speed;
+            return base.ModifySpeed()*Speed;
         }
 
-        protected override void takeDirection()
+        protected override void takeDirection(bool delayedAction)
         {
-            if (TakeDirection())
+            if (TakeDirection(delayedAction))
                 return;
 
             if (!TryMove(HeadDirection))

@@ -22,7 +22,7 @@ namespace Larv.Serpent
 
     public interface ITakeDirection
     {
-        RelativeDirection TakeDirection(BaseSerpent serpent);
+        RelativeDirection TakeDirection(BaseSerpent serpent, bool delayedAction);
         bool CanOverrideRestrictedDirections(BaseSerpent serpent);
     }
 
@@ -52,7 +52,7 @@ namespace Larv.Serpent
 
         private readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
 
-        protected abstract void takeDirection();
+        protected abstract void takeDirection(bool delayedAction);
 
         private int _pendingEatenSegments = 6;
         private const int SegmentEatTreshold = 7;
@@ -82,8 +82,7 @@ namespace Larv.Serpent
             _serpentHeadSkin = serpentHeadSkin;
             _serpentBump = serpentBump;
             _eggSkin = eggSkin;
-
-            _textureEffect = lcontent.LoadEffect("Effects/simpletextureeffect");
+            _textureEffect = lcontent.TextureEffect;
 
             _headRotation.Add(Direction.East, Matrix.RotationY(MathUtil.Pi));
             _headRotation.Add(Direction.West, Matrix.Identity);
@@ -103,15 +102,15 @@ namespace Larv.Serpent
             _pendingEatenSegments = 6;
         }
 
-        protected virtual float modifySpeed()
+        protected virtual float ModifySpeed()
         {
             return 1f;
         }
 
-        protected bool TakeDirection()
+        protected bool TakeDirection(bool delayedAction)
         {
             return DirectionTaker != null &&
-                   TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(this)), DirectionTaker.CanOverrideRestrictedDirections(this));
+                   TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(this, delayedAction)), DirectionTaker.CanOverrideRestrictedDirections(this));
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -128,21 +127,23 @@ namespace Larv.Serpent
             }
 
             var lengthSpeed = Math.Max(0.001f, (11 - _serpentLength)/10f);
-            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*5.0f*lengthSpeed*modifySpeed();
+            var speed = (float) gameTime.ElapsedGameTime.TotalSeconds*5.0f*lengthSpeed*ModifySpeed();
 
             if (_whereabouts.Direction != Direction.None)
             {
                 _fractionAngle += speed;
+                //if (_fractionAngle>0 && _fractionAngle < 0.33f)
+                //    takeDirection(true);
                 if (_fractionAngle >= 1)
                 {
                     _fractionAngle = 0;
                     _whereabouts.Location = _whereabouts.NextLocation;
-                    takeDirection();
+                    takeDirection(false);
                 }
                 _whereabouts.Fraction = (float) Math.Sin(_fractionAngle*MathUtil.PiOverTwo);
             }
             else
-                takeDirection();
+                takeDirection(false);
 
             if (_tail != null)
                 _tail.Update(speed, _whereabouts);
@@ -221,7 +222,7 @@ namespace Larv.Serpent
             {
                 Effect.Texture = _eggSkin;
                 _eggWorld = worlds.Last();
-                Egg.Draw(Effect, _eggSkin, TintColor(), _sphere, _eggWorld, segment.Whereabouts.Direction);
+                Egg.Draw(_textureEffect, _eggSkin, TintColor(), _sphere, _eggWorld, segment.Whereabouts.Direction);
 
                 //move the last two spheres so that they slowly dissolves into the serpent
                 var factor = MathUtil.Clamp(_layingEgg/TimeForLayingEggProcess - 0.5f, 0, 1);

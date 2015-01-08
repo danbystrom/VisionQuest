@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
+using factor10.VisionThing.Primitives;
 using factor10.VisionThing.Util;
 using Larv.GameStates;
 using Larv.Serpent;
@@ -25,6 +26,8 @@ namespace Larv
         private IGameState _gameState;
         private LarvContent _lcontent;
         private Serpents _serpents;
+
+        private IVDrawable _sphereX;
 
         private readonly FramesPerSecondCounter _fps = new FramesPerSecondCounter();
 
@@ -78,6 +81,8 @@ namespace Larv
             _lcontent.ShadowMap.ShadowCastingObjects.Add(_serpents);
             _gameState = new AttractState(_serpents);
 
+            _sphereX = new SpherePrimitive<VertexPositionNormalTexture>(GraphicsDevice, (a, b, c, d) => new VertexPositionNormalTexture(a, b, d), 1, 4);
+
             base.LoadContent();
         }
 
@@ -108,9 +113,9 @@ namespace Larv
 
             _gameState.Draw(_serpents.Camera, DrawingReason.Normal, _lcontent.ShadowMap);
 
-            GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
+            //GraphicsDevice.SetRasterizerState(GraphicsDevice.RasterizerStates.WireFrame);
             _lcontent.TextureEffect.World = Matrix.Scaling(5) * Matrix.Translation(0, 20, 0);
-            _lcontent.Sphere.Draw(_lcontent.TextureEffect);
+            _sphereX.Draw(_lcontent.TextureEffect);
 
             using (_lcontent.UsingSpriteBatch())
                 _lcontent.DrawString("FPS: {0}  {1}".Fmt(_fps.FrameRate, _gameState), Vector2.Zero, 0.5f, 0, Color.White);
