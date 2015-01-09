@@ -62,8 +62,13 @@ namespace factor10.VisionThing
 
         public T Load<T>(string name) where T: IDisposable
         {
+            name = name.ToLower().Replace("\\", "/");
+            IDisposable obj;
+            if (Disposables.TryGetValue(name, out obj))
+                return (T) obj;
+
             var contentObject = Content.Load<T>(name);
-            Disposables[name.ToLower()] = contentObject;
+            Disposables.Add(name, contentObject);
             return contentObject;
         }
 

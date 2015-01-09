@@ -54,7 +54,7 @@ namespace Larv.GameStates
         private bool _isHoldingBothPointers;
         private bool _turnAround;
 
-        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent, bool delayedAction)
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ =>
                 _.DeviceType == PointerDeviceType.Touch && _.EventType == PointerEventType.Moved).ToArray();

@@ -22,7 +22,7 @@ namespace Larv.Serpent
 
     public interface ITakeDirection
     {
-        RelativeDirection TakeDirection(BaseSerpent serpent, bool delayedAction);
+        RelativeDirection TakeDirection(BaseSerpent serpent);
         bool CanOverrideRestrictedDirections(BaseSerpent serpent);
     }
 
@@ -52,7 +52,7 @@ namespace Larv.Serpent
 
         private readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
 
-        protected abstract void takeDirection(bool delayedAction);
+        protected abstract void takeDirection();
 
         private int _pendingEatenSegments = 6;
         private const int SegmentEatTreshold = 7;
@@ -107,10 +107,10 @@ namespace Larv.Serpent
             return 1f;
         }
 
-        protected bool TakeDirection(bool delayedAction)
+        protected bool TakeDirection()
         {
             return DirectionTaker != null &&
-                   TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(this, delayedAction)), DirectionTaker.CanOverrideRestrictedDirections(this));
+                   TryMove(HeadDirection.Turn(DirectionTaker.TakeDirection(this)), DirectionTaker.CanOverrideRestrictedDirections(this));
         }
 
         public override void Update(Camera camera, GameTime gameTime)
@@ -132,18 +132,16 @@ namespace Larv.Serpent
             if (_whereabouts.Direction != Direction.None)
             {
                 _fractionAngle += speed;
-                //if (_fractionAngle>0 && _fractionAngle < 0.33f)
-                //    takeDirection(true);
                 if (_fractionAngle >= 1)
                 {
                     _fractionAngle = 0;
                     _whereabouts.Location = _whereabouts.NextLocation;
-                    takeDirection(false);
+                    takeDirection();
                 }
                 _whereabouts.Fraction = (float) Math.Sin(_fractionAngle*MathUtil.PiOverTwo);
             }
             else
-                takeDirection(false);
+                takeDirection();
 
             if (_tail != null)
                 _tail.Update(speed, _whereabouts);

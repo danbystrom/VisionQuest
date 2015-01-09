@@ -174,10 +174,7 @@ namespace factor10.VisionThing.Effects
                 _epShadowMult.SetValue(shadow.ShadowMult);
             }
             else
-            {
-                _epShadowMap.SetResource((Texture2D)null);
                 _epDoShadowMapping.SetValue(false);
-            }
         }
 
         public void SetTechnique(DrawingReason drawingReason )
@@ -193,6 +190,15 @@ namespace factor10.VisionThing.Effects
                 case DrawingReason.ShadowDepthMap:
                     Effect.CurrentTechnique = _techDepthMap;
                     break;
+            }
+        }
+
+        public void ForEachPass(Action action)
+        {
+            foreach (var pass in Effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                action();
             }
         }
 

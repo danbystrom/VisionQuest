@@ -37,9 +37,9 @@ namespace Larv.Serpent
             return base.ModifySpeed()*Speed;
         }
 
-        protected override void takeDirection(bool delayedAction)
+        protected override void takeDirection()
         {
-            if (TakeDirection(delayedAction))
+            if (TakeDirection())
                 return;
 
             if (!TryMove(HeadDirection))

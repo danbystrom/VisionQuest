@@ -55,19 +55,22 @@ namespace Larv.Field
 
             World = Matrix.Scaling(1/3f, 0.05f, 1/3f)*Matrix.Translation(qx - 0.1f, -0.5f, qy - 0.1f);
 
+            // randomize ground height
             for (var i = 0; i < 5000; i++)
                 GroundMap[rnd.Next(Left + 4, Right - 4), rnd.Next(Top + 8, Bottom - 8)] += 20;
+            // a few small hills
             for (var i = 0; i < 20; i++)
                 GroundMap[rnd.Next(Left + 4, Right - 4), rnd.Next(Top + 8, Bottom - 8)] += 250;
 
             GroundMap.Soften(2);
 
-            carvePlayingField(GroundMap, playingField, (TotalWidth - pfW * 3) / 2, (TotalHeight - pfH * 3) / 2, 0);
+            carvePlayingField(GroundMap, playingField, (TotalWidth - pfW * 3) / 2, (TotalHeight - pfH * 3) / 2, 0, 17);
             createHillForCave(playingField.PlayerWhereaboutsStart.Location, pfW, pfH);
             createHillForCave(playingField.EnemyWhereaboutsStart.Location, pfW, pfH);
 
             var weights = GroundMap.CreateWeigthsMap(new[] { 0, 0.40f, 0.60f, 0.9f });
 
+            // randomize ground texture
             for (var i = 0; i < 10000; i++)
             {
                 var m = rnd.Next(9);
@@ -78,6 +81,7 @@ namespace Larv.Field
                 });
             }
 
+            // pave the slopes :-)
             carvePlayingField(weights, playingField, (TotalWidth - pfW * 3) / 2, (TotalHeight - pfH * 3) / 2, new Mt9Surface.Mt9 { H = 2 });
 
             weights.Soften();
@@ -103,12 +107,17 @@ namespace Larv.Field
                 position.Y -= 0.05f;
                 var normal = normals.GetExact(gx, gy).ToVector3();
                 if (normal.Y < 0.5f)
-                    continue;  // too much slope
-                normal.Y *= 2;  // straighten it up a bit
-                if (rnd.NextDouble() < 0.995 || Vector3.DistanceSquared(position, SignPosition) < 5)
+                    continue; // too much slope
+                normal.Y *= 2; // straighten it up a bit
+                if (rnd.NextDouble() < 0.994 || Vector3.DistanceSquared(position, SignPosition) < 5)
                     _cxBillboardGrass.Add(position, normal);
                 else
-                    _cxBillboardTrees.Add(position, Vector3.Up);
+                {
+                    float minpe, maxpe;
+                    playingField.GetSurroundingElevation((int)(position.X + 0.5f), (int)(position.Z + 0.5f), out minpe, out maxpe);
+                    if (maxpe < position.Y || maxpe > position.Y + 2)
+                        _cxBillboardTrees.Add(position, Vector3.Up);
+                }
             }
 
             _cxBillboardSigns = new StaticBillboard(VContent, Matrix.Identity, VContent.Load<Texture2D>("billboards/woodensign"), 3.5f, 1.5f);
@@ -135,21 +144,23 @@ namespace Larv.Field
             GroundMap.AlterValues(nx + 2, ny + 2, 5, 5, (a, b, c) => 40);
         }
 
-        private static void carvePlayingField<T>(Sculptable<T> ground, PlayingField playingField, int offx, int offy, T value)
+        private static void carvePlayingField<T>(Sculptable<T> ground, PlayingField playingField, int offx, int offy, T value, T? optionalValueUnderSlopes = null)
             where T : struct
         {
+            var valueUnderSlopes = optionalValueUnderSlopes.GetValueOrDefault(value);
             for (var y = 0; y < playingField.Height; y++)
                 for (var x = 0; x < playingField.Width; x++)
-                    if (!playingField.FieldValue(0, new Point(x, y)).IsNone)
-                    {
-                        if (x == playingField.PlayerWhereaboutsStart.Location.X && y == playingField.PlayerWhereaboutsStart.Location.Y)
-                            continue;
-                        var nx = offx + x*3;
-                        var ny = offy + y*3;
-                        for (var i = 0; i < 3; i++)
-                            for (var j = 0; j < 3; j++)
-                                ground[nx + i, ny + j] = value;
-                    }
+                {
+                    var sq = playingField.FieldValue(0, new Point(x, y));
+                    //var underSlope = sq.IsSlope && sq.Elevation < 2;
+                    if (sq.IsNone)
+                        continue;  // this square shall not be lowered to make room for playing field
+                    var nx = offx + x*3;
+                    var ny = offy + y*3;
+                    for (var i = 0; i < 3; i++)
+                        for (var j = 0; j < 3; j++)
+                            ground[nx + i, ny + j] = sq.Elevation>=1 ? valueUnderSlopes : value;
+                }
         }
 
         public override void Update(Camera camera, GameTime gameTime)

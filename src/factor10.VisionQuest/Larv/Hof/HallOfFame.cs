@@ -11,6 +11,10 @@ namespace Larv.Hof
             public int Score;
             public DateTime When;
 
+            public Entry()
+            {
+            }
+
             public Entry(string name, int score, DateTime? when = null)
             {
                 Name = name;
@@ -26,7 +30,7 @@ namespace Larv.Hof
             new Entry("Play with [Left], [Right] and [Down]", 4500),
             new Entry("", 4000),
             new Entry("LARV! is Open Source Software, press", 3500),
-            new Entry("[I] to visit web site and learn more.", 3000),
+            new Entry("[F1] to visit web site and learn more.", 3000),
             new Entry("", 2500),
             new Entry("LARV! is a remake of the classic game", 2000),
             new Entry("Serpentine from 1982 by David Snider,", 1500),

@@ -40,14 +40,15 @@ namespace Larv.Serpent
             if (PathToWalk.Count >= 2)
             {
                 var w = PathToWalk[0];
-                w.Fraction += speed;
-                if (w.Fraction >= 1)
+                var fraction = w.Fraction + speed;
+                while (fraction >= 1)
                 {
-                    PathToWalk.RemoveAt(0);
-                    var f = w.Fraction;
+                    if(PathToWalk.Count>=2)
+                        PathToWalk.RemoveAt(0);
                     w = PathToWalk[0];
-                    w.Fraction = f - 1;
+                    fraction -= 1;
                 }
+                w.Fraction = fraction;
                 PathToWalk[0] = w;
             }
 

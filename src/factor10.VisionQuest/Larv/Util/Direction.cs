@@ -75,7 +75,7 @@ namespace Larv.Util
             get { return Turn(RelativeDirection.Left); }
         }
 
-        public Direction Backward
+        public Direction Opposite
         {
             get { return Turn(RelativeDirection.Backward); }
         }

@@ -20,6 +20,7 @@ namespace factor10.VisionThing.Effects
         EffectParameterCollection Parameters { get; }
         void SetShadowMapping(ShadowMap shadow);
         void SetTechnique(DrawingReason drawingReason);
+        void ForEachPass(Action action);
     }
 
     public class VBasicEffect : BasicEffect, IVEffect
@@ -47,6 +48,15 @@ namespace factor10.VisionThing.Effects
 
         public void SetTechnique(DrawingReason drawingReason)
         {
+        }
+
+        public void ForEachPass(Action action)
+        {
+            foreach (var pass in CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                action();
+            }
         }
 
     }

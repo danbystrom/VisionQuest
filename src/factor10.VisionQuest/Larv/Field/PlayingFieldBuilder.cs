@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Larv.Util;
 using SharpDX;
 
@@ -12,6 +13,24 @@ namespace Larv.Field
         public PlayingFieldBuilder(PlayingFieldSquare[,,] field)
         {
             _field = field;
+        }
+
+        public static PlayingFieldSquare[,,] Create(
+            IList<string[]> fields,
+            int width,
+            int height,
+            ref Whereabouts playerWhereaboutsStart,
+            ref Whereabouts enemyWhereaboutsStart)
+        {
+            var result = new PlayingFieldSquare[fields.Count, height, width];
+            var builder = new PlayingFieldBuilder(result);
+            for (var i = 0; i < fields.Count; i++)
+                builder.ConstructOneFloor(
+                    i,
+                    fields[i],
+                    ref playerWhereaboutsStart,
+                    ref enemyWhereaboutsStart);
+            return result;
         }
 
         public void ConstructOneFloor(
@@ -115,7 +134,7 @@ namespace Larv.Field
                 return new PlayingFieldSquare(
                     PlayingFieldSquareType.Slope,
                     square.TopElevation,
-                    direction.Backward,
+                    direction.Opposite,
                     Direction.None);
             }
             return new PlayingFieldSquare();

@@ -26,7 +26,7 @@ namespace Larv.GameStates
             EnemyPathFinder = new PathFinder(serpents.PlayingField, serpents.PlayingField.EnemyWhereaboutsStart);
         }
 
-        public RelativeDirection TakeDirection(BaseSerpent serpent, bool delayedAction)
+        public RelativeDirection TakeDirection(BaseSerpent serpent)
         {
             var pathFinder = serpent is PlayerSerpent ? PlayerPathFinder : EnemyPathFinder;
             var whereabouts = serpent.Whereabouts;

@@ -39,6 +39,13 @@ namespace Larv.Util
             return x*x + y*y;
         }
 
+        public void Realign()
+        {
+            for (; Fraction > 1; Fraction -= 1)
+                Location = NextLocation;
+            for (; Fraction < 0; Fraction += 1)
+                Location = Location.Add(Direction.Opposite.DirectionAsPoint());
+        }
 
         public override string ToString()
         {

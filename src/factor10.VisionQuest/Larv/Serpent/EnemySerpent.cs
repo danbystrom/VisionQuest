@@ -41,15 +41,15 @@ namespace Larv.Serpent
                 _delayBeforeStart -= (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        protected override void takeDirection(bool delayedAction)
+        protected override void takeDirection()
         {
-            if (SerpentStatus != SerpentStatus.Alive || delayedAction)
+            if (SerpentStatus != SerpentStatus.Alive)
             {
                 TryMove(HeadDirection);
                 return;
             }
 
-            if (TakeDirection(false))
+            if (TakeDirection())
                 return;
 
             if (Rnd.NextDouble() < 0.33 && TryMove(HeadDirection.Left))
@@ -65,7 +65,7 @@ namespace Larv.Serpent
                 return;
             if (TryMove(HeadDirection.Left))
                 return;
-            TryMove(HeadDirection.Backward);
+            TryMove(HeadDirection.Opposite);
         }
 
         protected override Vector4 TintColor()

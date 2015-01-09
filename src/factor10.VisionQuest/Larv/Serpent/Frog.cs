@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Data;
+using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using factor10.VisionThing.Effects;
@@ -153,6 +154,11 @@ namespace Larv.Serpent
                     // now we have a new position for the frog
                     Vector3.TransformCoordinate(ref gspaceTo, ref _ground.World, out position);
                     position.Y = Math.Max(0, position.Y);
+
+                    float minpe, maxpe;
+                    _serpents.PlayingField.GetSurroundingElevation((int)(toPosition.X + 0.5f), (int)(toPosition.Z + 0.5f), out minpe, out maxpe);
+                    if (maxpe > 0 && maxpe < position.Y + 0.75f)
+                        continue;
 
                     angle = (float)Math.Atan2(position.X - _position.X, position.Z - _position.Z);
                     return true;

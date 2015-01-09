@@ -100,11 +100,11 @@ namespace Larv.GameStates
             _todo.AddWhile(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
         }
 
-        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent, bool delayedAction)
+        RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             _serpentIsHome = _homingDevice.PlayerPathFinder.GetDistance(_serpents.PlayerSerpent.Whereabouts) < (_homeIsNearCaveEntrance ? 6 : 3);
             _haltSerpents |= _serpentIsHome;
-            return _homingDevice.TakeDirection(serpent, delayedAction);
+            return _homingDevice.TakeDirection(serpent);
         }
 
         bool ITakeDirection.CanOverrideRestrictedDirections(BaseSerpent serpent)
