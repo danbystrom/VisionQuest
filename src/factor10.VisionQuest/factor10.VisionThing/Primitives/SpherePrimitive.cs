@@ -38,7 +38,7 @@ namespace factor10.VisionThing.Primitives
             // Create rings of vertices at progressively higher latitudes.
             for (var i = 1; i < stackCount; i++)
             {
-                var latitude = q(i, stackCount)*MathUtil.Pi - MathUtil.PiOverTwo;
+                var latitude = calculateLatitude(i, stackCount)*MathUtil.Pi - MathUtil.PiOverTwo;
 
                 var dy = (float) Math.Sin(latitude);
                 var dxz = (float) Math.Cos(latitude);
@@ -97,14 +97,8 @@ namespace factor10.VisionThing.Primitives
             initializePrimitive(graphicsDevice);
         }
 
-        private static float q(int i, int stackCount)
-        {
-            var x = qq(i, stackCount);
-            System.Diagnostics.Debug.Print("{0} {1} {2}", i, stackCount, x);
-            return x;
-        }
-
-        private static float qq(int i, int stackCount)
+        // since the texture becomes distorted at the poles, I make the stacks at the poles much thinner
+        private static float calculateLatitude(int i, int stackCount)
         {
             var dx = 0.25f/stackCount;
             if (i == stackCount - 1)

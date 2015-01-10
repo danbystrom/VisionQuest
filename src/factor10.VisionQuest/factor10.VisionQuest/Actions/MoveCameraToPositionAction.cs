@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
@@ -36,7 +35,7 @@ namespace factor10.VisionQuest.Actions
             _toLookAt = toLookAt;
             _toYaw = (float) Math.Atan2(toPosition.X - toLookAt.X, toPosition.Z - toLookAt.Z);
 
-            Debug.Print("ToPos: {0}  ToLookAt: {1}  ToYaw: {2}", _toPosition, _toLookAt, MathUtil.RadiansToDegrees(_toYaw));
+            //Debug.Print("ToPos: {0}  ToLookAt: {1}  ToYaw: {2}", _toPosition, _toLookAt, MathUtil.RadiansToDegrees(_toYaw));
 
             var angle = _fromYaw - _toYaw;
             if (angle > MathUtil.Pi)

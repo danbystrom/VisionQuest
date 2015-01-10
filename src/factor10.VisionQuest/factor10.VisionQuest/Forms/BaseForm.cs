@@ -29,7 +29,6 @@ namespace factor10.VisionQuest.Forms
 
         public virtual bool OnEnterKey()
         {
-            System.Diagnostics.Debug.Print(Name);
             var focusedControl = findFocusedControl(this);
             if (focusedControl == null)
                 return false;

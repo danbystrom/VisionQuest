@@ -42,7 +42,6 @@ namespace Larv.Field
 
         public void SetPosition(Vector3 position, Direction direction)
         {
-            System.Diagnostics.Debug.Print("{0}", position);
             CaveWorld = Matrix.Scaling(0.9f, 0.7f, 0.5f)
                         *Matrix.Translation(5, 0.3f, -0.5f)
                         *Matrix.RotationY(MathUtil.PiOverTwo)

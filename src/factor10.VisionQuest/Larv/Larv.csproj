@@ -89,7 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Field\Nisse.cs" />
+    <Compile Include="Field\PlayingFieldsDecoder.cs" />
     <Compile Include="GameStates\AttractBigTexts.cs" />
     <Compile Include="GameStates\HallOfFameState.cs" />
     <Compile Include="Hof\HallOfFame.cs" />
@@ -114,7 +114,6 @@
     <Compile Include="Field\PathFinder.cs" />
     <Compile Include="Field\PlayingField.cs" />
     <Compile Include="Field\PlayingFieldBuilder.cs" />
-    <Compile Include="Field\PlayingFields.cs" />
     <Compile Include="Field\PlayingFieldSquare.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

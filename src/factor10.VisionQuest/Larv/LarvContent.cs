@@ -1,4 +1,6 @@
-﻿using factor10.VisionThing;
+﻿using System.Collections;
+using System.Collections.Generic;
+using factor10.VisionThing;
 using factor10.VisionThing.Effects;
 using factor10.VisionThing.Primitives;
 using Larv.Field;
@@ -23,8 +25,9 @@ namespace Larv
 
         public readonly Ground Ground;
         public readonly HallOfFame HallOfFame;
+        public readonly PlayingFieldInfo[] PlayingFieldInfos;
 
-        public LarvContent(GraphicsDevice graphicsDevice, ContentManager content)
+        public LarvContent(GraphicsDevice graphicsDevice, ContentManager content, IEnumerable<string> sceneDescription)
             : base(graphicsDevice, content)
         {
             SpriteBatch = new SpriteBatch(graphicsDevice);
@@ -39,6 +42,7 @@ namespace Larv
             ShadowMap = new ShadowMap(this, 800, 800, 1, 50);
             ShadowMap.UpdateProjection(50, 30);
             HallOfFame = HofStorage.Load();
+            PlayingFieldInfos = PlayingFieldsDecoder.Create(sceneDescription);
         }
 
         public float FontScaleRatio

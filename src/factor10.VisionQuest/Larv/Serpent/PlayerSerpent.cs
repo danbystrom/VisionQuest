@@ -7,7 +7,8 @@ namespace Larv.Serpent
 {
     public class PlayerSerpent : BaseSerpent
     {
-        public float Speed = 1.4f;
+        public const float InitialSpeed = 1.3f;
+        public float Speed = InitialSpeed;
 
         public PlayerSerpent(
             LarvContent lcontent,
@@ -25,6 +26,7 @@ namespace Larv.Serpent
 
         public void Restart(PlayingField playingField, int length, Whereabouts? whereabouts = null)
         {
+            Speed = InitialSpeed;
             Restart(playingField, whereabouts.GetValueOrDefault(PlayingField.PlayerWhereaboutsStart));
             DirectionTaker = null;
             SerpentStatus = SerpentStatus.Alive;

@@ -55,32 +55,28 @@ namespace Larv.Serpent
 
             var v = dt * Tension;
 
-            //System.Diagnostics.Debug.Print("{0:0.000} {1:0.000} / {2:0.000} {3:0.000}",
-            //    Vector3.Distance(Camera.Position,Vector3.Lerp(Camera.Position, newPosition, v)),
-            //    Vector3.Distance(Camera.Target, Vector3.Lerp(Camera.Target, target, v)),
-            //    dt, v);
             var nextPosition = Vector3.Lerp(Camera.Position, newPosition, v);
             var nextTarget = Vector3.Lerp(Camera.Target, target, v);
 
-           _log.Insert(0,string.Format("{0} {1} {2} {3} {4} {5} {6} {7}", dt, v, Camera.Position, newPosition, nextPosition, Camera.Target, target, nextTarget));
-            while (_log.Count > 500)
-                _log.RemoveAt(_log.Count - 1);
+           //_log.Insert(0,string.Format("{0} {1} {2} {3} {4} {5} {6} {7}", dt, v, Camera.Position, newPosition, nextPosition, Camera.Target, target, nextTarget));
+           // while (_log.Count > 500)
+           //     _log.RemoveAt(_log.Count - 1);
 
             Camera.Update(nextPosition, nextTarget);
 
-            if (Camera.KeyboardState.IsKeyPressed(Keys.M))
-            {
-                var s = string.Join("\r\n", _log);
-                s = s.Replace("X:", "");
-                s = s.Replace("Y:", "");
-                s = s.Replace("Z:", "");
-                System.Diagnostics.Debug.Print(s);    
-            }
+            //if (Camera.KeyboardState.IsKeyPressed(Keys.M))
+            //{
+            //    var s = string.Join("\r\n", _log);
+            //    s = s.Replace("X:", "");
+            //    s = s.Replace("Y:", "");
+            //    s = s.Replace("Z:", "");
+            //    System.Diagnostics.Debug.Print(s);    
+            //}
 
             return true;
         }
 
-        private static List<string> _log = new List<string>();
+        //private static List<string> _log = new List<string>();
 
         private static Vector2 moveTo(
             Vector2 camera,
@@ -114,11 +110,7 @@ namespace Larv.Serpent
                 angle = -angle;
 
             var angleFraction = angle*elapsedTime*10;
-            if (angleFraction > 0.8f)
-            {
-                
-            }
-            _log.Insert(0,string.Format("{0}", angleFraction));
+            //_log.Insert(0,string.Format("{0}", angleFraction));
 
             var cosA = (float) Math.Cos(angleFraction);
             var sinA = (float) Math.Sin(angleFraction);

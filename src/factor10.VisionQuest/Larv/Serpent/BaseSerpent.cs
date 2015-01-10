@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
@@ -354,7 +353,7 @@ namespace Larv.Serpent
                 tail = tail.Next;
             tail.Next = new SerpentTailSegment(PlayingField, tail.Whereabouts);
             _serpentLength++;
-            Debug.Assert(_serpentLength < 20);
+            System.Diagnostics.Debug.Assert(_serpentLength < 20);
         }
 
         public Egg TimeToLayEgg()

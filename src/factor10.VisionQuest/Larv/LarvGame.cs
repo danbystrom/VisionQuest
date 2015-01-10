@@ -61,22 +61,25 @@ namespace Larv
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Larv.app.ico"))
                 nativeWindow.Icon = new Icon(stream);
 
-            //using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Larv.PlayingFields.txt"))
-            //using(var fs = new StreamReader(stream))
-            //{
-            //    var list = new List<string>();
-            //    while(!fs.EndOfStream)
-            //        list.Add(fs.ReadLine());
-            //    var p = new Nisse(list);
-            //}
-
             //IsMouseVisible = true;
             base.Initialize();
         }
 
+        private List<string> loadSceneDescriptions()
+        {
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Larv.PlayingFields.txt"))
+            using (var fs = new StreamReader(stream))
+            {
+                var list = new List<string>();
+                while (!fs.EndOfStream)
+                    list.Add(fs.ReadLine());
+                return list;
+            }
+        }
+
         protected override void LoadContent()
         {
-            _lcontent = new LarvContent(GraphicsDevice, Content);
+            _lcontent = new LarvContent(GraphicsDevice, Content, loadSceneDescriptions());
 
             var shadowCameraPos = new Vector3(12, 4, 12) - VisionContent.SunlightDirection*32;
             var shadowCameraLookAt = shadowCameraPos + VisionContent.SunlightDirection;
@@ -103,11 +106,16 @@ namespace Larv
             _fps.Update(gameTime);
             _serpents.Camera.UpdateInputDevices();
             _lcontent.Ground.Update(_serpents.Camera, gameTime);
+
             _paused ^= _serpents.Camera.KeyboardState.IsKeyPressed(Keys.P);
             if (_paused)
                 _serpents.Camera.UpdateFreeFlyingCamera(gameTime);
             else
                 _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
+
+            for(var key=Keys.D1;key<Keys.D5;key++)
+                if (_serpents.Camera.KeyboardState.IsKeyPressed(key))
+                    _gameState = new GotoBoardState(_serpents, key - Keys.D1);
 
             if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Escape))
             {

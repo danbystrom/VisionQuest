@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using factor10.VisionThing;
 using factor10.VisionThing.CameraStuff;
 using Larv.Serpent;
@@ -12,15 +13,14 @@ namespace Larv.Field
 {
     public class PlayingField : VDrawable
     {
-        public readonly int Floors, Width, Height;
         public readonly Buffer<VertexPositionNormalTexture> VertexBuffer;
         public readonly Buffer<VertexPositionNormalTexture> VertexBufferShadow;
         public readonly VertexInputLayout VertexInputLayout;
 
-        public readonly PlayingFieldSquare[, ,] TheField;
-
         private readonly Texture2D _texture;
 
+        public readonly int Floors, Width, Height;
+        public readonly PlayingFieldSquare[, ,] TheField;
         public readonly Whereabouts PlayerWhereaboutsStart;
         public readonly Whereabouts EnemyWhereaboutsStart;
 
@@ -32,23 +32,16 @@ namespace Larv.Field
         {
             _texture = texture;
 
-            var field = PlayingFields.GetLevel(level);
-
-            Floors = field.Count;
-            Height = field[0].Length;
-            Width = field[0][0].Length;
-            TheField = new PlayingFieldSquare[Floors, Height, Width];
+            var pfInfo = lContent.PlayingFieldInfos[level];
+            TheField = pfInfo.PlayingField;
+            Floors = pfInfo.Floors;
+            Height = pfInfo.Height;
+            Width = pfInfo.WIdth;
+            PlayerWhereaboutsStart = pfInfo.PlayerSerpentStart;
+            EnemyWhereaboutsStart = pfInfo.EnemySerpentStart;
 
             MiddleX = Width/2f;
             MiddleY = Height/2f;
-
-            var builder = new PlayingFieldBuilder(TheField);
-            for (var i = 0; i < field.Count; i++)
-                builder.ConstructOneFloor(
-                    i,
-                    field[i],
-                    ref PlayerWhereaboutsStart,
-                    ref EnemyWhereaboutsStart);
 
             var verts = new List<VertexPositionNormalTexture>
             {
@@ -71,7 +64,8 @@ namespace Larv.Field
 
 
             VertexBuffer = Buffer.Vertex.New(lContent.GraphicsDevice, verts.ToArray());
-            VertexBufferShadow = Buffer.Vertex.New(lContent.GraphicsDevice, vertsShadow.ToArray());
+            if(vertsShadow.Any())
+                VertexBufferShadow = Buffer.Vertex.New(lContent.GraphicsDevice, vertsShadow.ToArray());
             VertexInputLayout = VertexInputLayout.FromBuffer(0, VertexBuffer);
         }
 
@@ -148,12 +142,15 @@ namespace Larv.Field
                     PrimitiveType.TriangleList,
                     VertexBuffer.ElementCount));
 
-            Effect.DiffuseColor = new Vector4(0.5f, 0.5f, 0.5f, 1);
-            Effect.GraphicsDevice.SetVertexBuffer(VertexBufferShadow);
-            Effect.ForEachPass(() =>
-                Effect.GraphicsDevice.Draw(
-                    PrimitiveType.TriangleList,
-                    VertexBufferShadow.ElementCount));
+            if (VertexBufferShadow != null)
+            {
+                Effect.DiffuseColor = new Vector4(0.4f, 0.4f, 0.4f, 1);
+                Effect.GraphicsDevice.SetVertexBuffer(VertexBufferShadow);
+                Effect.ForEachPass(() =>
+                    Effect.GraphicsDevice.Draw(
+                        PrimitiveType.TriangleList,
+                        VertexBufferShadow.ElementCount));
+            }
 
             return true;
         }
@@ -272,6 +269,8 @@ namespace Larv.Field
         public override void Dispose()
         {
             VertexBuffer.Dispose();
+            if(VertexBufferShadow!=null)
+                VertexBufferShadow.Dispose();
         }
 
     }
