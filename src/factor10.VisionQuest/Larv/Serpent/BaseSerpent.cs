@@ -22,6 +22,7 @@ namespace Larv.Serpent
     public interface ITakeDirection
     {
         RelativeDirection TakeDirection(BaseSerpent serpent);
+        RelativeDirection TakeDelayedDirection(BaseSerpent serpent);
         bool CanOverrideRestrictedDirections(BaseSerpent serpent);
     }
 
@@ -51,7 +52,7 @@ namespace Larv.Serpent
 
         private readonly Dictionary<Direction, Matrix> _headRotation = new Dictionary<Direction, Matrix>();
 
-        protected abstract void takeDirection();
+        protected abstract void takeDirection(bool delayed);
 
         private int _pendingEatenSegments = 6;
         private const int SegmentEatTreshold = 7;
@@ -135,12 +136,13 @@ namespace Larv.Serpent
                 {
                     _fractionAngle = 0;
                     _whereabouts.Location = _whereabouts.NextLocation;
-                    takeDirection();
-                }
+                    takeDirection(false);
+                } else if (_fractionAngle < 0.5f)
+                    takeDirection(true);
                 _whereabouts.Fraction = (float) Math.Sin(_fractionAngle*MathUtil.PiOverTwo);
             }
             else
-                takeDirection();
+                takeDirection(false);
 
             if (_tail != null)
                 _tail.Update(speed, _whereabouts);

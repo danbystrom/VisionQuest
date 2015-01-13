@@ -54,8 +54,22 @@ namespace Larv.GameStates
         private bool _isHoldingBothPointers;
         private bool _turnAround;
 
+        RelativeDirection ITakeDirection.TakeDelayedDirection(BaseSerpent serpent)
+        {
+            return takeDirection(serpent, true);
+        }
+
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
+            return takeDirection(serpent, false);
+        }
+
+        RelativeDirection takeDirection(BaseSerpent serpent, bool delayed)
+        {
+            var kbd = _serpents.Camera.KeyboardState;
+            var keyLeft = delayed ? kbd.IsKeyPressed(Keys.Left) : kbd.IsKeyDown(Keys.Left);
+            var keyRight = delayed ? kbd.IsKeyPressed(Keys.Right) : kbd.IsKeyDown(Keys.Right);
+
             var pointerPoints = _serpents.Camera.PointerState.Points.Where(_ =>
                 _.DeviceType == PointerDeviceType.Touch && _.EventType == PointerEventType.Moved).ToArray();
             var pointerLeft = pointerPoints.Any(_ => _.Position.X < 0.15f);
@@ -70,11 +84,16 @@ namespace Larv.GameStates
             else
                 _isHoldingBothPointers = false;
 
-            var nextDirection = _turnAround ? RelativeDirection.Backward : RelativeDirection.Forward;
-            _turnAround = false;
-            if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Left) || pointerLeft)
+            var nextDirection = RelativeDirection.Forward;
+            if (!delayed && _turnAround)
+            {
+                nextDirection = RelativeDirection.Backward;
+                _turnAround = false;
+            }
+
+            if (keyLeft || pointerLeft)
                 nextDirection = RelativeDirection.Left;
-            else if (_serpents.Camera.KeyboardState.IsKeyDown(Keys.Right) || pointerRight)
+            else if (keyRight || pointerRight)
                 nextDirection = RelativeDirection.Right;
             return nextDirection;
         }

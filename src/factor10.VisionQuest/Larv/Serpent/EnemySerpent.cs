@@ -41,8 +41,11 @@ namespace Larv.Serpent
                 _delayBeforeStart -= (float) gameTime.ElapsedGameTime.TotalSeconds;
         }
 
-        protected override void takeDirection()
+        protected override void takeDirection(bool delayed)
         {
+            if (delayed)
+                return;
+
             if (SerpentStatus != SerpentStatus.Alive)
             {
                 TryMove(HeadDirection);

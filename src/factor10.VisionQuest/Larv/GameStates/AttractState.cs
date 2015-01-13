@@ -194,6 +194,11 @@ namespace Larv.GameStates
             }
         }
 
+        RelativeDirection ITakeDirection.TakeDelayedDirection(BaseSerpent serpent)
+        {
+            return RelativeDirection.Forward;
+        }
+
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             return _random.NextDouble() < 0.5 ? RelativeDirection.Left : RelativeDirection.Right;

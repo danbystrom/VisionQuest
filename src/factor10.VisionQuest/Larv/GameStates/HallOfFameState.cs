@@ -36,6 +36,7 @@ namespace Larv.GameStates
             if (kbd.IsKeyPressed(Keys.Enter))
             {
                 HofStorage.Save(_serpents.LContent.HallOfFame);
+                _serpents.Restart(_serpents.Scene);
                 gameState = new AttractState(_serpents);
                 return;
             }
@@ -44,7 +45,7 @@ namespace Larv.GameStates
                 _entry.Name = _entry.Name.Substring(0, _entry.Name.Length - 1);
 
             var chr = camera.KeyboardState.PressedCharacter();
-            if (chr >= ' ')
+            if (chr >= ' ' && _entry.Name.Length < 32)
                 _entry.Name += chr;
         }
 

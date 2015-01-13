@@ -186,6 +186,14 @@ namespace factor10.VisionQuest.Forms
                 _data.Commands.Enqueue(new GotoClassCommand(vc));
         }
 
+        public override bool OnEnterKey()
+        {
+            if(!txtSearchMethod.Focused)
+                return base.OnEnterKey();
+            lstMethods_DoubleClick(null,EventArgs.Empty);
+            return true;
+        }
+
     }
 
 }

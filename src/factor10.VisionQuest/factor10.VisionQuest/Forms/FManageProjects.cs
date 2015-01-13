@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using factor10.VisionQuest.Unsorted;
 using factor10.VisionThing;
+using SharpDX.Direct2D1;
 
 namespace factor10.VisionQuest.Forms
 {
@@ -29,13 +31,15 @@ namespace factor10.VisionQuest.Forms
 
         private void loadProjects(IEnumerable<Project> projects)
         {
+            var sortedProjectes = projects.ToList();
+            sortedProjectes.Sort((x,y) => y.Accessed.CompareTo(x.Accessed));
             lvProjects.BeginUpdate();
-            foreach (var proj in projects)
+            foreach (var proj in sortedProjectes)
             {
                 var lvi = lvProjects.Items.Add(proj.Name);
                 lvi.Tag = proj;
-                lvi.SubItems.Add(proj.Created.ToIsoString());
                 lvi.SubItems.Add(proj.Accessed.ToIsoString());
+                lvi.SubItems.Add(proj.Created.ToIsoString());
             }
             lvProjects.EndUpdate();
             if (lvProjects.Items.Count != 0)

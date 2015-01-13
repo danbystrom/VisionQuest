@@ -84,6 +84,7 @@
             this.lvProjects.Location = new System.Drawing.Point(12, 12);
             this.lvProjects.Name = "lvProjects";
             this.lvProjects.Size = new System.Drawing.Size(940, 359);
+            this.lvProjects.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.lvProjects.TabIndex = 0;
             this.lvProjects.UseCompatibleStateImageBehavior = false;
             this.lvProjects.View = System.Windows.Forms.View.Details;

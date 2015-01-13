@@ -12,7 +12,7 @@ namespace factor10.VisionQuest.Unsorted
     {
         public static VProgram Run(Form parent, Project project, string projectsFolder)
         {
-            var metricsFolder = Path.Combine(projectsFolder, projectsFolder);
+            var metricsFolder = Path.Combine(projectsFolder, project.Name);
             if (!Directory.Exists(metricsFolder))
                 Directory.CreateDirectory(metricsFolder);
 

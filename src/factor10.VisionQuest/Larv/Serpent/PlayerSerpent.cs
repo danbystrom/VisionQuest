@@ -1,13 +1,16 @@
-﻿using Larv.Field;
+﻿using factor10.VisionThing.CameraStuff;
+using Larv.Field;
 using Larv.Util;
 using SharpDX;
+using SharpDX.Toolkit;
 using SharpDX.Toolkit.Graphics;
 
 namespace Larv.Serpent
 {
     public class PlayerSerpent : BaseSerpent
     {
-        public const float InitialSpeed = 1.3f;
+        public const float SpeedDecreasePerSecond = 0.0025f;
+        public const float InitialSpeed = 1.35f;
         public float Speed = InitialSpeed;
 
         public PlayerSerpent(
@@ -39,8 +42,29 @@ namespace Larv.Serpent
             return base.ModifySpeed()*Speed;
         }
 
-        protected override void takeDirection()
+        public override void Update(Camera camera, GameTime gameTime)
         {
+            Speed -= SpeedDecreasePerSecond*(float) gameTime.ElapsedGameTime.TotalSeconds;
+            base.Update(camera, gameTime);
+        }
+
+        protected override void takeDirection(bool delayed)
+        {
+            if (delayed && DirectionTaker != null)
+            {
+                var rdir = DirectionTaker.TakeDelayedDirection(this);
+                if (rdir == RelativeDirection.Forward)
+                    return;
+                var dir = HeadDirection.Turn(rdir);
+                var possibleLocationTo = _whereabouts.Location.Add(dir);
+                if (!PlayingField.CanMoveHere(ref _whereabouts.Floor, _whereabouts.Location, possibleLocationTo))
+                    return;
+                _tail.RevokePathToWalk(_whereabouts.Location);
+                _whereabouts.Direction = dir;
+                _tail.AddPathToWalk(_whereabouts);
+                return;
+            }
+
             if (TakeDirection())
                 return;
 
@@ -55,7 +79,6 @@ namespace Larv.Serpent
                 return new Vector4(1.2f, 1.2f, 0.5f, AlphaValue());
             return Vector4.One;
         }
-
 
     }
 

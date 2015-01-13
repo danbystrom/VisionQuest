@@ -100,6 +100,11 @@ namespace Larv.GameStates
             _todo.AddWhile(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
         }
 
+        RelativeDirection ITakeDirection.TakeDelayedDirection(BaseSerpent serpent)
+        {
+            return RelativeDirection.Forward;
+        }
+
         RelativeDirection ITakeDirection.TakeDirection(BaseSerpent serpent)
         {
             _serpentIsHome = _homingDevice.PlayerPathFinder.GetDistance(_serpents.PlayerSerpent.Whereabouts) < (_homeIsNearCaveEntrance ? 6 : 3);

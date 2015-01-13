@@ -72,6 +72,14 @@ namespace Larv.Serpent
                 Next.AddPathToWalk(PathToWalk[0]);
         }
 
+        public void RevokePathToWalk(Point revokePoint)
+        {
+            if (PathToWalk.Last().Location == revokePoint)
+                PathToWalk.RemoveAt(PathToWalk.Count - 1);
+            if (Next != null)
+                Next.RevokePathToWalk(revokePoint);
+        }
+
         public override string ToString()
         {
             return string.Format("({0})", string.Join("),(", PathToWalk));

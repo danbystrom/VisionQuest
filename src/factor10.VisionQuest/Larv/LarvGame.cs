@@ -61,7 +61,7 @@ namespace Larv
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Larv.app.ico"))
                 nativeWindow.Icon = new Icon(stream);
 
-            //IsMouseVisible = true;
+            IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -113,7 +113,7 @@ namespace Larv
             else
                 _gameState.Update(_serpents.Camera, gameTime, ref _gameState);
 
-            for(var key=Keys.D1;key<Keys.D5;key++)
+            for (var key = Keys.D1; key < Keys.D5; key++)
                 if (_serpents.Camera.KeyboardState.IsKeyPressed(key))
                     _gameState = new GotoBoardState(_serpents, key - Keys.D1);
 

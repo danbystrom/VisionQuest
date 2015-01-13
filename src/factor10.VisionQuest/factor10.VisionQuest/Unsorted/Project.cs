@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using factor10.VisionThing;
 using SharpDX;
 
@@ -57,7 +55,7 @@ namespace factor10.VisionQuest
             try
             {
                 var project = File.ReadAllText(filename).FromXml<Project>();
-                project.Accessed = File.GetLastAccessTime(filename);
+                project.Accessed = File.GetLastWriteTime(filename);
                 return project;
             }
             catch (Exception ex)
