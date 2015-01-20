@@ -76,8 +76,8 @@ namespace factor10.VisionQuest
                         if (done.Contains(calledClass))
                             continue;
                         done.Add(calledClass);
-                        var v1 = island.World.TranslationVector + new Vector3(vclass.X - 64, vclass.Height, vclass.Y - 64);
-                        var v2 = islandD.World.TranslationVector + new Vector3(calledClass.X - 64, calledClass.Height, calledClass.Y - 64);
+                        var v1 = island.World.TranslationVector + new Vector3(vclass.X, vclass.Height, vclass.Y);
+                        var v2 = islandD.World.TranslationVector + new Vector3(calledClass.X , calledClass.Height, calledClass.Y);
                         var distance = Vector3.Distance(v1, v2)/8;
                         arc.CreateArc(
                             v1,

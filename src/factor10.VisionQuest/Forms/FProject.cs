@@ -26,6 +26,23 @@ namespace factor10.VisionQuest.Forms
             }
         }
 
+        public static void DoDialog(Form parent, Storage storage, VqProgram vqProgram)
+        {
+            var project = vqProgram.Project;
+            using (var dlg = new FProject())
+            {
+                dlg.Text = project.Name;
+                foreach (var vass in project.Assemblies)
+                    dlg.lstAssemblies.Items.Add(vass);
+                foreach (var vass in project.IgnoredAssemblies)
+                    dlg.lstIgnored.Items.Add(vass);
+                foreach (var vass in project.ThirdPartyAssemblies)
+                    dlg.lst3dParty.Items.Add(vass);
+                if (dlg.ShowDialog(parent) == DialogResult.OK)
+                    dlg.save(storage.ProjectFolder);
+            }
+        }
+
         private void save(string folder)
         {
             var project = new Project

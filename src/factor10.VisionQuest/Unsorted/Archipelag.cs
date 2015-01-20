@@ -7,7 +7,6 @@ using factor10.VisionThing.Water;
 using SharpDX;
 using SharpDX.Toolkit;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace factor10.VisionQuest
@@ -95,17 +94,17 @@ namespace factor10.VisionQuest
 
         public void PlayAround(IVEffect effect, IVDrawable thing)
         {
-            foreach (var vc in Children.Cast<CodeIsland>().SelectMany(_ => _.Classes.Values))
-            {
-                effect.World = Matrix.Scaling(vc.SignClickBoundingSphere.Radius * 2) * Matrix.Translation(vc.SignClickBoundingSphere.Center);
-                thing.Draw(effect);
-            }
-            foreach (var ci in Children.Cast<CodeIsland>())
-            {
-                effect.World = Matrix.Scaling(ci.BoundingSphere.Radius * 2) * Matrix.Translation(ci.BoundingSphere.Center);
-                effect.World = Matrix.Scaling(10) * ci.World;
-                thing.Draw(effect);
-            }
+            //foreach (var vc in Children.Cast<CodeIsland>().SelectMany(_ => _.Classes.Values))
+            //{
+            //    effect.World = Matrix.Scaling(vc.SignClickBoundingSphere.Radius * 2) * Matrix.Translation(vc.SignClickBoundingSphere.Center);
+            //    thing.Draw(effect);
+            //}
+            //foreach (var ci in Children.Cast<CodeIsland>())
+            //{
+            //    effect.World = Matrix.Scaling(ci.BoundingSphere.Radius * 2) * Matrix.Translation(ci.BoundingSphere.Center);
+            //    effect.World = Matrix.Scaling(10) * ci.World;
+            //    thing.Draw(effect);
+            //}
         }
 
     }

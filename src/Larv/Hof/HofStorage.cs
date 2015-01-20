@@ -20,7 +20,8 @@ namespace Larv.Hof
                 {
                     using (var writer = new StreamWriter(file))
                     {
-                        writer.WriteLine(hof.ToXml());
+                        var content = hof.ToXml();
+                        writer.WriteLine(content);
                         return 0;
                     }
                 });
@@ -34,7 +35,10 @@ namespace Larv.Hof
                     try
                     {
                         using (var reader = new StreamReader(file))
-                            return reader.ReadToEnd().FromXml<HallOfFame>();
+                        {
+                            var content = reader.ReadToEnd();
+                            return content.FromXml<HallOfFame>();
+                        }
                     }
                     catch
                     {

@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.pnRenderControlPanel = new System.Windows.Forms.Panel();
-            this.btnNewProject = new System.Windows.Forms.Button();
+            this.btnMangeProjects = new System.Windows.Forms.Button();
             this.txtSearchMethod = new System.Windows.Forms.TextBox();
             this.optAllLines = new System.Windows.Forms.RadioButton();
             this.optNoLines = new System.Windows.Forms.RadioButton();
@@ -57,15 +57,15 @@
             this.pnRenderControlPanel.Size = new System.Drawing.Size(1403, 1081);
             this.pnRenderControlPanel.TabIndex = 3;
             // 
-            // btnNewProject
+            // btnMangeProjects
             // 
-            this.btnNewProject.Location = new System.Drawing.Point(12, 13);
-            this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(146, 42);
-            this.btnNewProject.TabIndex = 0;
-            this.btnNewProject.Text = "Projects...";
-            this.btnNewProject.UseVisualStyleBackColor = true;
-            this.btnNewProject.Click += new System.EventHandler(this.button1_Click);
+            this.btnMangeProjects.Location = new System.Drawing.Point(12, 13);
+            this.btnMangeProjects.Name = "btnMangeProjects";
+            this.btnMangeProjects.Size = new System.Drawing.Size(146, 42);
+            this.btnMangeProjects.TabIndex = 0;
+            this.btnMangeProjects.Text = "Projects...";
+            this.btnMangeProjects.UseVisualStyleBackColor = true;
+            this.btnMangeProjects.Click += new System.EventHandler(this.btnMangeProjects_Click);
             // 
             // txtSearchMethod
             // 
@@ -184,7 +184,7 @@
             this.Controls.Add(this.btnProperties);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.txtSearchMethod);
-            this.Controls.Add(this.btnNewProject);
+            this.Controls.Add(this.btnMangeProjects);
             this.Controls.Add(this.pnRenderControlPanel);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FMain";
@@ -204,7 +204,7 @@
         #endregion
 
         private System.Windows.Forms.Panel pnRenderControlPanel;
-        private System.Windows.Forms.Button btnNewProject;
+        private System.Windows.Forms.Button btnMangeProjects;
         private System.Windows.Forms.TextBox txtSearchMethod;
         private System.Windows.Forms.RadioButton optAllLines;
         private System.Windows.Forms.RadioButton optNoLines;

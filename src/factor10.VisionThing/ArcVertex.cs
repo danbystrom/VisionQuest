@@ -8,8 +8,6 @@ namespace factor10.VisionThing
     [StructLayout(LayoutKind.Sequential)]
     public struct ArcVertex : IEquatable<ArcVertex>
     {
-        public static readonly int Size = sizeof (float)*3 + 3 + sizeof (float);
-
         [VertexElement("SV_Position")] 
         public readonly Vector3 Position;
 

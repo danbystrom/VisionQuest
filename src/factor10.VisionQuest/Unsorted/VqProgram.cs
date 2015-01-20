@@ -8,9 +8,17 @@ using factor10.VisionQuest.Forms;
 
 namespace factor10.VisionQuest.Unsorted
 {
-    public static class LoadProgram
+    public class VqProgram : VProgram
     {
-        public static VProgram Run(Form parent, Project project, string projectsFolder)
+        public readonly Project Project;
+
+        private VqProgram(Project project)
+            :base(project.Assemblies.First().FullFilename)
+        {
+            Project = project;
+        }
+
+        public static VqProgram Run(Form parent, Project project, string projectsFolder)
         {
             var metricsFolder = Path.Combine(projectsFolder, project.Name);
             if (!Directory.Exists(metricsFolder))
@@ -18,8 +26,8 @@ namespace factor10.VisionQuest.Unsorted
 
             var metricsNeeded = new List<Tuple<string, string>>();
 
-            var vprogram = new VProgram(project.Assemblies.First().FullFilename);
-            foreach (var vassembly in vprogram.VAssemblies)
+            var vqProgram = new VqProgram(project);
+            foreach (var vassembly in vqProgram.VAssemblies)
             {
                 var metricsFile = metricsFilename(metricsFolder, vassembly);
                 if (!File.Exists(metricsFile) || new FileInfo(metricsFile).LastWriteTime < new FileInfo(vassembly.Filename).LastWriteTime)
@@ -29,10 +37,10 @@ namespace factor10.VisionQuest.Unsorted
             if (metricsNeeded.Any())
                 FGenerateMetrics.DoDialog(parent, metricsNeeded);
 
-            foreach (var vassembly in vprogram.VAssemblies)
-                GenerateMetrics.FromPregeneratedFile(metricsFilename(metricsFolder, vassembly)).UpdateProgramWithMetrics(vprogram);
+            foreach (var vassembly in vqProgram.VAssemblies)
+                GenerateMetrics.FromPregeneratedFile(metricsFilename(metricsFolder, vassembly)).UpdateProgramWithMetrics(vqProgram);
 
-            return vprogram;
+            return vqProgram;
         }
 
         private static string metricsFilename(string metricsFolder, VAssembly vassembly)

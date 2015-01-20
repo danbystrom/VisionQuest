@@ -23,7 +23,7 @@ namespace Larv.Hof
             }
         }
 
-        public readonly Entry[] Entries =
+        public Entry[] Entries =
         {
             new Entry("LARV! by Dan Byström", 10000),
             new Entry("", 5000),

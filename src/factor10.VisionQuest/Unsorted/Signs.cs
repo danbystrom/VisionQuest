@@ -42,7 +42,7 @@ namespace factor10.VisionQuest
                     vc.Position + world.TranslationVector + new Vector3(0, TextDistanceAboveGround - 2, 0),
                     2);
             }
-            AddPositionsWithSameNormal(Vector3.Up, vclasses.Select(vc => vc.Position - world.TranslationVector + Vector3.Down).ToArray());
+            AddPositionsWithSameNormal(Vector3.Up, vclasses.Select(vc => vc.Position - world.TranslationVector).ToArray());
             CreateVertices(false);
         }
 

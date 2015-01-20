@@ -10,7 +10,7 @@ namespace Larv.Serpent
     public class PlayerSerpent : BaseSerpent
     {
         public const float SpeedDecreasePerSecond = 0.0025f;
-        public const float InitialSpeed = 1.35f;
+        public const float InitialSpeed = 1.4f;
         public float Speed = InitialSpeed;
 
         public PlayerSerpent(
@@ -52,6 +52,7 @@ namespace Larv.Serpent
         {
             if (delayed && DirectionTaker != null)
             {
+                // this is a mess
                 var rdir = DirectionTaker.TakeDelayedDirection(this);
                 if (rdir == RelativeDirection.Forward)
                     return;
@@ -61,6 +62,7 @@ namespace Larv.Serpent
                     return;
                 _tail.RevokePathToWalk(_whereabouts.Location);
                 _whereabouts.Direction = dir;
+                _whereabouts.Fraction = 0; //-_whereabouts.Fraction; // ???
                 _tail.AddPathToWalk(_whereabouts);
                 return;
             }

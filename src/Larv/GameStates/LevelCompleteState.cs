@@ -97,7 +97,7 @@ namespace Larv.GameStates
                 _moveCamera = new MoveCamera(_serpents.Camera, 1f.Time(), toPosition, () => _serpents.PlayerSerpent.LookAtPosition);
             });
 
-            _todo.AddWhile(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 5);
+            _todo.AddWhile(time => (!_serpentIsHome || _serpents.FloatingTexts.Items.Any()) && time < 10);
         }
 
         RelativeDirection ITakeDirection.TakeDelayedDirection(BaseSerpent serpent)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using factor10.VisionaryHeads;
@@ -18,7 +17,7 @@ namespace factor10.VisionQuest.Forms
         private readonly SharedData _data;
         private readonly RenderControl _renderControl;
 
-        private VProgram _vprogram;
+        private VqProgram _vqprogram;
 
         public FMain(SharedData data)
         {
@@ -60,7 +59,7 @@ namespace factor10.VisionQuest.Forms
             pnRenderControlPanel.Size = new Size(pnRenderControlPanel.Width * 2, pnRenderControlPanel.Height * 2);
             foreach (var ctrl in Controls.OfType<Control>())
                 ctrl.Visible = true;
-            btnNewProject.PerformClick();
+            btnMangeProjects.PerformClick();
         }
 
         // Expose the render conttrol to the game class
@@ -81,19 +80,22 @@ namespace factor10.VisionQuest.Forms
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnMangeProjects_Click(object sender, EventArgs e)
         {
             var project = FManageProjects.DoDialog(this, _data.Storage);
             if (project == null)
                 return;
 
             project.Save(_data.Storage.ProjectFolder);
-            _vprogram = LoadProgram.Run(this, project, _data.Storage.ProjectFolder);
-            _data.Commands.Enqueue(new LoadProgramCommand(_vprogram));
+            _vqprogram = VqProgram.Run(this, project, _data.Storage.ProjectFolder);
+            _data.Commands.Enqueue(new LoadProgramCommand(_vqprogram));
         }
 
         private void btnProperties_Click(object sender, EventArgs e)
         {
+            if (_vqprogram == null)
+                return;
+            FProject.DoDialog(this, _data.Storage, _vqprogram);
             //_vprogram = new VProgram(@"C:\proj\photomic.old\src\Plata\bin\Release\Plåta.exe");
             //foreach (var assembly in _vprogram.VAssemblies)
             //{
@@ -123,11 +125,11 @@ namespace factor10.VisionQuest.Forms
         {
             lstMethods.Items.Clear();
             var s = txtSearchMethod.Text.Trim();
-            if (s.Length<2 || _vprogram==null)
+            if (s.Length<2 || _vqprogram==null)
                 return;
             var list1 = new List<VClass>();
             var list2 = new List<VClass>();
-            foreach (var vc in _vprogram.VAssemblies.Where(_ => !_.Is3DParty).SelectMany(_ => _.VClasses))
+            foreach (var vc in _vqprogram.VAssemblies.Where(_ => !_.Is3DParty).SelectMany(_ => _.VClasses))
                 switch (vc.Name.IndexOf(s, StringComparison.OrdinalIgnoreCase))
                 {
                     case 0:
