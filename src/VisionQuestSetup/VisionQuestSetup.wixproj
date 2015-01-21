@@ -24,8 +24,8 @@
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\factor10.VisionQuest\factor10.VisionQuest.csproj">
-      <Name>factor10.VisionQuest</Name>
+    <ProjectReference Include="..\factor10.VisionQuest\VisionQuest.csproj">
+      <Name>VisionQuest</Name>
       <Project>{ea09b3e2-49ec-41ab-be59-27f0c1502c72}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "factor10.VisionQuest", "factor10.VisionQuest\factor10.VisionQuest.csproj", "{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisionQuest", "factor10.VisionQuest\VisionQuest.csproj", "{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{41644B4C-8FE8-4A7D-8472-5CB45C202CB1}"
 	ProjectSection(SolutionItems) = preProject

@@ -10,7 +10,7 @@
     <ProjectGuid>{EA09B3E2-49EC-41AB-BE59-27F0C1502C72}</ProjectGuid>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>factor10.VisionQuest</RootNamespace>
-    <AssemblyName>factor10.VisionQuest</AssemblyName>
+    <AssemblyName>VisionQuest</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <!-- Platform Dependent Properties -->
     <OutputType>WinExe</OutputType>
@@ -180,7 +180,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj">
+    <ProjectReference Include="..\factor10.VisionaryHeads\factor10.VisionaryHeads.csproj">
       <Project>{deda88c6-08e4-4326-912d-3e1e1f537a72}</Project>
       <Name>factor10.VisionaryHeads</Name>
     </ProjectReference>
